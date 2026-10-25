@@ -440,7 +440,11 @@ export class LocalStorageEngine {
 
   private notify() {
     this.persistToDisk(this.state);
-    this.listeners.forEach((cb) => cb());
+    // Use requestAnimationFrame to defer notification to the next task/paint
+    // preventing "Cannot update component while rendering" errors.
+    requestAnimationFrame(() => {
+      this.listeners.forEach((cb) => cb());
+    });
   }
 
   public subscribe(cb: () => void): () => void {

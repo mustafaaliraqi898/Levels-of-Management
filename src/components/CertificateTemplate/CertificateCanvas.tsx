@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import {
   AppSettings,
   CertificateTemplateConfig,
@@ -13,28 +13,39 @@ export interface CertificateCanvasProps {
   academicYear: string;
   directorName: string;
   isForPrint?: boolean;
+  fixedScale?: boolean;
   activeElementKey?: CertificateElementKey | null;
   onElementMouseDown?: (e: React.MouseEvent, key: CertificateElementKey) => void;
   className?: string;
   style?: React.CSSProperties;
 }
 
-export const CertificateCanvas: React.FC<CertificateCanvasProps> = ({
+export const CertificateCanvas = forwardRef<HTMLDivElement, CertificateCanvasProps>(({
   config,
   settings,
   studentName,
   academicYear,
   directorName,
   isForPrint = false,
+  fixedScale = false,
   activeElementKey = null,
   onElementMouseDown,
   className = '',
   style = {},
-}) => {
+}, ref) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const baseRef = useRef<HTMLDivElement>(null);
+  
+  useImperativeHandle(ref, () => baseRef.current as HTMLDivElement);
+
   const [scaleFactor, setScaleFactor] = useState<number>(1);
 
   useEffect(() => {
+    if (fixedScale) {
+      setScaleFactor(1);
+      return;
+    }
+
     const updateScale = () => {
       if (containerRef.current) {
         const w = containerRef.current.clientWidth;
@@ -59,7 +70,7 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = ({
       if (resizeObserver) resizeObserver.disconnect();
       window.removeEventListener('resize', updateScale);
     };
-  }, []);
+  }, [fixedScale]);
 
   return (
     <div
@@ -72,11 +83,12 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = ({
       }}
     >
       <div
+        ref={baseRef}
         className="certificate-canvas-base absolute top-0 left-0 overflow-hidden select-none pointer-events-auto"
         style={{
           width: '1123px',
           height: '794px',
-          transform: `scale(${scaleFactor})`,
+          transform: fixedScale ? undefined : `scale(${scaleFactor})`,
           transformOrigin: 'top left',
           fontFamily: 'Cairo, Tajawal, Amiri, sans-serif',
           direction: 'rtl', // Content (text, Arabic alignment) rendered in RTL
@@ -314,4 +326,4 @@ export const CertificateCanvas: React.FC<CertificateCanvasProps> = ({
       </div>
     </div>
   );
-};
+});

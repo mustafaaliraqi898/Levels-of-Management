@@ -33,13 +33,15 @@ interface ExportCertificatesPdfModalProps {
   sectionNameStr: string;
 }
 
+import { db } from '../../services/storage';
+
 export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProps> = ({
   isOpen,
   onClose,
   eligibleStudents,
   initialSelectedStudentIds,
   settings,
-  templateConfig,
+  templateConfig: initialTemplateConfig,
   academicYearName,
   classNameStr,
   sectionNameStr,
@@ -99,10 +101,8 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
     setProgressIndex(0);
 
     try {
-      // 0. Ensure custom web fonts (Cairo, Tajawal, Amiri) are fully loaded
-      if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
-        await document.fonts.ready;
-      }
+      // 0. Fetch the absolute latest template configuration from DB to avoid stale props
+      const currentConfig: CertificateTemplateConfig = db.getCertificateTemplate();
 
       // 1. Initialize A4 Landscape PDF
       const pdf = new jsPDF({
@@ -119,30 +119,82 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
         setCurrentStudentName(student.name);
         setRenderStudent(student);
 
-        // Allow React state to update DOM and font assets to settle
-        await new Promise((r) => setTimeout(r, 90));
+        // A. Wait for React state update & DOM element rendering in container
+        await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 80)));
 
         if (!hiddenRenderContainerRef.current) {
           throw new Error('تعذر العثور على حاوية إنشاء الشهادة.');
         }
 
-        // Wait for all images inside container to finish loading
-        const containerImgs = Array.from(hiddenRenderContainerRef.current.querySelectorAll('img'));
+        // B. Load and verify required fonts AFTER student element is rendered in DOM
+        const textElements = [
+          { el: currentConfig.elements.studentName, text: student.name },
+          { el: currentConfig.elements.academicYear, text: academicYearName },
+          { el: currentConfig.elements.directorName, text: settings.directorName || 'إدارة المدرسة' },
+        ];
+
+        for (const item of textElements) {
+          if (!item.el || !item.el.visible) continue;
+          const family = item.el.fontFamily || 'Cairo';
+          const weight =
+            item.el.fontWeight === 'black'
+              ? '900'
+              : item.el.fontWeight === 'bold'
+              ? '700'
+              : '400';
+          const size = item.el.fontSize || 24;
+          const fontSpec = `${weight} ${size}px "${family}"`;
+
+          try {
+            if (typeof document !== 'undefined' && document.fonts && document.fonts.load) {
+              await document.fonts.load(fontSpec, item.text);
+              await document.fonts.load(fontSpec);
+            }
+          } catch (e) {
+            console.warn(`Font spec preloading error for ${fontSpec}:`, e);
+          }
+
+          // Verify font availability before capturing canvas
+          if (typeof document !== 'undefined' && document.fonts && document.fonts.check) {
+            const isLoaded = document.fonts.check(fontSpec, item.text);
+            if (!isLoaded) {
+              throw new Error(
+                `تعذر تحميل خط النص المطلوب "${family}" بالوزن المحدد (${weight}) لإصدار شهادة الطالب «${student.name}». يرجى التثبت من الاتصال بالإنترنت لضمان عدم التصدير بخط بديل.`
+              );
+            }
+          }
+        }
+
+        if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
+          await document.fonts.ready;
+        }
+
+        // C. Wait for all images inside container to finish loading and decode
+        const containerImgs = Array.from(
+          hiddenRenderContainerRef.current.querySelectorAll('img')
+        );
         await Promise.all(
-          containerImgs.map(
-            (img) =>
-              new Promise<void>((resolve) => {
-                if (img.complete && img.naturalWidth > 0) {
-                  resolve();
-                } else {
-                  img.onload = () => resolve();
-                  img.onerror = () => resolve();
-                }
-              })
-          )
+          containerImgs.map(async (img) => {
+            if (!img.complete || img.naturalWidth === 0) {
+              await new Promise<void>((resolve) => {
+                img.onload = () => resolve();
+                img.onerror = () => resolve();
+              });
+            }
+            if ('decode' in img && typeof img.decode === 'function') {
+              try {
+                await img.decode();
+              } catch {
+                // ignore decode failure if image is already rendered
+              }
+            }
+          })
         );
 
-        // Render with html2canvas at scale 2 for crisp vector-like text and images
+        // Extra stabilization tick before canvas capture
+        await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 40)));
+
+        // D. Render with html2canvas at scale 2 for crisp vector-like text and images
         const canvas = await html2canvas(hiddenRenderContainerRef.current, {
           scale: 2,
           useCORS: true,
@@ -164,7 +216,7 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
         pdf.addImage(imgData, 'JPEG', 0, 0, 297, 210, undefined, 'FAST');
       }
 
-      // 3. Save with custom file name (prompts native browser download/save dialog)
+      // 3. Save with custom file name
       const sanitizedName = fileName.trim().endsWith('.pdf')
         ? fileName.trim()
         : `${fileName.trim()}.pdf`;
@@ -427,30 +479,29 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
         {/* Offscreen / Hidden Canvas Render Container for html2canvas */}
         {/* Rendered at fixed 1123px x 794px (exact A4 landscape ratio) */}
         <div
+          ref={hiddenRenderContainerRef}
           style={{
             position: 'fixed',
-            left: '0px',
-            top: '0px',
+            left: '-9999px',
+            top: '-9999px',
             width: '1123px',
             height: '794px',
             overflow: 'hidden',
             pointerEvents: 'none',
-            opacity: 0.001,
             zIndex: -9999,
           }}
         >
-          <div ref={hiddenRenderContainerRef} style={{ width: '1123px', height: '794px' }}>
-            {renderStudent && (
-              <CertificateCanvas
-                config={templateConfig}
-                settings={settings}
-                studentName={renderStudent.name}
-                academicYear={academicYearName}
-                directorName={settings.directorName || 'إدارة المدرسة'}
-                isForPrint={true}
-              />
-            )}
-          </div>
+          {renderStudent && (
+            <CertificateCanvas
+              config={db.getCertificateTemplate()}
+              settings={settings}
+              studentName={renderStudent.name}
+              academicYear={academicYearName}
+              directorName={settings.directorName || 'إدارة المدرسة'}
+              isForPrint={true}
+              fixedScale={true}
+            />
+          )}
         </div>
       </div>
     </div>

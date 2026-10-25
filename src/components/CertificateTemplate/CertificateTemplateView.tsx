@@ -193,21 +193,25 @@ export const CertificateTemplateView: React.FC<CertificateTemplateViewProps> = (
     }
   };
 
-  // Update a single element configuration in real-time
+  // Update a single element configuration in real-time and persist to DB
   const updateElement = (
     key: CertificateElementKey,
     updates: Partial<CertificateElementConfig>
   ) => {
-    setConfig((prev) => ({
-      ...prev,
-      elements: {
-        ...prev.elements,
-        [key]: {
-          ...prev.elements[key],
-          ...updates,
+    setConfig((prev) => {
+      const updated: CertificateTemplateConfig = {
+        ...prev,
+        elements: {
+          ...prev.elements,
+          [key]: {
+            ...prev.elements[key],
+            ...updates,
+          },
         },
-      },
-    }));
+      };
+      db.saveCertificateTemplate(updated);
+      return updated;
+    });
   };
 
   // Save changes to database permanently
