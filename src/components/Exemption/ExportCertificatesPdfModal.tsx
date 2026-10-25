@@ -1,6 +1,4 @@
 import React, { useState, useRef } from 'react';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import {
   Student,
   AppSettings,
@@ -59,14 +57,14 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
 
   // Generation state
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
-  const [progressIndex, setProgressIndex] = useState<number>(0);
-  const [currentStudentName, setCurrentStudentName] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isFinished, setIsFinished] = useState<boolean>(false);
 
-  // Hidden container ref for rendering each certificate for html2canvas
-  const hiddenRenderContainerRef = useRef<HTMLDivElement>(null);
-  const [renderStudent, setRenderStudent] = useState<Student | null>(null);
+  // Dedicated DOM area used only for native browser printing.
+  const printAreaRef = useRef<HTMLDivElement>(null);
+  const [printConfig, setPrintConfig] = useState<CertificateTemplateConfig>(
+    () => db.getCertificateTemplate() || initialTemplateConfig
+  );
 
   if (!isOpen) return null;
 
@@ -88,156 +86,71 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
     );
   };
 
-  // Execute multi-page PDF generation
+  // Use the browser's native print layout instead of rasterizing each page to JPEG.
   const handleExportPdf = async () => {
     if (selectedStudents.length === 0) {
       setErrorMessage('يرجى تحديد طالب واحد على الأقل لتصدير شهاداته.');
       return;
     }
-
     setErrorMessage(null);
     setIsGenerating(true);
     setIsFinished(false);
-    setProgressIndex(0);
-
     try {
-      // 0. Fetch the absolute latest template configuration from DB to avoid stale props
       const currentConfig: CertificateTemplateConfig = db.getCertificateTemplate();
-
-      // 1. Initialize A4 Landscape PDF
-      const pdf = new jsPDF({
-        orientation: 'landscape',
-        unit: 'mm',
-        format: 'a4',
-        compress: true,
-      });
-
-      // 2. Iterate through each selected student, rendering to canvas
-      for (let i = 0; i < selectedStudents.length; i++) {
-        const student = selectedStudents[i];
-        setProgressIndex(i + 1);
-        setCurrentStudentName(student.name);
-        setRenderStudent(student);
-
-        // A. Wait for React state update & DOM element rendering in container
-        await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 80)));
-
-        if (!hiddenRenderContainerRef.current) {
-          throw new Error('تعذر العثور على حاوية إنشاء الشهادة.');
-        }
-
-        // B. Load and verify required fonts AFTER student element is rendered in DOM
+      setPrintConfig(currentConfig);
+      await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+      const printArea = printAreaRef.current;
+      if (!printArea) throw new Error('تعذر العثور على منطقة الطباعة الخاصة بالشهادات.');
+      for (const student of selectedStudents) {
         const textElements = [
-          { el: currentConfig.elements.studentName, text: student.name },
-          { el: currentConfig.elements.academicYear, text: academicYearName },
-          { el: currentConfig.elements.directorName, text: settings.directorName || 'إدارة المدرسة' },
+          { element: currentConfig.elements.studentName, text: student.name },
+          { element: currentConfig.elements.academicYear, text: academicYearName },
+          { element: currentConfig.elements.directorName, text: settings.directorName || 'إدارة المدرسة' },
         ];
-
         for (const item of textElements) {
-          if (!item.el || !item.el.visible) continue;
-          const family = item.el.fontFamily || 'Cairo';
-          const weight =
-            item.el.fontWeight === 'black'
-              ? '900'
-              : item.el.fontWeight === 'bold'
-              ? '700'
-              : '400';
-          const size = item.el.fontSize || 24;
+          if (!item.element || !item.element.visible) continue;
+          const family = item.element.fontFamily || 'Cairo';
+          const weight = item.element.fontWeight === 'black' ? '900' : item.element.fontWeight === 'bold' ? '700' : '400';
+          const size = item.element.fontSize || 24;
           const fontSpec = `${weight} ${size}px "${family}"`;
-
-          try {
-            if (typeof document !== 'undefined' && document.fonts && document.fonts.load) {
-              await document.fonts.load(fontSpec, item.text);
-              await document.fonts.load(fontSpec);
-            }
-          } catch (e) {
-            console.warn(`Font spec preloading error for ${fontSpec}:`, e);
-          }
-
-          // Verify font availability before capturing canvas
-          if (typeof document !== 'undefined' && document.fonts && document.fonts.check) {
-            const isLoaded = document.fonts.check(fontSpec, item.text);
-            if (!isLoaded) {
-              throw new Error(
-                `تعذر تحميل خط النص المطلوب "${family}" بالوزن المحدد (${weight}) لإصدار شهادة الطالب «${student.name}». يرجى التثبت من الاتصال بالإنترنت لضمان عدم التصدير بخط بديل.`
-              );
-            }
+          if (document.fonts?.load) await document.fonts.load(fontSpec, item.text);
+          if (document.fonts?.check && !document.fonts.check(fontSpec, item.text)) {
+            throw new Error(`تعذر تحميل الخط "${family}" بالنمط المطلوب لشهادة الطالب «${student.name}». تحقق من اتصال الإنترنت ثم أعد المحاولة.`);
           }
         }
-
-        if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
-          await document.fonts.ready;
-        }
-
-        // C. Wait for all images inside container to finish loading and decode
-        const containerImgs = Array.from(
-          hiddenRenderContainerRef.current.querySelectorAll('img')
-        );
-        await Promise.all(
-          containerImgs.map(async (img) => {
-            if (!img.complete || img.naturalWidth === 0) {
-              await new Promise<void>((resolve) => {
-                img.onload = () => resolve();
-                img.onerror = () => resolve();
-              });
-            }
-            if ('decode' in img && typeof img.decode === 'function') {
-              try {
-                await img.decode();
-              } catch {
-                // ignore decode failure if image is already rendered
-              }
-            }
-          })
-        );
-
-        // Extra stabilization tick before canvas capture
-        await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 40)));
-
-        // D. Render with html2canvas at scale 2 for crisp vector-like text and images
-        const canvas = await html2canvas(hiddenRenderContainerRef.current, {
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          logging: false,
-          backgroundColor: '#ffffff',
-          windowWidth: 1123,
-          windowHeight: 794,
-        });
-
-        const imgData = canvas.toDataURL('image/jpeg', 0.94);
-
-        // If not first page, add a new A4 Landscape page
-        if (i > 0) {
-          pdf.addPage('a4', 'landscape');
-        }
-
-        // Add edge-to-edge on 297mm x 210mm A4
-        pdf.addImage(imgData, 'JPEG', 0, 0, 297, 210, undefined, 'FAST');
       }
-
-      // 3. Save with custom file name
-      const sanitizedName = fileName.trim().endsWith('.pdf')
-        ? fileName.trim()
-        : `${fileName.trim()}.pdf`;
-
-      pdf.save(sanitizedName);
+      if (document.fonts?.ready) await document.fonts.ready;
+      const images = Array.from(printArea.querySelectorAll('img'));
+      await Promise.all(images.map(async (img) => {
+        if (!img.complete) await new Promise<void>((resolve) => {
+          const finish = () => resolve();
+          img.addEventListener('load', finish, { once: true });
+          img.addEventListener('error', finish, { once: true });
+          if (img.complete) finish();
+        });
+        if (img.naturalWidth === 0) throw new Error('تعذر تحميل صورة قالب الشهادة. أعد رفع صورة القالب أو اختر قالباً صالحاً ثم حاول مجدداً.');
+        if (typeof img.decode === 'function') {
+          try { await img.decode(); } catch { if (img.naturalWidth === 0) throw new Error('تعذر تجهيز صورة قالب الشهادة للطباعة.'); }
+        }
+      }));
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      const previousTitle = document.title;
+      document.title = (fileName.trim() || defaultFileName).replace(/\.pdf$/i, '');
+      const restoreTitle = () => { document.title = previousTitle; window.removeEventListener('afterprint', restoreTitle); };
+      window.addEventListener('afterprint', restoreTitle, { once: true });
+      window.print();
+      restoreTitle();
       setIsFinished(true);
     } catch (err) {
-      console.error('PDF Generation failed:', err);
-      setErrorMessage(
-        err instanceof Error
-          ? err.message
-          : 'حدث خطأ غير متوقع أثناء إنشاء ملف PDF.'
-      );
-    } finally {
-      setIsGenerating(false);
-    }
+      console.error('Native certificate printing failed:', err);
+      setErrorMessage(err instanceof Error ? err.message : 'حدث خطأ غير متوقع أثناء تجهيز الشهادات للطباعة.');
+    } finally { setIsGenerating(false); }
   };
 
   return (
+    <>
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm select-none"
+      className="no-print fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm select-none"
       dir="rtl"
     >
       <div className="w-full max-w-2xl bg-slate-900 border border-slate-750 rounded-2xl shadow-2xl overflow-hidden text-white flex flex-col max-h-[92vh]">
@@ -301,42 +214,23 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
             <div className="p-3.5 rounded-xl bg-emerald-950/80 border border-emerald-500/60 text-emerald-200 text-xs font-bold flex items-center gap-2.5">
               <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
               <span>
-                تم بنجاح تصدير وحفظ ملف الشهادات بصيغة PDF بعدد ({selectedStudents.length}) صفحة مستقلة!
+                انتهت نافذة الطباعة. تأكد من اختيار «حفظ بتنسيق PDF» وحفظ الملف من نافذة المتصفح.
               </span>
             </div>
           )}
 
-          {/* Generation Progress Display */}
+          {/* Native print preparation status */}
           {isGenerating && (
             <div className="p-4 rounded-xl bg-slate-950 border border-indigo-500/40 space-y-3">
-              <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2 text-indigo-300 font-bold">
-                  <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />
-                  <span>
-                    جاري تجهيز الشهادة ({progressIndex} من {selectedStudents.length}):
-                  </span>
-                </div>
-                <span className="font-mono text-indigo-400 font-bold">
-                  {Math.round((progressIndex / selectedStudents.length) * 100)}%
-                </span>
+              <div className="flex items-center gap-2 text-xs text-indigo-300 font-bold">
+                <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />
+                <span>جاري تجهيز الشهادات للطباعة...</span>
               </div>
-
               <div className="text-xs text-white font-bold pr-6">
-                «{currentStudentName}»
+                سيتم تجهيز صفحة مستقلة لكل طالب محدد مع الحفاظ على مواضع الخطوط وأحجامها.
               </div>
-
-              {/* Progress Track */}
-              <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-indigo-500 to-emerald-400 transition-all duration-200 rounded-full"
-                  style={{
-                    width: `${(progressIndex / selectedStudents.length) * 100}%`,
-                  }}
-                />
-              </div>
-
               <span className="text-[11px] text-slate-400 block text-center">
-                يتم دمج الشهادات في ملف PDF واحد عالي الدقة بحجم A4 أفقي...
+                ستفتح نافذة الطباعة؛ اختر «حفظ بتنسيق PDF» واترك الاتجاه أفقياً وحجم الورق A4.
               </span>
             </div>
           )}
@@ -358,7 +252,7 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
               <FileText className="w-4 h-4 text-slate-500 absolute right-3 top-3 pointer-events-none" />
             </div>
             <span className="text-[11px] text-slate-400 mt-1 block">
-              سيتم حفظ الملف في المكان الذي تحدده على جهازك بعد الضغط على زر التصدير.
+              سيُقترح اسم الملف في نافذة الطباعة؛ اختر «حفظ بتنسيق PDF» لتحديد مكان الحفظ.
             </span>
           </div>
 
@@ -476,34 +370,29 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
           </div>
         </div>
 
-        {/* Offscreen / Hidden Canvas Render Container for html2canvas */}
-        {/* Rendered at fixed 1123px x 794px (exact A4 landscape ratio) */}
-        <div
-          ref={hiddenRenderContainerRef}
-          style={{
-            position: 'fixed',
-            left: '-9999px',
-            top: '-9999px',
-            width: '1123px',
-            height: '794px',
-            overflow: 'hidden',
-            pointerEvents: 'none',
-            zIndex: -9999,
-          }}
-        >
-          {renderStudent && (
-            <CertificateCanvas
-              config={db.getCertificateTemplate()}
-              settings={settings}
-              studentName={renderStudent.name}
-              academicYear={academicYearName}
-              directorName={settings.directorName || 'إدارة المدرسة'}
-              isForPrint={true}
-              fixedScale={true}
-            />
-          )}
-        </div>
       </div>
     </div>
+    <style>{`
+      .exemption-cert-print-root { display: none; }
+      @media print {
+        @page { size: A4 landscape; margin: 0; }
+        html, body { width:297mm!important; height:auto!important; margin:0!important; padding:0!important; background:#fff!important; overflow:visible!important; -webkit-print-color-adjust:exact!important; print-color-adjust:exact!important; }
+        body * { visibility:hidden!important; }
+        .exemption-cert-print-root, .exemption-cert-print-root * { visibility:visible!important; }
+        .exemption-cert-print-root { display:block!important; position:absolute!important; top:0!important; left:0!important; width:297mm!important; margin:0!important; padding:0!important; background:#fff!important; z-index:2147483647!important; }
+        .exemption-cert-print-page { display:block!important; position:relative!important; width:297mm!important; height:210mm!important; margin:0!important; padding:0!important; overflow:hidden!important; background:#fff!important; break-after:page!important; page-break-after:always!important; }
+        .exemption-cert-print-page:last-child { break-after:auto!important; page-break-after:auto!important; }
+        .exemption-cert-print-page .certificate-canvas-wrapper { display:block!important; position:relative!important; width:297mm!important; max-width:none!important; height:210mm!important; aspect-ratio:auto!important; overflow:hidden!important; margin:0!important; padding:0!important; }
+        .exemption-cert-print-page .certificate-canvas-base { position:absolute!important; top:0!important; left:0!important; width:1123px!important; height:794px!important; transform:none!important; transform-origin:top left!important; }
+      }
+    `}</style>
+    <div ref={printAreaRef} className="exemption-cert-print-root" aria-hidden="true" dir="rtl">
+      {selectedStudents.map((student) => (
+        <div key={student.id} className="exemption-cert-print-page">
+          <CertificateCanvas config={printConfig} settings={settings} studentName={student.name} academicYear={academicYearName} directorName={settings.directorName || 'إدارة المدرسة'} isForPrint={true} fixedScale={true} style={{ width: '297mm', height: '210mm' }} />
+        </div>
+      ))}
+    </div>
+    </>
   );
 };
