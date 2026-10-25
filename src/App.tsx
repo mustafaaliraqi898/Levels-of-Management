@@ -104,7 +104,7 @@ export default function App() {
         academicYears: [...currentState.academicYears],
       });
     });
-    return () => unsubscribe();
+    return () => { unsubscribe(); };
   }, []);
 
   // Subscribe to auth session changes

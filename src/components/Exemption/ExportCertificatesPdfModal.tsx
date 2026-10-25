@@ -101,7 +101,7 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
     setProgressIndex(0);
 
     try {
-      // 0. Fetch the absolute latest template configuration from DB to avoid stale props
+      // 0. Fetch the absolute latest template configuration from DB
       const currentConfig: CertificateTemplateConfig = db.getCertificateTemplate();
 
       // 1. Initialize A4 Landscape PDF
@@ -112,7 +112,7 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
         compress: true,
       });
 
-      // 2. Iterate through each selected student, rendering to canvas
+      // 2. Iterate through each selected student, rendering to canvas one by one
       for (let i = 0; i < selectedStudents.length; i++) {
         const student = selectedStudents[i];
         setProgressIndex(i + 1);
@@ -120,13 +120,13 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
         setRenderStudent(student);
 
         // A. Wait for React state update & DOM element rendering in container
-        await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 80)));
+        await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 150)));
 
         if (!hiddenRenderContainerRef.current) {
           throw new Error('تعذر العثور على حاوية إنشاء الشهادة.');
         }
 
-        // B. Load and verify required fonts AFTER student element is rendered in DOM
+        // B. Load and verify required fonts
         const textElements = [
           { el: currentConfig.elements.studentName, text: student.name },
           { el: currentConfig.elements.academicYear, text: academicYearName },
@@ -136,43 +136,21 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
         for (const item of textElements) {
           if (!item.el || !item.el.visible) continue;
           const family = item.el.fontFamily || 'Cairo';
-          const weight =
-            item.el.fontWeight === 'black'
-              ? '900'
-              : item.el.fontWeight === 'bold'
-              ? '700'
-              : '400';
+          const weight = item.el.fontWeight === 'black' ? '900' : item.el.fontWeight === 'bold' ? '700' : '400';
           const size = item.el.fontSize || 24;
           const fontSpec = `${weight} ${size}px "${family}"`;
 
           try {
             if (typeof document !== 'undefined' && document.fonts && document.fonts.load) {
-              await document.fonts.load(fontSpec, item.text);
               await document.fonts.load(fontSpec);
             }
           } catch (e) {
-            console.warn(`Font spec preloading error for ${fontSpec}:`, e);
-          }
-
-          // Verify font availability before capturing canvas
-          if (typeof document !== 'undefined' && document.fonts && document.fonts.check) {
-            const isLoaded = document.fonts.check(fontSpec, item.text);
-            if (!isLoaded) {
-              throw new Error(
-                `تعذر تحميل خط النص المطلوب "${family}" بالوزن المحدد (${weight}) لإصدار شهادة الطالب «${student.name}». يرجى التثبت من الاتصال بالإنترنت لضمان عدم التصدير بخط بديل.`
-              );
-            }
+            console.warn(`Font spec preloading error:`, e);
           }
         }
 
-        if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
-          await document.fonts.ready;
-        }
-
-        // C. Wait for all images inside container to finish loading and decode
-        const containerImgs = Array.from(
-          hiddenRenderContainerRef.current.querySelectorAll('img')
-        );
+        // C. Wait for images to load
+        const containerImgs = Array.from(hiddenRenderContainerRef.current.querySelectorAll('img'));
         await Promise.all(
           containerImgs.map(async (img) => {
             if (!img.complete || img.naturalWidth === 0) {
@@ -181,46 +159,31 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
                 img.onerror = () => resolve();
               });
             }
-            if ('decode' in img && typeof img.decode === 'function') {
-              try {
-                await img.decode();
-              } catch {
-                // ignore decode failure if image is already rendered
-              }
-            }
           })
         );
 
-        // Extra stabilization tick before canvas capture
-        await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 40)));
+        // Extra stabilization
+        await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 100)));
 
-        // D. Render with html2canvas at scale 2 for crisp vector-like text and images
+        // D. Render with html2canvas (Scale 2 for crispness)
         const canvas = await html2canvas(hiddenRenderContainerRef.current, {
           scale: 2,
           useCORS: true,
-          allowTaint: true,
           logging: false,
           backgroundColor: '#ffffff',
-          windowWidth: 1123,
-          windowHeight: 794,
+          width: 1123,
+          height: 794,
         });
 
-        const imgData = canvas.toDataURL('image/jpeg', 0.94);
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
 
-        // If not first page, add a new A4 Landscape page
-        if (i > 0) {
-          pdf.addPage('a4', 'landscape');
-        }
-
-        // Add edge-to-edge on 297mm x 210mm A4
+        // Add page
+        if (i > 0) pdf.addPage('a4', 'landscape');
         pdf.addImage(imgData, 'JPEG', 0, 0, 297, 210, undefined, 'FAST');
       }
 
-      // 3. Save with custom file name
-      const sanitizedName = fileName.trim().endsWith('.pdf')
-        ? fileName.trim()
-        : `${fileName.trim()}.pdf`;
-
+      // 3. Save PDF
+      const sanitizedName = fileName.trim().endsWith('.pdf') ? fileName.trim() : `${fileName.trim()}.pdf`;
       pdf.save(sanitizedName);
       setIsFinished(true);
     } catch (err) {
@@ -232,6 +195,7 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
       );
     } finally {
       setIsGenerating(false);
+      setRenderStudent(null);
     }
   };
 
@@ -476,34 +440,32 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
           </div>
         </div>
 
-        {/* Offscreen / Hidden Canvas Render Container for html2canvas */}
-        {/* Rendered at fixed 1123px x 794px (exact A4 landscape ratio) */}
+        {/* Hidden Render Container for html2canvas */}
         <div
+          ref={hiddenRenderContainerRef}
           style={{
-            position: 'fixed',
-            left: '0px',
+            position: 'absolute',
+            left: '-9999px',
             top: '0px',
             width: '1123px',
             height: '794px',
             overflow: 'hidden',
             pointerEvents: 'none',
-            opacity: 0.001,
+            opacity: 0,
             zIndex: -9999,
           }}
         >
-          <div ref={hiddenRenderContainerRef} style={{ width: '1123px', height: '794px' }}>
-            {renderStudent && (
-              <CertificateCanvas
-                config={db.getCertificateTemplate()}
-                settings={settings}
-                studentName={renderStudent.name}
-                academicYear={academicYearName}
-                directorName={settings.directorName || 'إدارة المدرسة'}
-                isForPrint={true}
-                fixedScale={true}
-              />
-            )}
-          </div>
+          {renderStudent && (
+            <CertificateCanvas
+              config={db.getCertificateTemplate()}
+              settings={settings}
+              studentName={renderStudent.name}
+              academicYear={academicYearName}
+              directorName={settings.directorName || 'إدارة المدرسة'}
+              isForPrint={true}
+              fixedScale={true}
+            />
+          )}
         </div>
       </div>
     </div>

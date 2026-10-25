@@ -1,8 +1,19 @@
 // Electron main process for Windows Desktop Standalone App
-const { app, BrowserWindow, Menu } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain } = require('electron');
 const path = require('path');
+const db = require('./database.cjs');
 
 let mainWindow = null;
+
+async function handleInitDb() {
+  try {
+    await db.initDb();
+    return { success: true };
+  } catch (err) {
+    console.error('Failed to initialize database:', err);
+    return { success: false, error: err.message };
+  }
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -37,7 +48,26 @@ function createWindow() {
   });
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  await handleInitDb();
+
+  ipcMain.handle('db:init', handleInitDb);
+  ipcMain.handle('db:loadAll', () => db.loadAll());
+  ipcMain.handle('db:saveSettings', (event, key, value) => db.saveSettings(key, value));
+  ipcMain.handle('db:upsertUser', (event, user) => db.upsertUser(user));
+  ipcMain.handle('db:upsertYear', (event, year) => db.upsertYear(year));
+  ipcMain.handle('db:upsertClass', (event, cls) => db.upsertClass(cls));
+  ipcMain.handle('db:upsertSection', (event, sec) => db.upsertSection(sec));
+  ipcMain.handle('db:upsertSubject', (event, sub) => db.upsertSubject(sub));
+  ipcMain.handle('db:upsertStudent', (event, stu) => db.upsertStudent(stu));
+  ipcMain.handle('db:upsertGrade', (event, grade) => db.upsertGrade(grade));
+  ipcMain.handle('db:saveExemptionSettings', (event, settings) => db.saveExemptionSettings(settings));
+  ipcMain.handle('db:saveDecisionSettings', (event, settings) => db.saveDecisionSettings(settings));
+  ipcMain.handle('db:upsertDecisionGrant', (event, grant) => db.upsertDecisionGrant(grant));
+  ipcMain.handle('db:saveCertificateTemplate', (event, config) => db.saveCertificateTemplate(config));
+  ipcMain.handle('db:upsertPromotionLog', (event, log) => db.upsertPromotionLog(log));
+  ipcMain.handle('db:deleteEntity', (event, table, id) => db.deleteEntity(table, id));
+
   createWindow();
 
   app.on('activate', () => {

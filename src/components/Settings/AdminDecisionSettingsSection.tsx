@@ -37,7 +37,7 @@ export const AdminDecisionSettingsSection: React.FC<AdminDecisionSettingsSection
       const state = db.getState();
       setAcademicYears(state.academicYears);
     });
-    return unsub;
+    return () => { unsub(); };
   }, []);
 
   const handleYearChange = (yearId: string) => {

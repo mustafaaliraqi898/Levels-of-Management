@@ -142,6 +142,18 @@ html.light {
     page-break-inside: avoid;
   }
 
+  .printable-page {
+    page-break-after: always;
+    width: 297mm;
+    height: 210mm;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .printable-page:last-child {
+    page-break-after: avoid;
+  }
+
   /* Dedicated Results Ledger Print Sheet */
   .printable-results-document {
     display: block !important;
