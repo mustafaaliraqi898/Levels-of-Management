@@ -135,7 +135,7 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
       }));
       await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
       const previousTitle = document.title;
-      document.title = (fileName.trim() || defaultFileName).replace(/\\.pdf$/i, '');
+      document.title = (fileName.trim() || defaultFileName).replace(/\.pdf$/i, '');
       const restoreTitle = () => { document.title = previousTitle; window.removeEventListener('afterprint', restoreTitle); };
       window.addEventListener('afterprint', restoreTitle, { once: true });
       window.print();
