@@ -1,0 +1,6 @@
+{
+  "name": "نظام إدارة الدرجات المدرسية",
+  "description": "تطبيق مكتبي متكامل لإدارة ورصد درجات الطلاب، حساب السعي السنوي والدرجة النهائية، وطباعة التقارير الرسمية بدون إنترنت.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
