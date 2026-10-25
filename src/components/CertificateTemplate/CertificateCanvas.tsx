@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
   AppSettings,
   CertificateTemplateConfig,
@@ -20,7 +20,7 @@ export interface CertificateCanvasProps {
   style?: React.CSSProperties;
 }
 
-export const CertificateCanvas = forwardRef<HTMLDivElement, CertificateCanvasProps>(({
+export const CertificateCanvas: React.FC<CertificateCanvasProps> = ({
   config,
   settings,
   studentName,
@@ -32,12 +32,8 @@ export const CertificateCanvas = forwardRef<HTMLDivElement, CertificateCanvasPro
   onElementMouseDown,
   className = '',
   style = {},
-}, ref) => {
+}) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const baseRef = useRef<HTMLDivElement>(null);
-  
-  useImperativeHandle(ref, () => baseRef.current as HTMLDivElement);
-
   const [scaleFactor, setScaleFactor] = useState<number>(1);
 
   useEffect(() => {
@@ -83,7 +79,6 @@ export const CertificateCanvas = forwardRef<HTMLDivElement, CertificateCanvasPro
       }}
     >
       <div
-        ref={baseRef}
         className="certificate-canvas-base absolute top-0 left-0 overflow-hidden select-none pointer-events-auto"
         style={{
           width: '1123px',
@@ -326,4 +321,4 @@ export const CertificateCanvas = forwardRef<HTMLDivElement, CertificateCanvasPro
       </div>
     </div>
   );
-});
+};

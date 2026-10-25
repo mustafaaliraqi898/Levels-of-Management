@@ -479,29 +479,31 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
         {/* Offscreen / Hidden Canvas Render Container for html2canvas */}
         {/* Rendered at fixed 1123px x 794px (exact A4 landscape ratio) */}
         <div
-          ref={hiddenRenderContainerRef}
           style={{
             position: 'fixed',
-            left: '-9999px',
-            top: '-9999px',
+            left: '0px',
+            top: '0px',
             width: '1123px',
             height: '794px',
             overflow: 'hidden',
             pointerEvents: 'none',
+            opacity: 0.001,
             zIndex: -9999,
           }}
         >
-          {renderStudent && (
-            <CertificateCanvas
-              config={db.getCertificateTemplate()}
-              settings={settings}
-              studentName={renderStudent.name}
-              academicYear={academicYearName}
-              directorName={settings.directorName || 'إدارة المدرسة'}
-              isForPrint={true}
-              fixedScale={true}
-            />
-          )}
+          <div ref={hiddenRenderContainerRef} style={{ width: '1123px', height: '794px' }}>
+            {renderStudent && (
+              <CertificateCanvas
+                config={db.getCertificateTemplate()}
+                settings={settings}
+                studentName={renderStudent.name}
+                academicYear={academicYearName}
+                directorName={settings.directorName || 'إدارة المدرسة'}
+                isForPrint={true}
+                fixedScale={true}
+              />
+            )}
+          </div>
         </div>
       </div>
     </div>
