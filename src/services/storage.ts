@@ -48,9 +48,17 @@ declare global {
         saveExemptionSettings: (settings: any) => Promise<any>;
         saveDecisionSettings: (settings: any) => Promise<any>;
         upsertDecisionGrant: (grant: any) => Promise<any>;
-        saveCertificateTemplate: (config: any) => Promise<any>;
+        saveCertificateTemplate: (config: any, imageData?: string) => Promise<any>;
         upsertPromotionLog: (log: any) => Promise<any>;
         deleteEntity: (table: string, id: string) => Promise<any>;
+        createBackup: () => Promise<{ success: boolean; path: string }>;
+        getBackupsInfo: () => Promise<{ lastBackup: string | null; backupsCount: number }>;
+        exportSql: () => Promise<string>;
+        restoreDb: (path: string) => Promise<{ success: boolean; message: string }>;
+      };
+      dialog: {
+        openDirectory: () => Promise<string | null>;
+        openFile: (filters: { name: string; extensions: string[] }[]) => Promise<string | null>;
       };
     };
   }
@@ -96,6 +104,8 @@ export interface DatabaseState {
   promotionLogs?: StudentPromotionBatchLog[];
   version: string;
   lastBackupDate?: string;
+  backupsCount?: number;
+  lastAutoBackupDate?: string;
 }
 
 const INITIAL_SETTINGS: AppSettings = {
@@ -108,6 +118,7 @@ const INITIAL_SETTINGS: AppSettings = {
   passScoreDefault: 50,
   confirmPreviousTermEdits: true,
   theme: 'dark',
+  backupPath: undefined,
 };
 
 export function buildGradeKey(ay: string, cl: string, sec: string, sub: string, st: string) {
@@ -150,18 +161,30 @@ export class LocalStorageEngine {
     if (this.isElectron) {
       try {
         const initRes = await window.electronAPI!.db.init();
-        if (initRes.success) await this.loadFromSqlite();
+        if (initRes.success) {
+          await this.loadFromSqlite();
+          await this.syncBackupInfo();
+        }
       } catch (e) { console.error('SQLite init error', e); }
     } else {
       this.state = this.loadFromStorage();
+      loadTemplateImageFromDB().then((img) => {
+        if (img && this.state.certificateTemplate) {
+          this.state.certificateTemplate.templateImage = img;
+          this.notify(false);
+        }
+      });
     }
-    loadTemplateImageFromDB().then((img) => {
-      if (img && this.state.certificateTemplate) {
-        this.state.certificateTemplate.templateImage = img;
-        this.notify(false);
-      }
-    });
     this.notify(false);
+  }
+
+  private async syncBackupInfo() {
+    if (!this.isElectron) return;
+    try {
+      const info = await window.electronAPI!.db.getBackupsInfo();
+      this.state.lastAutoBackupDate = info.lastBackup || undefined;
+      this.state.backupsCount = info.backupsCount;
+    } catch (e) { console.error('Backup info sync error', e); }
   }
 
   private async loadFromSqlite() {
@@ -197,7 +220,12 @@ export class LocalStorageEngine {
       (data.decisionGrants || []).forEach((g: any) => { grantsMap[g.id] = g; });
       this.state.decisionGrants = grantsMap;
       const templateRow = (data.certificateTemplates || []).find((r: any) => r.id === 'default');
-      if (templateRow) this.state.certificateTemplate = JSON.parse(templateRow.config);
+      if (templateRow) {
+        this.state.certificateTemplate = JSON.parse(templateRow.config);
+        if (templateRow.imageData && this.state.certificateTemplate) {
+          this.state.certificateTemplate.templateImage = templateRow.imageData;
+        }
+      }
       this.state.promotionLogs = data.promotionLogs || [];
     } catch (e) { console.error('Load from SQLite error', e); }
   }
@@ -218,7 +246,10 @@ export class LocalStorageEngine {
       for (const s of Object.values(state.exemptionSettings || {})) await db.saveExemptionSettings(s);
       for (const s of Object.values(state.decisionSettings || {})) await db.saveDecisionSettings(s);
       for (const g of Object.values(state.decisionGrants || {})) await db.upsertDecisionGrant(g);
-      if (state.certificateTemplate) await db.saveCertificateTemplate(state.certificateTemplate);
+      if (state.certificateTemplate) {
+        const { templateImage, ...configOnly } = state.certificateTemplate;
+        await db.saveCertificateTemplate(configOnly, templateImage);
+      }
       for (const l of state.promotionLogs || []) await db.upsertPromotionLog(l);
     } catch (e) { console.error('SQLite persist error', e); }
   }
@@ -363,12 +394,78 @@ export class LocalStorageEngine {
 
   public getPromotionLogs() { return this.state.promotionLogs || []; }
   public getCertificateTemplate() { if (!this.state.certificateTemplate) this.state.certificateTemplate = JSON.parse(JSON.stringify(DEFAULT_CERTIFICATE_CONFIG)); return this.state.certificateTemplate!; }
-  public saveCertificateTemplate(c: any) { this.state.certificateTemplate = { ...c, lastUpdated: new Date().toISOString() }; saveTemplateImageToDB(c.templateImage); this.notify(); }
+  public saveCertificateTemplate(c: any) { 
+    this.state.certificateTemplate = { ...c, lastUpdated: new Date().toISOString() }; 
+    this.notify(); 
+  }
   public resetCertificateTemplate() { this.state.certificateTemplate = { ...JSON.parse(JSON.stringify(DEFAULT_CERTIFICATE_CONFIG)), templateImage: this.state.certificateTemplate?.templateImage }; this.notify(); return this.state.certificateTemplate!; }
 
-  public exportJSON() { return JSON.stringify({ ...this.state, lastBackupDate: new Date().toISOString() }, null, 2); }
-  public importJSON(json: string) { try { this.state = JSON.parse(json); this.notify(); return { success: true, message: 'Success' }; } catch(e) { return { success: false, message: 'Error' }; } }
-  public exportSQLiteScript() { return ""; }
+  public async createManualBackup() {
+    if (!this.isElectron) return { success: false, error: 'Not Electron' };
+    const res = await window.electronAPI!.db.createBackup();
+    await this.syncBackupInfo();
+    this.notify(false);
+    return res;
+  }
+
+  public exportJSON() { 
+    return JSON.stringify({ 
+      ...this.state, 
+      lastBackupDate: new Date().toISOString(),
+      exportType: 'school_grades_backup_v3'
+    }, null, 2); 
+  }
+
+  public async importJSON(json: string) { 
+    try { 
+      const parsed = JSON.parse(json);
+      // Basic validation
+      if (!parsed.academicYears || !parsed.classes || !parsed.students) {
+        return { success: false, message: 'ملف غير صالح أو بيانات ناقصة' };
+      }
+
+      // Safety backup if in electron
+      if (this.isElectron) {
+        await this.createManualBackup();
+      }
+
+      this.state = {
+        ...parsed,
+        version: parsed.version || '1.0.0',
+        lastBackupDate: new Date().toISOString()
+      }; 
+
+      this.notify(true); // This will persist to SQLite if in electron
+      return { success: true, message: 'تم استيراد البيانات بنجاح وتحديث النظام.' }; 
+    } catch(e) { 
+      return { success: false, message: 'خطأ في معالجة الملف.' }; 
+    } 
+  }
+
+  public async exportSQLiteScript() { 
+    if (this.isElectron) {
+      return await window.electronAPI!.db.exportSql();
+    }
+    return "-- SQL export is only available in Desktop version\nSELECT 'N/A';"; 
+  }
+
+  public async restoreDbFromFile() {
+    if (!this.isElectron) return { success: false, message: 'متاح فقط في نسخة ويندوز' };
+    
+    const filePath = await window.electronAPI!.dialog.openFile([
+      { name: 'SQLite Database', extensions: ['db', 'sqlite', 'sqlite3'] }
+    ]);
+    
+    if (!filePath) return { success: false, message: 'تم إلغاء العملية' };
+    
+    const res = await window.electronAPI!.db.restoreDb(filePath);
+    if (res.success) {
+      await this.loadFromSqlite();
+      this.notify(false);
+    }
+    return res;
+  }
+
   public completeSeedData() { return { newSubjectsCount: 0, newStudentsCount: 0, newGradesCount: 0 }; }
 }
 

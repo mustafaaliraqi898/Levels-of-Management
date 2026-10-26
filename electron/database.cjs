@@ -4,7 +4,7 @@ const { app } = require('electron');
 const fs = require('fs');
 
 const dbPath = path.join(app.getPath('userData'), 'school-grades.db');
-const db = new sqlite3.Database(dbPath);
+let db = new sqlite3.Database(dbPath);
 
 function initDb() {
   return new Promise((resolve, reject) => {
@@ -143,7 +143,8 @@ function initDb() {
 
       db.run(`CREATE TABLE IF NOT EXISTS certificate_templates (
         id TEXT PRIMARY KEY,
-        config TEXT
+        config TEXT,
+        imageData TEXT
       )`);
 
       db.run(`CREATE TABLE IF NOT EXISTS promotion_logs (
@@ -202,6 +203,75 @@ function run(sql, params = []) {
   });
 }
 
+async function getBackupDir() {
+  const defaultDir = path.join(app.getPath('userData'), 'backups');
+  try {
+    const row = await get("SELECT value FROM settings WHERE key = 'app_settings'");
+    if (row && row.value) {
+      const settings = JSON.parse(row.value);
+      if (settings.backupPath && fs.existsSync(settings.backupPath)) {
+        // Verify write permission
+        try {
+          const testFile = path.join(settings.backupPath, '.write-test');
+          fs.writeFileSync(testFile, '');
+          fs.unlinkSync(testFile);
+          return settings.backupPath;
+        } catch (e) {
+          console.warn('Custom backup path not writable, falling back to default:', e);
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Failed to fetch backup path from settings:', err);
+  }
+  return defaultDir;
+}
+
+async function createBackup() {
+  const backupsDir = await getBackupDir();
+  if (!fs.existsSync(backupsDir)) {
+    fs.mkdirSync(backupsDir, { recursive: true });
+  }
+
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const backupPath = path.join(backupsDir, `backup-${timestamp}.db`);
+
+  return new Promise((resolve, reject) => {
+    // Using VACUUM INTO for a consistent online backup
+    db.run(`VACUUM INTO ?`, [backupPath], async (err) => {
+      if (err) {
+        console.error('Backup failed:', err);
+        reject(err);
+      } else {
+        console.log('Backup created at:', backupPath);
+        try {
+          await cleanupOldBackups(backupsDir);
+          // Save last backup timestamp in settings
+          await run('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', ['last_auto_backup', JSON.stringify(new Date().toISOString())]);
+          resolve({ success: true, path: backupPath });
+        } catch (cleanupErr) {
+          console.warn('Cleanup failed but backup succeeded:', cleanupErr);
+          resolve({ success: true, path: backupPath });
+        }
+      }
+    });
+  });
+}
+
+async function cleanupOldBackups(backupsDir) {
+  const files = fs.readdirSync(backupsDir)
+    .filter(f => f.startsWith('backup-') && f.endsWith('.db'))
+    .map(f => ({ name: f, time: fs.statSync(path.join(backupsDir, f)).mtime.getTime() }))
+    .sort((a, b) => b.time - a.time);
+
+  if (files.length > 30) {
+    const toDelete = files.slice(30);
+    for (const file of toDelete) {
+      fs.unlinkSync(path.join(backupsDir, file.name));
+    }
+  }
+}
+
 // Domain-specific methods for safety
 const dbActions = {
   loadAll: async () => {
@@ -256,7 +326,7 @@ const dbActions = {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
     [g.id, g.academicYearId, g.classId, g.sectionId, g.studentId, g.subjectId, g.round, g.originalScore, g.appliedMarks, g.finalScoreAfterDecision, g.requiredPassScore, g.grantedAt, g.grantedBy, g.notes]),
 
-  saveCertificateTemplate: (config) => run('INSERT OR REPLACE INTO certificate_templates (id, config) VALUES (?, ?)', ['default', JSON.stringify(config)]),
+  saveCertificateTemplate: (config, imageData = null) => run('INSERT OR REPLACE INTO certificate_templates (id, config, imageData) VALUES (?, ?, ?)', ['default', JSON.stringify(config), imageData]),
 
   upsertPromotionLog: (l) => run(`INSERT OR REPLACE INTO promotion_logs (id, date, sourceYearId, sourceYearName, targetYearId, targetYearName, promotedCount, repeatingCount, graduatedCount, excludedCount, totalProcessedCount, executedBy) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
@@ -266,6 +336,85 @@ const dbActions = {
     const allowedTables = ['users', 'academic_years', 'classes', 'sections', 'subjects', 'students', 'grades', 'decision_grants', 'promotion_logs'];
     if (!allowedTables.includes(table)) throw new Error('Unauthorized table deletion');
     return run(`DELETE FROM ${table} WHERE id = ?`, [id]);
+  },
+
+  createBackup,
+  getBackupsInfo: async () => {
+    const backupsDir = await getBackupDir();
+    let lastBackup = null;
+    if (fs.existsSync(backupsDir)) {
+      const files = fs.readdirSync(backupsDir)
+        .filter(f => f.startsWith('backup-') && f.endsWith('.db'))
+        .map(f => ({ name: f, time: fs.statSync(path.join(backupsDir, f)).mtime.toISOString() }))
+        .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+      
+      if (files.length > 0) {
+        lastBackup = files[0].time;
+      }
+    }
+    return { lastBackup, backupsCount: fs.existsSync(backupsDir) ? fs.readdirSync(backupsDir).filter(f => f.startsWith('backup-')).length : 0 };
+  },
+
+  exportSql: async () => {
+    const tables = [
+      'users', 'academic_years', 'classes', 'sections', 'subjects', 
+      'students', 'grades', 'settings', 'exemption_settings', 
+      'decision_settings', 'decision_grants', 'certificate_templates', 
+      'promotion_logs'
+    ];
+    let sql = `-- School Grades Database Export\n-- Generated: ${new Date().toISOString()}\n\nPRAGMA foreign_keys=OFF;\nBEGIN TRANSACTION;\n\n`;
+    
+    for (const table of tables) {
+      const rows = await query(`SELECT * FROM ${table}`);
+      if (rows.length === 0) continue;
+      
+      sql += `-- Table: ${table}\n`;
+      for (const row of rows) {
+        const columns = Object.keys(row);
+        const values = Object.values(row).map(val => {
+          if (val === null) return 'NULL';
+          if (typeof val === 'number') return val;
+          return "'" + val.toString().replace(/'/g, "''") + "'";
+        });
+        sql += `INSERT INTO ${table} (${columns.join(', ')}) VALUES (${values.join(', ')});\n`;
+      }
+      sql += '\n';
+    }
+    
+    sql += 'COMMIT;';
+    return sql;
+  },
+
+  restoreDb: async (filePath) => {
+    return new Promise((resolve, reject) => {
+      // 1. Create a safety backup of current state
+      createBackup().then(() => {
+        // 2. Close current connection
+        db.close(async (err) => {
+          if (err) {
+            console.error('Error closing database for restore:', err);
+            return reject(err);
+          }
+          
+          try {
+            // 3. Replace file
+            fs.copyFileSync(filePath, dbPath);
+            
+            // 4. Reopen connection
+            const sqlite3 = require('sqlite3').verbose();
+            db = new sqlite3.Database(dbPath);
+            
+            resolve({ success: true, message: 'تمت استعادة قاعدة البيانات بنجاح. قد تحتاج لإعادة تشغيل البرنامج لتنشيط كافة التغييرات.' });
+          } catch (copyErr) {
+            console.error('Error copying database file:', copyErr);
+            // Try to reopen at least
+            const sqlite3 = require('sqlite3').verbose();
+            db = new sqlite3.Database(dbPath);
+            reject(copyErr);
+          }
+        });
+      }).catch(reject);
+    });
   }
 };
 

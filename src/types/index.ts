@@ -183,6 +183,7 @@ export interface AppSettings {
   theme: 'dark' | 'light';
   schoolLogo?: string; // Base64 data URL for school logo
   kuficLogo?: string; // Base64 data URL for school Kufic geometric logo
+  backupPath?: string; // Custom path for automated and manual backups
 }
 
 export interface ExemptionSettings {

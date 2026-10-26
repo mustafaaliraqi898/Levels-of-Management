@@ -18,8 +18,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
     saveExemptionSettings: (settings) => ipcRenderer.invoke('db:saveExemptionSettings', settings),
     saveDecisionSettings: (settings) => ipcRenderer.invoke('db:saveDecisionSettings', settings),
     upsertDecisionGrant: (grant) => ipcRenderer.invoke('db:upsertDecisionGrant', grant),
-    saveCertificateTemplate: (config) => ipcRenderer.invoke('db:saveCertificateTemplate', config),
+    saveCertificateTemplate: (config, imageData) => ipcRenderer.invoke('db:saveCertificateTemplate', config, imageData),
     upsertPromotionLog: (log) => ipcRenderer.invoke('db:upsertPromotionLog', log),
     deleteEntity: (table, id) => ipcRenderer.invoke('db:deleteEntity', table, id),
+    createBackup: () => ipcRenderer.invoke('db:createBackup'),
+    getBackupsInfo: () => ipcRenderer.invoke('db:getBackupsInfo'),
+    exportSql: () => ipcRenderer.invoke('db:exportSql'),
+    restoreDb: (path) => ipcRenderer.invoke('db:restoreDb', path),
+  },
+  dialog: {
+    openDirectory: () => ipcRenderer.invoke('dialog:openDirectory'),
+    openFile: (filters) => ipcRenderer.invoke('dialog:openFile', filters),
   }
 });
