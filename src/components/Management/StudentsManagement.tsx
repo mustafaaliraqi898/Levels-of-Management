@@ -139,27 +139,10 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
   // 4. Excel Import Modal state
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [importYearId, setImportYearId] = useState<string>(currentYear?.id || '');
-  const [importClassId, setImportClassId] = useState<string>(classes[0]?.id || '');
-  const [importSectionId, setImportSectionId] = useState<string>('');
   const [isParsingExcel, setIsParsingExcel] = useState(false);
   const [parseResult, setParseResult] = useState<ExcelParseResult | null>(null);
   const [importedFileName, setImportedFileName] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-  const importAvailableSections = useMemo(
-    () => sections.filter((s) => s.classId === importClassId),
-    [sections, importClassId]
-  );
-
-  React.useEffect(() => {
-    if (importAvailableSections.length > 0) {
-      if (!importAvailableSections.some((s) => s.id === importSectionId)) {
-        setImportSectionId(importAvailableSections[0].id);
-      }
-    } else {
-      setImportSectionId('');
-    }
-  }, [importAvailableSections, importSectionId]);
 
   // Filtered students for table
   const filteredStudents = useMemo(() => {
@@ -317,8 +300,77 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
     setIsParsingExcel(true);
     setParseResult(null);
 
-    const result = await parseStudentExcelFile(file, existingRegNumbers);
-    setParseResult(result);
+    const parsed = await parseStudentExcelFile(file, existingRegNumbers);
+
+    // Resolve each row's class/section directly from its Excel values.
+    const normalizeSchoolLabel = (value: string) =>
+      value
+        .normalize('NFKC')
+        .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLocaleLowerCase();
+
+    const allRows = [...parsed.validRows, ...parsed.invalidRows].sort(
+      (a, b) => a.rowNumber - b.rowNumber
+    );
+    const resolvedRows = parsed.success
+      ? allRows.map((row) => {
+          const errors = [...row.errors];
+          let classId = '';
+          let sectionId = '';
+          let resolvedClass: SchoolClass | undefined;
+
+          if (row.className.trim()) {
+            const matchingClasses = classes.filter(
+              (schoolClass) => normalizeSchoolLabel(schoolClass.name) === normalizeSchoolLabel(row.className)
+            );
+            if (matchingClasses.length === 0) {
+              errors.push(`الصف «${row.className}» غير موجود في النظام؛ تأكد من كتابة اسمه كما هو مسجل.`);
+            } else if (matchingClasses.length > 1) {
+              errors.push(`اسم الصف «${row.className}» غير فريد في النظام، ولا يمكن تحديده تلقائياً.`);
+            } else {
+              resolvedClass = matchingClasses[0];
+              classId = resolvedClass.id;
+            }
+          }
+
+          if (resolvedClass) {
+            const classSections = sections.filter((section) => section.classId === resolvedClass!.id);
+            if (row.sectionName.trim()) {
+              if (classSections.length === 0) {
+                errors.push(`الصف «${resolvedClass.name}» لا يحتوي على شعب؛ اترك حقل الشعبة فارغاً.`);
+              } else {
+                const matchingSections = classSections.filter(
+                  (section) => normalizeSchoolLabel(section.name) === normalizeSchoolLabel(row.sectionName)
+                );
+                if (matchingSections.length === 0) {
+                  errors.push(`الشعبة «${row.sectionName}» غير موجودة ضمن الصف «${resolvedClass.name}».`);
+                } else if (matchingSections.length > 1) {
+                  errors.push(`اسم الشعبة «${row.sectionName}» غير فريد ضمن الصف «${resolvedClass.name}».`);
+                } else {
+                  sectionId = matchingSections[0].id;
+                }
+              }
+            } else if (classSections.length === 1) {
+              // A single section is selected automatically; no-section classes keep an empty sectionId.
+              sectionId = classSections[0].id;
+            } else if (classSections.length > 1) {
+              errors.push(`حقل الشعبة فارغ، والصف «${resolvedClass.name}» يحتوي على عدة شعب؛ حدد الشعبة في ملف Excel.`);
+            }
+          }
+
+          const uniqueErrors = [...new Set(errors)];
+          return { ...row, classId, sectionId, errors: uniqueErrors, isValid: uniqueErrors.length === 0 };
+        })
+      : allRows;
+
+    setParseResult({
+      ...parsed,
+      validRows: resolvedRows.filter((row) => row.isValid),
+      invalidRows: resolvedRows.filter((row) => !row.isValid),
+      totalRows: resolvedRows.length,
+    });
     setIsParsingExcel(false);
 
     // Reset input so same file can be re-selected if needed
@@ -330,8 +382,8 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
   // Handler: Execute Batch Excel Import
   const handleConfirmBatchImport = () => {
     if (!parseResult || parseResult.validRows.length === 0) return;
-    if (!importClassId || !importSectionId) {
-      showToast('يرجى اختيار الصف والشعبة أولاً.', 'error');
+    if (!importYearId) {
+      showToast('يرجى تحديد العام الدراسي.', 'error');
       return;
     }
 
@@ -340,18 +392,14 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
       registrationNumber: row.registrationNumber || undefined,
       fatherPhone: row.fatherPhone || undefined,
       academicYearId: importYearId,
-      classId: importClassId,
-      sectionId: importSectionId,
+      classId: row.classId || '',
+      // Empty sectionId is valid for classes without sections.
+      sectionId: row.sectionId || '',
     }));
 
     const result = db.addStudentsBatch(studentsToImport);
-
-    const targetClassName = classes.find((c) => c.id === importClassId)?.name || '';
-    const targetSectionName = sections.find((s) => s.id === importSectionId)?.name || '';
-
-    showToast(
-      `تم استيراد ${result.addedCount} طالب بنجاح إلى (${targetClassName} - شعبة ${targetSectionName}).`
-    );
+    const importedClassCount = new Set(parseResult.validRows.map((row) => row.classId)).size;
+    showToast(`تم استيراد ${result.addedCount} طالب بنجاح وتوزيعهم تلقائياً على ${importedClassCount} صف حسب ملف Excel.`);
 
     setIsImportModalOpen(false);
     setParseResult(null);
@@ -1093,7 +1141,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                 <div>
                   <h3 className="text-base font-black text-white">استيراد الطلاب من ملف Excel</h3>
                   <p className="text-xs text-slate-400">
-                    استيراد جماعي مع التحقق من صحة الأسماء وأرقام القيد ومعاينة قبل الحفظ
+                    قالب موحّد لكل الصفوف والشعب؛ يحدد البرنامج موقع كل طالب تلقائياً من ملف Excel
                   </p>
                 </div>
               </div>
@@ -1106,71 +1154,23 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
               </button>
             </div>
 
-            {/* Step 1: Destination Selection (Year, Class, Section) */}
+            {/* Step 1: Choose year; classes and sections are assigned from each Excel row. */}
             <div className="bg-slate-950/70 p-4 rounded-xl border border-slate-800 flex flex-col gap-2.5">
               <span className="text-xs font-bold text-slate-300 flex items-center gap-2">
-                <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px]">
-                  ١
-                </span>
-                <span>تحديد موقع التسجيل المدرسي للطلاب المستوردين:</span>
+                <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px]">١</span>
+                <span>حدد العام الدراسي فقط؛ الصف والشعبة سيُحددان تلقائياً من بيانات كل طالب.</span>
               </span>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-1">
-                {/* Year */}
-                <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">العام الدراسي</label>
-                  <div className="relative">
-                    <select
-                      value={importYearId}
-                      onChange={(e) => setImportYearId(e.target.value)}
-                      className="w-full h-9 px-2.5 pr-2.5 pl-7 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-200 font-bold appearance-none cursor-pointer"
-                    >
-                      {academicYears.map((y) => (
-                        <option key={y.id} value={y.id}>
-                          {y.name}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute left-2 top-3 pointer-events-none" />
-                  </div>
-                </div>
-
-                {/* Class */}
-                <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">الصف الدراسي</label>
-                  <div className="relative">
-                    <select
-                      value={importClassId}
-                      onChange={(e) => setImportClassId(e.target.value)}
-                      className="w-full h-9 px-2.5 pr-2.5 pl-7 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-200 font-bold appearance-none cursor-pointer"
-                    >
-                      {classes.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute left-2 top-3 pointer-events-none" />
-                  </div>
-                </div>
-
-                {/* Section */}
-                <div>
-                  <label className="block text-[11px] text-slate-400 mb-1">الشعبة</label>
-                  <div className="relative">
-                    <select
-                      value={importSectionId}
-                      onChange={(e) => setImportSectionId(e.target.value)}
-                      className="w-full h-9 px-2.5 pr-2.5 pl-7 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-200 font-bold appearance-none cursor-pointer"
-                    >
-                      {importAvailableSections.map((s) => (
-                        <option key={s.id} value={s.id}>
-                          الشعبة {s.name}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute left-2 top-3 pointer-events-none" />
-                  </div>
+              <div className="mt-1 max-w-sm">
+                <label className="block text-[11px] text-slate-400 mb-1">العام الدراسي</label>
+                <div className="relative">
+                  <select
+                    value={importYearId}
+                    onChange={(e) => setImportYearId(e.target.value)}
+                    className="w-full h-9 px-2.5 pr-2.5 pl-7 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-200 font-bold appearance-none cursor-pointer"
+                  >
+                    {academicYears.map((y) => <option key={y.id} value={y.id}>{y.name}</option>)}
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute left-2 top-3 pointer-events-none" />
                 </div>
               </div>
             </div>
@@ -1212,7 +1212,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                   {importedFileName ? importedFileName : 'انقر لاختيار ملف Excel من جهازك'}
                 </p>
                 <p className="text-xs text-slate-500 mt-1">
-                  يدعم أعمدة: اسم الطالب، رقم القيد، رقم هاتف الأب
+                  يدعم أعمدة: اسم الطالب، الصف، الشعبة (إن وجدت)، رقم القيد، رقم هاتف الأب
                 </p>
               </div>
             </div>
@@ -1298,6 +1298,8 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                               <tr>
                                 <th className="p-2 w-10 text-center">#</th>
                                 <th className="p-2">اسم الطالب</th>
+                                <th className="p-2 w-28">الصف</th>
+                                <th className="p-2 w-20">الشعبة</th>
                                 <th className="p-2 w-28">رقم القيد</th>
                                 <th className="p-2 w-32">هاتف الأب</th>
                               </tr>
@@ -1307,6 +1309,8 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                                 <tr key={i} className="hover:bg-slate-800/40">
                                   <td className="p-2 text-center text-slate-500 font-mono">{i + 1}</td>
                                   <td className="p-2 font-bold text-slate-200">{r.name}</td>
+                                  <td className="p-2 text-slate-300">{r.className}</td>
+                                  <td className="p-2 text-slate-300">{r.sectionName || '—'}</td>
                                   <td className="p-2 font-mono text-amber-400">
                                     {r.registrationNumber || '—'}
                                   </td>
