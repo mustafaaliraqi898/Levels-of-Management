@@ -46,6 +46,21 @@ type EditableField =
   | 'finalExamScore'
   | 'secondRoundScore';
 
+const getEditableFieldsForStage = (stage: GradeStage): EditableField[] => {
+  switch (stage) {
+    case 'term1':
+      return ['term1Score'];
+    case 'midterm':
+      return ['term1Score', 'midtermScore'];
+    case 'term2':
+      return ['term1Score', 'midtermScore', 'term2Score'];
+    case 'final':
+      return ['term1Score', 'midtermScore', 'term2Score', 'finalExamScore'];
+    case 'second_round':
+      return ['term1Score', 'midtermScore', 'term2Score', 'finalExamScore', 'secondRoundScore'];
+  }
+};
+
 export type ColumnKey =
   | 'index'
   | 'studentName'
@@ -457,24 +472,24 @@ export const GradeTable: React.FC<GradeTableProps> = ({
   };
 
   // Save current active cell
-  const handleSave = (moveToNext: boolean = true) => {
-    if (!activeCell) return;
+  const handleSave = (moveToNext: boolean = true): boolean => {
+    if (!activeCell) return false;
 
     const student = filteredStudents[activeCell.studentIndex];
-    if (!student) return;
+    if (!student) return false;
 
     if (activeCell.field === 'secondRoundScore') {
       const eligibility = getSubjectMakeUpEligibility(student.id);
       if (!eligibility.eligible) {
         setInputError(eligibility.reason);
-        return;
+        return false;
       }
     }
 
     const validation = validateScoreInput(inputValue, maxScore);
     if (!validation.isValid) {
       setInputError(validation.error || 'درجة غير صالحة');
-      return;
+      return false;
     }
 
     const result = onSaveGrade(
@@ -486,7 +501,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
 
     if (!result.success) {
       setInputError(result.error || 'فشل حفظ الدرجة محلياً');
-      return;
+      return false;
     }
 
     setSavedCellFlash({ studentId: student.id, field: activeCell.field });
@@ -506,6 +521,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
     } else {
       setActiveCell(null);
     }
+    return true;
   };
 
   // Cancel edit
@@ -515,37 +531,63 @@ export const GradeTable: React.FC<GradeTableProps> = ({
     setInputValue('');
   };
 
-  // Handle keyboard events in table cell
+  // Keyboard navigation: Enter moves down; Tab moves horizontally and wraps to the next/previous row.
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       handleSave(true);
-    } else if (e.key === 'Escape') {
+      return;
+    }
+
+    if (e.key === 'Escape') {
       e.preventDefault();
       handleCancel();
-    } else if (e.key === 'ArrowDown') {
+      return;
+    }
+
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault();
-      handleSave(false);
-      if (activeCell && activeCell.studentIndex + 1 < filteredStudents.length) {
-        startEditing(activeCell.studentIndex + 1, activeCell.field, true);
+      if (!activeCell) return;
+      const direction = e.key === 'ArrowDown' ? 1 : -1;
+      const nextIndex = activeCell.studentIndex + direction;
+      const saved = handleSave(false);
+      if (saved && nextIndex >= 0 && nextIndex < filteredStudents.length) {
+        startEditing(nextIndex, activeCell.field, true);
       }
-    } else if (e.key === 'ArrowUp') {
+      return;
+    }
+
+    if (e.key === 'Tab') {
       e.preventDefault();
-      handleSave(false);
-      if (activeCell && activeCell.studentIndex - 1 >= 0) {
-        startEditing(activeCell.studentIndex - 1, activeCell.field, true);
+      if (!activeCell) return;
+
+      const fields = getEditableFieldsForStage(currentStage);
+      const fieldIndex = fields.indexOf(activeCell.field);
+      if (fieldIndex < 0 || fields.length === 0) return;
+
+      const direction = e.shiftKey ? -1 : 1;
+      const currentFlatIndex = activeCell.studentIndex * fields.length + fieldIndex;
+      const totalCells = filteredStudents.length * fields.length;
+      let target: { studentIndex: number; field: EditableField } | null = null;
+
+      // Move through editable cells row-by-row, skipping locked second-round cells.
+      for (
+        let flatIndex = currentFlatIndex + direction;
+        flatIndex >= 0 && flatIndex < totalCells;
+        flatIndex += direction
+      ) {
+        const studentIndex = Math.floor(flatIndex / fields.length);
+        const field = fields[flatIndex % fields.length];
+        const candidate = filteredStudents[studentIndex];
+        if (!candidate) continue;
+        if (field === 'secondRoundScore' && !getSubjectMakeUpEligibility(candidate.id).eligible) continue;
+        target = { studentIndex, field };
+        break;
       }
-    } else if (e.key === 'Tab') {
-      e.preventDefault();
-      handleSave(false);
-      if (e.shiftKey) {
-        if (activeCell && activeCell.studentIndex - 1 >= 0) {
-          startEditing(activeCell.studentIndex - 1, activeCell.field, true);
-        }
-      } else {
-        if (activeCell && activeCell.studentIndex + 1 < filteredStudents.length) {
-          startEditing(activeCell.studentIndex + 1, activeCell.field, true);
-        }
+
+      const saved = handleSave(false);
+      if (saved && target) {
+        startEditing(target.studentIndex, target.field, true);
       }
     }
   };
