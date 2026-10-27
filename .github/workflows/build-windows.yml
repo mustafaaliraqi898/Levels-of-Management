@@ -27,7 +27,7 @@ jobs:
         run: npm install
 
       - name: Build Windows installer
-        run: npm run electron:build -- --config.directories.output=release
+        run: npm run electron:build -- --config.directories.output=release --publish never
 
       - name: Upload Windows installer
         uses: actions/upload-artifact@v4
