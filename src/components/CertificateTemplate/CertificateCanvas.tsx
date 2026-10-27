@@ -274,8 +274,8 @@ export const CertificateCanvas = forwardRef<HTMLDivElement, CertificateCanvasPro
           </div>
         )}
 
-        {/* Student Class and Section line */}
-        {(classNameStr || sectionNameStr || registrationNumber) && (
+        {/* Student Class and Section line (Only for default system template) */}
+        {!config.templateImage && (classNameStr || sectionNameStr || registrationNumber) && (
           <div
             className="absolute z-20 text-center whitespace-nowrap pointer-events-none"
             style={{
@@ -284,7 +284,15 @@ export const CertificateCanvas = forwardRef<HTMLDivElement, CertificateCanvasPro
               transform: 'translate(-50%, -50%)',
             }}
           >
-            <span className="inline-flex items-center gap-2 px-4 py-1 rounded-full text-xs font-bold text-slate-800 bg-[#c5a059]/15 border border-[#c5a059]/40 shadow-xs backdrop-blur-xs font-sans">
+            <span 
+              className="inline-flex items-center gap-2 px-4 py-1 rounded-full text-xs font-bold font-sans"
+              style={{
+                color: '#1e293b',
+                backgroundColor: 'rgba(197, 160, 89, 0.15)',
+                border: '1px solid rgba(197, 160, 89, 0.4)',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+              }}
+            >
               <span>الصف: {classNameStr || '—'}</span>
               <span>•</span>
               <span>{sectionNameStr ? `شعبة ${sectionNameStr}` : 'بدون شعبة'}</span>
@@ -298,8 +306,8 @@ export const CertificateCanvas = forwardRef<HTMLDivElement, CertificateCanvasPro
           </div>
         )}
 
-        {/* Student Grades and Results Banner (when provided) */}
-        {gradesData && (
+        {/* Student Grades and Results Banner (Only for default system template) */}
+        {!config.templateImage && gradesData && (
           <div
             className="absolute z-20 pointer-events-none w-[86%] max-w-[960px]"
             style={{
@@ -308,7 +316,15 @@ export const CertificateCanvas = forwardRef<HTMLDivElement, CertificateCanvasPro
               transform: 'translate(-50%, -50%)',
             }}
           >
-            <div className="bg-white/95 backdrop-blur-xs border border-[#c5a059]/50 rounded-xl p-2.5 shadow-sm text-slate-900 flex flex-col gap-1.5">
+            <div 
+              className="rounded-xl p-2.5 flex flex-col gap-1.5"
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                border: '1px solid rgba(197, 160, 89, 0.5)',
+                color: '#0f172a',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
+              }}
+            >
               {/* Subjects Row */}
               {gradesData.subjects && gradesData.subjects.length > 0 && (
                 <div className="flex flex-wrap items-center justify-center gap-1.5 overflow-hidden">

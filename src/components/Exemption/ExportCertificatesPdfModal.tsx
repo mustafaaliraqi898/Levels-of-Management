@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import JSZip from 'jszip';
 import {
   Student,
@@ -174,35 +173,291 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
     await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 80)));
   };
 
-  /** Captures a single student certificate to HTML5 Canvas */
-  const renderStudentCanvas = async (student: Student) => {
+  /** Generates high-resolution student certificate canvas matching original template dimensions */
+  const renderStudentCanvas = async (student: Student): Promise<HTMLCanvasElement> => {
     setRenderStudent(student);
+    const templateConfig = db.getCertificateTemplate();
+    const gradesInfo = getStudentGradesData(student);
 
-    if (!hiddenRenderContainerRef.current) {
-      throw new Error('تعذر العثور على حاوية تصيير الشهادة.');
+    // 1. Determine original dimensions from template image if available
+    let imgWidth = 1123;
+    let imgHeight = 794;
+    let bgImg: HTMLImageElement | null = null;
+
+    if (templateConfig.templateImage) {
+      try {
+        bgImg = await new Promise<HTMLImageElement>((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = () => resolve(img);
+          img.onerror = reject;
+          img.src = templateConfig.templateImage!;
+        });
+        if (bgImg.naturalWidth > 0 && bgImg.naturalHeight > 0) {
+          imgWidth = bgImg.naturalWidth;
+          imgHeight = bgImg.naturalHeight;
+        }
+      } catch (e) {
+        console.warn('Failed to load certificate template image for canvas export:', e);
+      }
     }
 
-    const container = hiddenRenderContainerRef.current;
-    await waitForContainerReady(container);
+    // 2. Create high-resolution canvas matching original template dimensions
+    const canvas = document.createElement('canvas');
+    canvas.width = imgWidth;
+    canvas.height = imgHeight;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      throw new Error('تعذر إنشاء سياق الرسم للشهادة.');
+    }
 
-    const canvas = await html2canvas(container, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
-      logging: false,
-      backgroundColor: '#ffffff',
-      width: 1123,
-      height: 794,
-      windowWidth: 1123,
-      windowHeight: 794,
-      scrollX: 0,
-      scrollY: 0,
-      x: 0,
-      y: 0,
-    });
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
 
-    if (!canvas || canvas.width === 0 || canvas.height === 0) {
-      throw new Error(`فشل تصيير شهادة الطالب «${student.name}».`);
+    // 3. Draw background & default classical header (only if no custom template image is uploaded)
+    if (bgImg) {
+      ctx.drawImage(bgImg, 0, 0, imgWidth, imgHeight);
+    } else {
+      const grad = ctx.createLinearGradient(0, 0, imgWidth, imgHeight);
+      grad.addColorStop(0, '#faf5eb');
+      grad.addColorStop(0.5, '#ffffff');
+      grad.addColorStop(1, '#f7f3e8');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, imgWidth, imgHeight);
+
+      // Default frame & border
+      ctx.strokeStyle = '#c5a059';
+      ctx.lineWidth = 18 * (imgWidth / 1123);
+      ctx.strokeRect(18, 18, imgWidth - 36, imgHeight - 36);
+
+      // Inner dashed border
+      ctx.strokeStyle = 'rgba(197, 160, 89, 0.6)';
+      ctx.lineWidth = 2 * (imgWidth / 1123);
+      ctx.setLineDash([6, 6]);
+      ctx.strokeRect(32, 32, imgWidth - 64, imgHeight - 64);
+      ctx.setLineDash([]);
+
+      const scaleForDefault = imgWidth / 1123;
+
+      // Default Classical Header Texts
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+
+      // School management sub-heading
+      ctx.font = `bold ${14 * scaleForDefault}px Cairo, Tajawal, sans-serif`;
+      ctx.fillStyle = '#8c6b2d';
+      ctx.fillText(`إدارة ${settings.schoolName || 'المدرسة'}`, imgWidth / 2, 70 * scaleForDefault);
+
+      // School name heading
+      ctx.font = `900 ${28 * scaleForDefault}px Cairo, Tajawal, sans-serif`;
+      ctx.fillStyle = '#5a421c';
+      ctx.fillText(settings.schoolName || 'إعدادية داقوق للبنين', imgWidth / 2, 100 * scaleForDefault);
+
+      // Certificate title badge banner
+      ctx.save();
+      ctx.fillStyle = 'rgba(197, 160, 89, 0.15)';
+      ctx.strokeStyle = '#c5a059';
+      ctx.lineWidth = 2 * scaleForDefault;
+      const bannerW = 420 * scaleForDefault;
+      const bannerH = 55 * scaleForDefault;
+      const bannerX = (imgWidth - bannerW) / 2;
+      const bannerY = 145 * scaleForDefault;
+      ctx.beginPath();
+      ctx.roundRect(bannerX, bannerY, bannerW, bannerH, 4 * scaleForDefault);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.font = `900 ${32 * scaleForDefault}px Cairo, Tajawal, sans-serif`;
+      ctx.fillStyle = '#8c6b2d';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('شـهـادة شـكـر وتـقـديـر', imgWidth / 2, bannerY + bannerH / 2);
+      ctx.restore();
+
+      // Encouragement subtitle text
+      ctx.font = `${13 * scaleForDefault}px Cairo, Tajawal, sans-serif`;
+      ctx.fillStyle = '#475569';
+      ctx.textBaseline = 'top';
+      ctx.fillText('يسر إدارة المدرسة أن تمنح هذه الشهادة تقديراً للجد والاجتهاد والتميز الأكاديمي، متمنين دوام التفوق والنجاح الباهر', imgWidth / 2, 215 * scaleForDefault);
+    }
+
+    const scale = imgWidth / 1123;
+
+    // 4. Draw Official Logo
+    if (templateConfig.elements.officialLogo.visible && settings.schoolLogo) {
+      try {
+        const logoImg = await new Promise<HTMLImageElement>((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = () => resolve(img);
+          img.onerror = reject;
+          img.src = settings.schoolLogo!;
+        });
+        const el = templateConfig.elements.officialLogo;
+        const lw = (el.width || 10) * scale * 10;
+        const lh = (logoImg.naturalHeight / logoImg.naturalWidth) * lw;
+        const lx = (el.x / 100) * imgWidth - lw / 2;
+        const ly = (el.y / 100) * imgHeight - lh / 2;
+        ctx.drawImage(logoImg, lx, ly, lw, lh);
+      } catch (e) {
+        // ignore logo load error
+      }
+    }
+
+    // 5. Draw Kufic Logo
+    if (templateConfig.elements.kuficLogo.visible && settings.kuficLogo) {
+      try {
+        const kuficImg = await new Promise<HTMLImageElement>((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = () => resolve(img);
+          img.onerror = reject;
+          img.src = settings.kuficLogo!;
+        });
+        const el = templateConfig.elements.kuficLogo;
+        const kw = (el.width || 10) * scale * 10;
+        const kh = (kuficImg.naturalHeight / kuficImg.naturalWidth) * kw;
+        const kx = (el.x / 100) * imgWidth - kw / 2;
+        const ky = (el.y / 100) * imgHeight - kh / 2;
+        ctx.drawImage(kuficImg, kx, ky, kw, kh);
+      } catch (e) {
+        // ignore kufic logo load error
+      }
+    }
+
+    // 6. Draw Student Name
+    if (templateConfig.elements.studentName.visible) {
+      const el = templateConfig.elements.studentName;
+      const fontSize = (el.fontSize || 34) * scale;
+      const fontWeight = el.fontWeight === 'black' ? '900' : el.fontWeight === 'bold' ? '700' : '500';
+      ctx.font = `${fontWeight} ${fontSize}px Cairo, Tajawal, Amiri, sans-serif`;
+      ctx.fillStyle = el.fontColor || '#0f172a';
+      ctx.textAlign = el.textAlign || 'center';
+      ctx.textBaseline = 'middle';
+
+      const nx = (el.x / 100) * imgWidth;
+      const ny = (el.y / 100) * imgHeight;
+      ctx.fillText(student.name, nx, ny);
+    }
+
+    // 7. Draw Class, Section & Registration Number Badge (Only for default system template)
+    if (!bgImg && (classNameStr || sectionNameStr || student.registrationNumber)) {
+      const el = templateConfig.elements.studentName;
+      const badgeY = Math.min(imgHeight * 0.9, (el.y / 100) * imgHeight + 55 * scale);
+      const badgeX = (el.x / 100) * imgWidth;
+
+      const badgeText = `الصف: ${classNameStr || '—'}  •  ${sectionNameStr ? `شعبة ${sectionNameStr}` : 'بدون شعبة'}${student.registrationNumber ? `  •  رقم القيد: ${student.registrationNumber}` : ''}`;
+      
+      ctx.font = `bold ${13 * scale}px Cairo, Tajawal, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      
+      const metrics = ctx.measureText(badgeText);
+      const bw = metrics.width + 32 * scale;
+      const bh = 28 * scale;
+
+      ctx.save();
+      ctx.fillStyle = 'rgba(197, 160, 89, 0.15)';
+      ctx.strokeStyle = 'rgba(197, 160, 89, 0.4)';
+      ctx.lineWidth = 1 * scale;
+      
+      const bx = badgeX - bw / 2;
+      const by = badgeY - bh / 2;
+      const radius = 14 * scale;
+      ctx.beginPath();
+      ctx.roundRect(bx, by, bw, bh, radius);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#1e293b';
+      ctx.fillText(badgeText, badgeX, badgeY);
+      ctx.restore();
+    }
+
+    // 8. Draw Grades Banner (Only for default system template)
+    if (!bgImg && gradesInfo && gradesInfo.subjects && gradesInfo.subjects.length > 0) {
+      const el = templateConfig.elements.studentName;
+      const bannerY = Math.min(imgHeight * 0.82, (el.y / 100) * imgHeight + 115 * scale);
+      const bannerX = imgWidth / 2;
+      const bannerW = imgWidth * 0.86;
+      const bannerH = 75 * scale;
+      const bx = bannerX - bannerW / 2;
+      const by = bannerY - bannerH / 2;
+
+      ctx.save();
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
+      ctx.strokeStyle = 'rgba(197, 160, 89, 0.5)';
+      ctx.lineWidth = 1.5 * scale;
+      ctx.beginPath();
+      ctx.roundRect(bx, by, bannerW, bannerH, 12 * scale);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.font = `bold ${11 * scale}px Cairo, Tajawal, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      let currX = bx + 20 * scale;
+      let currY = by + 22 * scale;
+      gradesInfo.subjects.slice(0, 10).forEach((sub) => {
+        const itemText = `${sub.name}: ${sub.score}`;
+        const itemW = ctx.measureText(itemText).width + 16 * scale;
+        if (currX + itemW > bx + bannerW - 20 * scale) {
+          currX = bx + 20 * scale;
+          currY += 26 * scale;
+        }
+        ctx.fillStyle = '#faf5eb';
+        ctx.strokeStyle = 'rgba(197, 160, 89, 0.3)';
+        ctx.beginPath();
+        ctx.roundRect(currX, currY - 10 * scale, itemW, 20 * scale, 4 * scale);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#1e293b';
+        ctx.fillText(itemText, currX + itemW / 2, currY);
+        currX += itemW + 8 * scale;
+      });
+
+      ctx.strokeStyle = 'rgba(197, 160, 89, 0.3)';
+      ctx.lineWidth = 1 * scale;
+      ctx.beginPath();
+      ctx.moveTo(bx + 15 * scale, by + bannerH - 24 * scale);
+      ctx.lineTo(bx + bannerW - 15 * scale, by + bannerH - 24 * scale);
+      ctx.stroke();
+
+      ctx.font = `bold ${12 * scale}px Cairo, Tajawal, sans-serif`;
+      ctx.fillStyle = '#334155';
+      const botY = by + bannerH - 12 * scale;
+      ctx.textAlign = 'right';
+      ctx.fillText(`المجموع: ${gradesInfo.total}`, bx + 40 * scale, botY);
+      ctx.fillText(`المعدل: ${gradesInfo.average}`, bx + bannerW / 2, botY);
+      ctx.textAlign = 'left';
+      ctx.fillText(`النتيجة: ${gradesInfo.result}`, bx + bannerW - 40 * scale, botY);
+
+      ctx.restore();
+    }
+
+    // 9. Draw Academic Year
+    if (templateConfig.elements.academicYear.visible) {
+      const el = templateConfig.elements.academicYear;
+      const fontSize = (el.fontSize || 16) * scale;
+      const fontWeight = el.fontWeight === 'black' ? '900' : el.fontWeight === 'bold' ? '700' : '500';
+      ctx.font = `${fontWeight} ${fontSize}px Tajawal, Cairo, sans-serif`;
+      ctx.fillStyle = el.fontColor || '#334155';
+      ctx.textAlign = el.textAlign || 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(academicYearName, (el.x / 100) * imgWidth, (el.y / 100) * imgHeight);
+    }
+
+    // 10. Draw Director Name
+    if (templateConfig.elements.directorName.visible) {
+      const el = templateConfig.elements.directorName;
+      const fontSize = (el.fontSize || 18) * scale;
+      const fontWeight = el.fontWeight === 'black' ? '900' : el.fontWeight === 'bold' ? '700' : '500';
+      ctx.font = `${fontWeight} ${fontSize}px Tajawal, Cairo, sans-serif`;
+      ctx.fillStyle = el.fontColor || '#1e293b';
+      ctx.textAlign = el.textAlign || 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(settings.directorName || 'إدارة المدرسة', (el.x / 100) * imgWidth, (el.y / 100) * imgHeight);
     }
 
     return canvas;
