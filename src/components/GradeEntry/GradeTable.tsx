@@ -247,59 +247,48 @@ export const GradeTable: React.FC<GradeTableProps> = ({
   }, [studentsEvaluations, subjectId, decisionSettings]);
 
   /**
+   * Helper to calculate term yearly score for a student in current subject
+   */
+  const getStudentTermYearlyScore = useCallback((student: Student): number | null => {
+    const studentRecordKey = (academicYearId && classId && sectionId && subjectId)
+      ? buildGradeKey(academicYearId, classId, sectionId, subjectId, student.id)
+      : undefined;
+    const gradeRecord = (studentRecordKey && grades[studentRecordKey])
+      ? grades[studentRecordKey]
+      : currentSubjectGradesByStudentId[student.id];
+
+    return gradeRecord?.termYearlyScore ?? calculateTermYearlyScore(
+      gradeRecord?.term1Score ?? null,
+      gradeRecord?.midtermScore ?? null,
+      gradeRecord?.term2Score ?? null,
+      settings.roundingRule
+    );
+  }, [academicYearId, classId, sectionId, subjectId, grades, currentSubjectGradesByStudentId, settings.roundingRule]);
+
+  /**
+   * Single unified helper to check if student is exempt in current subject based on term yearly score >= 90
+   */
+  const isSubjectExemptByYearly = useCallback((student: Student): boolean => {
+    const yearly = getStudentTermYearlyScore(student);
+    return yearly !== null && yearly >= 90;
+  }, [getStudentTermYearlyScore]);
+
+  /**
    * Helper to check if a student is exempt for finalExamScore in the current subject context
    */
   const isFinalExamScoreLocked = useCallback((student: Student): boolean => {
-    const evalData = studentsEvaluations[student.id];
-    const isGeneral = Boolean(student.isGeneralExempt || evalData?.isGeneralExempt);
-    if (isGeneral) return true;
-
-    if (subjectId) {
-      const isIndivByStudent = Boolean(student.individualExemptions?.includes(subjectId));
-      const isIndivByEval = Boolean(evalData?.subjects[subjectId]?.isIndividualExempt);
-
-      const key = (academicYearId && classId && sectionId)
-        ? buildGradeKey(academicYearId, classId, sectionId, subjectId, student.id)
-        : undefined;
-      const rec = (key && grades[key]) ? grades[key] : currentSubjectGradesByStudentId[student.id];
-      const isIndivByRec = Boolean(rec?.isIndividualExempt);
-
-      if (isIndivByStudent || isIndivByEval || isIndivByRec) return true;
-    }
-
-    return false;
-  }, [studentsEvaluations, subjectId, academicYearId, classId, sectionId, grades, currentSubjectGradesByStudentId]);
+    return isSubjectExemptByYearly(student);
+  }, [isSubjectExemptByYearly]);
 
   /**
    * Helper to compute Notes text for a student in the current subject context
    */
   const getStudentNotesText = useCallback((student: Student): { text: string; isExempt: boolean } => {
-    const evalData = studentsEvaluations[student.id];
-    const isGeneral = Boolean(student.isGeneralExempt || evalData?.isGeneralExempt);
-
-    if (isGeneral) {
-      return { text: 'إعفاء عام', isExempt: true };
+    if (isSubjectExemptByYearly(student)) {
+      return { text: 'معفى', isExempt: true };
     }
-
-    if (subjectId) {
-      const isIndivByStudent = Boolean(student.individualExemptions?.includes(subjectId));
-      const isIndivByEval = Boolean(evalData?.subjects[subjectId]?.isIndividualExempt);
-
-      const key = (academicYearId && classId && sectionId)
-        ? buildGradeKey(academicYearId, classId, sectionId, subjectId, student.id)
-        : undefined;
-      const rec = (key && grades[key]) ? grades[key] : currentSubjectGradesByStudentId[student.id];
-      const isIndivByRec = Boolean(rec?.isIndividualExempt);
-
-      if (isIndivByStudent || isIndivByEval || isIndivByRec) {
-        const currentSubject = classSubjects?.find((s) => s.id === subjectId);
-        const subName = currentSubject?.name || 'المادة الحالية';
-        return { text: `إعفاء فردي — ${subName}`, isExempt: true };
-      }
-    }
-
     return { text: student.notes || '', isExempt: false };
-  }, [studentsEvaluations, subjectId, classSubjects, academicYearId, classId, sectionId, grades, currentSubjectGradesByStudentId]);
+  }, [isSubjectExemptByYearly]);
 
   // Column widths with localStorage persistence
   const [colWidths, setColWidths] = useState<ColumnWidths>(() => {
