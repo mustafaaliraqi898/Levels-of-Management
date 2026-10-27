@@ -79,6 +79,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
   }, [classes]);
 
   const [selectedClassId, setSelectedClassId] = useState<string>(availableClasses[0]?.id || '');
+  const [selectedSectionId, setSelectedSectionId] = useState<string>('');
 
   useEffect(() => {
     if (!availableClasses.some((c) => c.id === selectedClassId) && availableClasses.length > 0) {
@@ -90,11 +91,15 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
     return sections.filter((s) => s.classId === selectedClassId);
   }, [sections, selectedClassId]);
 
-  const [selectedSectionId, setSelectedSectionId] = useState<string>(availableSections[0]?.id || '');
-
   useEffect(() => {
-    if (!availableSections.some((s) => s.id === selectedSectionId) && availableSections.length > 0) {
+    if (availableSections.length === 0) {
+      if (selectedSectionId !== '') setSelectedSectionId('');
+    } else if (availableSections.length === 1) {
       setSelectedSectionId(availableSections[0].id);
+    } else {
+      if (!availableSections.some((s) => s.id === selectedSectionId)) {
+        setSelectedSectionId(availableSections[0].id);
+      }
     }
   }, [availableSections, selectedSectionId]);
 
@@ -856,14 +861,21 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
             </label>
             <select
               value={selectedSectionId}
+              disabled={availableSections.length === 0}
               onChange={(e) => setSelectedSectionId(e.target.value)}
-              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-100 font-medium focus:outline-none focus:border-amber-500 cursor-pointer"
+              className={`w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-100 font-medium focus:outline-none focus:border-amber-500 cursor-pointer ${
+                availableSections.length === 0 ? 'opacity-60 cursor-not-allowed' : ''
+              }`}
             >
-              {availableSections.map((s) => (
-                <option key={s.id} value={s.id}>
-                  شعبة {s.name}
-                </option>
-              ))}
+              {availableSections.length === 0 ? (
+                <option value="">(الصف لا يحتوي على شُعب)</option>
+              ) : (
+                availableSections.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    شعبة {s.name}
+                  </option>
+                ))
+              )}
             </select>
           </div>
 

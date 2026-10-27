@@ -1,24 +1,25 @@
 import React, { useState, useRef } from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import JSZip from 'jszip';
 import {
   Student,
   AppSettings,
   CertificateTemplateConfig,
 } from '../../types';
 import { CertificateCanvas } from '../CertificateTemplate/CertificateCanvas';
+import { db, buildGradeKey } from '../../services/storage';
 import {
   FileText,
-  Printer,
   Download,
   CheckCircle2,
   AlertCircle,
   X,
   Users,
-  Check,
   Award,
-  Sparkles,
   Loader2,
+  Image as ImageIcon,
+  Check,
 } from 'lucide-react';
 
 interface ExportCertificatesPdfModalProps {
@@ -33,15 +34,12 @@ interface ExportCertificatesPdfModalProps {
   sectionNameStr: string;
 }
 
-import { db } from '../../services/storage';
-
 export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProps> = ({
   isOpen,
   onClose,
   eligibleStudents,
   initialSelectedStudentIds,
   settings,
-  templateConfig: initialTemplateConfig,
   academicYearName,
   classNameStr,
   sectionNameStr,
@@ -54,17 +52,18 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
   });
 
   // Target file name
-  const defaultFileName = `شهادات_الإعفاء_العام_${classNameStr.replace(/\s+/g, '_')}_شعبة_${sectionNameStr.replace(/\s+/g, '_')}.pdf`;
-  const [fileName, setFileName] = useState<string>(defaultFileName);
+  const defaultBaseName = `شهادات_الإعفاء_${classNameStr.replace(/\s+/g, '_')}_${sectionNameStr ? `شعبة_${sectionNameStr.replace(/\s+/g, '_')}` : 'بدون_شعبة'}`;
+  const [baseFileName, setBaseFileName] = useState<string>(defaultBaseName);
 
   // Generation state
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
+  const [exportMode, setExportMode] = useState<'pdf' | 'images' | null>(null);
   const [progressIndex, setProgressIndex] = useState<number>(0);
   const [currentStudentName, setCurrentStudentName] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isFinished, setIsFinished] = useState<boolean>(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Hidden container ref for rendering each certificate for html2canvas
+  // Dedicated off-screen render container ref for html2canvas
   const hiddenRenderContainerRef = useRef<HTMLDivElement>(null);
   const [renderStudent, setRenderStudent] = useState<Student | null>(null);
 
@@ -88,7 +87,128 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
     );
   };
 
-  // Execute multi-page PDF generation
+  /** Computes the student's actual grades, total, and average to display on certificate */
+  const getStudentGradesData = (student: Student) => {
+    const state = db.getState();
+    const classSubjects = state.subjects
+      .filter((s) => s.classId === student.classId)
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+    let total = 0;
+    let counted = 0;
+    const subjectsList: { name: string; score: number | string; maxScore?: number }[] = [];
+
+    classSubjects.forEach((sub) => {
+      const key = buildGradeKey(
+        student.academicYearId,
+        student.classId,
+        student.sectionId || '',
+        sub.id,
+        student.id
+      );
+      const rec = state.grades[key];
+      const score = rec ? (rec.termYearlyScore ?? rec.finalScore) : null;
+      if (score !== null && score !== undefined) {
+        total += score;
+        counted++;
+        subjectsList.push({ name: sub.name, score, maxScore: sub.maxScore });
+      } else {
+        subjectsList.push({ name: sub.name, score: '—', maxScore: sub.maxScore });
+      }
+    });
+
+    const avg = counted > 0 ? Math.round((total / counted) * 10) / 10 : null;
+
+    return {
+      subjects: subjectsList,
+      total: counted > 0 ? total : '—',
+      average: avg !== null ? `${avg}%` : '—',
+      result: student.isGeneralExempt ? 'معفى عام' : 'ناجح بتفوق',
+      status: 'متميز',
+    };
+  };
+
+  /** Waits for DOM paint, web fonts, and container images to be completely ready */
+  const waitForContainerReady = async (container: HTMLDivElement) => {
+    // 1. Wait for React state change to reflect in DOM
+    await new Promise((r) => setTimeout(r, 120));
+
+    // 2. Wait for Arabic web fonts to be completely ready
+    if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
+      try {
+        await document.fonts.ready;
+      } catch (e) {
+        console.warn('Font loading wait warning:', e);
+      }
+    }
+
+    // 3. Wait for all <img> elements in the container to load and decode
+    const containerImgs = Array.from(container.querySelectorAll('img'));
+    await Promise.all(
+      containerImgs.map((img) => {
+        if (img.complete && img.naturalWidth > 0) {
+          return typeof img.decode === 'function' ? img.decode().catch(() => {}) : Promise.resolve();
+        }
+        return new Promise<void>((resolve) => {
+          let resolved = false;
+          const finish = () => {
+            if (!resolved) {
+              resolved = true;
+              img.removeEventListener('load', finish);
+              img.removeEventListener('error', finish);
+              if (typeof img.decode === 'function') {
+                img.decode().then(resolve).catch(resolve);
+              } else {
+                resolve();
+              }
+            }
+          };
+          img.addEventListener('load', finish);
+          img.addEventListener('error', finish);
+          setTimeout(finish, 1500); // 1.5s safety fallback
+        });
+      })
+    );
+
+    // 4. Final animation frame
+    await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 80)));
+  };
+
+  /** Captures a single student certificate to HTML5 Canvas */
+  const renderStudentCanvas = async (student: Student) => {
+    setRenderStudent(student);
+
+    if (!hiddenRenderContainerRef.current) {
+      throw new Error('تعذر العثور على حاوية تصيير الشهادة.');
+    }
+
+    const container = hiddenRenderContainerRef.current;
+    await waitForContainerReady(container);
+
+    const canvas = await html2canvas(container, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      logging: false,
+      backgroundColor: '#ffffff',
+      width: 1123,
+      height: 794,
+      windowWidth: 1123,
+      windowHeight: 794,
+      scrollX: 0,
+      scrollY: 0,
+      x: 0,
+      y: 0,
+    });
+
+    if (!canvas || canvas.width === 0 || canvas.height === 0) {
+      throw new Error(`فشل تصيير شهادة الطالب «${student.name}».`);
+    }
+
+    return canvas;
+  };
+
+  /** Execute multi-page PDF generation */
   const handleExportPdf = async () => {
     if (selectedStudents.length === 0) {
       setErrorMessage('يرجى تحديد طالب واحد على الأقل لتصدير شهاداته.');
@@ -96,14 +216,12 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
     }
 
     setErrorMessage(null);
+    setSuccessMessage(null);
     setIsGenerating(true);
-    setIsFinished(false);
+    setExportMode('pdf');
     setProgressIndex(0);
 
     try {
-      // 0. Fetch the absolute latest template configuration from DB
-      const currentConfig: CertificateTemplateConfig = db.getCertificateTemplate();
-
       // 1. Initialize A4 Landscape PDF
       const pdf = new jsPDF({
         orientation: 'landscape',
@@ -112,89 +230,115 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
         compress: true,
       });
 
-      // 2. Iterate through each selected student, rendering to canvas one by one
+      // 2. Iterate through each selected student, rendering to canvas
       for (let i = 0; i < selectedStudents.length; i++) {
         const student = selectedStudents[i];
         setProgressIndex(i + 1);
         setCurrentStudentName(student.name);
-        setRenderStudent(student);
 
-        // A. Wait for React state update & DOM element rendering in container
-        await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 150)));
+        const canvas = await renderStudentCanvas(student);
+        const imgData = canvas.toDataURL('image/jpeg', 0.96);
 
-        if (!hiddenRenderContainerRef.current) {
-          throw new Error('تعذر العثور على حاوية إنشاء الشهادة.');
-        }
-
-        // B. Load and verify required fonts
-        const textElements = [
-          { el: currentConfig.elements.studentName, text: student.name },
-          { el: currentConfig.elements.academicYear, text: academicYearName },
-          { el: currentConfig.elements.directorName, text: settings.directorName || 'إدارة المدرسة' },
-        ];
-
-        for (const item of textElements) {
-          if (!item.el || !item.el.visible) continue;
-          const family = item.el.fontFamily || 'Cairo';
-          const weight = item.el.fontWeight === 'black' ? '900' : item.el.fontWeight === 'bold' ? '700' : '400';
-          const size = item.el.fontSize || 24;
-          const fontSpec = `${weight} ${size}px "${family}"`;
-
-          try {
-            if (typeof document !== 'undefined' && document.fonts && document.fonts.load) {
-              await document.fonts.load(fontSpec);
-            }
-          } catch (e) {
-            console.warn(`Font spec preloading error:`, e);
-          }
-        }
-
-        // C. Wait for images to load
-        const containerImgs = Array.from(hiddenRenderContainerRef.current.querySelectorAll('img'));
-        await Promise.all(
-          containerImgs.map(async (img) => {
-            if (!img.complete || img.naturalWidth === 0) {
-              await new Promise<void>((resolve) => {
-                img.onload = () => resolve();
-                img.onerror = () => resolve();
-              });
-            }
-          })
-        );
-
-        // Extra stabilization
-        await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 100)));
-
-        // D. Render with html2canvas (Scale 2 for crispness)
-        const canvas = await html2canvas(hiddenRenderContainerRef.current, {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          backgroundColor: '#ffffff',
-          width: 1123,
-          height: 794,
-        });
-
-        const imgData = canvas.toDataURL('image/jpeg', 0.95);
-
-        // Add page
         if (i > 0) pdf.addPage('a4', 'landscape');
         pdf.addImage(imgData, 'JPEG', 0, 0, 297, 210, undefined, 'FAST');
       }
 
-      // 3. Save PDF
-      const sanitizedName = fileName.trim().endsWith('.pdf') ? fileName.trim() : `${fileName.trim()}.pdf`;
-      pdf.save(sanitizedName);
-      setIsFinished(true);
+      // 3. Save PDF file
+      const cleanName = baseFileName.trim().replace(/\.pdf$/i, '');
+      const finalFileName = `${cleanName || 'شهادات_الإعفاء'}.pdf`;
+      pdf.save(finalFileName);
+
+      setSuccessMessage(
+        `تم بنجاح تصدير ملف PDF موحد بعدد (${selectedStudents.length}) شهادة باسم «${finalFileName}».`
+      );
     } catch (err) {
       console.error('PDF Generation failed:', err);
       setErrorMessage(
         err instanceof Error
           ? err.message
-          : 'حدث خطأ غير متوقع أثناء إنشاء ملف PDF.'
+          : 'حدث خطأ غير متوقع أثناء إنشاء وتصدير ملف PDF.'
       );
     } finally {
       setIsGenerating(false);
+      setExportMode(null);
+      setRenderStudent(null);
+    }
+  };
+
+  /** Execute Image export (High-Resolution PNG) */
+  const handleExportImages = async () => {
+    if (selectedStudents.length === 0) {
+      setErrorMessage('يرجى تحديد طالب واحد على الأقل لتصدير شهاداته.');
+      return;
+    }
+
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    setIsGenerating(true);
+    setExportMode('images');
+    setProgressIndex(0);
+
+    try {
+      if (selectedStudents.length === 1) {
+        // Single student: download PNG directly
+        const student = selectedStudents[0];
+        setProgressIndex(1);
+        setCurrentStudentName(student.name);
+
+        const canvas = await renderStudentCanvas(student);
+        const pngUrl = canvas.toDataURL('image/png');
+
+        const cleanStudentName = student.name.replace(/[\\/:*?"<>|]/g, '_');
+        const link = document.createElement('a');
+        link.href = pngUrl;
+        link.download = `شهادة_الطالب_${cleanStudentName}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        setSuccessMessage(`تم بنجاح تحميل صورة شهادة الطالب «${student.name}» بدقة عالية (PNG).`);
+      } else {
+        // Multiple students: package into a ZIP file
+        const zip = new JSZip();
+
+        for (let i = 0; i < selectedStudents.length; i++) {
+          const student = selectedStudents[i];
+          setProgressIndex(i + 1);
+          setCurrentStudentName(student.name);
+
+          const canvas = await renderStudentCanvas(student);
+          const pngUrl = canvas.toDataURL('image/png');
+          const base64Data = pngUrl.replace(/^data:image\/png;base64,/, '');
+
+          const cleanStudentName = `${String(i + 1).padStart(2, '0')}_${student.name.replace(/[\\/:*?"<>|]/g, '_')}`;
+          zip.file(`شهادة_${cleanStudentName}.png`, base64Data, { base64: true });
+        }
+
+        const zipBlob = await zip.generateAsync({ type: 'blob' });
+        const cleanName = baseFileName.trim().replace(/\.zip$/i, '');
+        const zipFileName = `${cleanName || 'شهادات_الطلبة'}.zip`;
+
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(zipBlob);
+        link.download = zipFileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        setSuccessMessage(
+          `تم بنجاح تصدير (${selectedStudents.length}) صورة شهادة عالية الدقة مضغوطة في ملف «${zipFileName}».`
+        );
+      }
+    } catch (err) {
+      console.error('Image Export failed:', err);
+      setErrorMessage(
+        err instanceof Error
+          ? err.message
+          : 'حدث خطأ غير متوقع أثناء إنشاء وتصدير صور الشهادات.'
+      );
+    } finally {
+      setIsGenerating(false);
+      setExportMode(null);
       setRenderStudent(null);
     }
   };
@@ -213,10 +357,10 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
-                تصدير شهادات الإعفاء العام بصيغة PDF
+                تصدير شهادات التقدير والإعفاء المدرسي
               </h2>
               <p className="text-xs text-slate-400">
-                إنشاء ملف PDF موحد متعدد الصفحات بحجم A4 أفقي لجميع الطلبة المحددين
+                إنشاء ملفات PDF أو صور عالية الدقة (PNG) متضمنة بيانات الطالب والدرجات والنتيجة
               </p>
             </div>
           </div>
@@ -238,10 +382,10 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
           <div className="p-4 rounded-xl bg-gradient-to-r from-amber-950/40 via-slate-950 to-slate-950 border border-amber-500/30 flex items-center justify-between">
             <div className="space-y-0.5">
               <span className="text-xs text-amber-300 font-bold block">
-                ملخص بيانات التصدير:
+                بيانات التصدير الأكاديمية:
               </span>
               <span className="text-xs text-slate-300">
-                {classNameStr} • شعبة {sectionNameStr} • العام: {academicYearName}
+                {classNameStr} • {sectionNameStr ? `شعبة ${sectionNameStr}` : 'بدون شعبة'} • العام: {academicYearName}
               </span>
             </div>
             <div className="text-left">
@@ -261,12 +405,10 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
           )}
 
           {/* Success Notice */}
-          {isFinished && (
+          {successMessage && (
             <div className="p-3.5 rounded-xl bg-emerald-950/80 border border-emerald-500/60 text-emerald-200 text-xs font-bold flex items-center gap-2.5">
               <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>
-                تم بنجاح تصدير وحفظ ملف الشهادات بصيغة PDF بعدد ({selectedStudents.length}) صفحة مستقلة!
-              </span>
+              <span>{successMessage}</span>
             </div>
           )}
 
@@ -277,7 +419,7 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
                 <div className="flex items-center gap-2 text-indigo-300 font-bold">
                   <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />
                   <span>
-                    جاري تجهيز الشهادة ({progressIndex} من {selectedStudents.length}):
+                    جاري تجهيز وتصيير الشهادة ({progressIndex} من {selectedStudents.length}):
                   </span>
                 </div>
                 <span className="font-mono text-indigo-400 font-bold">
@@ -300,29 +442,31 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
               </div>
 
               <span className="text-[11px] text-slate-400 block text-center">
-                يتم دمج الشهادات في ملف PDF واحد عالي الدقة بحجم A4 أفقي...
+                {exportMode === 'pdf'
+                  ? 'يتم دمج الشهادات في ملف PDF واحد عالي الدقة بحجم A4 أفقي...'
+                  : 'يتم استخراج صور الشهادات بدقة فائقة وحفظها...'}
               </span>
             </div>
           )}
 
-          {/* PDF File Name Input Field */}
+          {/* File Name Input Field */}
           <div>
             <label className="block text-xs font-bold text-slate-300 mb-1.5">
-              اسم ملف الـ PDF المراد حفظه:
+              اسم الملف الأساسي المراد تصديره:
             </label>
             <div className="relative">
               <input
                 type="text"
                 disabled={isGenerating}
-                value={fileName}
-                onChange={(e) => setFileName(e.target.value)}
+                value={baseFileName}
+                onChange={(e) => setBaseFileName(e.target.value)}
                 className="w-full h-10 px-3 pr-9 text-xs bg-slate-950 border border-slate-700 rounded-xl text-slate-100 focus:border-amber-500 focus:outline-hidden font-mono"
-                placeholder="اسم_الملف.pdf"
+                placeholder="اسم_الملف"
               />
               <FileText className="w-4 h-4 text-slate-500 absolute right-3 top-3 pointer-events-none" />
             </div>
             <span className="text-[11px] text-slate-400 mt-1 block">
-              سيتم حفظ الملف في المكان الذي تحدده على جهازك بعد الضغط على زر التصدير.
+              سيُضاف الامتداد (.pdf أو .zip) تلقائياً بحسب نوع التصدير المختار.
             </span>
           </div>
 
@@ -349,7 +493,7 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
             <div className="max-h-52 overflow-y-auto rounded-xl border border-slate-800 bg-slate-950/70 divide-y divide-slate-800/60">
               {eligibleStudents.length === 0 ? (
                 <div className="p-4 text-center text-xs text-slate-500">
-                  لا يوجد طلاب معفون عاماً في هذا الصف والشعبة حالياً.
+                  لا يوجد طلاب مسجلون في هذا الصف والشعبة حالياً.
                 </div>
               ) : (
                 eligibleStudents.map((student, idx) => {
@@ -385,7 +529,7 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
                       </div>
 
                       <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">
-                        معفى عام
+                        {student.isGeneralExempt ? 'معفى عام' : 'مستحق للشهادة'}
                       </span>
                     </label>
                   );
@@ -395,64 +539,87 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
           </div>
         </div>
 
-        {/* Modal Footer Actions */}
+        {/* Modal Footer Actions: Dual Export Options */}
         <div className="p-4 sm:p-5 border-t border-slate-800 bg-slate-950 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="text-xs text-slate-400">
             {selectedStudents.length > 0 ? (
               <span>
-                سيتم إنشاء ملف PDF بعدد{' '}
-                <strong className="text-white font-bold">{selectedStudents.length}</strong>{' '}
-                صفحة (شهادة لكل طالب).
+                المحدد: <strong className="text-white font-bold">{selectedStudents.length}</strong> طالب.
               </span>
             ) : (
               <span className="text-rose-400 font-bold">لم يتم تحديد أي طالب.</span>
             )}
           </div>
 
-          <div className="flex items-center gap-2.5 w-full sm:w-auto">
+          <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto justify-end">
             <button
               type="button"
               disabled={isGenerating}
               onClick={onClose}
-              className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-300 text-xs font-bold cursor-pointer disabled:opacity-50"
+              className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-300 text-xs font-bold cursor-pointer disabled:opacity-50"
             >
               إلغاء
             </button>
 
+            {/* Option B: Export as Images (PNG) */}
+            <button
+              type="button"
+              disabled={isGenerating || selectedStudents.length === 0}
+              onClick={handleExportImages}
+              className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 text-xs font-bold flex items-center gap-2 cursor-pointer transition-all shadow-md disabled:opacity-50"
+              title="تصدير شهادات الطلبة كملفات صور PNG عالية الدقة (في ملف ZIP إذا كانوا متعددين)"
+            >
+              {isGenerating && exportMode === 'images' ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />
+                  <span>جاري تصدير الصور...</span>
+                </>
+              ) : (
+                <>
+                  <ImageIcon className="w-4 h-4 text-cyan-400" />
+                  <span>تصدير كصور (PNG)</span>
+                </>
+              )}
+            </button>
+
+            {/* Option A: Export as PDF */}
             <button
               type="button"
               disabled={isGenerating || selectedStudents.length === 0}
               onClick={handleExportPdf}
-              className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-emerald-600/20 disabled:opacity-50"
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-emerald-600/20 disabled:opacity-50"
+              title="تصدير الشهادات في ملف PDF موحد بحجم A4 أفقي"
             >
-              {isGenerating ? (
+              {isGenerating && exportMode === 'pdf' ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>جاري إنشاء الملف...</span>
+                  <span>جاري إنشاء PDF...</span>
                 </>
               ) : (
                 <>
                   <Download className="w-4 h-4" />
-                  <span>تصدير الشهادات PDF ({selectedStudents.length})</span>
+                  <span>تصدير كملف PDF ({selectedStudents.length})</span>
                 </>
               )}
             </button>
           </div>
         </div>
 
-        {/* Hidden Render Container for html2canvas */}
+        {/* Fixed Off-Screen Render Container for html2canvas (CRITICAL: opacity: 1, visibility: visible) */}
         <div
           ref={hiddenRenderContainerRef}
           style={{
-            position: 'absolute',
-            left: '-9999px',
-            top: '0px',
+            position: 'fixed',
+            left: 0,
+            top: 0,
             width: '1123px',
             height: '794px',
             overflow: 'hidden',
             pointerEvents: 'none',
-            opacity: 0,
-            zIndex: -9999,
+            zIndex: -99999,
+            background: '#ffffff',
+            opacity: 1,
+            visibility: 'visible',
           }}
         >
           {renderStudent && (
@@ -462,6 +629,11 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
               studentName={renderStudent.name}
               academicYear={academicYearName}
               directorName={settings.directorName || 'إدارة المدرسة'}
+              classNameStr={classNameStr}
+              sectionNameStr={sectionNameStr}
+              registrationNumber={renderStudent.registrationNumber}
+              seatNumber={renderStudent.seatNumber}
+              gradesData={getStudentGradesData(renderStudent)}
               isForPrint={true}
               fixedScale={true}
             />

@@ -12,6 +12,17 @@ export interface CertificateCanvasProps {
   studentName: string;
   academicYear: string;
   directorName: string;
+  classNameStr?: string;
+  sectionNameStr?: string;
+  registrationNumber?: string;
+  seatNumber?: number;
+  gradesData?: {
+    subjects?: { name: string; score: number | string; maxScore?: number }[];
+    total?: number | string;
+    average?: number | string;
+    result?: string;
+    status?: string;
+  };
   isForPrint?: boolean;
   fixedScale?: boolean;
   activeElementKey?: CertificateElementKey | null;
@@ -26,6 +37,11 @@ export const CertificateCanvas = forwardRef<HTMLDivElement, CertificateCanvasPro
   studentName,
   academicYear,
   directorName,
+  classNameStr,
+  sectionNameStr,
+  registrationNumber,
+  seatNumber,
+  gradesData,
   isForPrint = false,
   fixedScale = false,
   activeElementKey = null,
@@ -255,6 +271,81 @@ export const CertificateCanvas = forwardRef<HTMLDivElement, CertificateCanvasPro
             }}
           >
             {studentName}
+          </div>
+        )}
+
+        {/* Student Class and Section line */}
+        {(classNameStr || sectionNameStr || registrationNumber) && (
+          <div
+            className="absolute z-20 text-center whitespace-nowrap pointer-events-none"
+            style={{
+              left: `${config.elements.studentName.x}%`,
+              top: `${Math.min(90, config.elements.studentName.y + 7.5)}%`,
+              transform: 'translate(-50%, -50%)',
+            }}
+          >
+            <span className="inline-flex items-center gap-2 px-4 py-1 rounded-full text-xs font-bold text-slate-800 bg-[#c5a059]/15 border border-[#c5a059]/40 shadow-xs backdrop-blur-xs font-sans">
+              <span>الصف: {classNameStr || '—'}</span>
+              <span>•</span>
+              <span>{sectionNameStr ? `شعبة ${sectionNameStr}` : 'بدون شعبة'}</span>
+              {registrationNumber && (
+                <>
+                  <span>•</span>
+                  <span>رقم القيد: {registrationNumber}</span>
+                </>
+              )}
+            </span>
+          </div>
+        )}
+
+        {/* Student Grades and Results Banner (when provided) */}
+        {gradesData && (
+          <div
+            className="absolute z-20 pointer-events-none w-[86%] max-w-[960px]"
+            style={{
+              left: '50%',
+              top: `${Math.min(76, config.elements.studentName.y + 17)}%`,
+              transform: 'translate(-50%, -50%)',
+            }}
+          >
+            <div className="bg-white/95 backdrop-blur-xs border border-[#c5a059]/50 rounded-xl p-2.5 shadow-sm text-slate-900 flex flex-col gap-1.5">
+              {/* Subjects Row */}
+              {gradesData.subjects && gradesData.subjects.length > 0 && (
+                <div className="flex flex-wrap items-center justify-center gap-1.5 overflow-hidden">
+                  {gradesData.subjects.slice(0, 10).map((sub, sIdx) => (
+                    <span
+                      key={sIdx}
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#faf5eb] border border-[#c5a059]/30 text-[11px] font-bold"
+                    >
+                      <span className="text-slate-700">{sub.name}:</span>
+                      <span className="font-mono text-emerald-800 font-black">{sub.score}</span>
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Total, Average, Result Bar */}
+              <div className="flex items-center justify-around border-t border-[#c5a059]/30 pt-1 text-xs font-bold">
+                {gradesData.total !== undefined && (
+                  <div className="flex items-center gap-1">
+                    <span className="text-slate-600">المجموع:</span>
+                    <span className="font-mono font-black text-slate-900">{gradesData.total}</span>
+                  </div>
+                )}
+                {gradesData.average !== undefined && (
+                  <div className="flex items-center gap-1">
+                    <span className="text-slate-600">المعدل:</span>
+                    <span className="font-mono font-black text-amber-800">{gradesData.average}</span>
+                  </div>
+                )}
+                <div className="flex items-center gap-1">
+                  <span className="text-slate-600">النتيجة:</span>
+                  <span className="px-2 py-0.5 rounded bg-emerald-600 text-white text-[11px] font-black">
+                    {gradesData.result || 'معفى عام'}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 

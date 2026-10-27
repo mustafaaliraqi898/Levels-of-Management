@@ -53,51 +53,42 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const menuItems: {
     id: ActiveTab;
     label: string;
-    number: string;
     icon: React.ComponentType<{ className?: string }>;
     isHighlight?: boolean;
-    badge?: string;
   }[] = [
-    { id: 'dashboard', label: 'لوحة التحكم', number: '١', icon: LayoutDashboard },
-    { id: 'years', label: 'إدارة الأعوام الدراسية', number: '٢', icon: Calendar },
-    { id: 'classes', label: 'إدارة الصفوف والشعب', number: '٣', icon: Layers },
-    { id: 'students', label: 'إدارة الطلاب', number: '٤', icon: Users },
-    { id: 'subjects', label: 'إدارة المواد الدراسية', number: '٥', icon: BookOpen },
+    { id: 'dashboard', label: 'لوحة التحكم', icon: LayoutDashboard },
+    { id: 'years', label: 'إدارة الأعوام الدراسية', icon: Calendar },
+    { id: 'classes', label: 'إدارة الصفوف والشعب', icon: Layers },
+    { id: 'students', label: 'إدارة الطلاب', icon: Users },
+    { id: 'subjects', label: 'إدارة المواد الدراسية', icon: BookOpen },
     {
       id: 'grade_entry',
       label: 'إدخال الدرجات',
-      number: '٦',
       icon: FileSpreadsheet,
       isHighlight: true,
-      badge: 'الأساسي',
     },
     {
       id: 'decision_marks',
       label: 'إضافة درجات القرار',
-      number: '٧',
       icon: ShieldCheck,
       isHighlight: false,
-      badge: 'مهم',
     },
-    { id: 'results', label: 'عرض النتائج', number: '٨', icon: GraduationCap },
-    { id: 'exemption', label: 'الإعفاء العام والفردي', number: '٩', icon: Award, isHighlight: false, badge: 'جديد' },
-    { id: 'reports', label: 'التقارير والطباعة', number: '١٠', icon: Printer },
+    { id: 'results', label: 'عرض النتائج', icon: GraduationCap },
+    { id: 'exemption', label: 'الإعفاء العام والفردي', icon: Award, isHighlight: false },
+    { id: 'reports', label: 'التقارير والطباعة', icon: Printer },
     {
       id: 'student_promotion',
       label: 'ترحيل الطلبة',
-      number: '١١',
       icon: GraduationCap,
       isHighlight: false,
-      badge: 'جديد',
     },
     {
       id: 'certificate_template',
       label: 'ضبط قالب الشهادات',
-      number: '١٢',
       icon: Sparkles,
     },
-    { id: 'backup', label: 'النسخ الاحتياطي واستعادة البيانات', number: '١٣', icon: Database },
-    { id: 'settings', label: 'الإعدادات', number: '١٤', icon: Settings },
+    { id: 'backup', label: 'النسخ الاحتياطي واستعادة البيانات', icon: Database },
+    { id: 'settings', label: 'الإعدادات', icon: Settings },
   ];
 
   return (
@@ -219,29 +210,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     {!isCollapsed && <span className="tracking-wide truncate">{item.label}</span>}
                   </div>
 
-                  {!isCollapsed && (
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      {item.badge && (
-                        <span
-                          className={`text-[10px] px-1.5 py-0.5 rounded font-black ${
-                            isActive
-                              ? 'bg-slate-950 text-emerald-400'
-                              : 'bg-emerald-500/20 text-emerald-300'
-                          }`}
-                        >
-                          {item.badge}
-                        </span>
-                      )}
-                      <span
-                        className={`text-[10px] font-mono ${
-                          isActive && item.isHighlight ? 'text-white/80' : 'text-slate-500'
-                        }`}
-                      >
-                        {item.number}
-                      </span>
-                    </div>
-                  )}
-
                   {/* Indicator Dot for Collapsed Highlight */}
                   {isCollapsed && item.isHighlight && (
                     <span className="absolute top-1.5 left-1.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-slate-900" />
@@ -252,12 +220,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {isCollapsed && (
                   <div className="hidden md:flex absolute right-full top-1/2 -translate-y-1/2 mr-3 px-3 py-1.5 bg-slate-900/95 border border-slate-700 text-white text-xs font-bold rounded-lg shadow-2xl whitespace-nowrap z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 items-center gap-2">
                     <span>{item.label}</span>
-                    <span className="text-[10px] text-slate-400 font-mono">({item.number})</span>
-                    {item.badge && (
-                      <span className="text-[9px] px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-300">
-                        {item.badge}
-                      </span>
-                    )}
                     {/* Arrow pointer */}
                     <div className="absolute top-1/2 -translate-y-1/2 -right-1.5 w-3 h-3 bg-slate-900 border-t border-r border-slate-700 rotate-45" />
                   </div>

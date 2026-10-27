@@ -99,8 +99,14 @@ export const CertificateTemplateView: React.FC<CertificateTemplateViewProps> = (
   );
 
   useEffect(() => {
-    if (availableSections.length > 0 && !availableSections.some((s) => s.id === selectedSectionId)) {
+    if (availableSections.length === 0) {
+      if (selectedSectionId !== '') setSelectedSectionId('');
+    } else if (availableSections.length === 1) {
       setSelectedSectionId(availableSections[0].id);
+    } else {
+      if (!availableSections.some((s) => s.id === selectedSectionId)) {
+        setSelectedSectionId(availableSections[0].id);
+      }
     }
   }, [availableSections, selectedSectionId]);
 
@@ -108,9 +114,9 @@ export const CertificateTemplateView: React.FC<CertificateTemplateViewProps> = (
     return students.filter(
       (s) =>
         (!selectedClassId || s.classId === selectedClassId) &&
-        (!selectedSectionId || s.sectionId === selectedSectionId)
+        (availableSections.length === 0 || !selectedSectionId || s.sectionId === selectedSectionId)
     );
-  }, [students, selectedClassId, selectedSectionId]);
+  }, [students, selectedClassId, selectedSectionId, availableSections]);
 
   const [selectedStudentId, setSelectedStudentId] = useState<string>(
     availableStudents[0]?.id || ''
@@ -125,6 +131,16 @@ export const CertificateTemplateView: React.FC<CertificateTemplateViewProps> = (
   const selectedStudent = useMemo(
     () => students.find((s) => s.id === selectedStudentId),
     [students, selectedStudentId]
+  );
+
+  const studentClass = useMemo(
+    () => classes.find((c) => c.id === (selectedStudent?.classId || selectedClassId)),
+    [classes, selectedStudent, selectedClassId]
+  );
+
+  const studentSection = useMemo(
+    () => sections.find((s) => s.id === (selectedStudent?.sectionId || selectedSectionId)),
+    [sections, selectedStudent, selectedSectionId]
   );
 
   // Resolved display values based on project settings & selection
@@ -951,14 +967,21 @@ export const CertificateTemplateView: React.FC<CertificateTemplateViewProps> = (
                   </label>
                   <select
                     value={selectedSectionId}
+                    disabled={availableSections.length === 0}
                     onChange={(e) => setSelectedSectionId(e.target.value)}
-                    className="w-full h-8 px-2 text-xs bg-slate-950 border border-slate-800 rounded-lg text-slate-200"
+                    className={`w-full h-8 px-2 text-xs bg-slate-950 border border-slate-800 rounded-lg text-slate-200 ${
+                      availableSections.length === 0 ? 'opacity-60 cursor-not-allowed' : ''
+                    }`}
                   >
-                    {availableSections.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        شعبة {s.name}
-                      </option>
-                    ))}
+                    {availableSections.length === 0 ? (
+                      <option value="">(الصف لا يحتوي على شُعب)</option>
+                    ) : (
+                      availableSections.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          شعبة {s.name}
+                        </option>
+                      ))
+                    )}
                   </select>
                 </div>
               </div>
@@ -1067,6 +1090,10 @@ export const CertificateTemplateView: React.FC<CertificateTemplateViewProps> = (
                   config={config}
                   settings={settings}
                   studentName={displayStudentName}
+                  classNameStr={studentClass?.name}
+                  sectionNameStr={studentSection?.name}
+                  registrationNumber={selectedStudent?.registrationNumber}
+                  seatNumber={selectedStudent?.seatNumber}
                   academicYear={displayYearName}
                   directorName={displayDirectorName}
                   isForPrint={false}
@@ -1140,6 +1167,10 @@ export const CertificateTemplateView: React.FC<CertificateTemplateViewProps> = (
                   config={config}
                   settings={settings}
                   studentName={displayStudentName}
+                  classNameStr={studentClass?.name}
+                  sectionNameStr={studentSection?.name}
+                  registrationNumber={selectedStudent?.registrationNumber}
+                  seatNumber={selectedStudent?.seatNumber}
                   academicYear={displayYearName}
                   directorName={displayDirectorName}
                   isForPrint={true}
@@ -1156,6 +1187,10 @@ export const CertificateTemplateView: React.FC<CertificateTemplateViewProps> = (
           config={config}
           settings={settings}
           studentName={displayStudentName}
+          classNameStr={studentClass?.name}
+          sectionNameStr={studentSection?.name}
+          registrationNumber={selectedStudent?.registrationNumber}
+          seatNumber={selectedStudent?.seatNumber}
           academicYear={displayYearName}
           directorName={displayDirectorName}
           isForPrint={true}

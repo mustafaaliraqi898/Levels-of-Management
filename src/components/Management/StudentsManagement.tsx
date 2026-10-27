@@ -72,12 +72,14 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
   );
 
   React.useEffect(() => {
-    if (addAvailableSections.length > 0) {
-      if (!addAvailableSections.some((s) => s.id === addSectionId)) {
-        setAddSectionId(addAvailableSections[0].id);
-      }
-    } else {
+    if (addAvailableSections.length === 0) {
       setAddSectionId('');
+    } else if (addAvailableSections.length === 1) {
+      setAddSectionId(addAvailableSections[0].id);
+    } else {
+      if (!addAvailableSections.some((s) => s.id === addSectionId)) {
+        setAddSectionId('');
+      }
     }
   }, [addAvailableSections, addSectionId]);
 
@@ -95,13 +97,26 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
     [sections, editClassId]
   );
 
+  React.useEffect(() => {
+    if (!editingStudent) return;
+    if (editAvailableSections.length === 0) {
+      setEditSectionId('');
+    } else if (editAvailableSections.length === 1) {
+      setEditSectionId(editAvailableSections[0].id);
+    } else {
+      if (!editAvailableSections.some((s) => s.id === editSectionId)) {
+        setEditSectionId('');
+      }
+    }
+  }, [editAvailableSections, editSectionId, editingStudent]);
+
   const openEditModal = (student: Student) => {
     setEditingStudent(student);
     setEditName(student.name);
     setEditRegNumber(student.registrationNumber || '');
     setEditFatherPhone(student.fatherPhone || '');
     setEditClassId(student.classId);
-    setEditSectionId(student.sectionId);
+    setEditSectionId(student.sectionId || '');
     setEditError(null);
   };
 
@@ -150,7 +165,10 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
       .filter((s) => {
         const matchesYear = !selectedYearId || s.academicYearId === selectedYearId;
         const matchesClass = filterClassId === 'all' || s.classId === filterClassId;
-        const matchesSection = filterSectionId === 'all' || s.sectionId === filterSectionId;
+        const matchesSection =
+          filterSectionId === 'all' ||
+          s.sectionId === filterSectionId ||
+          (filterSectionId === 'none' && !s.sectionId);
 
         const q = searchQuery.trim().toLowerCase();
         const matchesSearch =
@@ -202,9 +220,22 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
       }
     }
 
-    if (!addClassId || !addSectionId) {
-      setAddError('يرجى تحديد الصف والشعبة الدراسية للطالب.');
+    if (!addClassId) {
+      setAddError('يرجى تحديد الصف الدراسي للطالب.');
       return;
+    }
+
+    let finalSectionId = '';
+    if (addAvailableSections.length > 0) {
+      if (!addSectionId) {
+        setAddError('يرجى اختيار الشعبة الدراسية للطالب، لأن هذا الصف يحتوي على عدة شعب.');
+        return;
+      }
+      if (!addAvailableSections.some((s) => s.id === addSectionId)) {
+        setAddError('الشعبة المحددة لا تنتمي إلى الصف الدراسي المختار.');
+        return;
+      }
+      finalSectionId = addSectionId;
     }
 
     db.addStudent({
@@ -213,7 +244,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
       fatherPhone: addFatherPhone.trim() || undefined,
       academicYearId: selectedYearId,
       classId: addClassId,
-      sectionId: addSectionId,
+      sectionId: finalSectionId,
       gender: 'male',
     });
 
@@ -248,13 +279,31 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
       }
     }
 
+    if (!editClassId) {
+      setEditError('يرجى تحديد الصف الدراسي للطالب.');
+      return;
+    }
+
+    let finalSectionId = '';
+    if (editAvailableSections.length > 0) {
+      if (!editSectionId) {
+        setEditError('يرجى اختيار الشعبة الدراسية للطالب، لأن هذا الصف يحتوي على عدة شعب.');
+        return;
+      }
+      if (!editAvailableSections.some((s) => s.id === editSectionId)) {
+        setEditError('الشعبة المحددة لا تنتمي إلى هذا الصف.');
+        return;
+      }
+      finalSectionId = editSectionId;
+    }
+
     const updatedStudent: Student = {
       ...editingStudent,
       name: cleanName,
       registrationNumber: cleanReg || undefined,
       fatherPhone: editFatherPhone.trim() || undefined,
       classId: editClassId,
-      sectionId: editSectionId,
+      sectionId: finalSectionId,
     };
 
     db.updateStudent(updatedStudent);
@@ -264,17 +313,27 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
 
   // Handler: Confirm Transfer
   const handleExecuteTransfer = () => {
-    if (!transferringStudent || !transferTargetClassId || !transferTargetSectionId) return;
+    if (!transferringStudent || !transferTargetClassId) return;
+
+    const targetSections = sections.filter((s) => s.classId === transferTargetClassId);
+    let finalTransferSecId = '';
+    if (targetSections.length > 0) {
+      if (!transferTargetSectionId || !targetSections.some((s) => s.id === transferTargetSectionId)) {
+        showToast('يرجى اختيار شعبة صالحة تابعة للصف المستهدف.', 'error');
+        return;
+      }
+      finalTransferSecId = transferTargetSectionId;
+    }
 
     const fromClass = classes.find((c) => c.id === transferringStudent.classId)?.name || 'غير محدد';
-    const fromSec = sections.find((s) => s.id === transferringStudent.sectionId)?.name || 'غير محدد';
+    const fromSec = sections.find((s) => s.id === transferringStudent.sectionId)?.name || 'بدون شعبة';
     const toClass = classes.find((c) => c.id === transferTargetClassId)?.name || 'غير محدد';
-    const toSec = sections.find((s) => s.id === transferTargetSectionId)?.name || 'غير محدد';
+    const toSec = sections.find((s) => s.id === finalTransferSecId)?.name || 'بدون شعبة';
 
-    const res = db.transferStudent(transferringStudent.id, transferTargetClassId, transferTargetSectionId);
+    const res = db.transferStudent(transferringStudent.id, transferTargetClassId, finalTransferSecId);
     if (res.success) {
       showToast(
-        `تم نقل الطالب «${transferringStudent.name}» بنجاح من (${fromClass} - شعبة ${fromSec}) إلى (${toClass} - شعبة ${toSec}) مع الحفاظ على كافة درجاته.`
+        `تم نقل الطالب «${transferringStudent.name}» بنجاح من (${fromClass} - ${fromSec === 'بدون شعبة' ? 'بدون شعبة' : `شعبة ${fromSec}`}) إلى (${toClass} - ${toSec === 'بدون شعبة' ? 'بدون شعبة' : `شعبة ${toSec}`}) مع الحفاظ على كافة درجاته.`
       );
       setTransferringStudent(null);
       setIsTransferConfirming(false);
@@ -547,6 +606,9 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
               className="h-10 px-3 pr-3 pl-8 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-200 font-bold focus:outline-hidden appearance-none cursor-pointer"
             >
               <option value="all">كل الشعب</option>
+              {filterClassId !== 'all' && sections.filter((s) => s.classId === filterClassId).length === 0 && (
+                <option value="none">(الصف لا يتضمن شُعب)</option>
+              )}
               {(filterClassId === 'all'
                 ? sections
                 : sections.filter((s) => s.classId === filterClassId)
@@ -649,9 +711,15 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
 
                     {/* Section */}
                     <td className="p-3 text-slate-300 border-l border-slate-800">
-                      <span className="inline-flex px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-200 font-bold">
-                        شعبة {studentSection?.name || '—'}
-                      </span>
+                      {studentSection?.name ? (
+                        <span className="inline-flex px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-200 font-bold">
+                          شعبة {studentSection.name}
+                        </span>
+                      ) : (
+                        <span className="inline-flex px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400 font-medium text-[11px]">
+                          بدون شعبة
+                        </span>
+                      )}
                     </td>
 
                     {/* Actions: Edit, Transfer, Delete */}
@@ -807,21 +875,44 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5">الشعبة</label>
+                  <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                    الشعبة {addAvailableSections.length > 0 && <span className="text-red-400">*</span>}
+                  </label>
                   <div className="relative">
                     <select
                       value={addSectionId}
+                      disabled={addAvailableSections.length === 0}
                       onChange={(e) => setAddSectionId(e.target.value)}
-                      className="w-full h-9 px-3 pr-3 pl-8 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-100 font-bold appearance-none cursor-pointer"
+                      className={`w-full h-9 px-3 pr-3 pl-8 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-100 font-bold appearance-none cursor-pointer ${
+                        addAvailableSections.length === 0 ? 'opacity-60 cursor-not-allowed bg-slate-900' : ''
+                      }`}
                     >
-                      {addAvailableSections.map((s) => (
-                        <option key={s.id} value={s.id}>
-                          الشعبة {s.name}
-                        </option>
-                      ))}
+                      {addAvailableSections.length === 0 ? (
+                        <option value="">(هذا الصف لا يحتوي على شُعب)</option>
+                      ) : (
+                        <>
+                          {addAvailableSections.length > 1 && (
+                            <option value="">-- اختر الشعبة الدراسية --</option>
+                          )}
+                          {addAvailableSections.map((s) => (
+                            <option key={s.id} value={s.id}>
+                              الشعبة {s.name}
+                            </option>
+                          ))}
+                        </>
+                      )}
                     </select>
                     <ChevronDown className="w-4 h-4 text-slate-400 absolute left-2 top-2.5 pointer-events-none" />
                   </div>
+                  {addAvailableSections.length === 0 ? (
+                    <span className="text-[10px] text-emerald-400 mt-1 block">
+                      ✓ صف بدون شُعب: سيُسجّل الطالب في الصف مباشرة
+                    </span>
+                  ) : addAvailableSections.length === 1 ? (
+                    <span className="text-[10px] text-slate-400 mt-1 block">
+                      ✓ تم اختيار الشعبة الوحيدة تلقائياً
+                    </span>
+                  ) : null}
                 </div>
               </div>
 
@@ -949,21 +1040,44 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5">الشعبة</label>
+                  <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                    الشعبة {editAvailableSections.length > 0 && <span className="text-red-400">*</span>}
+                  </label>
                   <div className="relative">
                     <select
                       value={editSectionId}
+                      disabled={editAvailableSections.length === 0}
                       onChange={(e) => setEditSectionId(e.target.value)}
-                      className="w-full h-9 px-3 pr-3 pl-8 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-100 font-bold appearance-none cursor-pointer"
+                      className={`w-full h-9 px-3 pr-3 pl-8 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-100 font-bold appearance-none cursor-pointer ${
+                        editAvailableSections.length === 0 ? 'opacity-60 cursor-not-allowed bg-slate-900' : ''
+                      }`}
                     >
-                      {editAvailableSections.map((s) => (
-                        <option key={s.id} value={s.id}>
-                          الشعبة {s.name}
-                        </option>
-                      ))}
+                      {editAvailableSections.length === 0 ? (
+                        <option value="">(هذا الصف لا يحتوي على شُعب)</option>
+                      ) : (
+                        <>
+                          {editAvailableSections.length > 1 && (
+                            <option value="">-- اختر الشعبة الدراسية --</option>
+                          )}
+                          {editAvailableSections.map((s) => (
+                            <option key={s.id} value={s.id}>
+                              الشعبة {s.name}
+                            </option>
+                          ))}
+                        </>
+                      )}
                     </select>
                     <ChevronDown className="w-4 h-4 text-slate-400 absolute left-2 top-2.5 pointer-events-none" />
                   </div>
+                  {editAvailableSections.length === 0 ? (
+                    <span className="text-[10px] text-emerald-400 mt-1 block">
+                      ✓ صف بدون شُعب: الطالب مسجل في الصف مباشرة
+                    </span>
+                  ) : editAvailableSections.length === 1 ? (
+                    <span className="text-[10px] text-slate-400 mt-1 block">
+                      ✓ تم اختيار الشعبة الوحيدة تلقائياً
+                    </span>
+                  ) : null}
                 </div>
               </div>
 
@@ -1065,21 +1179,40 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">الشعبة الجديدة</label>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                  الشعبة الجديدة {transferAvailableSections.length > 0 && <span className="text-red-400">*</span>}
+                </label>
                 <div className="relative">
                   <select
                     value={transferTargetSectionId}
+                    disabled={transferAvailableSections.length === 0}
                     onChange={(e) => setTransferTargetSectionId(e.target.value)}
-                    className="w-full h-9 px-3 pr-3 pl-8 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-100 font-bold appearance-none cursor-pointer"
+                    className={`w-full h-9 px-3 pr-3 pl-8 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-100 font-bold appearance-none cursor-pointer ${
+                      transferAvailableSections.length === 0 ? 'opacity-60 cursor-not-allowed bg-slate-900' : ''
+                    }`}
                   >
-                    {transferAvailableSections.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        الشعبة {s.name}
-                      </option>
-                    ))}
+                    {transferAvailableSections.length === 0 ? (
+                      <option value="">(الصف المختار لا يحتوي على شُعب)</option>
+                    ) : (
+                      <>
+                        {transferAvailableSections.length > 1 && (
+                          <option value="">-- اختر الشعبة المستهدفة --</option>
+                        )}
+                        {transferAvailableSections.map((s) => (
+                          <option key={s.id} value={s.id}>
+                            الشعبة {s.name}
+                          </option>
+                        ))}
+                      </>
+                    )}
                   </select>
                   <ChevronDown className="w-4 h-4 text-slate-400 absolute left-2 top-2.5 pointer-events-none" />
                 </div>
+                {transferAvailableSections.length === 0 && (
+                  <span className="text-[10px] text-emerald-400 mt-1 block">
+                    ✓ سيتم نقل الطالب إلى الصف مباشرة دون ربطه بشعبة
+                  </span>
+                )}
               </div>
             </div>
 

@@ -56,8 +56,14 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
   );
 
   React.useEffect(() => {
-    if (availableSections.length > 0 && !availableSections.some((s) => s.id === selectedSectionId)) {
+    if (availableSections.length === 0) {
+      if (selectedSectionId !== '') setSelectedSectionId('');
+    } else if (availableSections.length === 1) {
       setSelectedSectionId(availableSections[0].id);
+    } else {
+      if (!availableSections.some((s) => s.id === selectedSectionId)) {
+        setSelectedSectionId(availableSections[0].id);
+      }
     }
   }, [availableSections, selectedSectionId]);
 
@@ -210,12 +216,21 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             <div className="relative">
               <select
                 value={selectedSectionId}
+                disabled={availableSections.length === 0}
                 onChange={(e) => setSelectedSectionId(e.target.value)}
-                className="w-full h-9 px-3 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-200 font-bold focus:outline-hidden appearance-none cursor-pointer"
+                className={`w-full h-9 px-3 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-200 font-bold focus:outline-hidden appearance-none cursor-pointer ${
+                  availableSections.length === 0 ? 'opacity-60 cursor-not-allowed' : ''
+                }`}
               >
-                {availableSections.map((s) => (
-                  <option key={s.id} value={s.id}>الشعبة {s.name}</option>
-                ))}
+                {availableSections.length === 0 ? (
+                  <option value="">(الصف لا يحتوي على شُعب)</option>
+                ) : (
+                  availableSections.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      الشعبة {s.name}
+                    </option>
+                  ))
+                )}
               </select>
               <ChevronDown className="w-4 h-4 text-slate-400 absolute left-2.5 top-2.5 pointer-events-none" />
             </div>

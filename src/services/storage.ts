@@ -498,15 +498,62 @@ export class LocalStorageEngine {
   }
 
   public addStudent(s: any) {
-    const id = `stu-${Date.now()}-${Math.floor(Math.random()*1000)}`;
-    const res: Student = { ...s, id, seatNumber: s.seatNumber || (this.state.students.length + 1), registrationNumber: s.registrationNumber || `${1000 + this.state.students.length}` };
-    this.state.students.push(res); this.notify(); return res;
+    const id = s.id || `stu-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const reg = s.registrationNumber ? String(s.registrationNumber).trim() : undefined;
+    const phone = s.fatherPhone ? String(s.fatherPhone).trim() : undefined;
+    const sec = s.sectionId ? String(s.sectionId).trim() : '';
+    const res: Student = {
+      ...s,
+      id,
+      seatNumber: s.seatNumber || (this.state.students.length + 1),
+      registrationNumber: reg || undefined,
+      fatherPhone: phone || undefined,
+      sectionId: sec,
+    };
+    this.state.students.push(res);
+    this.notify();
+    return res;
   }
-  public updateStudent(s: Student) { this.state.students = this.state.students.map(x => x.id === s.id ? s : x); this.notify(); }
-  public deleteStudent(id: string) { this.state.students = this.state.students.filter(s => s.id !== id); if (this.isElectron) window.electronAPI!.db.deleteEntity('students', id).catch(e => console.error(e)); const rem: Record<string, GradeRecord> = {}; Object.entries(this.state.grades).forEach(([k, g]) => { if (g.studentId !== id) rem[k] = g; }); this.state.grades = rem; this.notify(); }
-  public isRegistrationNumberTaken(n: string, id?: string, ay?: string): { isTaken: boolean; existingStudent?: Student } { const s = this.state.students.find(x => x.registrationNumber === n && x.id !== id && (!ay || x.academicYearId === ay)); return { isTaken: !!s, existingStudent: s }; }
-  public transferStudent(id: string, cl: string, sec: string) { const s = this.state.students.find(x => x.id === id); if (s) { s.classId = cl; s.sectionId = sec; this.notify(); } return { success: true, message: 'تم النقل' }; }
-  public addStudentsBatch(list: any[]) { list.forEach(s => this.addStudent(s)); return { addedCount: list.length, rejectedCount: 0, errors: [] }; }
+  public updateStudent(s: Student) {
+    const reg = s.registrationNumber ? String(s.registrationNumber).trim() : undefined;
+    const phone = s.fatherPhone ? String(s.fatherPhone).trim() : undefined;
+    const sec = s.sectionId ? String(s.sectionId).trim() : '';
+    const cleanStudent: Student = {
+      ...s,
+      registrationNumber: reg || undefined,
+      fatherPhone: phone || undefined,
+      sectionId: sec,
+    };
+    this.state.students = this.state.students.map(x => x.id === s.id ? cleanStudent : x);
+    this.notify();
+  }
+  public deleteStudent(id: string) {
+    this.state.students = this.state.students.filter(s => s.id !== id);
+    if (this.isElectron) window.electronAPI!.db.deleteEntity('students', id).catch(e => console.error(e));
+    const rem: Record<string, GradeRecord> = {};
+    Object.entries(this.state.grades).forEach(([k, g]) => { if (g.studentId !== id) rem[k] = g; });
+    this.state.grades = rem;
+    this.notify();
+  }
+  public isRegistrationNumberTaken(n?: string, id?: string, ay?: string): { isTaken: boolean; existingStudent?: Student } {
+    const clean = (n || '').trim();
+    if (!clean) return { isTaken: false };
+    const s = this.state.students.find(x => x.registrationNumber && x.registrationNumber.trim() === clean && x.id !== id && (!ay || x.academicYearId === ay));
+    return { isTaken: !!s, existingStudent: s };
+  }
+  public transferStudent(id: string, cl: string, sec: string) {
+    const s = this.state.students.find(x => x.id === id);
+    if (s) {
+      s.classId = cl;
+      s.sectionId = (sec || '').trim();
+      this.notify();
+    }
+    return { success: true, message: 'تم النقل' };
+  }
+  public addStudentsBatch(list: any[]) {
+    list.forEach(s => this.addStudent(s));
+    return { addedCount: list.length, rejectedCount: 0, errors: [] };
+  }
 
   public addClass(c: any) { const id = `cls-${Date.now()}`; const res: SchoolClass = { ...c, id }; this.state.classes.push(res); this.notify(); return res; }
   public updateClass(c: SchoolClass) { this.state.classes = this.state.classes.map(x => x.id === c.id ? c : x); this.notify(); return { success: true, message: 'تم التعديل' }; }
