@@ -243,7 +243,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
   }, [studentsEvaluations, subjectId, decisionSettings]);
 
   const isCellExemptLocked = useCallback((studentId: string, field: EditableField): boolean => {
-    if (field !== 'finalExamScore' && field !== 'secondRoundScore') return false;
+    if (field !== 'finalExamScore') return false;
     const evalData = studentsEvaluations[studentId];
     const isGeneral = evalData?.isGeneralExempt || students.find(s => s.id === studentId)?.isGeneralExempt;
     const isIndiv = subjectId ? evalData?.subjects[subjectId]?.isIndividualExempt : false;
@@ -637,23 +637,16 @@ export const GradeTable: React.FC<GradeTableProps> = ({
     const exemptReason = isGeneral ? 'إعفاء عام' : isIndiv ? 'إعفاء فردي' : '';
 
     if (isExemptLocked) {
-      const isEmpty = score === null || score === undefined;
       return (
         <td
           key={field}
           data-col={widthKey}
           style={cellWidthStyle}
-          className="p-2 text-center font-mono text-xs border-b border-l border-slate-800 bg-slate-900/80 select-none cursor-not-allowed"
+          className="p-2 text-center font-sans text-xs border-b border-l border-slate-800 bg-emerald-950/20 select-none cursor-not-allowed"
           title={exemptReason}
         >
-          <div className="flex flex-col items-center justify-center gap-0.5">
-            <div className="flex items-center gap-1.5">
-              <Lock className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-              <span className="font-bold text-slate-300 text-sm">
-                {isEmpty ? '—' : formatScore(score)}
-              </span>
-            </div>
-            <span className="text-[10px] font-bold text-emerald-400 tracking-tight font-sans">
+          <div className="flex items-center justify-center">
+            <span className="font-bold text-emerald-400 text-xs px-2.5 py-1 rounded bg-emerald-950/40 border border-emerald-700/50">
               {exemptReason}
             </span>
           </div>
