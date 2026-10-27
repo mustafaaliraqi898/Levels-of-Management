@@ -242,14 +242,6 @@ export const GradeTable: React.FC<GradeTableProps> = ({
     return { eligible: true, reason: 'مؤهل لامتحان الدور الثاني (مكمّل في هذه المادة)' };
   }, [studentsEvaluations, subjectId, decisionSettings]);
 
-  const isCellExemptLocked = useCallback((studentId: string, field: EditableField): boolean => {
-    if (field !== 'finalExamScore') return false;
-    const evalData = studentsEvaluations[studentId];
-    const isGeneral = evalData?.isGeneralExempt || students.find(s => s.id === studentId)?.isGeneralExempt;
-    const isIndiv = subjectId ? evalData?.subjects[subjectId]?.isIndividualExempt : false;
-    return Boolean(isGeneral || isIndiv);
-  }, [studentsEvaluations, students, subjectId]);
-
   // Column widths with localStorage persistence
   const [colWidths, setColWidths] = useState<ColumnWidths>(() => {
     try {
@@ -441,11 +433,6 @@ export const GradeTable: React.FC<GradeTableProps> = ({
     const student = filteredStudents[studentIndex];
     if (!student) return;
 
-    // Check if cell is locked due to general or individual exemption
-    if (isCellExemptLocked(student.id, field)) {
-      return;
-    }
-
     // Check make-up eligibility if editing secondRoundScore
     if (field === 'secondRoundScore') {
       const eligibility = getSubjectMakeUpEligibility(student.id);
@@ -593,7 +580,6 @@ export const GradeTable: React.FC<GradeTableProps> = ({
         const field = fields[flatIndex % fields.length];
         const candidate = filteredStudents[studentIndex];
         if (!candidate) continue;
-        if (isCellExemptLocked(candidate.id, field)) continue;
         if (field === 'secondRoundScore' && !getSubjectMakeUpEligibility(candidate.id).eligible) continue;
         target = { studentIndex, field };
         break;
@@ -629,30 +615,6 @@ export const GradeTable: React.FC<GradeTableProps> = ({
       minWidth: `${colWidths[widthKey]}px`,
       maxWidth: `${colWidths[widthKey]}px`,
     };
-
-    const isExemptLocked = isCellExemptLocked(student.id, field);
-    const evalData = studentsEvaluations[student.id];
-    const isGeneral = evalData?.isGeneralExempt || student.isGeneralExempt;
-    const isIndiv = subjectId ? evalData?.subjects[subjectId]?.isIndividualExempt : false;
-    const exemptReason = isGeneral ? 'إعفاء عام' : isIndiv ? 'إعفاء فردي' : '';
-
-    if (isExemptLocked) {
-      return (
-        <td
-          key={field}
-          data-col={widthKey}
-          style={cellWidthStyle}
-          className="p-2 text-center font-sans text-xs border-b border-l border-slate-800 bg-emerald-950/20 select-none cursor-not-allowed"
-          title={exemptReason}
-        >
-          <div className="flex items-center justify-center">
-            <span className="font-bold text-emerald-400 text-xs px-2.5 py-1 rounded bg-emerald-950/40 border border-emerald-700/50">
-              {exemptReason}
-            </span>
-          </div>
-        </td>
-      );
-    }
 
     if (isEditing) {
       return (
