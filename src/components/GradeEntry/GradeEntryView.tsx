@@ -63,9 +63,11 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
     availableSections[0]?.id || ''
   );
 
-  // Sync section if class changes
+  // Sync the selected section when the class changes. Classes without sections use an empty sectionId.
   React.useEffect(() => {
-    if (availableSections.length > 0 && !availableSections.some((s) => s.id === selectedSectionId)) {
+    if (availableSections.length === 0) {
+      if (selectedSectionId !== '') setSelectedSectionId('');
+    } else if (!availableSections.some((s) => s.id === selectedSectionId)) {
       setSelectedSectionId(availableSections[0].id);
     }
   }, [availableSections, selectedSectionId]);
@@ -362,11 +364,15 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
                 onChange={(e) => setSelectedSectionId(e.target.value)}
                 className="w-full h-10 px-3 pr-3 pl-8 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-100 font-bold focus:border-emerald-500 focus:outline-hidden appearance-none cursor-pointer"
               >
-                {availableSections.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    الشعبة {s.name}
-                  </option>
-                ))}
+                {availableSections.length === 0 ? (
+                  <option value="">لا توجد شعب لهذا الصف</option>
+                ) : (
+                  availableSections.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      الشعبة {s.name}
+                    </option>
+                  ))
+                )}
               </select>
               <ChevronDown className="w-4 h-4 text-slate-400 absolute left-2.5 top-3 pointer-events-none" />
             </div>
