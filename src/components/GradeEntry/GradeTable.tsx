@@ -71,7 +71,8 @@ export type ColumnKey =
   | 'finalExam'
   | 'finalScore'
   | 'secondRound'
-  | 'secondRoundFinal';
+  | 'secondRoundFinal'
+  | 'notes';
 
 export interface ColumnWidths {
   index: number;
@@ -84,6 +85,7 @@ export interface ColumnWidths {
   finalScore: number;
   secondRound: number;
   secondRoundFinal: number;
+  notes: number;
 }
 
 export const DEFAULT_COLUMN_WIDTHS: ColumnWidths = {
@@ -97,6 +99,7 @@ export const DEFAULT_COLUMN_WIDTHS: ColumnWidths = {
   finalScore: 150,
   secondRound: 140,
   secondRoundFinal: 150,
+  notes: 180,
 };
 
 const COLUMN_LIMITS: Record<ColumnKey, { min: number; max: number }> = {
@@ -110,6 +113,7 @@ const COLUMN_LIMITS: Record<ColumnKey, { min: number; max: number }> = {
   finalScore: { min: 120, max: 290 },
   secondRound: { min: 110, max: 280 },
   secondRoundFinal: { min: 120, max: 290 },
+  notes: { min: 120, max: 400 },
 };
 
 interface PendingConfirmation {
@@ -241,6 +245,61 @@ export const GradeTable: React.FC<GradeTableProps> = ({
 
     return { eligible: true, reason: 'مؤهل لامتحان الدور الثاني (مكمّل في هذه المادة)' };
   }, [studentsEvaluations, subjectId, decisionSettings]);
+
+  /**
+   * Helper to check if a student is exempt for finalExamScore in the current subject context
+   */
+  const isFinalExamScoreLocked = useCallback((student: Student): boolean => {
+    const evalData = studentsEvaluations[student.id];
+    const isGeneral = Boolean(student.isGeneralExempt || evalData?.isGeneralExempt);
+    if (isGeneral) return true;
+
+    if (subjectId) {
+      const isIndivByStudent = Boolean(student.individualExemptions?.includes(subjectId));
+      const isIndivByEval = Boolean(evalData?.subjects[subjectId]?.isIndividualExempt);
+
+      const key = (academicYearId && classId && sectionId)
+        ? buildGradeKey(academicYearId, classId, sectionId, subjectId, student.id)
+        : undefined;
+      const rec = (key && grades[key]) ? grades[key] : currentSubjectGradesByStudentId[student.id];
+      const isIndivByRec = Boolean(rec?.isIndividualExempt);
+
+      if (isIndivByStudent || isIndivByEval || isIndivByRec) return true;
+    }
+
+    return false;
+  }, [studentsEvaluations, subjectId, academicYearId, classId, sectionId, grades, currentSubjectGradesByStudentId]);
+
+  /**
+   * Helper to compute Notes text for a student in the current subject context
+   */
+  const getStudentNotesText = useCallback((student: Student): { text: string; isExempt: boolean } => {
+    const evalData = studentsEvaluations[student.id];
+    const isGeneral = Boolean(student.isGeneralExempt || evalData?.isGeneralExempt);
+
+    if (isGeneral) {
+      return { text: 'إعفاء عام', isExempt: true };
+    }
+
+    if (subjectId) {
+      const isIndivByStudent = Boolean(student.individualExemptions?.includes(subjectId));
+      const isIndivByEval = Boolean(evalData?.subjects[subjectId]?.isIndividualExempt);
+
+      const key = (academicYearId && classId && sectionId)
+        ? buildGradeKey(academicYearId, classId, sectionId, subjectId, student.id)
+        : undefined;
+      const rec = (key && grades[key]) ? grades[key] : currentSubjectGradesByStudentId[student.id];
+      const isIndivByRec = Boolean(rec?.isIndividualExempt);
+
+      if (isIndivByStudent || isIndivByEval || isIndivByRec) {
+        const currentSubject = classSubjects?.find((s) => s.id === subjectId);
+        const subName = currentSubject?.name || 'المادة الحالية';
+        return { text: `إعفاء فردي — ${subName}`, isExempt: true };
+      }
+    }
+
+    return { text: student.notes || '', isExempt: false };
+  }, [studentsEvaluations, subjectId, classSubjects, academicYearId, classId, sectionId, grades, currentSubjectGradesByStudentId]);
 
   // Column widths with localStorage persistence
   const [colWidths, setColWidths] = useState<ColumnWidths>(() => {
@@ -433,6 +492,11 @@ export const GradeTable: React.FC<GradeTableProps> = ({
     const student = filteredStudents[studentIndex];
     if (!student) return;
 
+    // Check if finalExamScore is locked due to exemption
+    if (field === 'finalExamScore' && isFinalExamScoreLocked(student)) {
+      return;
+    }
+
     // Check make-up eligibility if editing secondRoundScore
     if (field === 'secondRoundScore') {
       const eligibility = getSubjectMakeUpEligibility(student.id);
@@ -580,6 +644,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
         const field = fields[flatIndex % fields.length];
         const candidate = filteredStudents[studentIndex];
         if (!candidate) continue;
+        if (field === 'finalExamScore' && isFinalExamScoreLocked(candidate)) continue;
         if (field === 'secondRoundScore' && !getSubjectMakeUpEligibility(candidate.id).eligible) continue;
         target = { studentIndex, field };
         break;
@@ -615,6 +680,27 @@ export const GradeTable: React.FC<GradeTableProps> = ({
       minWidth: `${colWidths[widthKey]}px`,
       maxWidth: `${colWidths[widthKey]}px`,
     };
+
+    if (field === 'finalExamScore' && isFinalExamScoreLocked(student)) {
+      const notesInfo = getStudentNotesText(student);
+      const isEmpty = score === null || score === undefined;
+      return (
+        <td
+          key={field}
+          data-col={widthKey}
+          style={cellWidthStyle}
+          className="p-2 text-center font-mono text-xs border-b border-l border-slate-800 bg-slate-900/80 text-slate-400 select-none cursor-not-allowed"
+          title={`حقل معطّل بسبب الإعفاء (${notesInfo.text})`}
+        >
+          <div className="flex items-center justify-center gap-1.5 opacity-75">
+            <Lock className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+            <span className="font-bold text-slate-300 text-sm">
+              {isEmpty ? '—' : formatScore(score)}
+            </span>
+          </div>
+        </td>
+      );
+    }
 
     if (isEditing) {
       return (
@@ -851,6 +937,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
                 <col style={{ width: `${colWidths.secondRoundFinal}px` }} />
               </>
             )}
+            <col style={{ width: `${colWidths.notes}px` }} />
           </colgroup>
 
           <thead>
@@ -1031,13 +1118,26 @@ export const GradeTable: React.FC<GradeTableProps> = ({
                   {renderResizeHandle('secondRoundFinal')}
                 </th>
               )}
+
+              {/* Always Visible Last Column: الملاحظات */}
+              <th
+                style={{
+                  width: `${colWidths.notes}px`,
+                  minWidth: `${colWidths.notes}px`,
+                  maxWidth: `${colWidths.notes}px`,
+                }}
+                className="relative p-3 text-center border-b border-l border-slate-800 bg-slate-900 text-slate-300 font-bold"
+              >
+                <span>الملاحظات</span>
+                {renderResizeHandle('notes')}
+              </th>
             </tr>
           </thead>
 
           <tbody>
             {filteredStudents.length === 0 ? (
               <tr>
-                <td colSpan={10} className="text-center py-12 text-slate-500 text-sm border-b border-slate-800 bg-slate-950">
+                <td colSpan={12} className="text-center py-12 text-slate-500 text-sm border-b border-slate-800 bg-slate-950">
                   {searchQuery ? 'لا توجد نتائج مطابقة لاسم الطالب المبحوث عنه.' : 'لا يوجد طلاب مسجلون في هذه الشعبة.'}
                 </td>
               </tr>
@@ -1232,6 +1332,33 @@ export const GradeTable: React.FC<GradeTableProps> = ({
                         false,
                         r2GrantInfo
                       )}
+
+                    {/* Column: الملاحظات */}
+                    {(() => {
+                      const notesInfo = getStudentNotesText(student);
+                      return (
+                        <td
+                          style={{
+                            width: `${colWidths.notes}px`,
+                            minWidth: `${colWidths.notes}px`,
+                            maxWidth: `${colWidths.notes}px`,
+                          }}
+                          className="p-2.5 text-center text-xs border-b border-l border-slate-800/80 bg-slate-950/60 overflow-hidden"
+                        >
+                          {notesInfo.isExempt ? (
+                            <span className="font-bold text-emerald-400 text-xs px-2 py-1 rounded bg-emerald-950/40 border border-emerald-700/50 inline-block truncate max-w-full" title={notesInfo.text}>
+                              {notesInfo.text}
+                            </span>
+                          ) : notesInfo.text ? (
+                            <span className="text-slate-300 text-xs font-sans truncate block" title={notesInfo.text}>
+                              {notesInfo.text}
+                            </span>
+                          ) : (
+                            <span className="text-slate-600 font-mono">—</span>
+                          )}
+                        </td>
+                      );
+                    })()}
                   </tr>
                 );
               })
