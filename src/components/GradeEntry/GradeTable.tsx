@@ -322,6 +322,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
 
   const inputRef = useRef<HTMLInputElement | null>(null);
   const tableRef = useRef<HTMLTableElement | null>(null);
+  const isSavingRef = useRef(false);
 
   // Resizing mouse events handler for RTL table (dragging left increases width)
   const handleMouseDownResize = (colKey: ColumnKey, e: React.MouseEvent) => {
@@ -525,56 +526,98 @@ export const GradeTable: React.FC<GradeTableProps> = ({
   };
 
   // Save current active cell
-  const handleSave = (moveToNext: boolean = true): boolean => {
-    if (!activeCell) return false;
+  const handleSave = (moveTo: 'next' | 'prev' | 'tab' | 'none' = 'none', overrideValue?: string): boolean => {
+    if (!activeCell || isSavingRef.current) return false;
+    
+    // Set saving flag to prevent onBlur from triggering a second save
+    isSavingRef.current = true;
 
-    const student = filteredStudents[activeCell.studentIndex];
-    if (!student) return false;
+    try {
+      const student = filteredStudents[activeCell.studentIndex];
+      if (!student) return false;
 
-    if (activeCell.field === 'secondRoundScore') {
-      const eligibility = getSubjectMakeUpEligibility(student.id);
-      if (!eligibility.eligible) {
-        setInputError(eligibility.reason);
+      const field = activeCell.field;
+      const valueToSave = overrideValue !== undefined ? overrideValue : inputValue;
+
+      if (field === 'secondRoundScore') {
+        const eligibility = getSubjectMakeUpEligibility(student.id);
+        if (!eligibility.eligible) {
+          setInputError(eligibility.reason);
+          return false;
+        }
+      }
+
+      const validation = validateScoreInput(valueToSave, maxScore);
+      if (!validation.isValid) {
+        setInputError(validation.error || 'درجة غير صالحة');
         return false;
       }
-    }
 
-    const validation = validateScoreInput(inputValue, maxScore);
-    if (!validation.isValid) {
-      setInputError(validation.error || 'درجة غير صالحة');
-      return false;
-    }
+      const result = onSaveGrade(
+        student.id,
+        field,
+        getFieldArabic(field),
+        validation.value
+      );
 
-    const result = onSaveGrade(
-      student.id,
-      activeCell.field,
-      getFieldArabic(activeCell.field),
-      validation.value
-    );
+      if (!result.success) {
+        setInputError(result.error || 'فشل حفظ الدرجة محلياً');
+        return false;
+      }
 
-    if (!result.success) {
-      setInputError(result.error || 'فشل حفظ الدرجة محلياً');
-      return false;
-    }
+      setSavedCellFlash({ studentId: student.id, field: field });
+      setTimeout(() => {
+        setSavedCellFlash(null);
+      }, 1200);
 
-    setSavedCellFlash({ studentId: student.id, field: activeCell.field });
-    setTimeout(() => {
-      setSavedCellFlash(null);
-    }, 1200);
+      setInputError(null);
 
-    setInputError(null);
+      if (moveTo === 'next') {
+        const nextIndex = activeCell.studentIndex + 1;
+        if (nextIndex < filteredStudents.length) {
+          startEditing(nextIndex, field, true);
+        } else {
+          setActiveCell(null);
+        }
+      } else if (moveTo === 'tab' || moveTo === 'prev') {
+        const fields = getEditableFieldsForStage(currentStage);
+        const fieldIndex = fields.indexOf(field);
+        if (fieldIndex >= 0) {
+          const direction = moveTo === 'tab' ? 1 : -1;
+          const currentFlatIndex = activeCell.studentIndex * fields.length + fieldIndex;
+          const totalCells = filteredStudents.length * fields.length;
+          let target: { studentIndex: number; field: EditableField } | null = null;
 
-    if (moveToNext) {
-      const nextIndex = activeCell.studentIndex + 1;
-      if (nextIndex < filteredStudents.length) {
-        startEditing(nextIndex, activeCell.field, true);
+          for (
+            let flatIndex = currentFlatIndex + direction;
+            flatIndex >= 0 && flatIndex < totalCells;
+            flatIndex += direction
+          ) {
+            const sIdx = Math.floor(flatIndex / fields.length);
+            const fld = fields[flatIndex % fields.length];
+            const candidate = filteredStudents[sIdx];
+            if (!candidate) continue;
+            if (fld === 'finalExamScore' && isFinalExamScoreLocked(candidate)) continue;
+            if (fld === 'secondRoundScore' && !getSubjectMakeUpEligibility(candidate.id).eligible) continue;
+            target = { studentIndex: sIdx, field: fld };
+            break;
+          }
+
+          if (target) {
+            startEditing(target.studentIndex, target.field, true);
+          } else {
+            setActiveCell(null);
+          }
+        } else {
+          setActiveCell(null);
+        }
       } else {
         setActiveCell(null);
       }
-    } else {
-      setActiveCell(null);
+      return true;
+    } finally {
+      isSavingRef.current = false;
     }
-    return true;
   };
 
   // Cancel edit
@@ -588,7 +631,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      handleSave(true);
+      handleSave('next');
       return;
     }
 
@@ -603,7 +646,9 @@ export const GradeTable: React.FC<GradeTableProps> = ({
       if (!activeCell) return;
       const direction = e.key === 'ArrowDown' ? 1 : -1;
       const nextIndex = activeCell.studentIndex + direction;
-      const saved = handleSave(false);
+      // Pass the current input value specifically to ensure it's captured correctly
+      const currentVal = inputValue;
+      const saved = handleSave('none', currentVal);
       if (saved && nextIndex >= 0 && nextIndex < filteredStudents.length) {
         startEditing(nextIndex, activeCell.field, true);
       }
@@ -612,37 +657,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
 
     if (e.key === 'Tab') {
       e.preventDefault();
-      if (!activeCell) return;
-
-      const fields = getEditableFieldsForStage(currentStage);
-      const fieldIndex = fields.indexOf(activeCell.field);
-      if (fieldIndex < 0 || fields.length === 0) return;
-
-      const direction = e.shiftKey ? -1 : 1;
-      const currentFlatIndex = activeCell.studentIndex * fields.length + fieldIndex;
-      const totalCells = filteredStudents.length * fields.length;
-      let target: { studentIndex: number; field: EditableField } | null = null;
-
-      // Move through editable cells row-by-row, skipping locked second-round cells.
-      for (
-        let flatIndex = currentFlatIndex + direction;
-        flatIndex >= 0 && flatIndex < totalCells;
-        flatIndex += direction
-      ) {
-        const studentIndex = Math.floor(flatIndex / fields.length);
-        const field = fields[flatIndex % fields.length];
-        const candidate = filteredStudents[studentIndex];
-        if (!candidate) continue;
-        if (field === 'finalExamScore' && isFinalExamScoreLocked(candidate)) continue;
-        if (field === 'secondRoundScore' && !getSubjectMakeUpEligibility(candidate.id).eligible) continue;
-        target = { studentIndex, field };
-        break;
-      }
-
-      const saved = handleSave(false);
-      if (saved && target) {
-        startEditing(target.studentIndex, target.field, true);
-      }
+      handleSave(e.shiftKey ? 'prev' : 'tab');
     }
   };
 
@@ -708,7 +723,12 @@ export const GradeTable: React.FC<GradeTableProps> = ({
                 if (inputError) setInputError(null);
               }}
               onKeyDown={handleKeyDown}
-              onBlur={() => handleSave(false)}
+              onBlur={() => {
+                // Only save on blur if we are not currently saving via keyboard navigation
+                if (!isSavingRef.current) {
+                  handleSave('none');
+                }
+              }}
               className="w-full h-10 px-3 text-center font-mono text-base font-bold bg-slate-950 border border-emerald-500 rounded text-emerald-400 focus:outline-hidden"
               placeholder={`0 - ${maxScore}`}
               dir="ltr"

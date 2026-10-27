@@ -270,10 +270,16 @@ export class LocalStorageEngine {
     } catch (e) { console.error('Load from SQLite error', e); }
   }
 
-  private async persistToSqlite(state: DatabaseState) {
+  private async persistToSqlite(state: DatabaseState, updatedEntity?: { type: 'grade', data: GradeRecord }) {
     if (!this.isElectron || !this.isReady) return;
     const db = window.electronAPI!.db;
     try {
+      // OPTIMIZATION: If we have a specific entity to update, only update that one for performance
+      if (updatedEntity && updatedEntity.type === 'grade') {
+        await db.upsertGrade(updatedEntity.data);
+        return;
+      }
+
       await db.saveSettings('app_settings', state.settings);
       await db.saveSettings('database_version', state.version);
       if (state.settings.isAccessCodeConfigured) {
@@ -326,14 +332,22 @@ export class LocalStorageEngine {
     return empty;
   }
 
-  private notify(shouldPersist = true) {
-    if (shouldPersist) this.persistToDisk(this.state);
+  private notify(persistOrEntity: { type: 'grade', data: GradeRecord } | boolean = true) {
+    const shouldPersist = persistOrEntity !== false;
+    const entity = typeof persistOrEntity === 'object' ? persistOrEntity : undefined;
+    
+    if (shouldPersist) {
+      this.persistToDisk(this.state, entity);
+    }
     requestAnimationFrame(() => this.listeners.forEach(cb => cb()));
   }
 
-  private persistToDisk(state: DatabaseState) {
-    if (this.isElectron) this.persistToSqlite(state).catch(e => console.error(e));
-    else localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...state, certificateTemplate: state.certificateTemplate ? { ...state.certificateTemplate, templateImage: undefined } : undefined }));
+  private persistToDisk(state: DatabaseState, updatedEntity?: { type: 'grade', data: GradeRecord }) {
+    if (this.isElectron) {
+      this.persistToSqlite(state, updatedEntity).catch(e => console.error(e));
+    } else {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...state, certificateTemplate: state.certificateTemplate ? { ...state.certificateTemplate, templateImage: undefined } : undefined }));
+    }
   }
 
   public subscribe(cb: () => void) { this.listeners.add(cb); return () => this.listeners.delete(cb); }
@@ -350,7 +364,7 @@ export class LocalStorageEngine {
     updated.termYearlyScore = termYearlyScore; updated.finalScore = finalScore; updated.secondRoundFinalScore = secondRoundFinalScore;
     this.state.grades = { ...this.state.grades, [key]: updated };
     this.revalidateStudentDecisionGrants(st, ay);
-    this.notify();
+    this.notify({ type: 'grade', data: updated });
     return { success: true, record: updated };
   }
 
