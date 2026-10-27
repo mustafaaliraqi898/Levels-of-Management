@@ -3,61 +3,27 @@ import { db } from './storage';
 
 const SESSION_STORAGE_KEY = 'school_app_auth_session';
 
-/**
- * Robust cross-environment cryptographic helpers.
- * Compatible with modern browser crypto.subtle and Node.js environments.
- */
-export async function hashPassword(password: string, salt: string): Promise<string> {
-  const data = new TextEncoder().encode(`${password}:${salt}`);
-  if (typeof crypto !== 'undefined' && crypto.subtle) {
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    return Array.from(new Uint8Array(hashBuffer))
-      .map((b) => b.toString(16).padStart(2, '0'))
-      .join('');
-  }
-
-  // Fallback for Node.js test scripts if crypto.subtle is not accessible
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const nodeCrypto = require('crypto');
-    return nodeCrypto.createHash('sha256').update(`${password}:${salt}`).digest('hex');
-  } catch {
-    throw new Error('Crypto environment not available');
-  }
-}
-
-export function generateSalt(length = 16): string {
-  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
-    const arr = new Uint8Array(length);
-    crypto.getRandomValues(arr);
-    return Array.from(arr)
-      .map((b) => b.toString(16).padStart(2, '0'))
-      .join('');
-  }
-  // Math.random fallback
-  return Array.from({ length }, () => Math.floor(Math.random() * 256).toString(16).padStart(2, '0')).join('');
-}
-
-export async function verifyPassword(
-  plainText: string,
-  salt: string,
-  expectedHash: string
-): Promise<boolean> {
-  const calculated = await hashPassword(plainText, salt);
-  return calculated.toLowerCase() === expectedHash.toLowerCase();
-}
+export { hashPassword, generateSalt, verifyPassword } from '../utils/crypto';
+import { hashPassword, generateSalt, verifyPassword } from '../utils/crypto';
 
 class AuthService {
   private currentSession: AuthSession | null = null;
   private sessionListeners: Set<(session: AuthSession | null) => void> = new Set();
 
   constructor() {
+    // Clear any stale persistent storage session to guarantee cold-start shows LoginView
+    try {
+      localStorage.removeItem(SESSION_STORAGE_KEY);
+    } catch {
+      // ignore
+    }
     this.currentSession = this.loadSession();
   }
 
   private loadSession(): AuthSession | null {
     try {
-      const stored = localStorage.getItem(SESSION_STORAGE_KEY);
+      // Use sessionStorage so session only lives during the active window session
+      const stored = sessionStorage.getItem(SESSION_STORAGE_KEY);
       if (!stored) return null;
       const parsed: AuthSession = JSON.parse(stored);
       if (!parsed || !parsed.user || !parsed.user.id) return null;
@@ -99,7 +65,8 @@ class AuthService {
   public saveSession(session: AuthSession) {
     this.currentSession = session;
     try {
-      localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+      localStorage.removeItem(SESSION_STORAGE_KEY);
     } catch (e) {
       console.error('Failed to persist auth session', e);
     }
@@ -109,6 +76,7 @@ class AuthService {
   public clearSession() {
     this.currentSession = null;
     try {
+      sessionStorage.removeItem(SESSION_STORAGE_KEY);
       localStorage.removeItem(SESSION_STORAGE_KEY);
     } catch (e) {
       console.error('Failed to clear auth session', e);
@@ -126,6 +94,10 @@ class AuthService {
     const username = usernameInput.trim();
     if (!username || !passwordInput) {
       return { success: false, error: 'يرجى إدخال اسم المستخدم وكلمة المرور' };
+    }
+
+    if (db.whenReady) {
+      await db.whenReady();
     }
 
     const users = db.getUsers();

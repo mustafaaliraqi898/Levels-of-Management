@@ -184,6 +184,10 @@ export interface AppSettings {
   schoolLogo?: string; // Base64 data URL for school logo
   kuficLogo?: string; // Base64 data URL for school Kufic geometric logo
   backupPath?: string; // Custom path for automated and manual backups
+  isAccessCodeConfigured?: boolean; // هل تم إنشاء رمز الدخول مسبقاً
+  accessCodeHash?: string; // هاش رمز الدخول المشفر
+  accessCodeSalt?: string; // الملح المستخدم في تشفير الرمز
+  accessCodeCreatedAt?: string; // تاريخ إنشاء رمز الدخول
 }
 
 export interface ExemptionSettings {

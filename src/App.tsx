@@ -19,6 +19,7 @@ import { SettingsView } from './components/Settings/SettingsView';
 import { CertificateTemplateView } from './components/CertificateTemplate/CertificateTemplateView';
 import { StudentPromotionView } from './components/Management/StudentPromotionView';
 import { LoginView } from './components/Auth/LoginView';
+import { CreateAccessCodeView } from './components/Auth/CreateAccessCodeView';
 import { ForceChangePasswordModal } from './components/Auth/ForceChangePasswordModal';
 import { AccountSettingsModal } from './components/Auth/AccountSettingsModal';
 
@@ -127,11 +128,31 @@ export default function App() {
     setIsAccountModalOpen(false);
   };
 
-  // 1. If not authenticated, render LoginView directly
+  // 1. If not authenticated, render LoginView directly (first launch & subsequent cold starts)
   if (!authSession) {
     return (
       <LoginView
         onLoginSuccess={handleLoginSuccess}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
+      />
+    );
+  }
+
+  // 2. If authenticated, but Access Code has NOT been configured yet, show CreateAccessCodeView once
+  if (!db.isAccessCodeConfigured()) {
+    return (
+      <CreateAccessCodeView
+        username={authSession.user.username}
+        onComplete={() => {
+          const curr = db.getState();
+          setDbState({ ...curr });
+          const refreshed = authService.getCurrentSession();
+          if (refreshed) {
+            setAuthSession({ ...refreshed, user: { ...refreshed.user, mustChangePassword: false } });
+          }
+          setActiveTab('dashboard');
+        }}
         theme={theme}
         onToggleTheme={handleToggleTheme}
       />

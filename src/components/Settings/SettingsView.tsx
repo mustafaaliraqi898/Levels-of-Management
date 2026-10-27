@@ -16,6 +16,8 @@ import {
   RefreshCw,
   AlertCircle,
   Sparkles,
+  KeyRound,
+  Lock,
 } from 'lucide-react';
 import { UserManagementSection } from './UserManagementSection';
 import { AdminDecisionSettingsSection } from './AdminDecisionSettingsSection';
@@ -47,6 +49,49 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const [kuficError, setKuficError] = useState<string | null>(null);
   const [kuficSuccess, setKuficSuccess] = useState<string | null>(null);
   const kuficFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Access Code State
+  const [isAccessCodeModalOpen, setIsAccessCodeModalOpen] = useState(false);
+  const [newAccessCode, setNewAccessCode] = useState('');
+  const [confirmNewAccessCode, setConfirmNewAccessCode] = useState('');
+  const [showAccessCode, setShowAccessCode] = useState(false);
+  const [accessCodeError, setAccessCodeError] = useState<string | null>(null);
+  const [accessCodeSuccess, setAccessCodeSuccess] = useState<string | null>(null);
+  const [isAccessCodeLoading, setIsAccessCodeLoading] = useState(false);
+
+  const handleUpdateAccessCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAccessCodeError(null);
+    const clean = newAccessCode.trim();
+    if (clean.length < 4) {
+      setAccessCodeError('يجب ألا يقل رمز الدخول عن 4 خانات أو أرقام.');
+      return;
+    }
+    if (clean !== confirmNewAccessCode.trim()) {
+      setAccessCodeError('رمز الدخول وتأكيد الرمز غير متطابقين.');
+      return;
+    }
+    setIsAccessCodeLoading(true);
+    try {
+      const res = await db.saveAccessCode(clean);
+      if (res.success) {
+        setAccessCodeSuccess('تم تحديث وحفظ رمز الدخول بنجاح في قاعدة SQLite.');
+        setFormData((prev) => ({ ...prev, isAccessCodeConfigured: true }));
+        setTimeout(() => {
+          setIsAccessCodeModalOpen(false);
+          setAccessCodeSuccess(null);
+          setNewAccessCode('');
+          setConfirmNewAccessCode('');
+        }, 1500);
+      } else {
+        setAccessCodeError(res.error || 'تعذر حفظ رمز الدخول');
+      }
+    } catch (err: any) {
+      setAccessCodeError(err.message || 'حدث خطأ أثناء حفظ الرمز');
+    } finally {
+      setIsAccessCodeLoading(false);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -584,7 +629,159 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       {/* Administrative Decision Settings (Assistance & Failing Rules per Academic Year) */}
       <AdminDecisionSettingsSection currentAcademicYearId={currentAcademicYearId} />
 
-      {/* 4. User Accounts & Access Control (Admin-Only Section) */}
+      {/* 4. System Access Code & Security Section */}
+      {userRole === 'admin' && (
+        <div className="bg-[#181F2A] border border-[#2E3748] rounded-2xl p-6 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                <KeyRound className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <span>رمز الدخول والأمان للنظام</span>
+                  {db.isAccessCodeConfigured() ? (
+                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                      مفعّل ومحفوظ في قاعدة SQLite
+                    </span>
+                  ) : (
+                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400">
+                      بانتظار الإعداد
+                    </span>
+                  )}
+                </h3>
+                <p className="text-xs text-slate-400 mt-1">
+                  رمز أمان خاص بالنظام لحماية سرية البيانات والسجلات المدرسية ومصادقة العمليات الحساسة.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setAccessCodeError(null);
+                setAccessCodeSuccess(null);
+                setNewAccessCode('');
+                setConfirmNewAccessCode('');
+                setIsAccessCodeModalOpen(true);
+              }}
+              className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer shrink-0"
+            >
+              <KeyRound className="w-4 h-4 text-emerald-400" />
+              <span>تحديث رمز الدخول</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Access Code Update Modal */}
+      {isAccessCodeModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" dir="rtl">
+          <div className="w-full max-w-md bg-[#181F2A] border border-[#2E3748] rounded-3xl p-6 shadow-2xl text-white">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-700/50">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  <KeyRound className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-sm">تحديث رمز الدخول للنظام</h4>
+                  <p className="text-[11px] text-slate-400">يُحفظ مشفراً في قاعدة SQLite بشكل دائم</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAccessCodeModalOpen(false)}
+                className="text-slate-400 hover:text-white p-1"
+              >
+                ✕
+              </button>
+            </div>
+
+            {accessCodeSuccess && (
+              <div className="mb-4 p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs font-bold flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>{accessCodeSuccess}</span>
+              </div>
+            )}
+
+            {accessCodeError && (
+              <div className="mb-4 p-3 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-300 text-xs font-bold flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
+                <span>{accessCodeError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleUpdateAccessCode} className="flex flex-col gap-3.5">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  رمز الدخول الجديد (4 خانات على الأقل)
+                </label>
+                <input
+                  type={showAccessCode ? 'text' : 'password'}
+                  required
+                  value={newAccessCode}
+                  onChange={(e) => setNewAccessCode(e.target.value)}
+                  placeholder="أدخل رمز الدخول الجديد"
+                  className="w-full h-10 px-3 text-xs font-mono font-bold tracking-widest rounded-xl bg-[#212836] border border-[#364153] text-white focus:outline-hidden focus:border-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  تأكيد رمز الدخول الجديد
+                </label>
+                <input
+                  type={showAccessCode ? 'text' : 'password'}
+                  required
+                  value={confirmNewAccessCode}
+                  onChange={(e) => setConfirmNewAccessCode(e.target.value)}
+                  placeholder="أعد إدخال الرمز للتأكيد"
+                  className="w-full h-10 px-3 text-xs font-mono font-bold tracking-widest rounded-xl bg-[#212836] border border-[#364153] text-white focus:outline-hidden focus:border-emerald-500"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="showCodeCheck"
+                  checked={showAccessCode}
+                  onChange={(e) => setShowAccessCode(e.target.checked)}
+                  className="rounded border-slate-700 text-emerald-600 focus:ring-emerald-500"
+                />
+                <label htmlFor="showCodeCheck" className="text-xs text-slate-400 select-none cursor-pointer">
+                  إظهار الرمز أثناء الكتابة
+                </label>
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 mt-2 pt-3 border-t border-slate-700/50">
+                <button
+                  type="button"
+                  onClick={() => setIsAccessCodeModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white"
+                >
+                  إلغاء
+                </button>
+                <button
+                  type="submit"
+                  disabled={isAccessCodeLoading}
+                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 text-xs font-black flex items-center gap-1.5 shadow-md shadow-emerald-600/20"
+                >
+                  {isAccessCodeLoading ? (
+                    <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>حفظ الرمز في SQLite</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 5. User Accounts & Access Control (Admin-Only Section) */}
       {userRole === 'admin' && (
         <UserManagementSection currentUserId={currentUserId || ''} />
       )}

@@ -26,6 +26,7 @@ import {
 import {
   completeDemoSeedData,
 } from './seedData';
+import { hashPassword, generateSalt } from '../utils/crypto';
 
 // --- Electron API Types ---
 declare global {
@@ -119,6 +120,7 @@ const INITIAL_SETTINGS: AppSettings = {
   confirmPreviousTermEdits: true,
   theme: 'dark',
   backupPath: undefined,
+  isAccessCodeConfigured: false,
 };
 
 export function buildGradeKey(ay: string, cl: string, sec: string, sub: string, st: string) {
@@ -133,10 +135,12 @@ export class LocalStorageEngine {
   private state: DatabaseState;
   private listeners: Set<() => void> = new Set();
   private isElectron = !!(window.electronAPI && window.electronAPI.isElectron);
+  private isReady = false;
+  private initPromise: Promise<void>;
 
   constructor() {
     this.state = this.getInitialEmptyState();
-    this.init();
+    this.initPromise = this.init();
   }
 
   private getInitialEmptyState(): DatabaseState {
@@ -157,7 +161,7 @@ export class LocalStorageEngine {
     };
   }
 
-  private async init() {
+  private async init(): Promise<void> {
     if (this.isElectron) {
       try {
         const initRes = await window.electronAPI!.db.init();
@@ -168,13 +172,17 @@ export class LocalStorageEngine {
       } catch (e) { console.error('SQLite init error', e); }
     } else {
       this.state = this.loadFromStorage();
-      loadTemplateImageFromDB().then((img) => {
+      try {
+        const img = await loadTemplateImageFromDB();
         if (img && this.state.certificateTemplate) {
           this.state.certificateTemplate.templateImage = img;
           this.notify(false);
         }
-      });
+      } catch (e) {
+        console.warn('Template image load error', e);
+      }
     }
+    this.isReady = true;
     this.notify(false);
   }
 
@@ -205,9 +213,41 @@ export class LocalStorageEngine {
       });
       this.state.grades = gradeMap;
       (data.settings || []).forEach((row: any) => {
-        if (row.key === 'app_settings') this.state.settings = JSON.parse(row.value);
-        else if (row.key === 'database_version') this.state.version = row.value;
+        if (row.key === 'app_settings') {
+          try {
+            const parsed = JSON.parse(row.value);
+            this.state.settings = { ...this.state.settings, ...parsed };
+          } catch (e) {
+            console.warn('Failed parsing app_settings from SQLite', e);
+          }
+        } else if (row.key === 'database_version') {
+          this.state.version = row.value;
+        } else if (row.key === 'security_access_code') {
+          try {
+            const sec = JSON.parse(row.value);
+            if (sec && sec.isConfigured) {
+              this.state.settings.isAccessCodeConfigured = true;
+              this.state.settings.accessCodeHash = sec.hash;
+              this.state.settings.accessCodeSalt = sec.salt;
+              this.state.settings.accessCodeCreatedAt = sec.createdAt;
+            }
+          } catch (e) {
+            console.warn('Failed parsing security_access_code', e);
+          }
+        }
       });
+
+      // Secondary check from localStorage if present
+      if (!this.state.settings.isAccessCodeConfigured) {
+        try {
+          if (localStorage.getItem('school_app_access_code_configured') === 'true') {
+            this.state.settings.isAccessCodeConfigured = true;
+          }
+        } catch {
+          // ignore
+        }
+      }
+
       const exMap: Record<string, ExemptionSettings> = {};
       (data.exemptionSettings || []).forEach((s: any) => {
         exMap[s.academicYearId] = { ...s, enableGeneralJabr: !!s.enableGeneralJabr, isConfigured: !!s.isConfigured };
@@ -231,11 +271,19 @@ export class LocalStorageEngine {
   }
 
   private async persistToSqlite(state: DatabaseState) {
-    if (!this.isElectron) return;
+    if (!this.isElectron || !this.isReady) return;
     const db = window.electronAPI!.db;
     try {
       await db.saveSettings('app_settings', state.settings);
       await db.saveSettings('database_version', state.version);
+      if (state.settings.isAccessCodeConfigured) {
+        await db.saveSettings('security_access_code', {
+          isConfigured: true,
+          hash: state.settings.accessCodeHash,
+          salt: state.settings.accessCodeSalt,
+          createdAt: state.settings.accessCodeCreatedAt,
+        });
+      }
       for (const u of state.users || []) await db.upsertUser(u);
       for (const y of state.academicYears) await db.upsertYear(y);
       for (const c of state.classes) await db.upsertClass(c);
@@ -259,10 +307,23 @@ export class LocalStorageEngine {
       const data = localStorage.getItem(STORAGE_KEY);
       if (data) {
         const parsed = JSON.parse(data);
-        if (parsed.academicYears && parsed.grades) return parsed;
+        if (parsed.academicYears && parsed.grades) {
+          if (localStorage.getItem('school_app_access_code_configured') === 'true') {
+            if (parsed.settings) parsed.settings.isAccessCodeConfigured = true;
+          }
+          return parsed;
+        }
       }
     } catch (e) { console.warn('localStorage load error', e); }
-    return this.getInitialEmptyState();
+    const empty = this.getInitialEmptyState();
+    try {
+      if (localStorage.getItem('school_app_access_code_configured') === 'true') {
+        empty.settings.isAccessCodeConfigured = true;
+      }
+    } catch {
+      // ignore
+    }
+    return empty;
   }
 
   private notify(shouldPersist = true) {
@@ -294,6 +355,94 @@ export class LocalStorageEngine {
   }
 
   public updateSettings(s: Partial<AppSettings>) { this.state.settings = { ...this.state.settings, ...s }; this.notify(); }
+
+  public whenReady(): Promise<void> {
+    return this.initPromise;
+  }
+
+  public isAccessCodeConfigured(): boolean {
+    return !!(
+      this.state.settings?.isAccessCodeConfigured ||
+      localStorage.getItem('school_app_access_code_configured') === 'true'
+    );
+  }
+
+  public async saveAccessCode(code: string, newAdminPassword?: string): Promise<{ success: boolean; error?: string }> {
+    const cleanCode = code ? code.trim() : '';
+    if (cleanCode.length < 4) {
+      return { success: false, error: 'يجب ألا يقل رمز الدخول عن 4 خانات أو أرقام.' };
+    }
+
+    try {
+      const salt = generateSalt();
+      const hash = await hashPassword(cleanCode, salt);
+
+      this.state.settings = {
+        ...this.state.settings,
+        isAccessCodeConfigured: true,
+        accessCodeHash: hash,
+        accessCodeSalt: salt,
+        accessCodeCreatedAt: new Date().toISOString(),
+      };
+
+      // Ensure default admin does not get stuck in mustChangePassword loop
+      if (this.state.users) {
+        this.state.users = this.state.users.map((u) => {
+          if (u.username === 'admin') {
+            return { ...u, mustChangePassword: false };
+          }
+          return u;
+        });
+      }
+
+      // If new admin password provided, update it
+      if (newAdminPassword && newAdminPassword.length >= 6) {
+        const adminUser = this.state.users?.find((u) => u.username === 'admin');
+        if (adminUser) {
+          const pSalt = generateSalt();
+          const pHash = await hashPassword(newAdminPassword, pSalt);
+          adminUser.passwordHash = pHash;
+          adminUser.salt = pSalt;
+          adminUser.mustChangePassword = false;
+        }
+      }
+
+      try {
+        localStorage.setItem('school_app_access_code_configured', 'true');
+      } catch (e) {
+        console.warn(e);
+      }
+
+      if (this.isElectron && window.electronAPI?.db) {
+        await window.electronAPI.db.saveSettings('app_settings', this.state.settings);
+        await window.electronAPI.db.saveSettings('security_access_code', {
+          isConfigured: true,
+          hash,
+          salt,
+          createdAt: new Date().toISOString(),
+        });
+        const adminUser = this.state.users?.find((u) => u.username === 'admin');
+        if (adminUser) {
+          await window.electronAPI.db.upsertUser(adminUser);
+        }
+      }
+
+      this.notify(true);
+      return { success: true };
+    } catch (err: any) {
+      console.error('Failed to save access code:', err);
+      return { success: false, error: err.message || 'حدث خطأ أثناء حفظ رمز الدخول' };
+    }
+  }
+
+  public async verifyAccessCode(inputCode: string): Promise<boolean> {
+    if (!this.state.settings.accessCodeHash || !this.state.settings.accessCodeSalt) {
+      return false;
+    }
+    const clean = inputCode ? inputCode.trim() : '';
+    const hash = await hashPassword(clean, this.state.settings.accessCodeSalt);
+    return hash.toLowerCase() === this.state.settings.accessCodeHash.toLowerCase();
+  }
   public getExemptionSettings(ay: string) { return this.state.exemptionSettings?.[ay] || { academicYearId: ay, generalMinAverage: 85, generalMinSubjectScore: 75, enableGeneralJabr: false, individualMinScore: 90, isConfigured: false }; }
   public saveExemptionSettings(s: ExemptionSettings) { if (!this.state.exemptionSettings) this.state.exemptionSettings = {}; this.state.exemptionSettings[s.academicYearId] = { ...s, isConfigured: true, updatedAt: new Date().toISOString() }; this.notify(); }
   public getDefaultExemptionSettings(ay: string) { return { academicYearId: ay, generalMinAverage: 85, generalMinSubjectScore: 75, enableGeneralJabr: false, individualMinScore: 90, isConfigured: false }; }
