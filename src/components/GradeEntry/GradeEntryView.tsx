@@ -470,7 +470,7 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
         <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-3 flex items-center gap-3 text-xs text-slate-300">
           <Info className="w-4 h-4 text-emerald-400 shrink-0" />
           <span>
-            <strong>طريقة الإدخال السريع:</strong> اكتب الدرجة ثم اضغط <kbd className="px-1.5 py-0.5 bg-slate-800 rounded text-emerald-300 font-mono border border-slate-700">Enter</kbd> للحفظ الفوري والانتقال المباشر للطالب التالي دون لمس الفأرة.
+            <strong>طريقة الإدخال السريع:</strong> اضغط <kbd className="px-1.5 py-0.5 bg-slate-800 rounded text-emerald-300 font-mono border border-slate-700">Enter</kbd> للحفظ والانتقال إلى الطالب التالي، أو <kbd className="px-1.5 py-0.5 bg-slate-800 rounded text-emerald-300 font-mono border border-slate-700">Tab</kbd> للانتقال أفقياً إلى حقل الدرجة التالي؛ و<kbd className="px-1.5 py-0.5 bg-slate-800 rounded text-emerald-300 font-mono border border-slate-700">Shift + Tab</kbd> للرجوع للحقل السابق.
           </span>
         </div>
       </div>
