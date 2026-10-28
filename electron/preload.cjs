@@ -21,6 +21,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     saveCertificateTemplate: (config, imageData) => ipcRenderer.invoke('db:saveCertificateTemplate', config, imageData),
     upsertPromotionLog: (log) => ipcRenderer.invoke('db:upsertPromotionLog', log),
     deleteEntity: (table, id) => ipcRenderer.invoke('db:deleteEntity', table, id),
+    deleteStudentCascade: (studentId) => ipcRenderer.invoke('db:deleteStudentCascade', studentId),
+    deleteClassCascade: (classId) => ipcRenderer.invoke('db:deleteClassCascade', classId),
     createBackup: () => ipcRenderer.invoke('db:createBackup'),
     getBackupsInfo: () => ipcRenderer.invoke('db:getBackupsInfo'),
     exportSql: () => ipcRenderer.invoke('db:exportSql'),

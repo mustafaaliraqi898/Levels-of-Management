@@ -178,7 +178,7 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
       // Determine Target Class & Section
       let action: 'promote' | 'repeat' | 'graduate' | 'exclude' = 'exclude';
       let targetClassId: string | null = null;
-      let targetSectionId: string | null = null;
+      let targetSectionId: string = '';
       let reason: string = '';
 
       if (statusFinal === 'ناجح' || statusFinal === 'ناجح — إعفاء عام') {
@@ -217,7 +217,7 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
           const matchingNameSec = targetClassSections.find(
             (s) => s.name.trim().toLowerCase() === sourceSection?.name.trim().toLowerCase()
           );
-          targetSectionId = matchingNameSec ? matchingNameSec.id : (targetClassSections[0]?.id || null);
+          targetSectionId = matchingNameSec ? matchingNameSec.id : (targetClassSections[0]?.id || '');
         }
       }
 

@@ -59,18 +59,27 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
     () => sections.filter((s) => s.classId === selectedClassId),
     [sections, selectedClassId]
   );
+
+  const displayedSections = useMemo(() => {
+    if (availableSections.length > 0) return availableSections;
+    // If class has no sections, return a "No Section" entry with ID ''
+    return [{ id: '', name: 'بدون شعبة', classId: selectedClassId }];
+  }, [availableSections, selectedClassId]);
+
   const [selectedSectionId, setSelectedSectionId] = useState<string>(
-    availableSections[0]?.id || ''
+    displayedSections[0]?.id ?? ''
   );
 
-  // Sync the selected section when the class changes. Classes without sections use an empty sectionId.
+  // Sync selection when class/displayedSections change
   React.useEffect(() => {
-    if (availableSections.length === 0) {
-      if (selectedSectionId !== '') setSelectedSectionId('');
-    } else if (!availableSections.some((s) => s.id === selectedSectionId)) {
-      setSelectedSectionId(availableSections[0].id);
+    if (displayedSections.length > 0) {
+      if (!displayedSections.some((s) => s.id === selectedSectionId)) {
+        setSelectedSectionId(displayedSections[0].id);
+      }
+    } else if (selectedSectionId !== '') {
+      setSelectedSectionId('');
     }
-  }, [availableSections, selectedSectionId]);
+  }, [displayedSections, selectedSectionId]);
 
   const [selectedStage, setSelectedStage] = useState<GradeStage>('term1');
 
@@ -106,7 +115,7 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
       .filter(
         (s) =>
           s.classId === selectedClassId &&
-          s.sectionId === selectedSectionId &&
+          (s.sectionId || '') === selectedSectionId &&
           s.academicYearId === selectedYearId
       )
       .sort((a, b) => a.seatNumber - b.seatNumber);
@@ -166,13 +175,13 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
   }, [sectionStudents, grades, selectedStage, selectedYearId, selectedClassId, selectedSectionId, selectedSubjectId]);
 
   // Handle grade saving
-  const handleSaveGrade = (
+  const handleSaveGrade = async (
     studentId: string,
     field: 'term1Score' | 'midtermScore' | 'term2Score' | 'finalExamScore' | 'secondRoundScore',
     fieldArabic: string,
     value: number | null
   ) => {
-    return db.saveGradeField(
+    return await db.saveGradeField(
       selectedYearId,
       selectedClassId,
       selectedSectionId,
@@ -364,12 +373,12 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
                 onChange={(e) => setSelectedSectionId(e.target.value)}
                 className="w-full h-10 px-3 pr-3 pl-8 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-100 font-bold focus:border-emerald-500 focus:outline-hidden appearance-none cursor-pointer"
               >
-                {availableSections.length === 0 ? (
+                {displayedSections.length === 0 ? (
                   <option value="">لا توجد شعب لهذا الصف</option>
                 ) : (
-                  availableSections.map((s) => (
+                  displayedSections.map((s) => (
                     <option key={s.id} value={s.id}>
-                      الشعبة {s.name}
+                      {s.id === '' ? s.name : `الشعبة ${s.name}`}
                     </option>
                   ))
                 )}

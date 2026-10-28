@@ -27,6 +27,8 @@ export interface SchoolClass {
   name: string; // e.g., "الخامس العلمي"
   stage: string; // "إعدادي", "متوسط", "ابتدائي"
   order: number;
+  academicYearId?: string; // العام الدراسي التابع له الصف
+  isArchived?: boolean; // هل الصف مؤرشف/مغلق للمحافظة على سجلاته التاريخية
 }
 
 export interface Section {
@@ -152,9 +154,9 @@ export interface StudentComprehensiveEvaluation {
   primaryAssistanceUsed: number;
   primaryAssistanceRemaining: number;
   failedCountAfterPrimaryAssistance: number;
-  status1stRound: 'ناجح' | 'مكمّل' | 'راسب' | 'غير مكتمل' | 'ناجح — إعفاء عام';
+  status1stRound: 'ناجح' | 'مكمّل' | 'راسب' | 'غير مكتمل' | 'ناجح — إعفاء عام' | 'معفى عام';
   /** حقل إضافي بديل للتوافق البرمجي */
-  statusBeforeSecondRound?: 'ناجح' | 'مكمّل' | 'راسب' | 'غير مكتمل' | 'ناجح — إعفاء عام';
+  statusBeforeSecondRound?: 'ناجح' | 'مكمّل' | 'راسب' | 'غير مكتمل' | 'ناجح — إعفاء عام' | 'معفى عام';
   
   // نتائج الدور الثاني والمساعدة الإضافية
   totalAssistancePoolSecondRound: number;
@@ -162,10 +164,10 @@ export interface StudentComprehensiveEvaluation {
   secondRoundAssistanceRemaining: number;
   hasSecondRoundScores: boolean;
   failedCountFinal: number;
-  statusFinal: 'ناجح' | 'مكمّل' | 'راسب' | 'غير مكتمل' | 'ناجح — إعفاء عام';
+  statusFinal: 'ناجح' | 'مكمّل' | 'راسب' | 'غير مكتمل' | 'ناجح — إعفاء عام' | 'معفى عام';
   
   // عمود الملاحظات
-  notes: 'ناجح' | 'مكمّل' | 'راسب' | 'ناجح — إعفاء عام' | 'غير مكتمل';
+  notes: 'ناجح' | 'مكمّل' | 'راسب' | 'ناجح — إعفاء عام' | 'غير مكتمل' | 'معفى عام';
   
   subjects: Record<string, SubjectEvaluation>;
   subjectsList: SubjectEvaluation[];

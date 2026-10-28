@@ -431,7 +431,7 @@ export function evaluateStudentAcademicYearDecisions(
     if (isExempt) {
       // الطالب المعفى (عاماً أو فردياً): يُعتبر السعي السنوي هو الدرجة النهائية
       rawFinalScore = termYearlyScore;
-      passed1stRound = termYearlyScore !== null;
+      passed1stRound = true;
     } else {
       rawFinalScore = calculateFinalScore(termYearlyScore, finalExamScore, roundingRule);
       if (rawFinalScore !== null && rawFinalScore >= sub.passScore) {
@@ -536,9 +536,9 @@ export function evaluateStudentAcademicYearDecisions(
   const failedCountAfterPrimaryAssistance = subjectsList.filter((s) => !s.passed1stRound).length;
 
   // تحديد حالة الطالب في الدور الأول
-  let status1stRound: 'ناجح' | 'مكمّل' | 'راسب' | 'غير مكتمل' | 'ناجح — إعفاء عام' = 'غير مكتمل';
+  let status1stRound: 'ناجح' | 'مكمّل' | 'راسب' | 'غير مكتمل' | 'ناجح — إعفاء عام' | 'معفى عام' = 'غير مكتمل';
   if (isGeneralExempt) {
-    status1stRound = 'ناجح — إعفاء عام';
+    status1stRound = 'معفى عام';
   } else if (hasIncomplete1stRound) {
     status1stRound = 'غير مكتمل';
   } else if (failedCountAfterPrimaryAssistance === 0) {
@@ -649,12 +649,12 @@ export function evaluateStudentAcademicYearDecisions(
   const failedCountFinal = subjectsList.filter((s) => !s.passedFinal).length;
 
   // تحديد الحالة النهائية وعمود الملاحظات
-  let statusFinal: 'ناجح' | 'مكمّل' | 'راسب' | 'غير مكتمل' | 'ناجح — إعفاء عام' = status1stRound;
-  let notes: 'ناجح' | 'مكمّل' | 'راسب' | 'ناجح — إعفاء عام' | 'غير مكتمل' = status1stRound;
+  let statusFinal: 'ناجح' | 'مكمّل' | 'راسب' | 'غير مكتمل' | 'ناجح — إعفاء عام' | 'معفى عام' = status1stRound;
+  let notes: 'ناجح' | 'مكمّل' | 'راسب' | 'ناجح — إعفاء عام' | 'غير مكتمل' | 'معفى عام' = status1stRound;
 
   if (isGeneralExempt) {
-    statusFinal = 'ناجح — إعفاء عام';
-    notes = 'ناجح — إعفاء عام';
+    statusFinal = 'معفى عام';
+    notes = 'معفى عام';
   } else if (hasIncomplete1stRound) {
     statusFinal = 'غير مكتمل';
     notes = 'غير مكتمل';

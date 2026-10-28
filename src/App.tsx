@@ -341,6 +341,7 @@ export default function App() {
               students={dbState.students}
               subjects={dbState.subjects}
               grades={dbState.grades}
+              academicYears={dbState.academicYears}
             />
           )}
 

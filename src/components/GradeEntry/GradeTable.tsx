@@ -36,7 +36,7 @@ interface GradeTableProps {
     field: 'term1Score' | 'midtermScore' | 'term2Score' | 'finalExamScore' | 'secondRoundScore',
     fieldArabic: string,
     value: number | null
-  ) => { success: boolean; error?: string };
+  ) => Promise<{ success: boolean; error?: string }>;
 }
 
 type EditableField =
@@ -148,7 +148,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
   // Memoized map of grades for current subject by studentId for O(1) instant access
   const currentSubjectGradesByStudentId = useMemo(() => {
     const map: Record<string, GradeRecord> = {};
-    if (!academicYearId || !classId || !sectionId || !subjectId) return map;
+    if (!academicYearId || !classId || sectionId === undefined || !subjectId) return map;
 
     students.forEach((student) => {
       const key = buildGradeKey(academicYearId, classId, sectionId, subjectId, student.id);
@@ -167,7 +167,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
 
   // Compute evaluations for make-up eligibility & status
   const studentsEvaluations = useMemo(() => {
-    if (!academicYearId || !classId || !sectionId || !classSubjects || classSubjects.length === 0 || !decisionSettings) {
+    if (!academicYearId || !classId || sectionId === undefined || !classSubjects || classSubjects.length === 0 || !decisionSettings) {
       return {};
     }
     const map: Record<string, StudentComprehensiveEvaluation> = {};
@@ -250,7 +250,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
    * Helper to calculate term yearly score for a student in current subject
    */
   const getStudentTermYearlyScore = useCallback((student: Student): number | null => {
-    const studentRecordKey = (academicYearId && classId && sectionId && subjectId)
+    const studentRecordKey = (academicYearId && classId && sectionId !== undefined && subjectId)
       ? buildGradeKey(academicYearId, classId, sectionId, subjectId, student.id)
       : undefined;
     const gradeRecord = (studentRecordKey && grades[studentRecordKey])
@@ -495,7 +495,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
       }
     }
 
-    const studentRecordKey = (academicYearId && classId && sectionId && subjectId)
+    const studentRecordKey = (academicYearId && classId && sectionId !== undefined && subjectId)
       ? buildGradeKey(academicYearId, classId, sectionId, subjectId, student.id)
       : undefined;
     const gradeRecord = (studentRecordKey && grades[studentRecordKey])
@@ -526,7 +526,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
   };
 
   // Save current active cell
-  const handleSave = (moveTo: 'next' | 'prev' | 'tab' | 'none' = 'none', overrideValue?: string): boolean => {
+  const handleSave = async (moveTo: 'next' | 'prev' | 'tab' | 'none' = 'none', overrideValue?: string): Promise<boolean> => {
     if (!activeCell || isSavingRef.current) return false;
     
     // Set saving flag to prevent onBlur from triggering a second save
@@ -553,7 +553,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
         return false;
       }
 
-      const result = onSaveGrade(
+      const result = await onSaveGrade(
         student.id,
         field,
         getFieldArabic(field),
@@ -561,7 +561,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
       );
 
       if (!result.success) {
-        setInputError(result.error || 'فشل حفظ الدرجة محلياً');
+        setInputError(result.error || 'فشل حفظ الدرجة');
         return false;
       }
 
@@ -628,10 +628,10 @@ export const GradeTable: React.FC<GradeTableProps> = ({
   };
 
   // Keyboard navigation: Enter moves down; Tab moves horizontally and wraps to the next/previous row.
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      handleSave('next');
+      await handleSave('next');
       return;
     }
 
@@ -648,7 +648,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
       const nextIndex = activeCell.studentIndex + direction;
       // Pass the current input value specifically to ensure it's captured correctly
       const currentVal = inputValue;
-      const saved = handleSave('none', currentVal);
+      const saved = await handleSave('none', currentVal);
       if (saved && nextIndex >= 0 && nextIndex < filteredStudents.length) {
         startEditing(nextIndex, activeCell.field, true);
       }
@@ -657,7 +657,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
 
     if (e.key === 'Tab') {
       e.preventDefault();
-      handleSave(e.shiftKey ? 'prev' : 'tab');
+      await handleSave(e.shiftKey ? 'prev' : 'tab');
     }
   };
 
@@ -669,7 +669,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
     fieldArabic: string,
     isPrimaryForStage: boolean
   ) => {
-    const key = (academicYearId && classId && sectionId && subjectId)
+    const key = (academicYearId && classId && sectionId !== undefined && subjectId)
       ? buildGradeKey(academicYearId, classId, sectionId, subjectId, student.id)
       : undefined;
     const gradeRecord = (key && grades[key]) ? grades[key] : currentSubjectGradesByStudentId[student.id];
@@ -723,10 +723,10 @@ export const GradeTable: React.FC<GradeTableProps> = ({
                 if (inputError) setInputError(null);
               }}
               onKeyDown={handleKeyDown}
-              onBlur={() => {
+              onBlur={async () => {
                 // Only save on blur if we are not currently saving via keyboard navigation
                 if (!isSavingRef.current) {
-                  handleSave('none');
+                  await handleSave('none');
                 }
               }}
               className="w-full h-10 px-3 text-center font-mono text-base font-bold bg-slate-950 border border-emerald-500 rounded text-emerald-400 focus:outline-hidden"
@@ -1152,7 +1152,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
               </tr>
             ) : (
               filteredStudents.map((student, sIdx) => {
-                const studentRecordKey = (academicYearId && classId && sectionId && subjectId)
+                const studentRecordKey = (academicYearId && classId && sectionId !== undefined && subjectId)
                   ? buildGradeKey(academicYearId, classId, sectionId, subjectId, student.id)
                   : undefined;
                 const gradeRecord = (studentRecordKey && grades[studentRecordKey])
@@ -1181,7 +1181,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
                   settings.roundingRule
                 );
 
-                const r1GrantKey = (academicYearId && classId && sectionId && subjectId)
+                const r1GrantKey = (academicYearId && classId && sectionId !== undefined && subjectId)
                   ? `${academicYearId}_${classId}_${sectionId}_${student.id}_${subjectId}_round1`
                   : undefined;
                 const r1Grant = r1GrantKey ? db.getDecisionGrants()[r1GrantKey] : undefined;
@@ -1194,7 +1194,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
                   scoreAfterDecision: r1ScoreAfter ?? computedFinal ?? 0,
                 } : undefined;
 
-                const r2GrantKey = (academicYearId && classId && sectionId && subjectId)
+                const r2GrantKey = (academicYearId && classId && sectionId !== undefined && subjectId)
                   ? `${academicYearId}_${classId}_${sectionId}_${student.id}_${subjectId}_round2`
                   : undefined;
                 const r2Grant = r2GrantKey ? db.getDecisionGrants()[r2GrantKey] : undefined;

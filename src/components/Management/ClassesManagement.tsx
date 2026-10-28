@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { SchoolClass, Section, Student, Subject, GradeRecord } from '../../types';
+import { SchoolClass, Section, Student, Subject, GradeRecord, AcademicYear } from '../../types';
 import { db } from '../../services/storage';
 import {
   Layers,
@@ -15,6 +15,10 @@ import {
   ShieldAlert,
   Info,
   Check,
+  Archive,
+  Copy,
+  ChevronDown,
+  RefreshCw,
 } from 'lucide-react';
 
 interface ClassesManagementProps {
@@ -23,6 +27,7 @@ interface ClassesManagementProps {
   students?: Student[];
   subjects?: Subject[];
   grades?: Record<string, GradeRecord>;
+  academicYears?: AcademicYear[];
 }
 
 export const ClassesManagement: React.FC<ClassesManagementProps> = ({
@@ -31,14 +36,22 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
   students = [],
   subjects = [],
   grades = {},
+  academicYears = [],
 }) => {
+  const currentYear = academicYears.find((y) => y.isCurrent) || academicYears[0];
+  const [selectedYearId, setSelectedYearId] = useState<string>(currentYear?.id || '');
+
   // Add Class Form State
   const [newClassName, setNewClassName] = useState('');
   const [newClassStage, setNewClassStage] = useState('إعدادي');
   const [addClassError, setAddClassError] = useState<string | null>(null);
 
+  // Copy Structure Modal State
+  const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
+  const [copySourceYearId, setCopySourceYearId] = useState<string>('');
+
   // Add Section Form State
-  const [selectedClassId, setSelectedClassId] = useState(classes[0]?.id || '');
+  const [selectedClassId, setSelectedClassId] = useState('');
   const [newSectionName, setNewSectionName] = useState('');
   const [addSectionError, setAddSectionError] = useState<string | null>(null);
 
@@ -50,6 +63,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
 
   // Delete Class Modal State
   const [deletingClass, setDeletingClass] = useState<SchoolClass | null>(null);
+  const [confirmCascadeDelete, setConfirmCascadeDelete] = useState(false);
 
   // Edit Section Modal State
   const [editingSection, setEditingSection] = useState<Section | null>(null);
@@ -65,6 +79,19 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
     type: 'success' | 'error' | 'info';
   } | null>(null);
 
+  useEffect(() => {
+    if (currentYear && !selectedYearId) {
+      setSelectedYearId(currentYear.id);
+    }
+  }, [currentYear, selectedYearId]);
+
+  // Filter classes by selected academic year
+  const filteredClasses = useMemo(() => {
+    return classes.filter(
+      (c) => (!c.academicYearId || c.academicYearId === selectedYearId)
+    );
+  }, [classes, selectedYearId]);
+
   // Auto-dismiss toast after 4 seconds
   useEffect(() => {
     if (toastMessage) {
@@ -77,10 +104,10 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
 
   // Sync selectedClassId if current selection is invalid or deleted
   useEffect(() => {
-    if (classes.length > 0 && !classes.some((c) => c.id === selectedClassId)) {
-      setSelectedClassId(classes[0].id);
+    if (filteredClasses.length > 0 && !filteredClasses.some((c) => c.id === selectedClassId)) {
+      setSelectedClassId(filteredClasses[0].id);
     }
-  }, [classes, selectedClassId]);
+  }, [filteredClasses, selectedClassId]);
 
   const showToast = (text: string, type: 'success' | 'error' | 'info' = 'success') => {
     setToastMessage({ text, type });
@@ -97,19 +124,41 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
       return;
     }
 
-    if (db.isClassNameTaken(cleanName)) {
-      setAddClassError(`اسم الصف «${cleanName}» مسجل مسبقاً في النظام.`);
+    if (db.isClassNameTaken(cleanName, undefined, selectedYearId)) {
+      setAddClassError(`اسم الصف «${cleanName}» مسجل مسبقاً في هذا العام الدراسي.`);
       return;
     }
 
     db.addClass({
       name: cleanName,
       stage: newClassStage,
-      order: classes.length + 1,
+      order: filteredClasses.length + 1,
+      academicYearId: selectedYearId,
     });
 
     setNewClassName('');
     showToast(`تمت إضافة الصف الدراسي «${cleanName}» بنجاح.`);
+  };
+
+  // --- Handlers: Copy Structure from Previous Year ---
+  const handleCopyStructure = () => {
+    if (!copySourceYearId) {
+      showToast('يرجى اختيار العام الدراسي المصدر للنسخ.', 'error');
+      return;
+    }
+    if (copySourceYearId === selectedYearId) {
+      showToast('لا يمكن النسخ من نفس العام الدراسي المحدد.', 'error');
+      return;
+    }
+
+    const res = db.copyClassesAndSubjectsFromYear(copySourceYearId, selectedYearId);
+    if (res.success) {
+      showToast(res.message, 'success');
+      setIsCopyModalOpen(false);
+      setCopySourceYearId('');
+    } else {
+      showToast(res.message, 'error');
+    }
   };
 
   // --- Handlers: Add Section ---
@@ -173,9 +222,33 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
     setEditingClass(null);
   };
 
-  // --- Handlers: Delete Class ---
+  // --- Handlers: Delete / Archive Class ---
   const openDeleteClassModal = (cls: SchoolClass) => {
     setDeletingClass(cls);
+    setConfirmCascadeDelete(false);
+  };
+
+  const handleArchiveClassConfirm = () => {
+    if (!deletingClass) return;
+    const res = db.archiveClass(deletingClass.id);
+    if (res.success) {
+      showToast(`تمت أرشفة الصف الدراسي «${deletingClass.name}» وإغلاقه للمحافظة على التاريخ.`, 'info');
+      setDeletingClass(null);
+    } else {
+      showToast(res.message || 'فشلت أرشفة الصف.', 'error');
+    }
+  };
+
+  const handleCascadeDeleteConfirm = async () => {
+    if (!deletingClass) return;
+    const res = await db.deleteClassCascade(deletingClass.id);
+    if (res.success) {
+      showToast(`تم حذف الصف الدراسي «${deletingClass.name}» وكافة البيانات وسجلات الدرجات المرتبطة به نهائياً.`, 'success');
+      setDeletingClass(null);
+      setConfirmCascadeDelete(false);
+    } else {
+      showToast((res as any).error || (res as any).message || 'فشل الحذف الشامل للصف.', 'error');
+    }
   };
 
   const handleDeleteClassConfirm = () => {
@@ -321,7 +394,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
               الهيكل التنظيمي للمدرسة
             </span>
             <span className="text-slate-400 text-xs">
-              إجمالي الصفوف: <strong className="text-emerald-400 font-mono">{classes.length}</strong> | إجمالي الشعب: <strong className="text-amber-400 font-mono">{sections.length}</strong>
+              إجمالي الصفوف: <strong className="text-emerald-400 font-mono">{filteredClasses.length}</strong> | إجمالي الشعب: <strong className="text-amber-400 font-mono">{sections.filter(s => filteredClasses.some(c => c.id === s.classId)).length}</strong>
             </span>
           </div>
           <h1 className="text-2xl font-black text-white flex items-center gap-2">
@@ -329,8 +402,38 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
             إدارة الصفوف والشعب الدراسية
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            إضافة وتعديل وحذف الصفوف والمراحل التعليمية والشعب التابعة لها مع حماية كاملة لسجلات الطلاب والدرجات.
+            إضافة وتعديل وحذف وأرشفة الصفوف والمراحل التعليمية والشعب التابعة لها لكل عام دراسي.
           </p>
+        </div>
+
+        {/* Academic Year Filter & Copy Structure Button */}
+        <div className="flex flex-wrap items-center gap-3">
+          {academicYears.length > 0 && (
+            <div className="relative">
+              <select
+                value={selectedYearId}
+                onChange={(e) => setSelectedYearId(e.target.value)}
+                className="h-10 px-3 pr-3 pl-8 text-xs bg-slate-950 border border-slate-700 rounded-xl text-slate-200 font-bold focus:outline-hidden appearance-none cursor-pointer"
+              >
+                {academicYears.map((y) => (
+                  <option key={y.id} value={y.id}>
+                    العام الدراسي {y.name} {y.isCurrent ? '(الحالي)' : ''}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="w-4 h-4 text-slate-400 absolute left-2.5 top-3 pointer-events-none" />
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={() => setIsCopyModalOpen(true)}
+            className="h-10 px-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors shadow-sm"
+            title="نسخ الهيكل التنظيمي للصفوف والمواد من عام دراسي سابق"
+          >
+            <Copy className="w-4 h-4 text-teal-400" />
+            <span>نسخ صفوف من عام سابق</span>
+          </button>
         </div>
       </div>
 
@@ -417,7 +520,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                   }}
                   className="w-full h-10 px-3 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-100 focus:border-amber-500 focus:outline-hidden cursor-pointer"
                 >
-                  {classes.map((c) => (
+                  {filteredClasses.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name} ({c.stage})
                     </option>
@@ -461,21 +564,21 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
               <span>الصفوف والشعب الحالية المسجلة بالنظام</span>
             </h3>
             <p className="text-xs text-slate-400 mt-0.5">
-              يمكنك تعديل أي صف أو شعبة عبر أيقونة القلم <Edit3 className="w-3 h-3 inline mx-0.5 text-teal-400" /> أو حذف العناصر غير المرتبطة ببيانات عبر أيقونة السلة <Trash2 className="w-3 h-3 inline mx-0.5 text-red-400" />.
+              يمكنك تعديل أي صف أو شعبة عبر أيقونة القلم <Edit3 className="w-3 h-3 inline mx-0.5 text-teal-400" /> أو أرشفة/حذف الصفوف عبر أيقونة السلة <Trash2 className="w-3 h-3 inline mx-0.5 text-red-400" />.
             </p>
           </div>
           <span className="text-xs px-3 py-1 rounded-full bg-slate-800 text-teal-300 font-mono font-bold self-start sm:self-auto">
-            {classes.length} صفوف مسجلة
+            {filteredClasses.length} صفوف مسجلة
           </span>
         </div>
 
-        {classes.length === 0 ? (
+        {filteredClasses.length === 0 ? (
           <div className="text-center py-12 text-slate-400 text-sm">
-            لا توجد صفوف دراسية مسجلة حالياً. استخدم النموذج أعلاه لإضافة صف دراسي جديد.
+            لا توجد صفوف دراسية مسجلة في هذا العام الدراسي. استخدم النموذج أعلاه لإضافة صف أو زر «نسخ صفوف من عام سابق».
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {classes.map((cls) => {
+            {filteredClasses.map((cls) => {
               const classSections = sections.filter((s) => s.classId === cls.id);
               const classStudents = students.filter((s) => s.classId === cls.id);
               const classSubjects = subjects.filter((s) => s.classId === cls.id);
@@ -483,7 +586,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
               return (
                 <div
                   key={cls.id}
-                  className="bg-slate-950 border border-slate-800 p-4.5 rounded-xl flex flex-col justify-between hover:border-slate-700 transition-all shadow-md group"
+                  className={`bg-slate-950 border ${cls.isArchived ? 'border-amber-900/60 opacity-80' : 'border-slate-800'} p-4.5 rounded-xl flex flex-col justify-between hover:border-slate-700 transition-all shadow-md group`}
                 >
                   <div>
                     {/* Class Card Header & Edit/Delete Actions */}
@@ -496,6 +599,12 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                           <span className="text-[11px] px-2 py-0.5 rounded font-bold bg-slate-800 text-teal-300 border border-slate-700">
                             {cls.stage}
                           </span>
+                          {cls.isArchived && (
+                            <span className="text-[10px] px-2 py-0.5 rounded font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                              <Archive className="w-3 h-3" />
+                              مؤرشف
+                            </span>
+                          )}
                         </div>
 
                         {/* Quick Stats Pill */}
@@ -529,7 +638,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                           type="button"
                           onClick={() => openDeleteClassModal(cls)}
                           className="p-1.5 rounded hover:bg-red-500/10 text-slate-400 hover:text-red-400 transition-colors cursor-pointer"
-                          title={`حذف الصف الدراسي (${cls.name})`}
+                          title={`إدارة حذف أرشفة الصف الدراسي (${cls.name})`}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -589,7 +698,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                         </div>
                       ) : (
                         <div className="p-3 text-center rounded-lg bg-slate-900/60 border border-dashed border-slate-800 text-xs text-slate-400">
-                          لا توجد شعب مسجلة لهذا الصف بعد.
+                          لا توجد شعب مسجلة لهذا الصف (صف بدون شعب).
                         </div>
                       )}
                     </div>
@@ -601,99 +710,80 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
         )}
       </div>
 
-      {/* =========================================================================
-          MODAL 1: Edit School Class (تعديل بيانات الصف الدراسي)
-          ========================================================================= */}
-      {editingClass && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-150">
+      {/* Copy Structure Modal */}
+      {isCopyModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-in fade-in duration-150">
           <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl flex flex-col gap-4 text-slate-100">
             <div className="flex items-center justify-between pb-3 border-b border-slate-800">
               <div className="flex items-center gap-2">
                 <div className="p-2 rounded-lg bg-teal-500/10 text-teal-400">
-                  <Edit3 className="w-5 h-5" />
+                  <Copy className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">تعديل الصف الدراسي</h3>
-                  <p className="text-xs text-slate-400">تحديث اسم الصف والمرحلة دون التأثير على الشعب والطلاب</p>
+                  <h3 className="text-base font-bold text-white">نسخ الصفوف والمواد من عام سابق</h3>
+                  <p className="text-xs text-slate-400">نسخ الصفوف والشعب والمواد بسرعة للعام الدراسي الحالي</p>
                 </div>
               </div>
               <button
                 type="button"
-                onClick={() => setEditingClass(null)}
+                onClick={() => setIsCopyModalOpen(false)}
                 className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {editClassError && (
-              <div className="p-3 rounded-lg bg-red-950/40 border border-red-800/60 text-red-300 text-xs flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 shrink-0 text-red-400" />
-                <span>{editClassError}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleSaveEditClass} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">اسم الصف الدراسي</label>
-                <input
-                  type="text"
-                  value={editClassName}
-                  onChange={(e) => {
-                    setEditClassName(e.target.value);
-                    if (editClassError) setEditClassError(null);
-                  }}
-                  className="w-full h-10 px-3 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-100 focus:border-teal-500 focus:outline-hidden"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">المرحلة الدراسية</label>
+                <label className="block text-xs font-bold text-slate-300 mb-1">اختر العام الدراسي المصدر</label>
                 <select
-                  value={editClassStage}
-                  onChange={(e) => setEditClassStage(e.target.value)}
-                  className="w-full h-10 px-3 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-100 focus:border-teal-500 focus:outline-hidden cursor-pointer"
+                  value={copySourceYearId}
+                  onChange={(e) => setCopySourceYearId(e.target.value)}
+                  className="w-full h-10 px-3 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-100 font-bold focus:outline-hidden cursor-pointer"
                 >
-                  <option value="إعدادي">إعدادي</option>
-                  <option value="متوسط">متوسط</option>
-                  <option value="ابتدائي">ابتدائي</option>
+                  <option value="">-- اختر عام دراسي سابق --</option>
+                  {academicYears
+                    .filter((y) => y.id !== selectedYearId)
+                    .map((y) => (
+                      <option key={y.id} value={y.id}>
+                        {y.name}
+                      </option>
+                    ))}
                 </select>
               </div>
 
               <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 text-[11px] text-slate-400 flex items-start gap-2">
                 <Info className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
                 <span>
-                  يتم الاحتفاظ بالمعرف الأساسي للصف وتبقى جميع الشعب والطلاب والمواد والدرجات مرتبطة به بأمان تام.
+                  سيقوم النظام بنسخ أسماء الصفوف، الشُعب، والمواد المقررة مع ترتيبها إلى العام المستهدف دون نقل أسماء الطلاب أو الدرجات القديمة.
                 </span>
               </div>
+            </div>
 
-              <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setEditingClass(null)}
-                  className="px-4 py-2 text-xs font-bold rounded-lg text-slate-300 hover:bg-slate-800 transition-colors cursor-pointer"
-                >
-                  إلغاء
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 text-xs font-bold rounded-lg bg-teal-600 hover:bg-teal-500 text-white flex items-center gap-1.5 transition-colors cursor-pointer shadow-md shadow-teal-600/20"
-                >
-                  <Check className="w-4 h-4" />
-                  <span>حفظ التعديلات</span>
-                </button>
-              </div>
-            </form>
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setIsCopyModalOpen(false)}
+                className="px-4 py-2 text-xs font-bold rounded-lg text-slate-300 hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                إلغاء
+              </button>
+              <button
+                type="button"
+                onClick={handleCopyStructure}
+                className="px-5 py-2 text-xs font-bold rounded-lg bg-teal-600 hover:bg-teal-500 text-white flex items-center gap-1.5 transition-colors cursor-pointer shadow-md shadow-teal-600/20"
+              >
+                <Copy className="w-4 h-4" />
+                <span>تنفيذ النسخ</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* =========================================================================
-          MODAL 2: Delete School Class (حذف الصف الدراسي مع التحقق الآمن)
-          ========================================================================= */}
+      {/* MODAL 2: Delete / Archive School Class */}
       {deletingClass && deletingClassDetails && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-150">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-in fade-in duration-150">
           <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl flex flex-col gap-4 text-slate-100">
             {/* Header */}
             <div className="flex items-center justify-between pb-3 border-b border-slate-800">
@@ -705,18 +795,10 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                       : 'bg-red-500/10 text-red-400'
                   }`}
                 >
-                  {deletingClassDetails.isBlocked ? (
-                    <ShieldAlert className="w-5 h-5" />
-                  ) : (
-                    <Trash2 className="w-5 h-5" />
-                  )}
+                  <ShieldAlert className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">
-                    {deletingClassDetails.isBlocked
-                      ? 'تعذر حذف الصف الدراسي'
-                      : 'تأكيد حذف الصف الدراسي'}
-                  </h3>
+                  <h3 className="text-base font-bold text-white">إدارة حذف وأرشفة الصف الدراسي</h3>
                   <p className="text-xs text-slate-400">
                     الصف: <strong className="text-slate-200">{deletingClass.name}</strong> ({deletingClass.stage})
                   </p>
@@ -733,46 +815,82 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
 
             {/* Body */}
             {deletingClassDetails.isBlocked ? (
-              /* Blocked Deletion Notice */
               <div className="flex flex-col gap-3">
                 <div className="p-4 rounded-xl bg-amber-950/30 border border-amber-800/50 text-amber-200 text-xs flex flex-col gap-2">
                   <div className="flex items-center gap-2 font-bold text-amber-300">
                     <ShieldAlert className="w-4 h-4 shrink-0" />
-                    <span>لا يمكن حذف هذا الصف لوجود بيانات وسجلات مرتبطة به:</span>
+                    <span>يحتوي هذا الصف على سجلات وبيانات مرتبطة بالنظام:</span>
                   </div>
                   <ul className="list-disc list-inside space-y-1 pr-2 text-slate-300">
                     {deletingClassDetails.sectionsCount > 0 && (
-                      <li>
-                        عدد الشعب المسجلة: <strong className="text-amber-300 font-mono">{deletingClassDetails.sectionsCount}</strong> شعبة
-                      </li>
+                      <li>الشعب المسجلة: <strong className="text-amber-300 font-mono">{deletingClassDetails.sectionsCount}</strong> شعبة</li>
                     )}
                     {deletingClassDetails.studentsCount > 0 && (
-                      <li>
-                        عدد الطلاب المقيدين: <strong className="text-amber-300 font-mono">{deletingClassDetails.studentsCount}</strong> طالب
-                      </li>
+                      <li>الطلاب المقيدون: <strong className="text-amber-300 font-mono">{deletingClassDetails.studentsCount}</strong> طالب</li>
                     )}
                     {deletingClassDetails.subjectsCount > 0 && (
-                      <li>
-                        عدد المواد الدراسية: <strong className="text-amber-300 font-mono">{deletingClassDetails.subjectsCount}</strong> مادة
-                      </li>
+                      <li>المواد الدراسية: <strong className="text-amber-300 font-mono">{deletingClassDetails.subjectsCount}</strong> مادة</li>
                     )}
                     {deletingClassDetails.gradesCount > 0 && (
-                      <li>
-                        سجلات درجات مسجلة: <strong className="text-amber-300 font-mono">{deletingClassDetails.gradesCount}</strong> سجل درجات
-                      </li>
+                      <li>سجلات الدرجات: <strong className="text-amber-300 font-mono">{deletingClassDetails.gradesCount}</strong> سجل درجات</li>
                     )}
                   </ul>
                 </div>
 
-                <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-300 flex items-start gap-2">
-                  <Info className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
-                  <span>
-                    لحماية بيانات وسجلات المدرسة، لا يسمح النظام بالحذف المباشر للصفوف التي تحتوي على شعب أو طلاب أو درجات. يرجى نقل الطلاب أو تفريغ الصف من الشعب والمواد أولاً قبل حذفه.
-                  </span>
+                {/* Option 1: Archive (Recommended) */}
+                <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                      <Archive className="w-4 h-4" />
+                      الخيار الأنسب: أرشفة الصف وإغلاقه
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleArchiveClassConfirm}
+                      className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs cursor-pointer transition-colors shadow-sm"
+                    >
+                      أرشفة الصف
+                    </button>
+                  </div>
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    يتم إغلاق الصف وتغيير حالته إلى مؤرشف للمحافظة على التاريخ الأكاديمي وسجلات السنين الماضية دون أي فقدان للبيانات.
+                  </p>
+                </div>
+
+                {/* Option 2: Cascade Delete */}
+                <div className="p-3.5 rounded-xl bg-red-950/20 border border-red-900/40 flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-red-400 flex items-center gap-1.5">
+                      <Trash2 className="w-4 h-4" />
+                      حذف نهائي شامل لكافة البيانات
+                    </span>
+                    <label className="flex items-center gap-2 cursor-pointer text-xs text-red-300 font-bold">
+                      <input
+                        type="checkbox"
+                        checked={confirmCascadeDelete}
+                        onChange={(e) => setConfirmCascadeDelete(e.target.checked)}
+                        className="w-4 h-4 rounded text-red-600 bg-slate-950 border-slate-700"
+                      />
+                      <span>أنا أتحمل المسؤولية</span>
+                    </label>
+                  </div>
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    سيتم حذف الصف وكافة الشعب والطلاب والدرجات والمواد التابعة له نهائياً من قاعدة البيانات داخل معاملة آمنة (Transaction).
+                  </p>
+                  {confirmCascadeDelete && (
+                    <button
+                      type="button"
+                      onClick={handleCascadeDeleteConfirm}
+                      className="mt-1 w-full py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-red-600/30"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span>حذف شامل ونهائي لجميع بيانات الصف</span>
+                    </button>
+                  )}
                 </div>
               </div>
             ) : (
-              /* Safe Deletion Confirmation */
+              /* Safe Deletion Confirmation for Empty Class */
               <div className="flex flex-col gap-3">
                 <p className="text-sm text-slate-200 leading-relaxed">
                   هل أنت متأكد من رغبتك في حذف الصف الدراسي «<strong className="text-white">{deletingClass.name}</strong>» نهائياً من النظام؟
@@ -790,7 +908,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                 onClick={() => setDeletingClass(null)}
                 className="px-4 py-2 text-xs font-bold rounded-lg text-slate-300 hover:bg-slate-800 transition-colors cursor-pointer"
               >
-                {deletingClassDetails.isBlocked ? 'إغلاق' : 'إلغاء'}
+                إلغاء
               </button>
 
               {!deletingClassDetails.isBlocked && (

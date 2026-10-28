@@ -11,6 +11,7 @@ import {
 } from '../../types';
 import { buildGradeKey, db } from '../../services/storage';
 import { evaluateStudentAcademicYearDecisions } from '../../services/calculations';
+import { getStudentReportFinalStatus, getSubjectReportDisplay } from '../../utils/exemptionUtils';
 import {
   Printer,
   FileText,
@@ -380,7 +381,8 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                     db.getDecisionGrants()
                   );
 
-                  const isGeneralExempt = evaluation.isGeneralExempt;
+                  const finalStatusSummary = getStudentReportFinalStatus(stu, evaluation);
+                  const isGeneralExempt = finalStatusSummary.isGeneralExempt;
 
                   let totalScore = 0;
                   let counted = 0;
@@ -408,7 +410,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                       {classSubjects.map((sub) => {
                         const rec = studentGradesBySubject[sub.id];
                         const subEval = evaluation.subjects[sub.id];
-                        const isIndivExempt = !!subEval?.isIndividualExempt;
+                        const subDisplay = getSubjectReportDisplay(stu, sub, rec, subEval);
 
                         let cellVal: number | null = null;
                         let rawVal: number | null = null;
@@ -418,7 +420,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                           cellVal = rec?.termYearlyScore ?? null;
                           rawVal = cellVal;
                         } else {
-                          cellVal = isIndivExempt || isGeneralExempt
+                          cellVal = subDisplay.isExempt
                             ? (rec?.termYearlyScore ?? null)
                             : (subEval ? subEval.effectiveFinalScore : (rec?.finalScore ?? null));
                           primaryAssistance = subEval?.primaryAssistanceApplied || 0;
@@ -435,10 +437,10 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                             key={sub.id}
                             style={{
                               position: 'relative',
-                              ...(isIndivExempt ? { backgroundColor: '#eff6ff' } : {}),
+                              ...(subDisplay.isIndividualExempt ? { backgroundColor: '#eff6ff' } : subDisplay.isGeneralExempt ? { backgroundColor: '#ecfdf5' } : {}),
                             }}
                             className={`relative border border-slate-700 p-1 text-center font-mono text-[11px] h-10 ${
-                              isIndivExempt ? 'bg-blue-50 text-blue-900 font-bold' : ''
+                              subDisplay.isIndividualExempt ? 'bg-blue-50 text-blue-900 font-bold' : ''
                             }`}
                           >
                             <div
@@ -457,10 +459,10 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                                   </span>
                                 </>
                               ) : (
-                                <span className="font-bold">{cellVal !== null ? cellVal : '—'}</span>
+                                <span className="font-bold">{subDisplay.gradeDisplayText}</span>
                               )}
                             </div>
-                            {isIndivExempt && (
+                            {subDisplay.isExempt && subDisplay.gradeDisplayText !== 'معفى' && (
                               <span className="text-[8px] text-blue-700 font-sans block leading-none text-center">
                                 معفى
                               </span>
@@ -480,18 +482,8 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                           : '—'}
                       </td>
                       <td className="border border-slate-700 p-1.5 text-center font-bold text-[11px]">
-                        <span
-                          className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-black ${
-                            evaluation.statusFinal === 'ناجح' || evaluation.statusFinal === 'ناجح — إعفاء عام'
-                              ? 'text-emerald-800 bg-emerald-50 border border-emerald-300'
-                              : evaluation.statusFinal === 'مكمّل'
-                              ? 'text-amber-800 bg-amber-50 border border-amber-300'
-                              : evaluation.statusFinal === 'راسب'
-                              ? 'text-rose-800 bg-rose-50 border border-rose-300'
-                              : 'text-slate-600 bg-slate-100'
-                          }`}
-                        >
-                          {evaluation.statusFinal}
+                        <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-black ${finalStatusSummary.finalStatusBadgeClass}`}>
+                          {masterGradeType === 'finalScore' ? finalStatusSummary.finalStatusText : (isGeneralExempt ? evaluation.status1stRound : finalStatusSummary.finalStatusText)}
                         </span>
                       </td>
                     </tr>
@@ -517,6 +509,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             settings.roundingRule,
             db.getDecisionGrants()
           );
+          const targetStatusSummary = getStudentReportFinalStatus(targetStudent, targetEvaluation);
 
           return (
             <div className="flex flex-col gap-6">
@@ -543,13 +536,10 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                     );
                     const rec = grades[key];
                     const subEval = targetEvaluation.subjects[sub.id];
-                    const primaryAssistance = subEval?.primaryAssistanceApplied || 0;
-                    const finalScore = subEval?.effectiveFinalScore !== null && subEval?.effectiveFinalScore !== undefined
-                      ? subEval.effectiveFinalScore
-                      : (rec?.finalScore ?? '—');
-                    const rawFinal = primaryAssistance > 0 ? subEval?.rawFinalScore : null;
+                    const subDisplay = getSubjectReportDisplay(targetStudent, sub, rec, subEval);
 
-                    const isPass = finalScore !== '—' && Number(finalScore) >= (sub.passScore || 50);
+                    const primaryAssistance = subEval?.primaryAssistanceApplied || 0;
+                    const rawFinal = primaryAssistance > 0 ? subEval?.rawFinalScore : null;
 
                     return (
                       <tr key={sub.id} className="border-b border-slate-400">
@@ -560,15 +550,17 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                         <td className="border border-slate-700 p-2 text-center font-mono font-bold bg-amber-50">{rec?.termYearlyScore ?? '—'}</td>
                         <td
                           style={{ position: 'relative' }}
-                          className="relative border border-slate-700 p-2 text-center font-mono font-black bg-emerald-50 text-sm h-10"
+                          className={`relative border border-slate-700 p-2 text-center font-mono font-black bg-emerald-50 text-sm h-10 ${
+                            subDisplay.isExempt ? 'text-blue-900' : ''
+                          }`}
                         >
                           <div
                             className="relative w-full h-full flex items-center justify-center min-h-[32px]"
                             style={{ position: 'relative' }}
                           >
-                            {primaryAssistance > 0 && rawFinal !== null && rawFinal !== finalScore ? (
+                            {primaryAssistance > 0 && rawFinal !== null && String(rawFinal) !== subDisplay.gradeDisplayText ? (
                               <>
-                                <span className="font-extrabold text-slate-900">{finalScore}</span>
+                                <span className="font-extrabold text-slate-900">{subDisplay.gradeDisplayText}</span>
                                 <span
                                   className="absolute text-[9px] text-red-600 font-mono font-bold leading-none select-none bg-white px-0.5 rounded"
                                   style={{ position: 'absolute', right: '5px', bottom: '3px' }}
@@ -578,12 +570,16 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                                 </span>
                               </>
                             ) : (
-                              <span>{finalScore}</span>
+                              <span>{subDisplay.gradeDisplayText}</span>
                             )}
                           </div>
                         </td>
                         <td className="border border-slate-700 p-2 text-center text-xs font-bold">
-                          {isPass ? (
+                          {subDisplay.isGeneralExempt ? (
+                            <span className="text-blue-700 font-black">إعفاء عام</span>
+                          ) : subDisplay.isIndividualExempt ? (
+                            <span className="text-blue-700 font-black">معفى</span>
+                          ) : subDisplay.isPassedOrExempt ? (
                             <span className="text-emerald-700">ناجح</span>
                           ) : (
                             <span className="text-rose-700">راسب</span>
@@ -598,8 +594,8 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
               <div className="bg-slate-50 p-3 rounded border border-slate-300 text-xs font-bold text-slate-800 flex justify-between items-center">
                 <span>الحالة النهائية للطالب:</span>
                 <span className="px-3 py-1 rounded bg-slate-900 text-white font-black">
-                  {targetEvaluation.statusFinal}
-                  {targetEvaluation.statusFinal === 'مكمّل' && ` (المواد: ${Object.values(targetEvaluation.subjects).filter(s => !s.passedFinal && !s.isExempt).map(s => s.subject.name).join(', ')})`}
+                  {targetStatusSummary.finalStatusText}
+                  {targetStatusSummary.finalStatusText === 'مكمّل' && ` (المواد: ${Object.values(targetEvaluation.subjects).filter(s => !s.passedFinal && !s.isExempt).map(s => s.subject.name).join(', ')})`}
                 </span>
               </div>
             </div>

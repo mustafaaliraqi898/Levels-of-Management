@@ -125,6 +125,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
   const [transferTargetClassId, setTransferTargetClassId] = useState('');
   const [transferTargetSectionId, setTransferTargetSectionId] = useState('');
   const [isTransferConfirming, setIsTransferConfirming] = useState(false);
+  const [isTransferCorrection, setIsTransferCorrection] = useState(false);
 
   const transferAvailableSections = useMemo(
     () => sections.filter((s) => s.classId === transferTargetClassId),
@@ -149,9 +150,18 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
     const otherSec = classSecs.find((s) => s.id !== student.sectionId);
     setTransferTargetSectionId(otherSec ? otherSec.id : student.sectionId);
     setIsTransferConfirming(false);
+    setIsTransferCorrection(false);
   };
 
-  // 4. Excel Import Modal state
+  // 4. Delete Student Modal state
+  const [deletingStudent, setDeletingStudent] = useState<{ id: string; name: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const openDeleteModal = (student: Student) => {
+    setDeletingStudent({ id: student.id, name: student.name });
+  };
+
+  // 5. Excel Import Modal state
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [importYearId, setImportYearId] = useState<string>(currentYear?.id || '');
   const [isParsingExcel, setIsParsingExcel] = useState(false);
@@ -330,10 +340,18 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
     const toClass = classes.find((c) => c.id === transferTargetClassId)?.name || 'غير محدد';
     const toSec = sections.find((s) => s.id === finalTransferSecId)?.name || 'بدون شعبة';
 
-    const res = db.transferStudent(transferringStudent.id, transferTargetClassId, finalTransferSecId);
+    const res = db.transferStudent(
+      transferringStudent.id,
+      transferTargetClassId,
+      finalTransferSecId,
+      { isCorrection: isTransferCorrection }
+    );
+
     if (res.success) {
       showToast(
-        `تم نقل الطالب «${transferringStudent.name}» بنجاح من (${fromClass} - ${fromSec === 'بدون شعبة' ? 'بدون شعبة' : `شعبة ${fromSec}`}) إلى (${toClass} - ${toSec === 'بدون شعبة' ? 'بدون شعبة' : `شعبة ${toSec}`}) مع الحفاظ على كافة درجاته.`
+        `تم نقل الطالب «${transferringStudent.name}» بنجاح من (${fromClass} - ${fromSec === 'بدون شعبة' ? 'بدون شعبة' : `شعبة ${fromSec}`}) إلى (${toClass} - ${toSec === 'بدون شعبة' ? 'بدون شعبة' : `شعبة ${toSec}`}). ${
+          isTransferCorrection ? 'تم تصحيح صف سجلات الدرجات الحالية.' : 'تم الحفاظ على درجات الطالب السابقة بأمان.'
+        }`
       );
       setTransferringStudent(null);
       setIsTransferConfirming(false);
@@ -342,11 +360,24 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
     }
   };
 
-  // Handler: Delete Student
-  const handleDeleteStudent = (id: string, name: string) => {
-    if (window.confirm(`هل أنت متأكد من حذف الطالب «${name}»؟\nتنبيه: سيتم حذف جميع درجاته المحفوظة.`)) {
-      db.deleteStudent(id);
-      showToast(`تم حذف الطالب «${name}» وسجلاته.`);
+  // Handler: Confirm Delete Student
+  const handleConfirmDelete = async () => {
+    if (!deletingStudent || isDeleting) return;
+
+    setIsDeleting(true);
+    try {
+      const res = await db.deleteStudent(deletingStudent.id);
+      if (res.success) {
+        showToast(`تم حذف الطالب «${deletingStudent.name}» وجميع سجلاته بنجاح.`, 'success');
+        setDeletingStudent(null);
+      } else {
+        showToast(res.error || 'فشل حذف الطالب من قاعدة البيانات.', 'error');
+      }
+    } catch (err) {
+      console.error('Delete student error:', err);
+      showToast('حدث خطأ غير متوقع أثناء محاولة حذف الطالب.', 'error');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -750,9 +781,9 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                         {/* Delete Button */}
                         <button
                           type="button"
-                          onClick={() => handleDeleteStudent(stu.id, stu.name)}
+                          onClick={() => openDeleteModal(stu)}
                           className="p-1.5 rounded-lg hover:bg-red-950 text-red-400 hover:text-red-300 transition-colors cursor-pointer"
-                          title="حذف الطالب"
+                          title="حذف الطالب وسجلاته"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -1224,9 +1255,25 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                 {classes.find((c) => c.id === transferTargetClassId)?.name} - شعبة{' '}
                 {sections.find((s) => s.id === transferTargetSectionId)?.name}).
                 <span className="block mt-1 text-slate-300">
-                  سيتم الحفاظ على درجات الطالب السابقة تلقائياً وربطها بسجله الجديد دون حذف أو خلط.
+                  سيتم الحفاظ على درجات الطالب السابقة تلقائياً تحت صفه الأصلي لتفادي خلط الدرجات بين الصفوف.
                 </span>
               </div>
+            </div>
+
+            {/* Correction Checkbox Option */}
+            <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+              <label className="flex items-center gap-2.5 cursor-pointer text-xs text-slate-200 font-bold">
+                <input
+                  type="checkbox"
+                  checked={isTransferCorrection}
+                  onChange={(e) => setIsTransferCorrection(e.target.checked)}
+                  className="w-4 h-4 rounded text-amber-500 bg-slate-900 border-slate-700"
+                />
+                <span>تصحيح خطأ إدخال (تحويل سجلات الدرجات الحالية للصف الجديد)</span>
+              </label>
+              <p className="text-[11px] text-slate-400 mt-1 pr-6">
+                فعّل هذا الخيار فقط إذا كان الطالب قد سُجِّل بالخطأ في صف غير صفه الحقيقي، وتريد تصحيح درجة السجل الحالية وتغيير صفها للصف المستهدف.
+              </p>
             </div>
 
             {/* Modal Buttons */}
@@ -1481,6 +1528,83 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                 <span>
                   تأكيد واستيراد {parseResult?.validRows.length ? `(${parseResult.validRows.length}) طالب` : ''}
                 </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          MODAL 5: DELETE STUDENT CONFIRMATION
+          ========================================================================= */}
+      {deletingStudent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+          <div
+            className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 text-slate-100 flex flex-col gap-5"
+            role="dialog"
+            aria-modal="true"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400">
+                  <Trash2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-white">تأكيد حذف الطالب</h3>
+                  <p className="text-xs text-slate-400">إجراء نهائي لا يمكن التراجع عنه</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => !isDeleting && setDeletingStudent(null)}
+                disabled={isDeleting}
+                className="p-2 text-slate-400 hover:text-white rounded-lg cursor-pointer disabled:opacity-50"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Warning Message */}
+            <div className="bg-red-950/30 border border-red-500/40 p-4 rounded-xl text-xs flex flex-col gap-2.5 text-red-200">
+              <div className="flex items-start gap-2.5">
+                <AlertTriangle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+                <div className="leading-relaxed font-medium">
+                  هل أنت متأكد من رغبتك في حذف الطالب <strong className="text-white underline font-bold px-1">{deletingStudent.name}</strong>؟
+                </div>
+              </div>
+              <div className="text-[11px] text-red-300/90 bg-red-950/50 p-2.5 rounded-lg border border-red-900/50 leading-normal">
+                ⚠️ <strong>تنبيه هام:</strong> سيؤدي تأكيد الحذف إلى مسح سجل الطالب وجميع درجاته المحفوظة في كافة المواد والمراحل، والقرارات الوزارية المرتبطة به نهائياً من قاعدة البيانات.
+              </div>
+            </div>
+
+            {/* Modal Buttons */}
+            <div className="flex items-center justify-end gap-3 pt-2 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setDeletingStudent(null)}
+                disabled={isDeleting}
+                className="px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors cursor-pointer disabled:opacity-50"
+              >
+                إلغاء
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+                className="px-5 py-2.5 text-xs font-bold rounded-xl bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-600/20 flex items-center gap-2 transition-colors cursor-pointer disabled:opacity-50"
+              >
+                {isDeleting ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>جارٍ الحذف...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    <span>تأكيد الحذف النهائي</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

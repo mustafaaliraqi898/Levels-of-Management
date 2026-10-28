@@ -319,7 +319,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
     }
 
     const completed = studentResults.filter((r) => r.isComplete).length;
-    const passed = studentResults.filter((r) => r.status === 'ناجح' || r.status === 'ناجح — إعفاء عام').length;
+    const passed = studentResults.filter((r) => r.status === 'ناجح' || r.status === 'ناجح — إعفاء عام' || r.status === 'معفى عام').length;
     const supplementary = studentResults.filter((r) => r.status === 'مكمّل' || (r.status as string) === 'مكمل').length;
     const failed = studentResults.filter((r) => r.status === 'راسب').length;
     const incomplete = studentResults.filter((r) => r.status === 'غير مكتمل').length;
@@ -346,7 +346,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
   // Top 10 Students ranking based on completed average in this selected grade type
   const topStudents = useMemo(() => {
     return [...studentResults]
-      .filter((r) => r.average !== null && r.isComplete && (r.status === 'ناجح' || r.status === 'ناجح — إعفاء عام'))
+      .filter((r) => r.average !== null && r.isComplete && (r.status === 'ناجح' || r.status === 'ناجح — إعفاء عام' || r.status === 'معفى عام'))
       .sort((a, b) => (b.average || 0) - (a.average || 0))
       .slice(0, 10);
   }, [studentResults]);
@@ -601,7 +601,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                   <td className="border border-black p-1 text-center font-bold text-xs">
                     <span
                       className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-black ${
-                        r.status === 'ناجح' || r.status === 'ناجح — إعفاء عام'
+                        r.status === 'ناجح' || r.status === 'ناجح — إعفاء عام' || r.status === 'معفى عام'
                           ? 'text-emerald-800 bg-emerald-50 border border-emerald-300'
                           : r.status === 'مكمّل' || (r.status as string) === 'مكمل'
                           ? 'text-amber-800 bg-amber-50 border border-amber-300'

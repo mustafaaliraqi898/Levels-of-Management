@@ -30,8 +30,24 @@ function initDb() {
         id TEXT PRIMARY KEY,
         name TEXT,
         stage TEXT,
-        "order" INTEGER
+        "order" INTEGER,
+        academicYearId TEXT,
+        isArchived INTEGER DEFAULT 0
       )`);
+
+      // Ensure columns exist on existing SQLite databases
+      db.all("PRAGMA table_info(classes)", (err, rows) => {
+        if (!err && rows) {
+          const hasYearId = rows.some(r => r.name === 'academicYearId');
+          if (!hasYearId) {
+            db.run("ALTER TABLE classes ADD COLUMN academicYearId TEXT");
+          }
+          const hasArchived = rows.some(r => r.name === 'isArchived');
+          if (!hasArchived) {
+            db.run("ALTER TABLE classes ADD COLUMN isArchived INTEGER DEFAULT 0");
+          }
+        }
+      });
 
       db.run(`CREATE TABLE IF NOT EXISTS sections (
         id TEXT PRIMARY KEY,
@@ -299,7 +315,42 @@ const dbActions = {
 
   upsertYear: (y) => run('INSERT OR REPLACE INTO academic_years (id, name, isCurrent) VALUES (?, ?, ?)', [y.id, y.name, y.isCurrent ? 1 : 0]),
 
-  upsertClass: (c) => run('INSERT OR REPLACE INTO classes (id, name, stage, "order") VALUES (?, ?, ?, ?)', [c.id, c.name, c.stage, c.order]),
+  upsertClass: (c) => run('INSERT OR REPLACE INTO classes (id, name, stage, "order", academicYearId, isArchived) VALUES (?, ?, ?, ?, ?, ?)', 
+    [c.id, c.name, c.stage, c.order, c.academicYearId || null, c.isArchived ? 1 : 0]),
+
+  deleteClassCascade: async (classId) => {
+    return new Promise((resolve, reject) => {
+      db.serialize(() => {
+        db.run('BEGIN TRANSACTION');
+        
+        let errorOccurred = false;
+        const errorHandler = (err) => {
+          if (err && !errorOccurred) {
+            errorOccurred = true;
+            db.run('ROLLBACK');
+            reject(err);
+          }
+        };
+
+        db.run('DELETE FROM grades WHERE classId = ?', [classId], errorHandler);
+        db.run('DELETE FROM decision_grants WHERE classId = ?', [classId], errorHandler);
+        db.run('DELETE FROM students WHERE classId = ?', [classId], errorHandler);
+        db.run('DELETE FROM subjects WHERE classId = ?', [classId], errorHandler);
+        db.run('DELETE FROM sections WHERE classId = ?', [classId], errorHandler);
+        db.run('DELETE FROM classes WHERE id = ?', [classId], function(err) {
+          if (err) return errorHandler(err);
+          
+          if (!errorOccurred) {
+            const changes = this.changes;
+            db.run('COMMIT', (commitErr) => {
+              if (commitErr) return reject(commitErr);
+              resolve({ success: true, changes });
+            });
+          }
+        });
+      });
+    });
+  },
 
   upsertSection: (s) => run('INSERT OR REPLACE INTO sections (id, classId, name) VALUES (?, ?, ?)', [s.id, s.classId, s.name]),
 
@@ -331,6 +382,37 @@ const dbActions = {
   upsertPromotionLog: (l) => run(`INSERT OR REPLACE INTO promotion_logs (id, date, sourceYearId, sourceYearName, targetYearId, targetYearName, promotedCount, repeatingCount, graduatedCount, excludedCount, totalProcessedCount, executedBy) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
     [l.id, l.date, l.sourceYearId, l.sourceYearName, l.targetYearId, l.targetYearName, l.promotedCount, l.repeatingCount, l.graduatedCount, l.excludedCount, l.totalProcessedCount, l.executedBy]),
+
+  deleteStudentCascade: async (studentId) => {
+    return new Promise((resolve, reject) => {
+      db.serialize(() => {
+        db.run('BEGIN TRANSACTION');
+        
+        let errorOccurred = false;
+        const errorHandler = (err) => {
+          if (err && !errorOccurred) {
+            errorOccurred = true;
+            db.run('ROLLBACK');
+            reject(err);
+          }
+        };
+
+        db.run('DELETE FROM grades WHERE studentId = ?', [studentId], errorHandler);
+        db.run('DELETE FROM decision_grants WHERE studentId = ?', [studentId], errorHandler);
+        db.run('DELETE FROM students WHERE id = ?', [studentId], function(err) {
+          if (err) return errorHandler(err);
+          
+          if (!errorOccurred) {
+            const changes = this.changes;
+            db.run('COMMIT', (commitErr) => {
+              if (commitErr) return reject(commitErr);
+              resolve({ success: true, changes });
+            });
+          }
+        });
+      });
+    });
+  },
 
   deleteEntity: (table, id) => {
     const allowedTables = ['users', 'academic_years', 'classes', 'sections', 'subjects', 'students', 'grades', 'decision_grants', 'promotion_logs'];

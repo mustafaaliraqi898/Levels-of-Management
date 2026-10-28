@@ -138,7 +138,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
     const classStats = sortedClasses.map((schoolClass) => {
       // 2. Sections in this class (preserving registered order)
-      const classSections = sections.filter((s) => s.classId === schoolClass.id);
+      const realSections = sections.filter((s) => s.classId === schoolClass.id);
+      const classSections = realSections.length > 0 
+        ? realSections 
+        : [{ id: '', name: 'بدون شعبة', classId: schoolClass.id } as Section];
 
       // 3. Subjects in this class strictly ordered by order field
       const classSubjects = subjects

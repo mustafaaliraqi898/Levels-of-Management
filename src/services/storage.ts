@@ -52,6 +52,8 @@ declare global {
         saveCertificateTemplate: (config: any, imageData?: string) => Promise<any>;
         upsertPromotionLog: (log: any) => Promise<any>;
         deleteEntity: (table: string, id: string) => Promise<any>;
+        deleteStudentCascade: (studentId: string) => Promise<{ success: boolean, changes: number }>;
+        deleteClassCascade: (classId: string) => Promise<{ success: boolean, changes: number }>;
         createBackup: () => Promise<{ success: boolean; path: string }>;
         getBackupsInfo: () => Promise<{ lastBackup: string | null; backupsCount: number }>;
         exportSql: () => Promise<string>;
@@ -127,6 +129,8 @@ export function buildGradeKey(ay: string, cl: string, sec: string, sub: string, 
   return `${ay}_${cl}_${sec}_${sub}_${st}`;
 }
 
+// VIRTUAL_SECTION_PREFIX removed as we are moving to native empty string support for sections
+
 export function buildDecisionKey(ay: string, cl: string, sec: string, st: string, sub: string, rd: string) {
   return `${ay}_${cl}_${sec}_${st}_${sub}_${rd}`;
 }
@@ -182,8 +186,137 @@ export class LocalStorageEngine {
         console.warn('Template image load error', e);
       }
     }
+    await this.migrateClassesToAcademicYears();
     this.isReady = true;
     this.notify(false);
+  }
+
+  private async migrateClassesToAcademicYears() {
+    const unmappedClasses = this.state.classes.filter(c => !c.academicYearId);
+    if (unmappedClasses.length === 0) return;
+
+    const currentYear = this.state.academicYears.find(y => y.isCurrent) || this.state.academicYears[0];
+    const defaultYearId = currentYear?.id || '';
+
+    let needsFullNotify = false;
+
+    for (const oldClass of unmappedClasses) {
+      const studentYears = Array.from(new Set(
+        this.state.students.filter(s => s.classId === oldClass.id).map(s => s.academicYearId).filter(Boolean)
+      ));
+      const gradeYears = Array.from(new Set(
+        Object.values(this.state.grades).filter(g => g.classId === oldClass.id).map(g => g.academicYearId).filter(Boolean)
+      ));
+
+      const usedYears = Array.from(new Set([...studentYears, ...gradeYears]));
+
+      if (usedYears.length === 0) {
+        oldClass.academicYearId = defaultYearId;
+        needsFullNotify = true;
+      } else if (usedYears.length === 1) {
+        oldClass.academicYearId = usedYears[0];
+        needsFullNotify = true;
+      } else {
+        const primaryYearId = usedYears[0];
+        oldClass.academicYearId = primaryYearId;
+        needsFullNotify = true;
+
+        for (let i = 1; i < usedYears.length; i++) {
+          const yearId = usedYears[i];
+          const newClassId = `cls-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+          const newClass: SchoolClass = {
+            ...oldClass,
+            id: newClassId,
+            academicYearId: yearId,
+          };
+          this.state.classes.push(newClass);
+
+          // Sections
+          const oldSections = this.state.sections.filter(sec => sec.classId === oldClass.id);
+          const sectionIdMap: Record<string, string> = {};
+          for (const oldSec of oldSections) {
+            const newSecId = `sec-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+            sectionIdMap[oldSec.id] = newSecId;
+            this.state.sections.push({
+              ...oldSec,
+              id: newSecId,
+              classId: newClassId,
+            });
+          }
+
+          // Subjects
+          const oldSubjects = this.state.subjects.filter(sub => sub.classId === oldClass.id);
+          const subjectIdMap: Record<string, string> = {};
+          for (const oldSub of oldSubjects) {
+            const newSubId = `sub-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+            subjectIdMap[oldSub.id] = newSubId;
+            this.state.subjects.push({
+              ...oldSub,
+              id: newSubId,
+              classId: newClassId,
+            });
+          }
+
+          // Remap students of yearId
+          this.state.students.forEach(s => {
+            if (s.classId === oldClass.id && s.academicYearId === yearId) {
+              s.classId = newClassId;
+              if (s.sectionId && sectionIdMap[s.sectionId]) {
+                s.sectionId = sectionIdMap[s.sectionId];
+              }
+            }
+          });
+
+          // Remap grades of yearId
+          const updatedGradesMap: Record<string, GradeRecord> = {};
+          Object.entries(this.state.grades).forEach(([k, g]) => {
+            if (g.classId === oldClass.id && g.academicYearId === yearId) {
+              const updatedSecId = (g.sectionId && sectionIdMap[g.sectionId]) ? sectionIdMap[g.sectionId] : g.sectionId;
+              const updatedSubId = (g.subjectId && subjectIdMap[g.subjectId]) ? subjectIdMap[g.subjectId] : g.subjectId;
+              const newKey = buildGradeKey(g.academicYearId, newClassId, updatedSecId, updatedSubId, g.studentId);
+
+              updatedGradesMap[newKey] = {
+                ...g,
+                id: newKey,
+                classId: newClassId,
+                sectionId: updatedSecId,
+                subjectId: updatedSubId,
+              };
+            } else {
+              updatedGradesMap[k] = g;
+            }
+          });
+          this.state.grades = updatedGradesMap;
+
+          // Remap decision grants of yearId
+          if (this.state.decisionGrants) {
+            const updatedGrantsMap: Record<string, DecisionGrantRecord> = {};
+            Object.entries(this.state.decisionGrants).forEach(([k, g]) => {
+              if (g.classId === oldClass.id && g.academicYearId === yearId) {
+                const updatedSecId = (g.sectionId && sectionIdMap[g.sectionId]) ? sectionIdMap[g.sectionId] : g.sectionId;
+                const updatedSubId = (g.subjectId && subjectIdMap[g.subjectId]) ? subjectIdMap[g.subjectId] : g.subjectId;
+                const newKey = buildDecisionKey(g.academicYearId, newClassId, updatedSecId, g.studentId, updatedSubId, g.round);
+
+                updatedGrantsMap[newKey] = {
+                  ...g,
+                  id: newKey,
+                  classId: newClassId,
+                  sectionId: updatedSecId,
+                  subjectId: updatedSubId,
+                };
+              } else {
+                updatedGrantsMap[k] = g;
+              }
+            });
+            this.state.decisionGrants = updatedGrantsMap;
+          }
+        }
+      }
+    }
+
+    if (needsFullNotify) {
+      await this.notify(true);
+    }
   }
 
   private async syncBackupInfo() {
@@ -305,7 +438,10 @@ export class LocalStorageEngine {
         await db.saveCertificateTemplate(configOnly, templateImage);
       }
       for (const l of state.promotionLogs || []) await db.upsertPromotionLog(l);
-    } catch (e) { console.error('SQLite persist error', e); }
+    } catch (e) {
+      console.error('SQLite persist error', e);
+      throw new Error(`فشل الحفظ في قاعدة البيانات: ${e instanceof Error ? e.message : 'خطأ غير معروف'}`);
+    }
   }
 
   private loadFromStorage(): DatabaseState {
@@ -332,19 +468,19 @@ export class LocalStorageEngine {
     return empty;
   }
 
-  private notify(persistOrEntity: { type: 'grade', data: GradeRecord } | boolean = true) {
+  private async notify(persistOrEntity: { type: 'grade', data: GradeRecord } | boolean = true) {
     const shouldPersist = persistOrEntity !== false;
     const entity = typeof persistOrEntity === 'object' ? persistOrEntity : undefined;
     
     if (shouldPersist) {
-      this.persistToDisk(this.state, entity);
+      await this.persistToDisk(this.state, entity);
     }
     requestAnimationFrame(() => this.listeners.forEach(cb => cb()));
   }
 
-  private persistToDisk(state: DatabaseState, updatedEntity?: { type: 'grade', data: GradeRecord }) {
+  private async persistToDisk(state: DatabaseState, updatedEntity?: { type: 'grade', data: GradeRecord }) {
     if (this.isElectron) {
-      this.persistToSqlite(state, updatedEntity).catch(e => console.error(e));
+      await this.persistToSqlite(state, updatedEntity);
     } else {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...state, certificateTemplate: state.certificateTemplate ? { ...state.certificateTemplate, templateImage: undefined } : undefined }));
     }
@@ -354,7 +490,7 @@ export class LocalStorageEngine {
   public getState(): DatabaseState { return { ...this.state, grades: { ...this.state.grades }, decisionGrants: { ...(this.state.decisionGrants || {}) } }; }
 
   public getGradeRecord(key: string) { return this.state.grades[key]; }
-  public saveGradeField(ay: string, cl: string, sec: string, sub: string, st: string, field: string, fieldAr: string, val: number | null, reason?: string) {
+  public async saveGradeField(ay: string, cl: string, sec: string, sub: string, st: string, field: string, fieldAr: string, val: number | null, reason?: string) {
     const key = buildGradeKey(ay, cl, sec, sub, st);
     const existing = this.state.grades[key] || { id: key, academicYearId: ay, classId: cl, sectionId: sec, subjectId: sub, studentId: st, term1Score: null, midtermScore: null, term2Score: null, termYearlyScore: null, finalExamScore: null, finalScore: null, secondRoundScore: null, secondRoundFinalScore: null, lastUpdated: new Date().toISOString(), auditHistory: [] };
     const oldVal = (existing as any)[field];
@@ -362,10 +498,27 @@ export class LocalStorageEngine {
     if (oldVal !== val) updated.auditHistory?.push({ field: field as any, fieldArabic: fieldAr, oldValue: oldVal, newValue: val, timestamp: new Date().toISOString(), reason });
     const { termYearlyScore, finalScore, secondRoundFinalScore } = recalculateGradeRecord(updated, this.state.settings.roundingRule);
     updated.termYearlyScore = termYearlyScore; updated.finalScore = finalScore; updated.secondRoundFinalScore = secondRoundFinalScore;
-    this.state.grades = { ...this.state.grades, [key]: updated };
-    this.revalidateStudentDecisionGrants(st, ay);
-    this.notify({ type: 'grade', data: updated });
-    return { success: true, record: updated };
+    
+    // Safety check: Don't overwrite with invalid keys (sectionId can be empty string for classes without sections)
+    if (!ay || !cl || !sub || !st) {
+      return { success: false, error: 'بيانات السجل غير مكتملة (العام، الصف، المادة، أو الطالب مفقود)' };
+    }
+
+    const prevState = { ...this.state.grades };
+    try {
+      this.state.grades = { ...this.state.grades, [key]: updated };
+      this.revalidateStudentDecisionGrants(st, ay);
+      await this.notify({ type: 'grade', data: updated });
+      return { success: true, record: updated };
+    } catch (error) {
+      // Rollback memory state if persistence fails
+      this.state.grades = prevState;
+      console.error('Failed to save grade:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'فشل الحفظ في قاعدة البيانات' 
+      };
+    }
   }
 
   public updateSettings(s: Partial<AppSettings>) { this.state.settings = { ...this.state.settings, ...s }; this.notify(); }
@@ -541,13 +694,61 @@ export class LocalStorageEngine {
     this.state.students = this.state.students.map(x => x.id === s.id ? cleanStudent : x);
     this.notify();
   }
-  public deleteStudent(id: string) {
-    this.state.students = this.state.students.filter(s => s.id !== id);
-    if (this.isElectron) window.electronAPI!.db.deleteEntity('students', id).catch(e => console.error(e));
-    const rem: Record<string, GradeRecord> = {};
-    Object.entries(this.state.grades).forEach(([k, g]) => { if (g.studentId !== id) rem[k] = g; });
-    this.state.grades = rem;
-    this.notify();
+  public async deleteStudent(id: string) {
+    const prevState = { 
+      students: [...this.state.students], 
+      grades: { ...this.state.grades },
+      decisionGrants: { ...(this.state.decisionGrants || {}) }
+    };
+
+    try {
+      // 1. Persistence: atomic cascade delete in SQLite if running in Electron
+      if (this.isElectron) {
+        const result = await window.electronAPI!.db.deleteStudentCascade(id);
+        if (result && result.success === false) {
+          throw new Error('فشل تنفيذ حذف الطالب وسجلاته من قاعدة البيانات SQLite');
+        }
+      }
+
+      // 2. Memory update: remove student
+      this.state.students = this.state.students.filter(s => s.id !== id);
+      
+      // 3. Memory update: remove linked grades
+      const remainingGrades: Record<string, GradeRecord> = {};
+      Object.entries(this.state.grades).forEach(([k, g]) => { 
+        if (g.studentId !== id) remainingGrades[k] = g; 
+      });
+      this.state.grades = remainingGrades;
+
+      // 4. Memory update: remove linked decision grants
+      const remainingGrants: Record<string, DecisionGrantRecord> = {};
+      if (this.state.decisionGrants) {
+        Object.entries(this.state.decisionGrants).forEach(([k, g]) => {
+          if (g.studentId !== id) remainingGrants[k] = g;
+        });
+        this.state.decisionGrants = remainingGrants;
+      }
+
+      if (!this.isElectron) {
+        // LocalStorage fallback (notify will handle full persistence to localStorage)
+        await this.notify();
+      } else {
+        // Electron mode: notify UI listeners to update React components without re-saving
+        this.notify(false);
+      }
+
+      return { success: true };
+    } catch (error) {
+      // Rollback memory state on failure
+      this.state.students = prevState.students;
+      this.state.grades = prevState.grades;
+      this.state.decisionGrants = prevState.decisionGrants;
+      console.error('Failed to delete student:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'فشل حذف الطالب من قاعدة البيانات' 
+      };
+    }
   }
   public isRegistrationNumberTaken(n?: string, id?: string, ay?: string): { isTaken: boolean; existingStudent?: Student } {
     const clean = (n || '').trim();
@@ -555,42 +756,472 @@ export class LocalStorageEngine {
     const s = this.state.students.find(x => x.registrationNumber && x.registrationNumber.trim() === clean && x.id !== id && (!ay || x.academicYearId === ay));
     return { isTaken: !!s, existingStudent: s };
   }
-  public transferStudent(id: string, cl: string, sec: string) {
+  public transferStudent(id: string, cl: string, sec: string, options?: { isCorrection?: boolean }) {
     const s = this.state.students.find(x => x.id === id);
     if (s) {
+      const oldClassId = s.classId;
       s.classId = cl;
       s.sectionId = (sec || '').trim();
-      this.notify();
+
+      if (options?.isCorrection && oldClassId !== cl) {
+        const updatedGrades: Record<string, GradeRecord> = {};
+        Object.entries(this.state.grades).forEach(([k, g]) => {
+          if (g.studentId === id && g.classId === oldClassId && g.academicYearId === s.academicYearId) {
+            const newKey = buildGradeKey(g.academicYearId, cl, (sec || '').trim(), g.subjectId, id);
+            updatedGrades[newKey] = {
+              ...g,
+              id: newKey,
+              classId: cl,
+              sectionId: (sec || '').trim()
+            };
+          } else {
+            updatedGrades[k] = g;
+          }
+        });
+        this.state.grades = updatedGrades;
+      }
+      this.notify(true);
     }
-    return { success: true, message: 'تم النقل' };
+    return { success: true, message: 'تم النقل بنجاح' };
   }
+
   public addStudentsBatch(list: any[]) {
     list.forEach(s => this.addStudent(s));
     return { addedCount: list.length, rejectedCount: 0, errors: [] };
   }
 
-  public addClass(c: any) { const id = `cls-${Date.now()}`; const res: SchoolClass = { ...c, id }; this.state.classes.push(res); this.notify(); return res; }
-  public updateClass(c: SchoolClass) { this.state.classes = this.state.classes.map(x => x.id === c.id ? c : x); this.notify(); return { success: true, message: 'تم التعديل' }; }
-  public deleteClass(id: string) { this.state.classes = this.state.classes.filter(c => c.id !== id); if (this.isElectron) window.electronAPI!.db.deleteEntity('classes', id).catch(e => console.error(e)); this.notify(); return { success: true, message: 'تم الحذف' }; }
-  public isClassNameTaken(n: string, id?: string) { return this.state.classes.some(c => c.name === n && c.id !== id); }
+  public addClass(c: Partial<SchoolClass>) {
+    const id = `cls-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const currentYear = this.state.academicYears.find(y => y.isCurrent) || this.state.academicYears[0];
+    const res: SchoolClass = {
+      id,
+      name: (c.name || '').trim(),
+      stage: c.stage || 'إعدادي',
+      order: c.order || (this.state.classes.length + 1),
+      academicYearId: c.academicYearId || currentYear?.id || '',
+      isArchived: false,
+    };
+    this.state.classes.push(res);
+    this.notify(true);
+    return res;
+  }
 
-  public addSection(s: any) { const id = `sec-${Date.now()}`; const res: Section = { ...s, id }; this.state.sections.push(res); this.notify(); return res; }
-  public updateSection(s: Section) { this.state.sections = this.state.sections.map(x => x.id === s.id ? s : x); this.notify(); return { success: true, message: 'تم التعديل' }; }
-  public deleteSection(id: string) { this.state.sections = this.state.sections.filter(s => s.id !== id); if (this.isElectron) window.electronAPI!.db.deleteEntity('sections', id).catch(e => console.error(e)); this.notify(); return { success: true, message: 'تم الحذف' }; }
-  public isSectionNameTaken(cl: string, n: string, id?: string) { return this.state.sections.some(s => s.classId === cl && s.name === n && s.id !== id); }
+  public updateClass(c: SchoolClass) {
+    this.state.classes = this.state.classes.map(x => x.id === c.id ? c : x);
+    this.notify(true);
+    return { success: true, message: 'تم التعديل' };
+  }
 
-  public addSubject(s: any) { const id = `sub-${Date.now()}`; const res: Subject = { ...s, id, order: s.order || 1 }; this.state.subjects.push(res); this.notify(); return res; }
-  public updateSubject(s: Subject) { this.state.subjects = this.state.subjects.map(x => x.id === s.id ? s : x); this.notify(); }
-  public deleteSubject(subjectId: string): void { this.state.subjects = this.state.subjects.filter((s) => s.id !== subjectId); if (this.isElectron) window.electronAPI!.db.deleteEntity('subjects', subjectId).catch(e => console.error(e)); const remainingGrades: Record<string, GradeRecord> = {}; Object.entries(this.state.grades).forEach(([k, g]) => { if (g.subjectId !== subjectId) remainingGrades[k] = g; }); this.state.grades = remainingGrades; this.notify(); }
-  public reorderSubjects(cl: string, ids: string[]) { ids.forEach((id, i) => { const s = this.state.subjects.find(x => x.id === id); if (s) s.order = i + 1; }); this.notify(); }
+  public archiveClass(classId: string, isArchived: boolean = true) {
+    const cls = this.state.classes.find(c => c.id === classId);
+    if (cls) {
+      cls.isArchived = isArchived;
+      this.notify(true);
+      return { success: true, message: isArchived ? 'تم أرشفة الصف وإغلاقه بنجاح' : 'تم تفعيل الصف' };
+    }
+    return { success: false, error: 'الصف غير موجود' };
+  }
 
-  public addAcademicYear(y: any) { const id = `ay-${Date.now()}`; const res: AcademicYear = { ...y, id }; this.state.academicYears.push(res); this.notify(); return { success: true, year: res, message: 'تمت الإضافة' }; }
-  public updateAcademicYear(id: string, n: string) { const y = this.state.academicYears.find(x => x.id === id); if (y) { y.name = n; this.notify(); } return { success: true, message: 'تم التعديل' }; }
-  public deleteAcademicYear(id: string) { this.state.academicYears = this.state.academicYears.filter(y => y.id !== id); if (this.isElectron) window.electronAPI!.db.deleteEntity('academic_years', id).catch(e => console.error(e)); this.notify(); return { success: true, message: 'تم الحذف' }; }
-  public setCurrentYear(id: string) { this.state.academicYears.forEach(y => y.isCurrent = y.id === id); this.notify(); }
-  public canDeleteAcademicYear(id: string) { return { canDelete: this.state.academicYears.length > 1, reason: 'لا يمكن حذف العام الدراسي الوحيد', counts: { students: 0, grades: 0 } }; }
+  public async deleteClassCascade(classId: string) {
+    const prevState = {
+      classes: [...this.state.classes],
+      sections: [...this.state.sections],
+      subjects: [...this.state.subjects],
+      students: [...this.state.students],
+      grades: { ...this.state.grades },
+      decisionGrants: { ...(this.state.decisionGrants || {}) },
+    };
 
-  public executeStudentPromotion(p: any) { return { success: true, message: 'تم الترحيل بنجاح', promotedCount: 0, repeatingCount: 0, graduatedCount: 0, excludedCount: 0, skippedDuplicatesCount: 0 }; }
+    try {
+      if (this.isElectron) {
+        const res = await window.electronAPI!.db.deleteClassCascade(classId);
+        if (res && res.success === false) {
+          throw new Error('فشل تنفيذ حذف الصف وسجلاته من SQLite');
+        }
+      }
+
+      this.state.classes = this.state.classes.filter(c => c.id !== classId);
+      this.state.sections = this.state.sections.filter(s => s.classId !== classId);
+      this.state.subjects = this.state.subjects.filter(s => s.classId !== classId);
+      this.state.students = this.state.students.filter(s => s.classId !== classId);
+
+      const remainingGrades: Record<string, GradeRecord> = {};
+      Object.entries(this.state.grades).forEach(([k, g]) => {
+        if (g.classId !== classId) remainingGrades[k] = g;
+      });
+      this.state.grades = remainingGrades;
+
+      if (this.state.decisionGrants) {
+        const remainingGrants: Record<string, DecisionGrantRecord> = {};
+        Object.entries(this.state.decisionGrants).forEach(([k, g]) => {
+          if (g.classId !== classId) remainingGrants[k] = g;
+        });
+        this.state.decisionGrants = remainingGrants;
+      }
+
+      if (!this.isElectron) {
+        await this.notify(true);
+      } else {
+        this.notify(false);
+      }
+
+      return { success: true };
+    } catch (err) {
+      this.state.classes = prevState.classes;
+      this.state.sections = prevState.sections;
+      this.state.subjects = prevState.subjects;
+      this.state.students = prevState.students;
+      this.state.grades = prevState.grades;
+      this.state.decisionGrants = prevState.decisionGrants;
+      return { success: false, error: err instanceof Error ? err.message : 'فشل حذف الصف' };
+    }
+  }
+
+  public isClassNameTaken(n: string, id?: string, academicYearId?: string) {
+    return this.state.classes.some(c =>
+      c.name.trim().toLowerCase() === n.trim().toLowerCase() &&
+      c.id !== id &&
+      (!academicYearId || c.academicYearId === academicYearId)
+    );
+  }
+
+  // --- Academic Years ---
+  public addAcademicYear(y: { name: string; isCurrent?: boolean }) {
+    const id = `ay-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const newYear: AcademicYear = {
+      id,
+      name: y.name.trim(),
+      isCurrent: !!y.isCurrent,
+    };
+    if (newYear.isCurrent) {
+      this.state.academicYears.forEach(x => x.isCurrent = false);
+    }
+    this.state.academicYears.push(newYear);
+    this.notify(true);
+    return { success: true, year: newYear, message: 'تمت إضافة العام الدراسي بنجاح' };
+  }
+
+  public setCurrentYear(id: string) {
+    this.state.academicYears.forEach(x => x.isCurrent = x.id === id);
+    this.notify(true);
+    return { success: true, message: 'تم تعيين العام الدراسي الحالي بنجاح' };
+  }
+
+  public updateAcademicYear(idOrYear: string | AcademicYear, newName?: string) {
+    const yearId = typeof idOrYear === 'string' ? idOrYear : idOrYear.id;
+    const name = typeof idOrYear === 'string' ? newName || '' : idOrYear.name;
+
+    const existing = this.state.academicYears.find(x => x.id === yearId);
+    if (!existing) {
+      return { success: false, message: 'العام الدراسي غير موجود' };
+    }
+
+    if (typeof idOrYear === 'object') {
+      this.state.academicYears = this.state.academicYears.map(x => x.id === yearId ? idOrYear : x);
+    } else {
+      existing.name = name.trim();
+    }
+
+    this.notify(true);
+    return { success: true, message: 'تم تعديل العام الدراسي بنجاح' };
+  }
+
+  public canDeleteAcademicYear(id: string) {
+    const studentCount = this.state.students.filter(s => s.academicYearId === id).length;
+    const gradeCount = Object.values(this.state.grades).filter(g => g.academicYearId === id).length;
+    const isBlocked = studentCount > 0 || gradeCount > 0;
+
+    return {
+      allowed: !isBlocked,
+      canDelete: !isBlocked,
+      reason: isBlocked ? 'العام الدراسي يحتوي على طلاب أو سجلات درجات مسجلة.' : undefined,
+      message: isBlocked ? 'العام الدراسي يحتوي على طلاب أو سجلات درجات مسجلة.' : undefined,
+      counts: { students: studentCount, grades: gradeCount },
+    };
+  }
+
+  public deleteAcademicYear(id: string) {
+    const check = this.canDeleteAcademicYear(id);
+    if (!check.allowed) return { success: false, message: check.reason };
+    this.state.academicYears = this.state.academicYears.filter(x => x.id !== id);
+    if (this.isElectron) window.electronAPI!.db.deleteEntity('academic_years', id).catch(e => console.error(e));
+    this.notify(true);
+    return { success: true, message: 'تم حذف العام الدراسي بنجاح' };
+  }
+
+  // --- Classes ---
+  public deleteClass(classId: string) {
+    const hasSections = this.state.sections.some(s => s.classId === classId);
+    const hasStudents = this.state.students.some(s => s.classId === classId);
+    const hasSubjects = this.state.subjects.some(s => s.classId === classId);
+    const hasGrades = Object.values(this.state.grades).some(g => g.classId === classId);
+
+    if (hasSections || hasStudents || hasSubjects || hasGrades) {
+      return { success: false, message: 'تعذر حذف الصف لوجود بيانات وسجلات شعب أو طلاب أو مواد مرتبطة به.' };
+    }
+
+    this.state.classes = this.state.classes.filter(c => c.id !== classId);
+    if (this.isElectron) window.electronAPI!.db.deleteEntity('classes', classId).catch(e => console.error(e));
+    this.notify(true);
+    return { success: true };
+  }
+
+  // --- Sections ---
+  public isSectionNameTaken(classId: string, name: string, id?: string) {
+    return this.state.sections.some(s =>
+      s.classId === classId &&
+      s.name.trim().toLowerCase() === name.trim().toLowerCase() &&
+      s.id !== id
+    );
+  }
+
+  public addSection(s: { classId: string; name: string }) {
+    const id = `sec-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const newSection: Section = {
+      id,
+      classId: s.classId,
+      name: s.name.trim(),
+    };
+    this.state.sections.push(newSection);
+    this.notify(true);
+    return newSection;
+  }
+
+  public updateSection(s: Section) {
+    this.state.sections = this.state.sections.map(x => x.id === s.id ? s : x);
+    this.notify(true);
+    return { success: true, message: 'تم تعديل اسم الشعبة' };
+  }
+
+  public deleteSection(sectionId: string) {
+    const hasStudents = this.state.students.some(s => s.sectionId === sectionId);
+    const hasGrades = Object.values(this.state.grades).some(g => g.sectionId === sectionId);
+    if (hasStudents || hasGrades) {
+      return { success: false, message: 'تعذر حذف الشعبة لاحتوائها على طلاب أو سجلات درجات' };
+    }
+
+    this.state.sections = this.state.sections.filter(s => s.id !== sectionId);
+    if (this.isElectron) window.electronAPI!.db.deleteEntity('sections', sectionId).catch(e => console.error(e));
+    this.notify(true);
+    return { success: true };
+  }
+
+  // --- Subjects ---
+  public addSubject(s: { classId: string; name: string; maxScore?: number; passScore?: number; order?: number }) {
+    const id = `sub-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const newSubject: Subject = {
+      id,
+      classId: s.classId,
+      name: s.name.trim(),
+      maxScore: s.maxScore || 100,
+      passScore: s.passScore || 50,
+      order: s.order || (this.state.subjects.filter(sub => sub.classId === s.classId).length + 1),
+    };
+    this.state.subjects.push(newSubject);
+    this.notify(true);
+    return newSubject;
+  }
+
+  public updateSubject(s: Subject) {
+    this.state.subjects = this.state.subjects.map(x => x.id === s.id ? s : x);
+    this.notify(true);
+    return { success: true, message: 'تم تعديل المادة' };
+  }
+
+  public deleteSubject(subjectId: string) {
+    this.state.subjects = this.state.subjects.filter(s => s.id !== subjectId);
+    if (this.isElectron) window.electronAPI!.db.deleteEntity('subjects', subjectId).catch(e => console.error(e));
+    this.notify(true);
+    return { success: true };
+  }
+
+  public reorderSubjects(classId: string, orderedSubjectIds: string[]) {
+    orderedSubjectIds.forEach((id, index) => {
+      const sub = this.state.subjects.find(s => s.id === id);
+      if (sub) {
+        sub.order = index + 1;
+      }
+    });
+    this.notify(true);
+    return { success: true };
+  }
+
+  public copyClassesAndSubjectsFromYear(sourceYearId: string, targetYearId: string) {
+    const sourceClasses = this.state.classes.filter(c => c.academicYearId === sourceYearId && !c.isArchived);
+    if (sourceClasses.length === 0) {
+      return { success: false, message: 'لا توجد صفوف مسجلة في العام المصدر لنقلها.' };
+    }
+
+    let addedClassesCount = 0;
+    let addedSubjectsCount = 0;
+
+    sourceClasses.forEach(sClass => {
+      let targetClass = this.state.classes.find(c => c.academicYearId === targetYearId && c.name === sClass.name);
+      if (!targetClass) {
+        const newClassId = `cls-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        targetClass = {
+          id: newClassId,
+          name: sClass.name,
+          stage: sClass.stage,
+          order: sClass.order,
+          academicYearId: targetYearId,
+          isArchived: false,
+        };
+        this.state.classes.push(targetClass);
+        addedClassesCount++;
+      }
+
+      // Copy sections
+      const sourceSections = this.state.sections.filter(s => s.classId === sClass.id);
+      const targetSections = this.state.sections.filter(s => s.classId === targetClass!.id);
+      sourceSections.forEach(sSec => {
+        if (!targetSections.some(ts => ts.name === sSec.name)) {
+          this.state.sections.push({
+            id: `sec-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+            classId: targetClass!.id,
+            name: sSec.name,
+          });
+        }
+      });
+
+      // Copy subjects
+      const sourceSubjects = this.state.subjects.filter(s => s.classId === sClass.id);
+      const targetSubjects = this.state.subjects.filter(s => s.classId === targetClass!.id);
+      sourceSubjects.forEach(sSub => {
+        if (!targetSubjects.some(ts => ts.name === sSub.name)) {
+          this.state.subjects.push({
+            id: `sub-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+            classId: targetClass!.id,
+            name: sSub.name,
+            maxScore: sSub.maxScore,
+            passScore: sSub.passScore,
+            order: sSub.order,
+          });
+          addedSubjectsCount++;
+        }
+      });
+    });
+
+    this.notify(true);
+    return {
+      success: true,
+      message: `تم نسخ هيكلية الصفوف والمواد بنجاح: تم إنشاء ${addedClassesCount} صفوف و ${addedSubjectsCount} مواد دراسية للعام الجديد.`
+    };
+  }
+
+  public executeStudentPromotion(p: {
+    sourceYearId: string;
+    targetYearId: string;
+    promotions: Array<{
+      sourceStudentId: string;
+      studentName: string;
+      registrationNumber?: string;
+      fatherPhone?: string;
+      nationalId?: string;
+      gender?: 'male' | 'female';
+      notes?: string;
+      targetClassId: string | null;
+      targetSectionId: string;
+      action: 'promote' | 'repeat' | 'graduate' | 'exclude';
+      reason: string;
+    }>;
+    executedBy?: string;
+  }) {
+    let promotedCount = 0;
+    let repeatingCount = 0;
+    let graduatedCount = 0;
+    let excludedCount = 0;
+    let skippedDuplicatesCount = 0;
+
+    const targetYearStudents = this.state.students.filter(s => s.academicYearId === p.targetYearId);
+
+    p.promotions.forEach(item => {
+      if (item.action === 'graduate') {
+        graduatedCount++;
+        return;
+      }
+      if (item.action === 'exclude') {
+        excludedCount++;
+        return;
+      }
+
+      if (!item.targetClassId) {
+        excludedCount++;
+        return;
+      }
+
+      const cleanReg = item.registrationNumber?.trim();
+      const cleanName = item.studentName.trim().toLowerCase();
+
+      const exists = targetYearStudents.some(s => {
+        if (cleanReg && s.registrationNumber && s.registrationNumber.trim() === cleanReg) return true;
+        if (s.name.trim().toLowerCase() === cleanName && s.classId === item.targetClassId) return true;
+        return false;
+      });
+
+      if (exists) {
+        skippedDuplicatesCount++;
+        return;
+      }
+
+      const newStudentId = `stu-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+      const targetClassStudents = targetYearStudents.filter(s => s.classId === item.targetClassId);
+
+      const newStudent: Student = {
+        id: newStudentId,
+        name: item.studentName.trim(),
+        registrationNumber: item.registrationNumber,
+        fatherPhone: item.fatherPhone,
+        nationalId: item.nationalId,
+        seatNumber: targetClassStudents.length + 1,
+        academicYearId: p.targetYearId,
+        classId: item.targetClassId,
+        sectionId: item.targetSectionId || '',
+        gender: item.gender || 'male',
+        notes: item.notes,
+      };
+
+      this.state.students.push(newStudent);
+      targetYearStudents.push(newStudent);
+
+      if (item.action === 'promote') promotedCount++;
+      if (item.action === 'repeat') repeatingCount++;
+    });
+
+    const logId = `log-${Date.now()}`;
+    const sourceYear = this.state.academicYears.find(y => y.id === p.sourceYearId)?.name || '';
+    const targetYear = this.state.academicYears.find(y => y.id === p.targetYearId)?.name || '';
+
+    const newLog: StudentPromotionBatchLog = {
+      id: logId,
+      date: new Date().toISOString(),
+      sourceYearId: p.sourceYearId,
+      sourceYearName: sourceYear,
+      targetYearId: p.targetYearId,
+      targetYearName: targetYear,
+      promotedCount,
+      repeatingCount,
+      graduatedCount,
+      excludedCount,
+      totalProcessedCount: p.promotions.length,
+      executedBy: p.executedBy || 'النظام',
+    };
+
+    if (!this.state.promotionLogs) this.state.promotionLogs = [];
+    this.state.promotionLogs.unshift(newLog);
+
+    this.notify(true);
+
+    return {
+      success: true,
+      message: `تمت عملية الترحيل بنجاح: تم ترفيع ${promotedCount} طالب، وتسجيل ${repeatingCount} معيد، وتخرج ${graduatedCount} طالب (تم تجنب ${skippedDuplicatesCount} مكرر).`,
+      promotedCount,
+      repeatingCount,
+      graduatedCount,
+      excludedCount,
+      skippedDuplicatesCount,
+    };
+  }
 
   public getUsers() { return this.state.users || []; }
   public getUserById(id: string) { return this.state.users?.find(u => u.id === id); }
