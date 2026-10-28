@@ -462,11 +462,11 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                                 <span className="font-bold">{subDisplay.gradeDisplayText}</span>
                               )}
                             </div>
-                            {subDisplay.isExempt && subDisplay.gradeDisplayText !== 'معفى' && (
-                              <span className="text-[8px] text-blue-700 font-sans block leading-none text-center">
-                                معفى
-                              </span>
-                            )}
+                            {subEval.isGeneralExempt ? (
+                              <span className="text-[8px] text-blue-700 font-sans block leading-none text-center">إعفاء عام</span>
+                            ) : subEval.isIndividualExempt ? (
+                              <span className="text-[8px] text-blue-700 font-sans block leading-none text-center">معفى</span>
+                            ) : null}
                           </td>
                         );
                       })}
@@ -483,7 +483,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                       </td>
                       <td className="border border-slate-700 p-1.5 text-center font-bold text-[11px]">
                         <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-black ${finalStatusSummary.finalStatusBadgeClass}`}>
-                          {masterGradeType === 'finalScore' ? finalStatusSummary.finalStatusText : (isGeneralExempt ? evaluation.status1stRound : finalStatusSummary.finalStatusText)}
+                          {masterGradeType === 'finalScore' && evaluation.isGeneralExempt ? 'إعفاء عام' : finalStatusSummary.finalStatusText}
                         </span>
                       </td>
                     </tr>
@@ -575,11 +575,11 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                           </div>
                         </td>
                         <td className="border border-slate-700 p-2 text-center text-xs font-bold">
-                          {subDisplay.isGeneralExempt ? (
+                          {subEval.isGeneralExempt ? (
                             <span className="text-blue-700 font-black">إعفاء عام</span>
-                          ) : subDisplay.isIndividualExempt ? (
+                          ) : subEval.isIndividualExempt ? (
                             <span className="text-blue-700 font-black">معفى</span>
-                          ) : subDisplay.isPassedOrExempt ? (
+                          ) : subEval.passed1stRound ? (
                             <span className="text-emerald-700">ناجح</span>
                           ) : (
                             <span className="text-rose-700">راسب</span>

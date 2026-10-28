@@ -127,9 +127,21 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
   const activeSection = sections.find((s) => s.id === selectedSectionId);
 
   // 2. Exemption Settings State (Tied strictly to selectedYearId)
-  const savedSettings = useMemo(() => {
-    return db.getExemptionSettings(selectedYearId);
-  }, [selectedYearId, grades]); // refreshed on db updates
+  // 2. Exemption Settings State (Tied strictly to selectedYearId)
+  const [savedSettings, setSavedSettings] = useState<ExemptionSettings>(() =>
+    db.getExemptionSettings(selectedYearId)
+  );
+
+  // Sync savedSettings on selectedYearId or reactive db updates
+  useEffect(() => {
+    setSavedSettings(db.getExemptionSettings(selectedYearId));
+    const unsubscribe = db.subscribe(() => {
+      setSavedSettings(db.getExemptionSettings(selectedYearId));
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, [selectedYearId]);
 
   // Draft settings state for editing before clicking "حفظ الشروط"
   const [draftSettings, setDraftSettings] = useState<ExemptionSettings>(() =>
@@ -143,6 +155,31 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
     setSaveFeedback(null);
   }, [selectedYearId]);
 
+  // Immediate toggle handlers ensuring 100% sync and instant calculation update
+  const handleToggleGeneralExemption = (enabled: boolean) => {
+    const updated: ExemptionSettings = {
+      ...draftSettings,
+      academicYearId: selectedYearId,
+      isGeneralExemptionEnabled: enabled,
+      isConfigured: true,
+      updatedAt: new Date().toISOString(),
+    };
+    setDraftSettings(updated);
+    db.saveExemptionSettings(updated);
+  };
+
+  const handleToggleIndividualExemption = (enabled: boolean) => {
+    const updated: ExemptionSettings = {
+      ...draftSettings,
+      academicYearId: selectedYearId,
+      isIndividualExemptionEnabled: enabled,
+      isConfigured: true,
+      updatedAt: new Date().toISOString(),
+    };
+    setDraftSettings(updated);
+    db.saveExemptionSettings(updated);
+  };
+
   // Track if there are unsaved draft changes
   const isDirty = useMemo(() => {
     return (
@@ -150,6 +187,8 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
       draftSettings.generalMinSubjectScore !== savedSettings.generalMinSubjectScore ||
       draftSettings.enableGeneralJabr !== savedSettings.enableGeneralJabr ||
       draftSettings.individualMinScore !== savedSettings.individualMinScore ||
+      draftSettings.isGeneralExemptionEnabled !== savedSettings.isGeneralExemptionEnabled ||
+      draftSettings.isIndividualExemptionEnabled !== savedSettings.isIndividualExemptionEnabled ||
       draftSettings.isConfigured !== savedSettings.isConfigured
     );
   }, [draftSettings, savedSettings]);
@@ -173,6 +212,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
   const handleResetToDefaults = () => {
     const defaults = db.getDefaultExemptionSettings(selectedYearId);
     setDraftSettings(defaults);
+    db.saveExemptionSettings(defaults);
   };
 
   // 3. View filters and tabs
@@ -221,7 +261,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
   // If showNearEligible is active: ALSO show students with meetsAverage and strictly 1 or 2 subjects < minSubjectScore ('قريب من الاستحقاق')
   const filteredGeneralResults = useMemo(() => {
     const base = evaluatedResults.filter((r) => {
-      if (r.status === 'معفى عام') return true;
+      if (savedSettings.isGeneralExemptionEnabled && r.status === 'معفى عام') return true;
       if (showNearEligible && r.isNearEligible) return true;
       return false;
     });
@@ -238,7 +278,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
   // Students strictly eligible for General Exemption ('معفى عام') in current active selection
   const strictlyGeneralExemptStudents = useMemo(() => {
     return evaluatedResults
-      .filter((r) => r.status === 'معفى عام')
+      .filter((r) => savedSettings.isGeneralExemptionEnabled && r.status === 'معفى عام')
       .map((r) => r.student);
   }, [evaluatedResults]);
 
@@ -282,19 +322,37 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
     setIsExportPdfModalOpen(true);
   };
 
+  // Diagnostics UI state
+  const [expandedStudentDiagnosticIds, setExpandedStudentDiagnosticIds] = useState<string[]>([]);
+  const [showAllSectionDiagnostic, setShowAllSectionDiagnostic] = useState<boolean>(false);
+
+  const toggleStudentDiagnostic = (studentId: string) => {
+    setExpandedStudentDiagnosticIds((prev) =>
+      prev.includes(studentId) ? prev.filter((id) => id !== studentId) : [...prev, studentId]
+    );
+  };
+
+  const toggleExpandAllDiagnostics = () => {
+    if (expandedStudentDiagnosticIds.length > 0) {
+      setExpandedStudentDiagnosticIds([]);
+    } else {
+      setExpandedStudentDiagnosticIds(filteredIndividualStudents.map((s) => s.student.id));
+    }
+  };
+
   // Individual Exemption Eligible Students Grouping:
   // Rules:
-  // 1. Exclude students who are granted General Exemption ('معفى عام')
+  // 1. Evaluate each subject independently (Requirement 5: Individual exemption is independent of General Exemption)
   // 2. Exclude students with 0 qualifying individual subjects
-  // 3. For each qualifying student, display ONLY the subjects where they qualify (yearlyScore >= individualMinScore)
-  // 4. Group by student so each student appears exactly once with all their qualifying subjects
+  // 3. For each qualifying student, display their qualifying subjects and diagnostics
+  // 4. Group by student so each student appears with all their qualifying subjects
   const eligibleIndividualStudents = useMemo(() => {
+    // If individual exemption is disabled for this year, return empty list
+    if (!savedSettings.isIndividualExemptionEnabled) return [];
+
     return evaluatedResults
       .filter((res) => {
-        // Exclude general exempt students!
-        if (res.status === 'معفى عام') return false;
-
-        // Keep only students who have at least one qualifying individual subject
+        // Keep students who have at least one qualifying individual subject
         const qualifying = res.individualResults.filter(
           (sub) => sub.status === 'مستحق للإعفاء الفردي' && sub.yearlyScore !== null && sub.yearlyScore >= savedSettings.individualMinScore
         );
@@ -310,16 +368,19 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
             subjectName: sub.subjectName,
             yearlyScore: sub.yearlyScore as number,
             requiredScore: sub.requiredScore,
+            diagnosticReason: sub.diagnosticReason,
           }));
 
         return {
           student: res.student,
+          isGeneralExempt: res.status === 'معفى عام',
           eligibleSubjects,
           eligibleCount: eligibleSubjects.length,
           requiredScore: savedSettings.individualMinScore,
+          allSubjectsResults: res.individualResults,
         };
       });
-  }, [evaluatedResults, savedSettings.individualMinScore]);
+  }, [evaluatedResults, savedSettings.individualMinScore, savedSettings.isIndividualExemptionEnabled]);
 
   // Filtered Individual Exemption Students by Search Query & Subject Filter
   const filteredIndividualStudents = useMemo(() => {
@@ -696,7 +757,24 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
               </div>
 
               {/* 3. مربع اختيار: تفعيل جبر كسر المعدل العام */}
-              <div className="pt-2 border-t border-slate-800/80">
+              <div className="pt-2 border-t border-slate-800/80 space-y-3">
+                <label className="flex items-start gap-3 cursor-pointer group select-none">
+                  <div className="pt-0.5">
+                    <input
+                      type="checkbox"
+                      checked={draftSettings.isGeneralExemptionEnabled}
+                      onChange={(e) => handleToggleGeneralExemption(e.target.checked)}
+                      className="w-5 h-5 rounded-md text-amber-500 bg-slate-900 border-slate-700 focus:ring-amber-500 focus:ring-offset-slate-950 cursor-pointer accent-amber-500"
+                    />
+                  </div>
+                  <div className="flex-1">
+                     <span className="text-xs sm:text-sm font-bold text-slate-200 group-hover:text-amber-400 transition-colors">
+                        تفعيل نظام الإعفاء العام لهذا العام
+                     </span>
+                     <p className="text-[11px] text-slate-400 mt-0.5">عند تعطيله، لن يُعتبر أي طالب معفى عاماً، حتى لو استوفى الشروط.</p>
+                  </div>
+                </label>
+                
                 <label className="flex items-start gap-3 cursor-pointer group select-none">
                   <div className="pt-0.5">
                     <input
@@ -796,6 +874,23 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                   <p className="text-[11px] text-slate-400 leading-relaxed">
                     تُقيّم كل مادة دراسية بصورة مستقلة، ويُعد الطالب مستحقاً للإعفاء الفردي في المادة إذا بلغت درجة سعيها السنوي هذا الحد أو تجاوزته.
                   </p>
+                  
+                  <label className="flex items-start gap-3 cursor-pointer group select-none pt-4 border-t border-slate-800">
+                    <div className="pt-0.5">
+                      <input
+                        type="checkbox"
+                        checked={draftSettings.isIndividualExemptionEnabled}
+                        onChange={(e) => handleToggleIndividualExemption(e.target.checked)}
+                        className="w-5 h-5 rounded-md text-teal-500 bg-slate-900 border-slate-700 focus:ring-teal-500 focus:ring-offset-slate-950 cursor-pointer accent-teal-500"
+                      />
+                    </div>
+                    <div className="flex-1">
+                       <span className="text-xs sm:text-sm font-bold text-slate-200 group-hover:text-teal-400 transition-colors">
+                          تفعيل نظام الإعفاء الفردي لهذا العام
+                       </span>
+                       <p className="text-[11px] text-slate-400 mt-0.5">عند تعطيله، لن يُعتبر أي طالب معفى فردياً، حتى لو استوفى الشروط.</p>
+                    </div>
+                  </label>
                 </div>
               </div>
 
@@ -933,7 +1028,9 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
               <p className="text-[11px] text-teal-300 font-semibold">مستحقون لإعفاء فردي</p>
               <div className="flex items-baseline gap-1.5">
                 <p className="text-lg font-black text-teal-400">{stats.individualExemptCount}</p>
-                <span className="text-[10px] text-teal-400/80">طالب (غير معفى عام)</span>
+                <span className="text-[10px] text-teal-400/80">
+                  {savedSettings.isIndividualExemptionEnabled ? 'طالب مستحق' : '(معطّل)'}
+                </span>
               </div>
             </div>
             <CheckCircle2 className="w-6 h-6 text-teal-400" />
@@ -1297,7 +1394,47 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
       {/* 8. SECTION B: RESULTS OF INDIVIDUAL EXEMPTION (نتائج الإعفاء الفردي) */}
       {activeTab === 'individual' && (
         <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-sm space-y-0">
-          <div className="p-4 sm:p-5 bg-slate-850/80 border-b border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          {/* Activation Notice Banner if Individual Exemption is Disabled */}
+          {!savedSettings.isIndividualExemptionEnabled && (
+            <div className="bg-rose-500/15 border-b-2 border-rose-500/40 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <AlertCircle className="w-6 h-6 text-rose-400 shrink-0" />
+                <div>
+                  <h4 className="font-bold text-rose-300 text-sm sm:text-base">
+                    نظام الإعفاء الفردي معطّل حالياً للعام الدراسي ({activeYearObj?.name || selectedYearId})
+                  </h4>
+                  <p className="text-rose-200/90 text-xs mt-0.5 leading-relaxed">
+                    تم إيقاف تطبيق الإعفاء الفردي في المواد بقرار إداري. لن يُعتمد أي طالب كمعفى فردياً حتى يتم تفعيل الخيار مجدداً.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleToggleIndividualExemption(true)}
+                className="px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs sm:text-sm flex items-center gap-2 cursor-pointer shadow-md transition-all shrink-0 active:scale-95"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                تفعيل الإعفاء الفردي الآن
+              </button>
+            </div>
+          )}
+
+          {/* Active Status Info Bar when Individual Exemption is Enabled */}
+          {savedSettings.isIndividualExemptionEnabled && (
+            <div className="bg-teal-500/10 border-b border-teal-500/25 px-5 py-2.5 text-xs text-teal-200 flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2 font-medium">
+                <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0" />
+                <span>
+                  نظام الإعفاء الفردي <strong>مفعّل للعام الدراسي ({activeYearObj?.name || selectedYearId})</strong> • شرط الاستحقاق: بلوغ درجة السعي السنوي <strong>{savedSettings.individualMinScore} فأعلى</strong> لكل مادة بصورة مستقلة.
+                </span>
+              </div>
+              <span className="text-[11px] font-bold text-teal-300 bg-teal-500/20 px-2.5 py-0.5 rounded-full border border-teal-500/30">
+                {stats.individualExemptCount} طالب مستحق في الشعبة
+              </span>
+            </div>
+          )}
+
+          <div className="p-4 sm:p-5 bg-slate-850/80 border-b border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
             <div>
               <h3 className="font-bold text-slate-100 text-base sm:text-lg flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-teal-400" />
@@ -1307,27 +1444,78 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                 </span>
               </h3>
               <p className="text-xs text-slate-400 mt-0.5">
-                الطلبة المشمولون فعلياً بالإعفاء الفردي بمادة أو أكثر (الدرجة المطلوبة: {savedSettings.individualMinScore} فأعلى في السعي السنوي، مع استبعاد المشمولين بالإعفاء العام تلقائياً)
+                تُقيّم كل مادة دراسية بصورة مستقلة استناداً إلى درجة السعي السنوي، دون استبعاد المستحقين للإعفاء العام.
               </p>
             </div>
 
-            {/* Filter by Subject */}
-            <div className="flex items-center gap-2.5 w-full sm:w-auto">
-              <span className="text-xs text-slate-400 whitespace-nowrap">تصفية بمادة:</span>
-              <select
-                value={individualSubjectFilter}
-                onChange={(e) => setIndividualSubjectFilter(e.target.value)}
-                className="bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-teal-500 cursor-pointer"
+            {/* Diagnostic Actions & Filters */}
+            <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto justify-end">
+              {/* Filter by Subject */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-slate-400 whitespace-nowrap">تصفية بمادة:</span>
+                <select
+                  value={individualSubjectFilter}
+                  onChange={(e) => setIndividualSubjectFilter(e.target.value)}
+                  className="bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-teal-500 cursor-pointer"
+                >
+                  <option value="all">جميع المواد المعتمدة</option>
+                  {classSubjects.map((sub) => (
+                    <option key={sub.id} value={sub.id}>
+                      {sub.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Toggle All Student Diagnostics */}
+              {filteredIndividualStudents.length > 0 && (
+                <button
+                  type="button"
+                  onClick={toggleExpandAllDiagnostics}
+                  className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-750 text-slate-200 text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition-colors cursor-pointer"
+                  title="عرض أو طي جدول تشخيص الدرجات لجميع الطلبة المعروضين"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-teal-400" />
+                  <span>{expandedStudentDiagnosticIds.length > 0 ? 'طي التشخيص' : 'عرض تشخيص المواد'}</span>
+                  {expandedStudentDiagnosticIds.length > 0 ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                </button>
+              )}
+
+              {/* Diagnostics for All Section Students (even non-qualifying) */}
+              <button
+                type="button"
+                onClick={() => setShowAllSectionDiagnostic(!showAllSectionDiagnostic)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border transition-colors cursor-pointer ${
+                  showAllSectionDiagnostic
+                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                    : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-750'
+                }`}
+                title="فحص درجات جميع طلاب الشعبة ومعرفة أسباب عدم استحقاق المواد"
               >
-                <option value="all">جميع المواد المعتمدة</option>
-                {classSubjects.map((sub) => (
-                  <option key={sub.id} value={sub.id}>
-                    {sub.name}
-                  </option>
-                ))}
-              </select>
+                <HelpCircle className="w-3.5 h-3.5 text-amber-400" />
+                <span>{showAllSectionDiagnostic ? 'عرض المستحقين فقط' : 'فحص جميع طلاب الشعبة'}</span>
+              </button>
             </div>
           </div>
+
+          {/* Full Section Diagnostics Banner when active */}
+          {showAllSectionDiagnostic && (
+            <div className="bg-amber-500/10 border-b border-amber-500/30 px-5 py-3 text-xs text-amber-200 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Info className="w-4 h-4 text-amber-400 shrink-0" />
+                <span>
+                  يتم حالياً عرض <strong>تشخيص درجات جميع طلاب الشعبة ({evaluatedResults.length} طالب)</strong> للتحقق من أسباب استحقاق أو عدم استحقاق كل مادة.
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAllSectionDiagnostic(false)}
+                className="text-xs text-amber-400 underline font-bold hover:text-amber-300 cursor-pointer"
+              >
+                إغلاق وضع الفحص الشامل
+              </button>
+            </div>
+          )}
 
           <div className="overflow-x-auto">
             <table className="w-full text-right text-xs sm:text-sm border-collapse min-w-[760px]">
@@ -1335,91 +1523,384 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                 <tr className="bg-slate-950/80 border-b border-slate-800 text-slate-400 font-semibold">
                   <th className="py-3 px-3 text-center w-14">التسلسل</th>
                   <th className="py-3 px-4">اسم الطالب</th>
-                  <th className="py-3 px-4 text-center">عدد المواد المعفى فيها</th>
-                  <th className="py-3 px-4">المواد المشمولة بالإعفاء ودرجة السعي السنوي</th>
+                  <th className="py-3 px-4 text-center">عدد المواد المستحقة</th>
+                  <th className="py-3 px-4">المواد المستحقة ودرجة السعي السنوي</th>
                   <th className="py-3 px-4 text-center">درجة الإعفاء المطلوبة</th>
-                  <th className="py-3 px-4 text-center">حالة الاستحقاق</th>
+                  <th className="py-3 px-4 text-center">حالة الاستحقاق والإجراءات</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60">
-                {filteredIndividualStudents.length === 0 ? (
+                {/* 1. All Students Diagnostics View Mode */}
+                {showAllSectionDiagnostic ? (
+                  evaluatedResults.map((row, idx) => {
+                    const isExpanded = expandedStudentDiagnosticIds.includes(row.student.id);
+                    const eligibleSubs = row.individualResults.filter((s) => s.status === 'مستحق للإعفاء الفردي');
+
+                    return (
+                      <React.Fragment key={row.student.id}>
+                        <tr className="hover:bg-slate-850/50 transition-colors">
+                          <td className="py-3 px-3 text-center font-mono text-slate-400">{idx + 1}</td>
+                          <td className="py-3 px-4">
+                            <div className="font-bold text-slate-100 flex items-center gap-2">
+                              {row.student.name}
+                              {row.status === 'معفى عام' && (
+                                <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold flex items-center gap-1" title="مشمول بالإعفاء العام أيضاً">
+                                  <Award className="w-3 h-3 text-amber-400" />
+                                  معفى عام أيضاً
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-[11px] text-slate-400 mt-0.5">
+                              رقم القيد: {row.student.registrationNumber || '—'}
+                            </div>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                              eligibleSubs.length > 0 ? 'bg-teal-500/20 text-teal-300 border border-teal-500/30 font-black' : 'bg-slate-800 text-slate-500'
+                            }`}>
+                              {eligibleSubs.length} مواد
+                            </span>
+                          </td>
+                          <td className="py-3 px-4">
+                            {eligibleSubs.length > 0 ? (
+                              <div className="flex flex-wrap gap-1.5">
+                                {eligibleSubs.map((sub) => (
+                                  <span key={sub.subjectId} className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-900 border border-teal-500/30 text-xs text-teal-300">
+                                    <span>{sub.subjectName}</span>
+                                    <strong className="font-mono">({sub.yearlyScore})</strong>
+                                  </span>
+                                ))}
+                              </div>
+                            ) : (
+                              <span className="text-slate-500 text-xs">لا توجد مواد مستوفية للحد ({savedSettings.individualMinScore})</span>
+                            )}
+                          </td>
+                          <td className="py-3 px-4 text-center font-mono text-slate-400">{savedSettings.individualMinScore}</td>
+                          <td className="py-3 px-4 text-center">
+                            <button
+                              type="button"
+                              onClick={() => toggleStudentDiagnostic(row.student.id)}
+                              className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 inline-flex items-center gap-1 transition-colors cursor-pointer"
+                            >
+                              <Sparkles className="w-3 h-3 text-teal-400" />
+                              <span>{isExpanded ? 'إخفاء الفحص' : 'فحص المواد'}</span>
+                              {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                            </button>
+                          </td>
+                        </tr>
+
+                        {/* Expandable Diagnostic Panel for this student */}
+                        {isExpanded && (
+                          <tr className="bg-slate-950/90 border-b border-slate-800">
+                            <td colSpan={6} className="p-4">
+                              <div className="bg-slate-900 border border-slate-800 rounded-xl p-3.5 space-y-2.5">
+                                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                                  <span className="text-xs font-bold text-slate-200 flex items-center gap-2">
+                                    <Info className="w-4 h-4 text-teal-400" />
+                                    تقرير تشخيص وفحص درجات المواد للطالب: <strong className="text-teal-300">{row.student.name}</strong>
+                                  </span>
+                                  <span className="text-[11px] text-slate-400">
+                                    الحد المطلوب: {savedSettings.individualMinScore} درجة في السعي السنوي
+                                  </span>
+                                </div>
+                                <div className="overflow-x-auto">
+                                  <table className="w-full text-right text-xs">
+                                    <thead>
+                                      <tr className="text-slate-400 border-b border-slate-800 bg-slate-950/50">
+                                        <th className="py-2 px-3">المادة الدراسية</th>
+                                        <th className="py-2 px-3 text-center">درجة السعي المقروءة</th>
+                                        <th className="py-2 px-3 text-center">الشرط المطلوب</th>
+                                        <th className="py-2 px-3 text-center">استيفاء الدرجة</th>
+                                        <th className="py-2 px-3 text-center">حالة تفعيل الإعفاء</th>
+                                        <th className="py-2 px-3">النتيجة والتشخيص النهائي</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-800/40">
+                                      {row.individualResults.map((subRes) => (
+                                        <tr key={subRes.subjectId} className="hover:bg-slate-850/40">
+                                          <td className="py-2 px-3 font-semibold text-slate-200">{subRes.subjectName}</td>
+                                          <td className="py-2 px-3 text-center font-mono font-bold">
+                                            {subRes.yearlyScore !== null ? (
+                                              <span className={subRes.meetsScoreCondition ? 'text-teal-400 font-black' : 'text-slate-300'}>
+                                                {subRes.yearlyScore}
+                                              </span>
+                                            ) : (
+                                              <span className="text-rose-400 font-medium">سعي غير مكتمل</span>
+                                            )}
+                                          </td>
+                                          <td className="py-2 px-3 text-center text-slate-400 font-mono">
+                                            &gt;= {subRes.requiredScore}
+                                          </td>
+                                          <td className="py-2 px-3 text-center">
+                                            {subRes.meetsScoreCondition ? (
+                                              <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">
+                                                مستوفٍ للدرجة
+                                              </span>
+                                            ) : subRes.yearlyScore === null ? (
+                                              <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">
+                                                نقص رصد
+                                              </span>
+                                            ) : (
+                                              <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">
+                                                دون الحد
+                                              </span>
+                                            )}
+                                          </td>
+                                          <td className="py-2 px-3 text-center">
+                                            {subRes.isExemptionEnabled ? (
+                                              <span className="text-[10px] bg-teal-500/20 text-teal-300 px-2 py-0.5 rounded-full font-bold">
+                                                مفعّل
+                                              </span>
+                                            ) : (
+                                              <span className="text-[10px] bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded-full font-bold">
+                                                معطّل
+                                              </span>
+                                            )}
+                                          </td>
+                                          <td className="py-2 px-3 text-xs">
+                                            {subRes.status === 'مستحق للإعفاء الفردي' ? (
+                                              <span className="text-teal-300 font-bold flex items-center gap-1">
+                                                <Check className="w-3.5 h-3.5 text-teal-400" />
+                                                {subRes.diagnosticReason}
+                                              </span>
+                                            ) : (
+                                              <span className="text-slate-400">
+                                                {subRes.diagnosticReason}
+                                              </span>
+                                            )}
+                                          </td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
+                    );
+                  })
+                ) : filteredIndividualStudents.length === 0 ? (
+                  /* 2. Normal View: Empty State */
                   <tr>
                     <td colSpan={6} className="py-12 text-center text-slate-500">
-                      {searchQuery || individualSubjectFilter !== 'all'
-                        ? 'لا توجد نتائج مطابقة لبحثك أو للمادة المختارة'
-                        : 'لا يوجد طلبة مشمولون بالإعفاء الفردي في هذه الشعبة (تم استبعاد المعفين عاماً والطلبة غير المستوفين للحد المطلوب).'}
+                      {!savedSettings.isIndividualExemptionEnabled ? (
+                        <div className="space-y-3 max-w-md mx-auto">
+                          <p className="text-rose-400 font-semibold text-sm">
+                            نظام الإعفاء الفردي معطّل حالياً لهذا العام الدراسي بقرار الإدارة.
+                          </p>
+                          <p className="text-xs text-slate-400 leading-relaxed">
+                            لتطبيق الإعفاء الفردي وعرض الطلبة المستحقين، اضغط على زر التفعيل أعلاه أو قم بتفعيله من إعدادات شروط الإعفاء.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => handleToggleIndividualExemption(true)}
+                            className="px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs inline-flex items-center gap-2 cursor-pointer shadow-md transition-all"
+                          >
+                            <CheckCircle2 className="w-4 h-4" />
+                            تفعيل نظام الإعفاء الفردي فوراً
+                          </button>
+                        </div>
+                      ) : searchQuery || individualSubjectFilter !== 'all' ? (
+                        'لا توجد نتائج مطابقة لبحثك أو للمادة المختارة'
+                      ) : (
+                        <div className="space-y-2 max-w-md mx-auto">
+                          <p className="text-slate-400 text-sm">
+                            لا يوجد طلبة استوفوا شرط الإعفاء الفردي (سعي سنوي {savedSettings.individualMinScore} فأعلى) في هذا الصف والشعبة حالياً.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => setShowAllSectionDiagnostic(true)}
+                            className="text-xs text-teal-400 underline hover:text-teal-300 font-semibold cursor-pointer"
+                          >
+                            اضغط هنا لفحص درجات جميع طلاب الشعبة ومعرفة أسباب عدم الاستحقاق
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ) : (
+                  /* 3. Normal View: Qualifying Students List */
                   filteredIndividualStudents.map((row, idx) => {
+                    const isExpanded = expandedStudentDiagnosticIds.includes(row.student.id);
+
                     return (
-                      <tr
-                        key={row.student.id}
-                        className="bg-teal-500/5 hover:bg-teal-500/10 transition-colors"
-                      >
-                        {/* 1. التسلسل */}
-                        <td className="py-3.5 px-3 text-center font-mono text-slate-400 font-bold">
-                          {idx + 1}
-                        </td>
+                      <React.Fragment key={row.student.id}>
+                        <tr className="bg-teal-500/5 hover:bg-teal-500/10 transition-colors">
+                          {/* 1. التسلسل */}
+                          <td className="py-3.5 px-3 text-center font-mono text-slate-400 font-bold">
+                            {idx + 1}
+                          </td>
 
-                        {/* 2. اسم الطالب */}
-                        <td className="py-3.5 px-4">
-                          <div className="font-bold text-slate-100 flex items-center gap-2">
-                            {row.student.name}
-                          </div>
-                          <div className="text-[11px] text-slate-400 flex items-center gap-2 mt-0.5">
-                            {row.student.registrationNumber && (
-                              <span>رقم القيد: {row.student.registrationNumber}</span>
-                            )}
-                            {row.student.fatherPhone && (
-                              <span>• هاتف الأب: {row.student.fatherPhone}</span>
-                            )}
-                          </div>
-                        </td>
+                          {/* 2. اسم الطالب */}
+                          <td className="py-3.5 px-4">
+                            <div className="font-bold text-slate-100 flex items-center gap-2 flex-wrap">
+                              {row.student.name}
+                              {row.isGeneralExempt && (
+                                <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold flex items-center gap-1" title="مستوفٍ أيضاً لشروط الإعفاء العام">
+                                  <Award className="w-3 h-3 text-amber-400" />
+                                  معفى عام أيضاً
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-[11px] text-slate-400 flex items-center gap-2 mt-0.5">
+                              {row.student.registrationNumber && (
+                                <span>رقم القيد: {row.student.registrationNumber}</span>
+                              )}
+                              {row.student.fatherPhone && (
+                                <span>• هاتف الأب: {row.student.fatherPhone}</span>
+                              )}
+                            </div>
+                          </td>
 
-                        {/* 3. عدد المواد المعفى فيها */}
-                        <td className="py-3.5 px-4 text-center">
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black bg-teal-500/20 text-teal-300 border border-teal-500/30">
-                            {row.eligibleCount === 1
-                              ? 'مادة واحدة'
-                              : row.eligibleCount === 2
-                              ? 'مادتان'
-                              : `${row.eligibleCount} مواد`}
-                          </span>
-                        </td>
+                          {/* 3. عدد المواد المعفى فيها */}
+                          <td className="py-3.5 px-4 text-center">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                              {row.eligibleCount === 1
+                                ? 'مادة واحدة'
+                                : row.eligibleCount === 2
+                                ? 'مادتان'
+                                : `${row.eligibleCount} مواد`}
+                            </span>
+                          </td>
 
-                        {/* 4. المواد المشمولة بالإعفاء ودرجة السعي */}
-                        <td className="py-3.5 px-4">
-                          <div className="flex flex-wrap gap-2">
-                            {row.eligibleSubjects.map((sub) => (
-                              <div
-                                key={sub.subjectId}
-                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-teal-500/30 shadow-xs"
+                          {/* 4. المواد المشمولة بالإعفاء ودرجة السعي */}
+                          <td className="py-3.5 px-4">
+                            <div className="flex flex-wrap gap-2">
+                              {row.eligibleSubjects.map((sub) => (
+                                <div
+                                  key={sub.subjectId}
+                                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-teal-500/30 shadow-xs"
+                                  title={sub.diagnosticReason || 'مستحق للإعفاء الفردي'}
+                                >
+                                  <span className="text-xs font-medium text-slate-200">
+                                    {sub.subjectName}
+                                  </span>
+                                  <span className="font-mono font-black text-xs text-teal-300 bg-teal-950/60 px-1.5 py-0.5 rounded border border-teal-500/30">
+                                    {sub.yearlyScore}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </td>
+
+                          {/* 5. درجة الإعفاء المطلوبة */}
+                          <td className="py-3.5 px-4 text-center font-mono font-bold text-slate-400">
+                            {row.requiredScore}
+                          </td>
+
+                          {/* 6. حالة الاستحقاق والإجراءات */}
+                          <td className="py-3.5 px-4 text-center">
+                            <div className="flex flex-col items-center gap-1.5">
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-black bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-teal-400" />
+                                مستحق للإعفاء الفردي
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => toggleStudentDiagnostic(row.student.id)}
+                                className="text-[11px] px-2 py-0.5 rounded text-slate-400 hover:text-teal-300 inline-flex items-center gap-1 transition-colors cursor-pointer"
+                                title="عرض فحص وتشخيص درجات جميع المواد لهذا الطالب"
                               >
-                                <span className="text-xs font-medium text-slate-200">
-                                  {sub.subjectName}
-                                </span>
-                                <span className="font-mono font-black text-xs text-teal-300 bg-teal-950/60 px-1.5 py-0.5 rounded border border-teal-500/30">
-                                  {sub.yearlyScore}
-                                </span>
+                                <Sparkles className="w-3 h-3 text-teal-400" />
+                                <span>{isExpanded ? 'إخفاء التشخيص' : 'تشخيص جميع المواد'}</span>
+                                {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+
+                        {/* Expandable Diagnostic Table for this Qualifying Student */}
+                        {isExpanded && (
+                          <tr className="bg-slate-950/90 border-b border-slate-800">
+                            <td colSpan={6} className="p-4">
+                              <div className="bg-slate-900 border border-slate-800 rounded-xl p-3.5 space-y-2.5">
+                                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                                  <span className="text-xs font-bold text-slate-200 flex items-center gap-2">
+                                    <Info className="w-4 h-4 text-teal-400" />
+                                    تقرير تشخيص وفحص المواد للطالب: <strong className="text-teal-300">{row.student.name}</strong>
+                                  </span>
+                                  <span className="text-[11px] text-slate-400">
+                                    الحد المطلوب: {row.requiredScore} درجة في السعي السنوي
+                                  </span>
+                                </div>
+                                <div className="overflow-x-auto">
+                                  <table className="w-full text-right text-xs">
+                                    <thead>
+                                      <tr className="text-slate-400 border-b border-slate-800 bg-slate-950/50">
+                                        <th className="py-2 px-3">المادة الدراسية</th>
+                                        <th className="py-2 px-3 text-center">درجة السعي المقروءة</th>
+                                        <th className="py-2 px-3 text-center">الشرط المطلوب</th>
+                                        <th className="py-2 px-3 text-center">استيفاء الدرجة</th>
+                                        <th className="py-2 px-3 text-center">حالة تفعيل الإعفاء</th>
+                                        <th className="py-2 px-3">النتيجة والتشخيص النهائي</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-800/40">
+                                      {row.allSubjectsResults.map((subRes) => (
+                                        <tr key={subRes.subjectId} className="hover:bg-slate-850/40">
+                                          <td className="py-2 px-3 font-semibold text-slate-200">{subRes.subjectName}</td>
+                                          <td className="py-2 px-3 text-center font-mono font-bold">
+                                            {subRes.yearlyScore !== null ? (
+                                              <span className={subRes.meetsScoreCondition ? 'text-teal-400 font-black' : 'text-slate-300'}>
+                                                {subRes.yearlyScore}
+                                              </span>
+                                            ) : (
+                                              <span className="text-rose-400 font-medium">سعي غير مكتمل</span>
+                                            )}
+                                          </td>
+                                          <td className="py-2 px-3 text-center text-slate-400 font-mono">
+                                            &gt;= {subRes.requiredScore}
+                                          </td>
+                                          <td className="py-2 px-3 text-center">
+                                            {subRes.meetsScoreCondition ? (
+                                              <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">
+                                                مستوفٍ للدرجة
+                                              </span>
+                                            ) : subRes.yearlyScore === null ? (
+                                              <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">
+                                                نقص رصد
+                                              </span>
+                                            ) : (
+                                              <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">
+                                                دون الحد
+                                              </span>
+                                            )}
+                                          </td>
+                                          <td className="py-2 px-3 text-center">
+                                            {subRes.isExemptionEnabled ? (
+                                              <span className="text-[10px] bg-teal-500/20 text-teal-300 px-2 py-0.5 rounded-full font-bold">
+                                                مفعّل
+                                              </span>
+                                            ) : (
+                                              <span className="text-[10px] bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded-full font-bold">
+                                                معطّل
+                                              </span>
+                                            )}
+                                          </td>
+                                          <td className="py-2 px-3 text-xs">
+                                            {subRes.status === 'مستحق للإعفاء الفردي' ? (
+                                              <span className="text-teal-300 font-bold flex items-center gap-1">
+                                                <Check className="w-3.5 h-3.5 text-teal-400" />
+                                                {subRes.diagnosticReason}
+                                              </span>
+                                            ) : (
+                                              <span className="text-slate-400">
+                                                {subRes.diagnosticReason}
+                                              </span>
+                                            )}
+                                          </td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
                               </div>
-                            ))}
-                          </div>
-                        </td>
-
-                        {/* 5. درجة الإعفاء المطلوبة */}
-                        <td className="py-3.5 px-4 text-center font-mono font-bold text-slate-400">
-                          {row.requiredScore}
-                        </td>
-
-                        {/* 6. حالة الاستحقاق */}
-                        <td className="py-3.5 px-4 text-center">
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-teal-500/20 text-teal-300 border border-teal-500/30">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-teal-400" />
-                            مستحق للإعفاء الفردي
-                          </span>
-                        </td>
-                      </tr>
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
                     );
                   })
                 )}

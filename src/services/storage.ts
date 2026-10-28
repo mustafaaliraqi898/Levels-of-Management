@@ -383,7 +383,17 @@ export class LocalStorageEngine {
 
       const exMap: Record<string, ExemptionSettings> = {};
       (data.exemptionSettings || []).forEach((s: any) => {
-        exMap[s.academicYearId] = { ...s, enableGeneralJabr: !!s.enableGeneralJabr, isConfigured: !!s.isConfigured };
+        exMap[s.academicYearId] = { 
+          academicYearId: s.academicYearId,
+          generalMinAverage: Number(s.generalMinAverage) || 85,
+          generalMinSubjectScore: Number(s.generalMinSubjectScore) || 75,
+          enableGeneralJabr: !!s.enableGeneralJabr, 
+          isGeneralExemptionEnabled: s.isGeneralExemptionEnabled !== false && s.isGeneralExemptionEnabled !== 0,
+          individualMinScore: Number(s.individualMinScore) || 90,
+          isIndividualExemptionEnabled: s.isIndividualExemptionEnabled !== false && s.isIndividualExemptionEnabled !== 0,
+          isConfigured: !!s.isConfigured,
+          updatedAt: s.updatedAt,
+        };
       });
       this.state.exemptionSettings = exMap;
       const decSettingsMap: Record<string, AcademicYearDecisionSettings> = {};
@@ -610,9 +620,49 @@ export class LocalStorageEngine {
     const hash = await hashPassword(clean, this.state.settings.accessCodeSalt);
     return hash.toLowerCase() === this.state.settings.accessCodeHash.toLowerCase();
   }
-  public getExemptionSettings(ay: string) { return this.state.exemptionSettings?.[ay] || { academicYearId: ay, generalMinAverage: 85, generalMinSubjectScore: 75, enableGeneralJabr: false, individualMinScore: 90, isConfigured: false }; }
-  public saveExemptionSettings(s: ExemptionSettings) { if (!this.state.exemptionSettings) this.state.exemptionSettings = {}; this.state.exemptionSettings[s.academicYearId] = { ...s, isConfigured: true, updatedAt: new Date().toISOString() }; this.notify(); }
-  public getDefaultExemptionSettings(ay: string) { return { academicYearId: ay, generalMinAverage: 85, generalMinSubjectScore: 75, enableGeneralJabr: false, individualMinScore: 90, isConfigured: false }; }
+  public getExemptionSettings(ay: string): ExemptionSettings {
+    const s = this.state.exemptionSettings?.[ay];
+    if (!s) return this.getDefaultExemptionSettings(ay);
+    return {
+      academicYearId: ay,
+      generalMinAverage: typeof s.generalMinAverage === 'number' ? s.generalMinAverage : 85,
+      generalMinSubjectScore: typeof s.generalMinSubjectScore === 'number' ? s.generalMinSubjectScore : 75,
+      enableGeneralJabr: !!s.enableGeneralJabr,
+      isGeneralExemptionEnabled: s.isGeneralExemptionEnabled !== false && (s.isGeneralExemptionEnabled as any) !== 0,
+      individualMinScore: typeof s.individualMinScore === 'number' ? s.individualMinScore : 90,
+      isIndividualExemptionEnabled: s.isIndividualExemptionEnabled !== false && (s.isIndividualExemptionEnabled as any) !== 0,
+      isConfigured: !!s.isConfigured,
+      updatedAt: s.updatedAt,
+    };
+  }
+  public saveExemptionSettings(s: ExemptionSettings) {
+    if (!this.state.exemptionSettings) this.state.exemptionSettings = {};
+    const normalized: ExemptionSettings = {
+      academicYearId: s.academicYearId,
+      generalMinAverage: typeof s.generalMinAverage === 'number' ? s.generalMinAverage : 85,
+      generalMinSubjectScore: typeof s.generalMinSubjectScore === 'number' ? s.generalMinSubjectScore : 75,
+      enableGeneralJabr: !!s.enableGeneralJabr,
+      isGeneralExemptionEnabled: s.isGeneralExemptionEnabled !== false && (s.isGeneralExemptionEnabled as any) !== 0,
+      individualMinScore: typeof s.individualMinScore === 'number' ? s.individualMinScore : 90,
+      isIndividualExemptionEnabled: s.isIndividualExemptionEnabled !== false && (s.isIndividualExemptionEnabled as any) !== 0,
+      isConfigured: true,
+      updatedAt: new Date().toISOString(),
+    };
+    this.state.exemptionSettings[s.academicYearId] = normalized;
+    this.notify();
+  }
+  public getDefaultExemptionSettings(ay: string): ExemptionSettings {
+    return {
+      academicYearId: ay,
+      generalMinAverage: 85,
+      generalMinSubjectScore: 75,
+      enableGeneralJabr: false,
+      isGeneralExemptionEnabled: true,
+      individualMinScore: 90,
+      isIndividualExemptionEnabled: true,
+      isConfigured: false,
+    };
+  }
   public getDecisionSettings(ay: string) { return this.state.decisionSettings?.[ay] || { academicYearId: ay, maxFailedSubjectsAllowed: 4, primaryAssistanceMarks: 10, secondRoundAdditionalAssistanceMarks: 0, notes: 'إعدادات القرار الوزاري', updatedAt: new Date().toISOString() }; }
   public saveDecisionSettings(s: AcademicYearDecisionSettings) { if (!this.state.decisionSettings) this.state.decisionSettings = {}; this.state.decisionSettings[s.academicYearId] = { ...s, updatedAt: new Date().toISOString() }; this.notify(); }
   

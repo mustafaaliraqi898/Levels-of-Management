@@ -49,6 +49,19 @@ function initDb() {
         }
       });
 
+      db.all("PRAGMA table_info(exemption_settings)", (err, rows) => {
+        if (!err && rows && rows.length > 0) {
+          const hasGenEnabled = rows.some(r => r.name === 'isGeneralExemptionEnabled');
+          if (!hasGenEnabled) {
+            db.run("ALTER TABLE exemption_settings ADD COLUMN isGeneralExemptionEnabled INTEGER DEFAULT 1");
+          }
+          const hasIndivEnabled = rows.some(r => r.name === 'isIndividualExemptionEnabled');
+          if (!hasIndivEnabled) {
+            db.run("ALTER TABLE exemption_settings ADD COLUMN isIndividualExemptionEnabled INTEGER DEFAULT 1");
+          }
+        }
+      });
+
       db.run(`CREATE TABLE IF NOT EXISTS sections (
         id TEXT PRIMARY KEY,
         classId TEXT,
@@ -119,7 +132,9 @@ function initDb() {
         generalMinAverage REAL,
         generalMinSubjectScore REAL,
         enableGeneralJabr INTEGER,
+        isGeneralExemptionEnabled INTEGER DEFAULT 1,
         individualMinScore REAL,
+        isIndividualExemptionEnabled INTEGER DEFAULT 1,
         isConfigured INTEGER,
         updatedAt TEXT,
         FOREIGN KEY(academicYearId) REFERENCES academic_years(id)
@@ -365,9 +380,9 @@ const dbActions = {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
     [g.id, g.academicYearId, g.classId, g.sectionId, g.subjectId, g.studentId, g.term1Score, g.midtermScore, g.term2Score, g.termYearlyScore, g.finalExamScore, g.finalScore, g.secondRoundScore, g.secondRoundFinalScore, g.secondRoundDate, g.lastUpdated, JSON.stringify(g.auditHistory || []), g.isIndividualExempt ? 1 : 0]),
 
-  saveExemptionSettings: (s) => run(`INSERT OR REPLACE INTO exemption_settings (academicYearId, generalMinAverage, generalMinSubjectScore, enableGeneralJabr, individualMinScore, isConfigured, updatedAt) 
-    VALUES (?, ?, ?, ?, ?, ?, ?)`, 
-    [s.academicYearId, s.generalMinAverage, s.generalMinSubjectScore, s.enableGeneralJabr ? 1 : 0, s.individualMinScore, s.isConfigured ? 1 : 0, s.updatedAt]),
+  saveExemptionSettings: (s) => run(`INSERT OR REPLACE INTO exemption_settings (academicYearId, generalMinAverage, generalMinSubjectScore, enableGeneralJabr, isGeneralExemptionEnabled, individualMinScore, isIndividualExemptionEnabled, isConfigured, updatedAt) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
+    [s.academicYearId, s.generalMinAverage, s.generalMinSubjectScore, s.enableGeneralJabr ? 1 : 0, s.isGeneralExemptionEnabled !== false ? 1 : 0, s.individualMinScore, s.isIndividualExemptionEnabled !== false ? 1 : 0, s.isConfigured ? 1 : 0, s.updatedAt]),
 
   saveDecisionSettings: (s) => run(`INSERT OR REPLACE INTO decision_settings (academicYearId, maxFailedSubjectsAllowed, primaryAssistanceMarks, secondRoundAdditionalAssistanceMarks, notes, updatedAt) 
     VALUES (?, ?, ?, ?, ?, ?)`, 

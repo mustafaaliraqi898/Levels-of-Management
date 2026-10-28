@@ -197,7 +197,9 @@ export interface ExemptionSettings {
   generalMinAverage: number;      // Default: 85
   generalMinSubjectScore: number; // Default: 75
   enableGeneralJabr: boolean;     // Enable applying school rounding rule to evaluation average
+  isGeneralExemptionEnabled: boolean;
   individualMinScore: number;     // Default: 90
+  isIndividualExemptionEnabled: boolean;
   isConfigured: boolean;          // Whether settings were explicitly reviewed and saved
   updatedAt?: string;
 }
@@ -208,6 +210,9 @@ export interface IndividualExemptionSubjectResult {
   yearlyScore: number | null;
   requiredScore: number;
   status: 'مستحق للإعفاء الفردي' | 'غير مستحق' | 'غير مكتمل';
+  meetsScoreCondition?: boolean;
+  isExemptionEnabled?: boolean;
+  diagnosticReason?: string;
 }
 
 export interface GeneralExemptionResult {

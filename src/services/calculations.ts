@@ -276,11 +276,20 @@ export function evaluateStudentExemption(
   const individualResults: IndividualExemptionSubjectResult[] = [];
   const subjectsBelowMin: { subjectId: string; subjectName: string; score: number }[] = [];
 
+  const isIndividualEnabled = exemptionSettings.isIndividualExemptionEnabled !== false && (exemptionSettings.isIndividualExemptionEnabled as any) !== 0;
+  const isGeneralEnabled = exemptionSettings.isGeneralExemptionEnabled !== false && (exemptionSettings.isGeneralExemptionEnabled as any) !== 0;
+
   classSubjects.forEach((sub) => {
     const record = studentGrades[sub.id];
-    const score = record ? record.termYearlyScore : null;
+    let score = record ? record.termYearlyScore : null;
+    if (score === null && record && record.term1Score !== null && record.midtermScore !== null && record.term2Score !== null) {
+      score = calculateTermYearlyScore(record.term1Score, record.midtermScore, record.term2Score, schoolRoundingRule);
+    }
 
     let individualStatus: 'مستحق للإعفاء الفردي' | 'غير مستحق' | 'غير مكتمل' = 'غير مكتمل';
+    let meetsScore = false;
+    let diagnostic = '';
+
     if (score !== null && score !== undefined && !isNaN(score)) {
       totalYearlyScore += score;
       completedSubjectsCount++;
@@ -291,13 +300,22 @@ export function evaluateStudentExemption(
       if (score < exemptionSettings.generalMinSubjectScore) {
         subjectsBelowMin.push({ subjectId: sub.id, subjectName: sub.name, score });
       }
-      if (score >= exemptionSettings.individualMinScore) {
-        individualStatus = 'مستحق للإعفاء الفردي';
+      meetsScore = score >= exemptionSettings.individualMinScore;
+      if (meetsScore) {
+        if (isIndividualEnabled) {
+          individualStatus = 'مستحق للإعفاء الفردي';
+          diagnostic = `مستحق للإعفاء الفردي (درجة السعي ${score} >= ${exemptionSettings.individualMinScore})`;
+        } else {
+          individualStatus = 'غير مستحق';
+          diagnostic = `مستوفٍ لدرجة الإعفاء (${score} >= ${exemptionSettings.individualMinScore}) ولكن نظام الإعفاء الفردي معطّل لهذا العام الدراسي`;
+        }
       } else {
         individualStatus = 'غير مستحق';
+        diagnostic = `درجة السعي السنوي (${score}) أقل من درجة الإعفاء المطلوبة (${exemptionSettings.individualMinScore})`;
       }
     } else {
       hasIncomplete = true;
+      diagnostic = 'درجة السعي السنوي غير مكتملة (نقص في رصد الفصول أو نصف السنة)';
     }
 
     individualResults.push({
@@ -306,6 +324,9 @@ export function evaluateStudentExemption(
       yearlyScore: score,
       requiredScore: exemptionSettings.individualMinScore,
       status: individualStatus,
+      meetsScoreCondition: meetsScore,
+      isExemptionEnabled: isIndividualEnabled,
+      diagnosticReason: diagnostic,
     });
   });
 
@@ -349,7 +370,10 @@ export function evaluateStudentExemption(
   let status: 'معفى عام' | 'غير مشمول' = 'غير مشمول';
   let reason = '';
 
-  if (meetsAverage && meetsMinSubject) {
+  if (!isGeneralEnabled) {
+    status = 'غير مشمول';
+    reason = 'نظام الإعفاء العام معطّل لهذا العام الدراسي بقرار الإدارة';
+  } else if (meetsAverage && meetsMinSubject) {
     status = 'معفى عام';
     reason = 'مستوفٍ لكافة الشروط المقررة';
   } else {

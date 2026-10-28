@@ -41,16 +41,10 @@ export function isStudentGeneralExempt(
   student: Student,
   evaluation?: StudentComprehensiveEvaluation
 ): boolean {
-  if (student.isGeneralExempt === true) {
-    return true;
+  if (evaluation) {
+    return evaluation.isGeneralExempt === true;
   }
-  if (evaluation?.isGeneralExempt === true) {
-    return true;
-  }
-  if (evaluation?.statusFinal === 'معفى عام' || evaluation?.statusFinal === 'ناجح — إعفاء عام') {
-    return true;
-  }
-  return false;
+  return student.isGeneralExempt === true;
 }
 
 /**
