@@ -23,6 +23,7 @@ import {
   Layers,
   ArrowRight,
   Sparkles,
+  GraduationCap,
 } from 'lucide-react';
 
 interface StudentsManagementProps {
@@ -30,6 +31,7 @@ interface StudentsManagementProps {
   classes: SchoolClass[];
   sections: Section[];
   academicYears: AcademicYear[];
+  onNavigateToPromotion?: () => void;
 }
 
 export const StudentsManagement: React.FC<StudentsManagementProps> = ({
@@ -37,6 +39,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
   classes,
   sections,
   academicYears,
+  onNavigateToPromotion,
 }) => {
   const currentYear = academicYears.find((y) => y.isCurrent) || academicYears[0];
 
@@ -548,6 +551,19 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
 
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center gap-2.5">
+          {/* Student Promotion Button */}
+          {onNavigateToPromotion && (
+            <button
+              type="button"
+              onClick={onNavigateToPromotion}
+              className="px-3.5 py-2.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors shadow-sm"
+              title="ترحيل الطلاب من صف إلى الصف الأعلى للسنة الدراسية الجديدة"
+            >
+              <GraduationCap className="w-4 h-4 text-emerald-400" />
+              <span>ترحيل الطلاب للعام الجديد</span>
+            </button>
+          )}
+
           {/* Download Excel Template */}
           <button
             type="button"

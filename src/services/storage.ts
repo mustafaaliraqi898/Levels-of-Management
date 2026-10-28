@@ -138,7 +138,7 @@ export function buildDecisionKey(ay: string, cl: string, sec: string, st: string
 export class LocalStorageEngine {
   private state: DatabaseState;
   private listeners: Set<() => void> = new Set();
-  private isElectron = !!(window.electronAPI && window.electronAPI.isElectron);
+  private isElectron = typeof window !== 'undefined' && !!(window.electronAPI && window.electronAPI.isElectron);
   private isReady = false;
   private initPromise: Promise<void>;
 
@@ -1162,6 +1162,8 @@ export class LocalStorageEngine {
   public executeStudentPromotion(p: {
     sourceYearId: string;
     targetYearId: string;
+    sourceClassId?: string;
+    targetClassId?: string;
     promotions: Array<{
       sourceStudentId: string;
       studentName: string;
@@ -1185,7 +1187,7 @@ export class LocalStorageEngine {
 
     const targetYearStudents = this.state.students.filter(s => s.academicYearId === p.targetYearId);
 
-    p.promotions.forEach(item => {
+    p.promotions.forEach((item, idx) => {
       if (item.action === 'graduate') {
         graduatedCount++;
         return;
@@ -1214,7 +1216,7 @@ export class LocalStorageEngine {
         return;
       }
 
-      const newStudentId = `stu-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+      const newStudentId = `stu-${Date.now()}-${idx}-${Math.floor(Math.random() * 10000)}`;
       const targetClassStudents = targetYearStudents.filter(s => s.classId === item.targetClassId);
 
       const newStudent: Student = {

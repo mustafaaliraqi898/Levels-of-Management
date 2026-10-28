@@ -351,6 +351,7 @@ export default function App() {
               classes={dbState.classes}
               sections={dbState.sections}
               academicYears={dbState.academicYears}
+              onNavigateToPromotion={() => setActiveTab('student_promotion')}
             />
           )}
 

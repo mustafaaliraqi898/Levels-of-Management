@@ -78,7 +78,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'reports', label: 'التقارير والطباعة', icon: Printer },
     {
       id: 'student_promotion',
-      label: 'ترحيل الطلبة',
+      label: 'ترحيل الطلاب',
       icon: GraduationCap,
       isHighlight: false,
     },
