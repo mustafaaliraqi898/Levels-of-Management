@@ -67,6 +67,7 @@ app.whenReady().then(async () => {
   ipcMain.handle('db:upsertDecisionGrant', (event, grant) => db.upsertDecisionGrant(grant));
   ipcMain.handle('db:saveCertificateTemplate', (event, config, imageData) => db.saveCertificateTemplate(config, imageData));
   ipcMain.handle('db:upsertPromotionLog', (event, log) => db.upsertPromotionLog(log));
+  ipcMain.handle('db:executeStudentPromotionBatch', (event, students, promotionLog) => db.executeStudentPromotionBatch(students, promotionLog));
   ipcMain.handle('db:deleteEntity', (event, table, id) => db.deleteEntity(table, id));
   ipcMain.handle('db:deleteStudentCascade', (event, studentId) => db.deleteStudentCascade(studentId));
   ipcMain.handle('db:deleteClassCascade', (event, classId) => db.deleteClassCascade(classId));

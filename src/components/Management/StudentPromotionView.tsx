@@ -205,6 +205,7 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
 
   // Review & Confirmation Modal
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   // Get decision settings & exemption settings for source year
@@ -636,59 +637,71 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
   };
 
   // Final Execution of Promotion
-  const handleConfirmAndExecutePromotion = () => {
-    if (!sourceYearId || !targetYearId || sourceYearId === targetYearId) {
+  const handleConfirmAndExecutePromotion = async () => {
+    if (!sourceYearId || !targetYearId || sourceYearId === targetYearId || isSubmitting) {
       return;
     }
 
-    const payload = candidates.map((item) => {
-      let finalTargetClassId: string | null = null;
-      let finalTargetSectionId = '';
+    setIsSubmitting(true);
 
-      if (item.action === 'promote') {
-        finalTargetClassId = targetClassId === 'graduated' ? null : targetClassId;
-        finalTargetSectionId = studentTargetSections[item.student.id] || '';
-      } else if (item.action === 'repeat') {
-        finalTargetClassId = repeaterTargetClassObj ? repeaterTargetClassObj.id : null;
-        finalTargetSectionId = repeaterTargetSections[item.student.id] || '';
-      }
+    try {
+      const payload = candidates.map((item) => {
+        let finalTargetClassId: string | null = null;
+        let finalTargetSectionId = '';
 
-      return {
-        sourceStudentId: item.student.id,
-        studentName: item.student.name,
-        registrationNumber: item.student.registrationNumber,
-        fatherPhone: item.student.fatherPhone,
-        nationalId: item.student.nationalId,
-        gender: item.student.gender,
-        notes: item.student.notes,
-        targetClassId: finalTargetClassId,
-        targetSectionId: finalTargetSectionId,
-        action: item.action,
-        reason: item.reason,
-      };
-    });
+        if (item.action === 'promote') {
+          finalTargetClassId = targetClassId === 'graduated' ? null : targetClassId;
+          finalTargetSectionId = studentTargetSections[item.student.id] || '';
+        } else if (item.action === 'repeat') {
+          finalTargetClassId = repeaterTargetClassObj ? repeaterTargetClassObj.id : null;
+          finalTargetSectionId = repeaterTargetSections[item.student.id] || '';
+        }
 
-    const res = db.executeStudentPromotion({
-      sourceYearId,
-      targetYearId,
-      sourceClassId,
-      targetClassId: targetClassId === 'graduated' ? undefined : targetClassId,
-      promotions: payload,
-      executedBy: 'مدير المدرسة',
-    });
-
-    setIsReviewModalOpen(false);
-
-    if (res.success) {
-      setFeedbackMessage({
-        type: 'success',
-        text: `تمت عملية الترحيل بنجاح! تم ترفيع ${res.promotedCount} طالب وتسجيل ${res.repeatingCount} معيد في صفوف السنة الجديدة (${targetYearObj?.name})، وتم الحفاظ الكامل على درجات وسجلات السنة المنصرمة.`,
+        return {
+          sourceStudentId: item.student.id,
+          studentName: item.student.name,
+          registrationNumber: item.student.registrationNumber,
+          fatherPhone: item.student.fatherPhone,
+          nationalId: item.student.nationalId,
+          gender: item.student.gender,
+          notes: item.student.notes,
+          targetClassId: finalTargetClassId,
+          targetSectionId: finalTargetSectionId,
+          action: item.action,
+          reason: item.reason,
+        };
       });
-    } else {
+
+      const res = await db.executeStudentPromotion({
+        sourceYearId,
+        targetYearId,
+        sourceClassId,
+        targetClassId: targetClassId === 'graduated' ? undefined : targetClassId,
+        promotions: payload,
+        executedBy: 'مدير المدرسة',
+      });
+
+      setIsReviewModalOpen(false);
+
+      if (res.success) {
+        setFeedbackMessage({
+          type: 'success',
+          text: `تمت عملية الترحيل بنجاح! تم ترفيع ${res.promotedCount} طالب وتسجيل ${res.repeatingCount} معيد في صفوف السنة الجديدة (${targetYearObj?.name})، وتم الحفاظ الكامل على درجات وسجلات السنة المنصرمة.`,
+        });
+      } else {
+        setFeedbackMessage({
+          type: 'error',
+          text: res.message || 'فشلت عملية الترحيل.',
+        });
+      }
+    } catch (err: any) {
+      setIsReviewModalOpen(false);
       setFeedbackMessage({
         type: 'error',
-        text: res.message,
+        text: `حدث خطأ غير متوقع أثناء تنفيذ الترحيل: ${err?.message || 'خطأ بالنظام'}`,
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -1642,18 +1655,20 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
             <div className="p-4 border-t border-slate-800 flex items-center justify-end gap-3">
               <button
                 type="button"
+                disabled={isSubmitting}
                 onClick={() => setIsReviewModalOpen(false)}
-                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
               >
                 العودة للتعديل (إلغاء)
               </button>
               <button
                 type="button"
+                disabled={isSubmitting}
                 onClick={handleConfirmAndExecutePromotion}
-                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 text-xs font-black transition-colors shadow-lg shadow-emerald-600/20 cursor-pointer flex items-center gap-2"
+                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 text-xs font-black transition-colors shadow-lg shadow-emerald-600/20 cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Check className="w-4 h-4" />
-                <span>تأكيد وتنفيذ عملية الترحيل نهائياً</span>
+                <span>{isSubmitting ? 'جاري تنفيذ وحفظ الترحيل...' : 'تأكيد وتنفيذ عملية الترحيل نهائياً'}</span>
               </button>
             </div>
           </div>

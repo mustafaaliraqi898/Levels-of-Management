@@ -20,6 +20,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     upsertDecisionGrant: (grant) => ipcRenderer.invoke('db:upsertDecisionGrant', grant),
     saveCertificateTemplate: (config, imageData) => ipcRenderer.invoke('db:saveCertificateTemplate', config, imageData),
     upsertPromotionLog: (log) => ipcRenderer.invoke('db:upsertPromotionLog', log),
+    executeStudentPromotionBatch: (students, promotionLog) => ipcRenderer.invoke('db:executeStudentPromotionBatch', students, promotionLog),
     deleteEntity: (table, id) => ipcRenderer.invoke('db:deleteEntity', table, id),
     deleteStudentCascade: (studentId) => ipcRenderer.invoke('db:deleteStudentCascade', studentId),
     deleteClassCascade: (classId) => ipcRenderer.invoke('db:deleteClassCascade', classId),

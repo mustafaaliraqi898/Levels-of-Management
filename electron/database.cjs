@@ -398,6 +398,74 @@ const dbActions = {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
     [l.id, l.date, l.sourceYearId, l.sourceYearName, l.targetYearId, l.targetYearName, l.promotedCount, l.repeatingCount, l.graduatedCount, l.excludedCount, l.totalProcessedCount, l.executedBy]),
 
+  executeStudentPromotionBatch: async (students, promotionLog) => {
+    return new Promise((resolve, reject) => {
+      db.serialize(() => {
+        db.run('BEGIN TRANSACTION', (beginErr) => {
+          if (beginErr) return reject(beginErr);
+
+          let errorOccurred = false;
+          const errorHandler = (err) => {
+            if (err && !errorOccurred) {
+              errorOccurred = true;
+              db.run('ROLLBACK', () => {
+                reject(err);
+              });
+            }
+          };
+
+          const stuSql = `INSERT OR REPLACE INTO students (id, name, registrationNumber, fatherPhone, seatNumber, academicYearId, classId, sectionId, gender, isGeneralExempt, individualExemptions) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+          let pendingWrites = students.length + (promotionLog ? 1 : 0);
+          if (pendingWrites === 0) {
+            db.run('COMMIT', (commitErr) => {
+              if (commitErr) return reject(commitErr);
+              return resolve({ success: true });
+            });
+            return;
+          }
+
+          const checkDone = () => {
+            pendingWrites--;
+            if (pendingWrites === 0 && !errorOccurred) {
+              db.run('COMMIT', (commitErr) => {
+                if (commitErr) return errorHandler(commitErr);
+                resolve({ success: true });
+              });
+            }
+          };
+
+          for (const s of students) {
+            if (errorOccurred) break;
+            db.run(
+              stuSql,
+              [s.id, s.name, s.registrationNumber || null, s.fatherPhone || null, s.seatNumber, s.academicYearId, s.classId, s.sectionId || '', s.gender || 'male', s.isGeneralExempt ? 1 : 0, JSON.stringify(s.individualExemptions || [])],
+              function(err) {
+                if (err) return errorHandler(err);
+                checkDone();
+              }
+            );
+          }
+
+          if (promotionLog && !errorOccurred) {
+            const logSql = `INSERT OR REPLACE INTO promotion_logs (id, date, sourceYearId, sourceYearName, targetYearId, targetYearName, promotedCount, repeatingCount, graduatedCount, excludedCount, totalProcessedCount, executedBy) 
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            const l = promotionLog;
+            db.run(
+              logSql,
+              [l.id, l.date, l.sourceYearId, l.sourceYearName, l.targetYearId, l.targetYearName, l.promotedCount, l.repeatingCount, l.graduatedCount, l.excludedCount, l.totalProcessedCount, l.executedBy],
+              function(err) {
+                if (err) return errorHandler(err);
+                checkDone();
+              }
+            );
+          }
+        });
+      });
+    });
+  },
+
   deleteStudentCascade: async (studentId) => {
     return new Promise((resolve, reject) => {
       db.serialize(() => {

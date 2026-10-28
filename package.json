@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
+    "test:promotion": "tsx src/tests/promotion.test.ts",
     "electron:dev": "NODE_ENV=development electron electron/main.cjs",
     "electron:build": "vite build && electron-builder"
   },

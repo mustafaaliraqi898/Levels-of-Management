@@ -51,6 +51,7 @@ declare global {
         upsertDecisionGrant: (grant: any) => Promise<any>;
         saveCertificateTemplate: (config: any, imageData?: string) => Promise<any>;
         upsertPromotionLog: (log: any) => Promise<any>;
+        executeStudentPromotionBatch: (students: any[], promotionLog: any) => Promise<{ success: boolean; error?: string }>;
         deleteEntity: (table: string, id: string) => Promise<any>;
         deleteStudentCascade: (studentId: string) => Promise<{ success: boolean, changes: number }>;
         deleteClassCascade: (classId: string) => Promise<{ success: boolean, changes: number }>;
@@ -1250,7 +1251,7 @@ export class LocalStorageEngine {
     };
   }
 
-  public executeStudentPromotion(p: {
+  public async executeStudentPromotion(p: {
     sourceYearId: string;
     targetYearId: string;
     sourceClassId?: string;
@@ -1269,7 +1270,86 @@ export class LocalStorageEngine {
       reason: string;
     }>;
     executedBy?: string;
-  }) {
+  }): Promise<{
+    success: boolean;
+    message: string;
+    promotedCount?: number;
+    repeatingCount?: number;
+    graduatedCount?: number;
+    excludedCount?: number;
+    skippedDuplicatesCount?: number;
+    error?: string;
+  }> {
+    // 1. Strict Batch Validation
+    const sourceYear = this.state.academicYears.find(y => y.id === p.sourceYearId);
+    const targetYear = this.state.academicYears.find(y => y.id === p.targetYearId);
+
+    if (!sourceYear || !targetYear) {
+      return { success: false, message: 'العام الدراسي المصدر أو العام الهدف غير موجود بالنظام.' };
+    }
+
+    if (p.sourceYearId === p.targetYearId) {
+      return { success: false, message: 'يجب أن يكون العام الدراسي المصدر والعام الهدف مختلفين.' };
+    }
+
+    if (p.sourceClassId) {
+      const srcClass = this.state.classes.find(c => c.id === p.sourceClassId);
+      if (!srcClass || (srcClass.academicYearId && srcClass.academicYearId !== p.sourceYearId)) {
+        return { success: false, message: 'الصف المصدر غير صالح أو لا ينتمي إلى العام الدراسي المصدر المحدد.' };
+      }
+    }
+
+    for (const item of p.promotions) {
+      const srcStudent = this.state.students.find(s => s.id === item.sourceStudentId);
+      if (!srcStudent || srcStudent.academicYearId !== p.sourceYearId) {
+        return { success: false, message: `الطالب المصدر (${item.studentName}) غير موجود أو لا ينتمي للسنة المصدر المحددة.` };
+      }
+
+      if (p.sourceClassId && srcStudent.classId !== p.sourceClassId) {
+        return { success: false, message: `الطالب (${item.studentName}) لا ينتمي للصف المصدر المختار.` };
+      }
+
+      if (item.action === 'promote' && item.targetClassId) {
+        const targetClass = this.state.classes.find(c => c.id === item.targetClassId);
+        if (!targetClass || targetClass.academicYearId !== p.targetYearId) {
+          return { success: false, message: `الصف المستهدف للترفيع (${item.studentName}) غير صالح أو لا يتبع العام الدراسي الهدف.` };
+        }
+
+        const classSections = this.state.sections.filter(s => s.classId === item.targetClassId);
+        if (classSections.length > 0) {
+          if (!item.targetSectionId) {
+            return { success: false, message: `الشعبة المستهدفة للطالب (${item.studentName}) غير محددة.` };
+          }
+          const sec = classSections.find(s => s.id === item.targetSectionId);
+          if (!sec) {
+            return { success: false, message: `الشعبة المستهدفة للطالب (${item.studentName}) لا تتبع الصف المستهدف.` };
+          }
+        }
+      }
+
+      if (item.action === 'repeat' && item.targetClassId) {
+        const repClass = this.state.classes.find(c => c.id === item.targetClassId);
+        if (!repClass || repClass.academicYearId !== p.targetYearId) {
+          return { success: false, message: `صف المعيدين المختار للطالب (${item.studentName}) غير صالح أو لا يتبع العام الدراسي الهدف.` };
+        }
+
+        const classSections = this.state.sections.filter(s => s.classId === item.targetClassId);
+        if (classSections.length > 0) {
+          if (!item.targetSectionId) {
+            return { success: false, message: `شعبة المعيدين للطالب (${item.studentName}) غير محددة.` };
+          }
+          const sec = classSections.find(s => s.id === item.targetSectionId);
+          if (!sec) {
+            return { success: false, message: `شعبة المعيدين للطالب (${item.studentName}) لا تتبع صف المعيدين في السنة الجديدة.` };
+          }
+        }
+      }
+    }
+
+    // 2. Perform Memory Processing with Rollback Capability
+    const prevStudents = [...this.state.students];
+    const prevLogs = [...(this.state.promotionLogs || [])];
+
     let promotedCount = 0;
     let repeatingCount = 0;
     let graduatedCount = 0;
@@ -1277,6 +1357,7 @@ export class LocalStorageEngine {
     let skippedDuplicatesCount = 0;
 
     const targetYearStudents = this.state.students.filter(s => s.academicYearId === p.targetYearId);
+    const newStudentsAdded: Student[] = [];
 
     p.promotions.forEach((item, idx) => {
       if (item.action === 'graduate') {
@@ -1293,12 +1374,25 @@ export class LocalStorageEngine {
         return;
       }
 
-      const cleanReg = item.registrationNumber?.trim();
+      const cleanReg = item.registrationNumber ? item.registrationNumber.trim() : '';
       const cleanName = item.studentName.trim().toLowerCase();
+      const cleanPhone = item.fatherPhone ? item.fatherPhone.trim() : '';
 
       const exists = targetYearStudents.some(s => {
-        if (cleanReg && s.registrationNumber && s.registrationNumber.trim() === cleanReg) return true;
-        if (s.name.trim().toLowerCase() === cleanName && s.classId === item.targetClassId) return true;
+        if (cleanReg.length > 0 && s.registrationNumber && s.registrationNumber.trim() === cleanReg) {
+          return true;
+        }
+        if (s.classId === item.targetClassId && s.name.trim().toLowerCase() === cleanName) {
+          if (cleanPhone.length > 0 && s.fatherPhone && s.fatherPhone.trim() === cleanPhone) {
+            return true;
+          }
+          if (s.notes && s.notes.includes(item.sourceStudentId)) {
+            return true;
+          }
+          if (cleanReg.length === 0 && (!s.registrationNumber || s.registrationNumber.trim().length === 0)) {
+            return true;
+          }
+        }
         return false;
       });
 
@@ -1309,39 +1403,38 @@ export class LocalStorageEngine {
 
       const newStudentId = `stu-${Date.now()}-${idx}-${Math.floor(Math.random() * 10000)}`;
       const targetClassStudents = targetYearStudents.filter(s => s.classId === item.targetClassId);
+      const rawReg = item.registrationNumber ? String(item.registrationNumber).trim() : undefined;
 
       const newStudent: Student = {
         id: newStudentId,
         name: item.studentName.trim(),
-        registrationNumber: item.registrationNumber,
-        fatherPhone: item.fatherPhone,
+        registrationNumber: rawReg || undefined,
+        fatherPhone: item.fatherPhone ? item.fatherPhone.trim() : undefined,
         nationalId: item.nationalId,
         seatNumber: targetClassStudents.length + 1,
         academicYearId: p.targetYearId,
         classId: item.targetClassId,
         sectionId: item.targetSectionId || '',
         gender: item.gender || 'male',
-        notes: item.notes,
+        notes: item.notes ? `${item.notes} [src:${item.sourceStudentId}]` : `[src:${item.sourceStudentId}]`,
       };
 
       this.state.students.push(newStudent);
       targetYearStudents.push(newStudent);
+      newStudentsAdded.push(newStudent);
 
       if (item.action === 'promote') promotedCount++;
       if (item.action === 'repeat') repeatingCount++;
     });
 
     const logId = `log-${Date.now()}`;
-    const sourceYear = this.state.academicYears.find(y => y.id === p.sourceYearId)?.name || '';
-    const targetYear = this.state.academicYears.find(y => y.id === p.targetYearId)?.name || '';
-
     const newLog: StudentPromotionBatchLog = {
       id: logId,
       date: new Date().toISOString(),
       sourceYearId: p.sourceYearId,
-      sourceYearName: sourceYear,
+      sourceYearName: sourceYear.name,
       targetYearId: p.targetYearId,
-      targetYearName: targetYear,
+      targetYearName: targetYear.name,
       promotedCount,
       repeatingCount,
       graduatedCount,
@@ -1353,7 +1446,28 @@ export class LocalStorageEngine {
     if (!this.state.promotionLogs) this.state.promotionLogs = [];
     this.state.promotionLogs.unshift(newLog);
 
-    this.notify(true);
+    // 3. Atomic Persistence to Storage/Database
+    try {
+      if (this.isElectron && window.electronAPI?.db?.executeStudentPromotionBatch) {
+        const dbRes = await window.electronAPI.db.executeStudentPromotionBatch(newStudentsAdded, newLog);
+        if (dbRes && (dbRes as any).success === false) {
+          throw new Error((dbRes as any).error || 'فشل حفظ دفعة الترحيل في قاعدة بيانات SQLite');
+        }
+      } else {
+        await this.persistToDisk(this.state);
+      }
+    } catch (err: any) {
+      this.state.students = prevStudents;
+      this.state.promotionLogs = prevLogs;
+      console.error('Promotion persistence error:', err);
+      return {
+        success: false,
+        message: `تعذر حفظ دفعة الترحيل: ${err?.message || 'خطأ أثناء الكتابة في التخزين'}`,
+        error: err?.message,
+      };
+    }
+
+    this.notify(false);
 
     return {
       success: true,
