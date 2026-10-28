@@ -170,7 +170,8 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
         studentGradesBySubject,
         decisionSettings,
         settings.roundingRule,
-        decisionGrants
+        decisionGrants,
+        db.getExemptionSettings(sourceYearId)
       );
 
       const statusFinal = evaluation.statusFinal;
@@ -181,12 +182,14 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
       let targetSectionId: string = '';
       let reason: string = '';
 
-      if (statusFinal === 'ناجح' || statusFinal === 'ناجح — إعفاء عام') {
+      if (statusFinal === 'ناجح' || statusFinal === 'ناجح — إعفاء عام' || statusFinal === 'معفى عام') {
         const mappedTargetClass = classMappings[student.classId];
         if (mappedTargetClass && mappedTargetClass !== 'graduated') {
           action = 'promote';
           targetClassId = mappedTargetClass;
-          reason = 'ناجح في التقييم النهائي مستحق للترقية إلى الصف الأعلى';
+          reason = statusFinal === 'معفى عام'
+            ? 'طالب معفى عاماً مستحق للترقية إلى الصف الأعلى'
+            : 'ناجح في التقييم النهائي مستحق للترقية إلى الصف الأعلى';
         } else {
           action = 'graduate';
           targetClassId = null;

@@ -172,6 +172,11 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
     return db.getDecisionSettings(selectedYearId);
   }, [selectedYearId]);
 
+  // Active exemption settings for this academic year
+  const exemptionSettings = useMemo(() => {
+    return db.getExemptionSettings(selectedYearId);
+  }, [selectedYearId]);
+
   // Aggregate results per student across subjects according to selectedGradeType & official regulations
   const studentResults = useMemo(() => {
     return sectionStudents.map((student) => {
@@ -202,12 +207,16 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
         studentGradesBySubject,
         decisionSettings,
         settings.roundingRule,
-        db.getDecisionGrants()
+        db.getDecisionGrants(),
+        exemptionSettings
       );
+
+      const isGeneralExempt = evaluation.isGeneralExempt;
 
       classSubjects.forEach((sub) => {
         const record = studentGradesBySubject[sub.id];
         const subEval = evaluation.subjects[sub.id];
+        const isSubjectExempt = isGeneralExempt || !!subEval?.isIndividualExempt;
 
         // Read specific score field requested
         let score: number | null = null;
@@ -215,20 +224,22 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
         let assistanceApplied: number = 0;
 
         if (selectedGradeType === 'finalScore') {
-          score = subEval ? subEval.effectiveFinalScore : (record?.finalScore ?? null);
-          rawScore = subEval ? subEval.rawFinalScore : (record?.finalScore ?? null);
-          assistanceApplied = subEval ? subEval.primaryAssistanceApplied : 0;
+          if (isSubjectExempt) {
+            // المادة معفاة: لا تسجل درجة نهائية وهمية، بل تترك فارغة مع اعتبارها ناجحة بحكم الإعفاء
+            score = null;
+            rawScore = null;
+            assistanceApplied = 0;
+          } else {
+            score = subEval ? subEval.effectiveFinalScore : (record?.finalScore ?? null);
+            rawScore = subEval ? subEval.rawFinalScore : (record?.finalScore ?? null);
+            assistanceApplied = subEval ? subEval.primaryAssistanceApplied : 0;
+          }
         } else if (selectedGradeType === 'secondRoundFinalScore') {
           if (subEval?.isMakeUpEligible && subEval.secondRoundScore !== null && subEval.secondRoundScore !== undefined) {
-            // الطالب أدى الدور الثاني في هذه المادة:
-            // الدرجة بعد احتساب المساعدة الإضافية (إن وجدت)
             score = subEval.finalScoreAfterSecondRoundAssistance ?? subEval.effectiveFinalScore ?? subEval.secondRoundFinalScore ?? record?.secondRoundFinalScore ?? null;
-            // الدرجة الخام المحسوبة من (السعي + الإكمال) ÷ 2 قبل المساعدة الإضافية
             rawScore = subEval.secondRoundFinalScore ?? record?.secondRoundFinalScore ?? null;
             assistanceApplied = subEval.secondRoundAssistanceApplied || 0;
           } else if (subEval) {
-            // المادة لم يشملها الدور الثاني (ناجح فيها من الدور الأول أو معفى)
-            // الدرجة المعتمدة النهائية بعد انتهاء الدورين
             score = subEval.effectiveFinalScore;
             rawScore = subEval.rawFinalScore;
             assistanceApplied = subEval.primaryAssistanceApplied || 0;
@@ -254,18 +265,24 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
             failedSubjectsCount++;
           }
         } else {
-          hasIncomplete = true;
+          // إذا كانت المادة معفاة في احتساب الدرجات النهائية، فإن عدم وجود امتحان نهائي لا يجعلها غير مكتملة
+          if (!(selectedGradeType === 'finalScore' && isSubjectExempt)) {
+            hasIncomplete = true;
+          }
         }
       });
 
-      // Strict completeness check: all subjects must have recorded scores
-      const isComplete =
-        !hasIncomplete && countedSubjects === classSubjects.length && classSubjects.length > 0;
+      // Strict completeness check: all subjects must have recorded scores, or student is general exempt
+      const isComplete = isGeneralExempt && selectedGradeType === 'finalScore'
+        ? true
+        : (!hasIncomplete && countedSubjects === classSubjects.length && classSubjects.length > 0);
 
-      // Average: only computed when all subjects are complete, avoiding false provisional averages
-      const average = isComplete
-        ? Math.round((totalScore / classSubjects.length) * 10) / 10
-        : null;
+      // Average: computed only when complete and not general exempt in finalScore mode
+      const average = (isGeneralExempt && selectedGradeType === 'finalScore')
+        ? null
+        : (isComplete && countedSubjects > 0
+          ? Math.round((totalScore / countedSubjects) * 10) / 10
+          : null);
 
       // Result Status and Notes directly from Ministerial Decisions Engine
       const status = evaluation.statusFinal;
@@ -296,6 +313,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
     selectedGradeType,
     grades,
     decisionSettings,
+    exemptionSettings,
     settings.roundingRule,
   ]);
 
@@ -315,9 +333,10 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
   const classStats = useMemo(() => {
     const total = studentResults.length;
     if (total === 0) {
-      return { total: 0, completed: 0, passed: 0, supplementary: 0, failed: 0, incomplete: 0, passRate: 0, highestAvg: null };
+      return { total: 0, completed: 0, passed: 0, generalExemptCount: 0, supplementary: 0, failed: 0, incomplete: 0, passRate: 0, highestAvg: null };
     }
 
+    const generalExemptCount = studentResults.filter((r) => r.evaluation.isGeneralExempt).length;
     const completed = studentResults.filter((r) => r.isComplete).length;
     const passed = studentResults.filter((r) => r.status === 'ناجح' || r.status === 'ناجح — إعفاء عام' || r.status === 'معفى عام').length;
     const supplementary = studentResults.filter((r) => r.status === 'مكمّل' || (r.status as string) === 'مكمل').length;
@@ -327,6 +346,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
     const passRate = completed > 0 ? Math.round((passed / completed) * 100) : 0;
 
     const averages = studentResults
+      .filter((r) => !r.evaluation.isGeneralExempt || selectedGradeType !== 'finalScore')
       .map((r) => r.average)
       .filter((avg): avg is number => avg !== null);
     const highestAvg = averages.length > 0 ? Math.max(...averages) : null;
@@ -335,21 +355,23 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
       total,
       completed,
       passed,
+      generalExemptCount,
       supplementary,
       failed,
       incomplete,
       passRate,
       highestAvg,
     };
-  }, [studentResults]);
+  }, [studentResults, selectedGradeType]);
 
   // Top 10 Students ranking based on completed average in this selected grade type
+  // (In finalScore mode, general exempt students did not sit for the exam, so they are not ranked against exam averages)
   const topStudents = useMemo(() => {
     return [...studentResults]
-      .filter((r) => r.average !== null && r.isComplete && (r.status === 'ناجح' || r.status === 'ناجح — إعفاء عام' || r.status === 'معفى عام'))
+      .filter((r) => r.average !== null && r.isComplete && (!r.evaluation.isGeneralExempt || selectedGradeType !== 'finalScore') && (r.status === 'ناجح' || r.status === 'ناجح — إعفاء عام' || r.status === 'معفى عام'))
       .sort((a, b) => (b.average || 0) - (a.average || 0))
       .slice(0, 10);
-  }, [studentResults]);
+  }, [studentResults, selectedGradeType]);
 
   // Export to Excel file with UTF-8 support and Right-to-Left sheet formatting
   const handleExportExcel = () => {
@@ -367,16 +389,28 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
     ];
 
     const rows = studentResults.map((r, idx) => {
+      const isGeneral = r.evaluation.isGeneralExempt;
       const row: (string | number)[] = [
         idx + 1,
         r.student.registrationNumber || '—',
         r.student.name,
         ...classSubjects.map((s) => {
+          const subEval = r.evaluation.subjects[s.id];
+          if (selectedGradeType === 'finalScore') {
+            if (isGeneral || subEval?.isGeneralExempt) return 'إعفاء عام';
+            if (subEval?.isIndividualExempt) return 'معفى';
+          }
           const score = r.subjectScores[s.id];
           return score !== null && score !== undefined && !isNaN(score) ? score : '—';
         }),
-        r.isComplete ? r.totalScore : (r.countedSubjects > 0 ? `${r.totalScore} (جزئي)` : '—'),
-        r.average !== null ? `${r.average}%` : '—',
+        isGeneral && selectedGradeType === 'finalScore'
+          ? 'إعفاء عام'
+          : r.isComplete
+          ? r.totalScore
+          : (r.countedSubjects > 0 ? `${r.totalScore} (جزئي)` : '—'),
+        isGeneral && selectedGradeType === 'finalScore'
+          ? 'إعفاء عام'
+          : r.average !== null ? `${r.average}%` : '—',
         r.status,
         r.notes,
       ];
@@ -543,8 +577,13 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                     const isPass = !isNull && score >= sub.passScore;
                     const subEval = r.evaluation.subjects[sub.id];
                     const isIndivExempt = !!subEval?.isIndividualExempt;
+                    const isGenExempt = isGeneralExempt || !!subEval?.isGeneralExempt;
+                    const isExemptInFinal = selectedGradeType === 'finalScore' && (isGenExempt || isIndivExempt);
+                    const exemptLabel = isGenExempt ? 'إعفاء عام' : 'معفى';
 
-                    const title = isNull
+                    const title = isExemptInFinal
+                      ? exemptLabel
+                      : isNull
                       ? '—'
                       : assistance > 0
                       ? `الدرجة بعد المساعدة: ${score} (الدرجة قبل المساعدة: ${rawScore} | مساعدة: +${assistance})`
@@ -558,10 +597,12 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                         title={title}
                         style={{
                           position: 'relative',
-                          ...(isIndivExempt ? { backgroundColor: '#eff6ff' } : {}),
+                          ...(isExemptInFinal ? { backgroundColor: '#ecfdf5' } : isIndivExempt ? { backgroundColor: '#eff6ff' } : {}),
                         }}
                         className={`relative border border-black p-1 text-center font-mono text-xs ${
-                          isIndivExempt
+                          isExemptInFinal
+                            ? 'font-bold text-emerald-900 bg-emerald-50'
+                            : isIndivExempt
                             ? 'font-bold text-blue-900 bg-blue-50'
                             : isNull
                             ? 'text-slate-400'
@@ -574,7 +615,9 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                           className="relative w-full h-full flex items-center justify-center min-h-[26px]"
                           style={{ position: 'relative' }}
                         >
-                          {assistance > 0 && rawScore !== null && rawScore !== score ? (
+                          {isExemptInFinal ? (
+                            <span className="font-bold text-[10px] text-emerald-800">{exemptLabel}</span>
+                          ) : assistance > 0 && rawScore !== null && rawScore !== score ? (
                             <>
                               <span className="font-extrabold text-black">{score}</span>
                               <span
@@ -593,10 +636,20 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                     );
                   })}
                   <td className="border border-black p-1 text-center font-mono font-bold text-xs bg-slate-50">
-                    {r.isComplete ? r.totalScore : r.countedSubjects > 0 ? `${r.totalScore}*` : '—'}
+                    {isGeneralExempt && selectedGradeType === 'finalScore'
+                      ? 'إعفاء عام'
+                      : r.isComplete
+                      ? r.totalScore
+                      : r.countedSubjects > 0
+                      ? `${r.totalScore}*`
+                      : '—'}
                   </td>
                   <td className="border border-black p-1 text-center font-mono font-bold text-xs bg-slate-50">
-                    {r.average !== null ? `${r.average}%` : '—'}
+                    {isGeneralExempt && selectedGradeType === 'finalScore'
+                      ? 'إعفاء عام'
+                      : r.average !== null
+                      ? `${r.average}%`
+                      : '—'}
                   </td>
                   <td className="border border-black p-1 text-center font-bold text-xs">
                     <span
@@ -996,8 +1049,13 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                       const isPass = !isNull && score >= sub.passScore;
                       const subEval = r.evaluation.subjects[sub.id];
                       const isIndivExempt = !!subEval?.isIndividualExempt;
+                      const isGenExempt = isGeneralExempt || !!subEval?.isGeneralExempt;
+                      const isExemptInFinal = selectedGradeType === 'finalScore' && (isGenExempt || isIndivExempt);
+                      const exemptLabel = isGenExempt ? 'إعفاء عام' : 'معفى';
 
-                      const tooltip = isNull
+                      const tooltip = isExemptInFinal
+                        ? exemptLabel
+                        : isNull
                         ? 'درجة غير مسجلة'
                         : assistance > 0
                         ? `الدرجة بعد المساعدة الوزارية: ${score} (الدرجة الخام قبل المساعدة: ${rawScore} | مقدار المساعدة: +${assistance})`
@@ -1011,7 +1069,9 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                           title={tooltip}
                           style={{ position: 'relative' }}
                           className={`relative p-2.5 text-center font-mono text-sm border-l border-slate-800 ${
-                            isIndivExempt
+                            isExemptInFinal
+                              ? 'bg-emerald-950/30 text-emerald-300 font-bold border-emerald-900/40'
+                              : isIndivExempt
                               ? 'bg-blue-950/30 text-blue-300 font-bold border-blue-900/40'
                               : isNull
                               ? 'text-slate-500 bg-slate-900/20'
@@ -1024,7 +1084,11 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                             className="relative w-full h-full flex items-center justify-center min-h-[28px]"
                             style={{ position: 'relative' }}
                           >
-                            {assistance > 0 && rawScore !== null && rawScore !== score ? (
+                            {isExemptInFinal ? (
+                              <span className="px-2 py-0.5 rounded text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                {exemptLabel}
+                              </span>
+                            ) : assistance > 0 && rawScore !== null && rawScore !== score ? (
                               <>
                                 <span className="font-extrabold text-emerald-400">{score}</span>
                                 <span
@@ -1038,14 +1102,6 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                             ) : (
                               <span>{isNull ? '—' : score}</span>
                             )}
-                            {isIndivExempt && (
-                              <span
-                                className="absolute text-[9px] px-1 py-0.2 rounded bg-blue-500/20 text-blue-300 font-sans border border-blue-500/30"
-                                style={{ position: 'absolute', left: '4px', top: '2px' }}
-                              >
-                                معفى
-                              </span>
-                            )}
                           </div>
                         </td>
                       );
@@ -1053,7 +1109,9 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
 
                     {/* Total Score */}
                     <td className="p-2.5 text-center font-mono font-bold text-white border-l border-slate-800 bg-slate-950/40">
-                      {r.isComplete ? (
+                      {isGeneralExempt && selectedGradeType === 'finalScore' ? (
+                        <span className="text-emerald-400 font-bold text-xs">إعفاء عام</span>
+                      ) : r.isComplete ? (
                         r.totalScore
                       ) : r.countedSubjects > 0 ? (
                         <span className="text-slate-400 text-xs" title="مجموع جزئي - توجد درجات غير مكتملة">
@@ -1066,14 +1124,20 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
 
                     {/* Average */}
                     <td className="p-2.5 text-center font-mono font-bold text-emerald-400 border-l border-slate-800 bg-slate-950/40">
-                      {r.average !== null ? `${r.average}%` : <span className="text-slate-500 font-normal">—</span>}
+                      {isGeneralExempt && selectedGradeType === 'finalScore' ? (
+                        <span className="text-emerald-400 font-bold text-xs">إعفاء عام</span>
+                      ) : r.average !== null ? (
+                        `${r.average}%`
+                      ) : (
+                        <span className="text-slate-500 font-normal">—</span>
+                      )}
                     </td>
 
                     {/* Status Badge */}
                     <td className="p-2.5 text-center border-l border-slate-800">
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${
-                          r.status === 'ناجح' || r.status === 'ناجح — إعفاء عام'
+                          r.status === 'ناجح' || r.status === 'ناجح — إعفاء عام' || r.status === 'معفى عام'
                             ? 'bg-emerald-950 text-emerald-400 border-emerald-800'
                             : r.status === 'مكمّل' || (r.status as string) === 'مكمل'
                             ? 'bg-amber-950 text-amber-400 border-amber-800'

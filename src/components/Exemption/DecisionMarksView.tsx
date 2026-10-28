@@ -159,7 +159,8 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
         studentGradesBySubject,
         decisionSettings,
         settings.roundingRule,
-        decisionGrants
+        decisionGrants,
+        db.getExemptionSettings(selectedYearId)
       );
 
       const balance = db.getStudentDecisionBalance(student.id, selectedYearId, selectedRound);

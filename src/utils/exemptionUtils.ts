@@ -115,42 +115,60 @@ export function getSubjectReportDisplay(
   student: Student,
   subject: Subject,
   gradeRecord?: GradeRecord,
-  subEval?: SubjectEvaluation
+  subEval?: SubjectEvaluation,
+  reportGradeType: 'finalScore' | 'termYearlyScore' = 'finalScore'
 ): SubjectExemptionDisplay {
-  const isGenExempt = isStudentGeneralExempt(student);
-  const isIndivExempt = isStudentSubjectExempt(student, subject.id, gradeRecord, subEval);
+  const isGenExempt = subEval ? subEval.isGeneralExempt : isStudentGeneralExempt(student);
+  const isIndivExempt = subEval ? subEval.isIndividualExempt : isStudentSubjectExempt(student, subject.id, gradeRecord);
   const isExempt = isGenExempt || isIndivExempt;
 
   const yearlyScore = gradeRecord?.termYearlyScore ?? subEval?.termYearlyScore ?? null;
   const effectiveFinalScore = subEval?.effectiveFinalScore ?? gradeRecord?.finalScore ?? null;
 
-  // 1. إذا كان الطالب معفى عاماً
+  // أ) في حال عرض تقرير السعي السنوي فقط:
+  // تظهر درجات السعي السنوي الرقمية الأصلية كأرقام طبيعية لجميع الطلبة بمن فيهم المعفون عاماً وفردياً
+  if (reportGradeType === 'termYearlyScore') {
+    const hasYearly = yearlyScore !== null && yearlyScore !== undefined && !isNaN(yearlyScore);
+    const pass = hasYearly && Number(yearlyScore) >= (subject.passScore || 50);
+    return {
+      isExempt,
+      isGeneralExempt: isGenExempt,
+      isIndividualExempt: isIndivExempt,
+      gradeDisplayText: hasYearly ? String(yearlyScore) : '—',
+      subjectNotesText: isGenExempt ? 'معفى عام' : isIndivExempt ? 'معفى' : hasYearly ? (pass ? 'ناجح' : 'راسب') : 'غير مكتمل',
+      isPassedOrExempt: isExempt || pass,
+      badgeText: isGenExempt ? 'إعفاء عام' : isIndivExempt ? 'معفى' : undefined,
+    };
+  }
+
+  // ب) في حال عرض تقرير الدرجات النهائية الرسمية (finalScore):
+  // 1. إذا كان الطالب معفى عاماً: يظهر «إعفاء عام» بوضوح في الدرجة والامتحان النهائي
   if (isGenExempt) {
     return {
       isExempt: true,
       isGeneralExempt: true,
       isIndividualExempt: false,
-      gradeDisplayText: yearlyScore !== null && yearlyScore !== undefined ? String(yearlyScore) : 'معفى',
-      subjectNotesText: 'معفى',
+      gradeDisplayText: 'إعفاء عام',
+      subjectNotesText: 'إعفاء عام',
       isPassedOrExempt: true,
-      badgeText: 'معفى',
+      badgeText: 'إعفاء عام',
     };
   }
 
-  // 2. إذا كان الطالب معفى فردياً من هذه المادة
+  // 2. إذا كان الطالب معفى فردياً من هذه المادة: يظهر «معفى»
   if (isIndivExempt) {
     return {
       isExempt: true,
       isGeneralExempt: false,
       isIndividualExempt: true,
-      gradeDisplayText: yearlyScore !== null && yearlyScore !== undefined ? String(yearlyScore) : 'معفى',
+      gradeDisplayText: 'معفى',
       subjectNotesText: 'معفى',
       isPassedOrExempt: true,
       badgeText: 'معفى',
     };
   }
 
-  // 3. الطالب غير معفى في هذه المادة (حساب طبيعي)
+  // 3. الطالب غير معفى في هذه المادة (حساب طبيعي رسمي)
   const scoreNum = effectiveFinalScore !== null && effectiveFinalScore !== undefined ? Number(effectiveFinalScore) : null;
   const isPass = scoreNum !== null && !isNaN(scoreNum) && scoreNum >= (subject.passScore || 50);
 

@@ -424,9 +424,26 @@ export function evaluateStudentAcademicYearDecisions(
   studentGrades: Record<string, GradeRecord | undefined>,
   decisionSettings: AcademicYearDecisionSettings,
   roundingRule: RoundingRule = 'standard',
-  persistedGrants?: Record<string, DecisionGrantRecord>
+  persistedGrants?: Record<string, DecisionGrantRecord>,
+  exemptionSettings?: ExemptionSettings
 ): StudentComprehensiveEvaluation {
-  const isGeneralExempt = student.isGeneralExempt === true;
+  // تقييم الإعفاء المركزي استناداً إلى إعدادات العام الدراسي المعتمدة
+  let isGeneralExempt = student.isGeneralExempt === true;
+  let individualExemptSubjectIds: string[] = student.individualExemptions || [];
+
+  if (exemptionSettings) {
+    const exResult = evaluateStudentExemption(
+      student,
+      classSubjects,
+      studentGrades,
+      exemptionSettings,
+      roundingRule
+    );
+    isGeneralExempt = exResult.status === 'معفى عام';
+    individualExemptSubjectIds = exResult.individualResults
+      .filter((r) => r.status === 'مستحق للإعفاء الفردي')
+      .map((r) => r.subjectId);
+  }
 
   // Initialize subject evaluation structures
   const subjectsMap: Record<string, SubjectEvaluation> = {};
@@ -436,10 +453,9 @@ export function evaluateStudentAcademicYearDecisions(
 
   classSubjects.forEach((sub) => {
     const rec = studentGrades[sub.id];
-    const isIndividualExempt =
-      student.individualExemptions?.includes(sub.id) === true ||
-      rec?.isIndividualExempt === true;
-    const isExempt = isGeneralExempt || isIndividualExempt;
+    const isSubjectIndivExempt = !isGeneralExempt && individualExemptSubjectIds.includes(sub.id);
+    const isSubjectGenExempt = isGeneralExempt;
+    const isExempt = isSubjectGenExempt || isSubjectIndivExempt;
 
     const term1 = rec?.term1Score ?? null;
     const midterm = rec?.midtermScore ?? null;
@@ -453,8 +469,9 @@ export function evaluateStudentAcademicYearDecisions(
     let passed1stRound = false;
 
     if (isExempt) {
-      // الطالب المعفى (عاماً أو فردياً): يُعتبر السعي السنوي هو الدرجة النهائية
-      rawFinalScore = termYearlyScore;
+      // الطالب المعفى (عاماً أو فردياً): لا يتم تزييف درجة الامتحان أو الدرجة النهائية بوضع السعي
+      // بل تترك الدرجة النهائية الرسمية null ويُعتبر الطالب ناجحاً ومستوفياً بحكم الإعفاء
+      rawFinalScore = null;
       passed1stRound = true;
     } else {
       rawFinalScore = calculateFinalScore(termYearlyScore, finalExamScore, roundingRule);
@@ -474,8 +491,8 @@ export function evaluateStudentAcademicYearDecisions(
       termYearlyScore,
       finalExamScore,
       rawFinalScore,
-      isGeneralExempt,
-      isIndividualExempt,
+      isGeneralExempt: isSubjectGenExempt,
+      isIndividualExempt: isSubjectIndivExempt,
       isExempt,
       primaryAssistanceApplied: 0,
       finalScoreAfterPrimaryAssistance: rawFinalScore,

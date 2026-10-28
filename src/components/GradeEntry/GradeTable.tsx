@@ -165,6 +165,11 @@ export const GradeTable: React.FC<GradeTableProps> = ({
     return db.getDecisionSettings(academicYearId);
   }, [academicYearId]);
 
+  // Exemption settings for the selected academic year
+  const exemptionSettings = useMemo(() => {
+    return academicYearId ? db.getExemptionSettings(academicYearId) : undefined;
+  }, [academicYearId]);
+
   // Compute evaluations for make-up eligibility & status
   const studentsEvaluations = useMemo(() => {
     if (!academicYearId || !classId || sectionId === undefined || !classSubjects || classSubjects.length === 0 || !decisionSettings) {
@@ -184,11 +189,12 @@ export const GradeTable: React.FC<GradeTableProps> = ({
         studentGradesBySubject,
         decisionSettings,
         settings.roundingRule,
-        db.getDecisionGrants()
+        db.getDecisionGrants(),
+        exemptionSettings
       );
     });
     return map;
-  }, [students, academicYearId, classId, sectionId, classSubjects, grades, decisionSettings, settings.roundingRule]);
+  }, [students, academicYearId, classId, sectionId, classSubjects, grades, decisionSettings, settings.roundingRule, exemptionSettings]);
 
   // Determine make-up eligibility for this subject
   const getSubjectMakeUpEligibility = useCallback((studentId: string): { eligible: boolean; reason: string } => {
@@ -266,29 +272,41 @@ export const GradeTable: React.FC<GradeTableProps> = ({
   }, [academicYearId, classId, sectionId, subjectId, grades, currentSubjectGradesByStudentId, settings.roundingRule]);
 
   /**
-   * Single unified helper to check if student is exempt in current subject based on term yearly score >= 90
+   * Helper to check exemption status for student in the current subject context
+   * using the centralized evaluations engine and academic year exemption settings
    */
-  const isSubjectExemptByYearly = useCallback((student: Student): boolean => {
-    const yearly = getStudentTermYearlyScore(student);
-    return yearly !== null && yearly >= 90;
-  }, [getStudentTermYearlyScore]);
+  const getSubjectExemptionStatus = useCallback((student: Student): { isExempt: boolean; isGeneral: boolean; isIndividual: boolean } => {
+    const evalData = studentsEvaluations[student.id];
+    if (evalData?.isGeneralExempt) {
+      return { isExempt: true, isGeneral: true, isIndividual: false };
+    }
+    const subEval = subjectId ? evalData?.subjects[subjectId] : undefined;
+    if (subEval?.isIndividualExempt) {
+      return { isExempt: true, isGeneral: false, isIndividual: true };
+    }
+    return { isExempt: false, isGeneral: false, isIndividual: false };
+  }, [studentsEvaluations, subjectId]);
 
   /**
    * Helper to check if a student is exempt for finalExamScore in the current subject context
    */
   const isFinalExamScoreLocked = useCallback((student: Student): boolean => {
-    return isSubjectExemptByYearly(student);
-  }, [isSubjectExemptByYearly]);
+    return getSubjectExemptionStatus(student).isExempt;
+  }, [getSubjectExemptionStatus]);
 
   /**
    * Helper to compute Notes text for a student in the current subject context
    */
   const getStudentNotesText = useCallback((student: Student): { text: string; isExempt: boolean } => {
-    if (isSubjectExemptByYearly(student)) {
+    const status = getSubjectExemptionStatus(student);
+    if (status.isGeneral) {
+      return { text: 'معفى عام', isExempt: true };
+    }
+    if (status.isIndividual) {
       return { text: 'معفى', isExempt: true };
     }
     return { text: student.notes || '', isExempt: false };
-  }, [isSubjectExemptByYearly]);
+  }, [getSubjectExemptionStatus]);
 
   // Column widths with localStorage persistence
   const [colWidths, setColWidths] = useState<ColumnWidths>(() => {
@@ -687,19 +705,26 @@ export const GradeTable: React.FC<GradeTableProps> = ({
 
     if (field === 'finalExamScore' && isFinalExamScoreLocked(student)) {
       const notesInfo = getStudentNotesText(student);
-      const isEmpty = score === null || score === undefined;
+      const exStatus = getSubjectExemptionStatus(student);
+      const labelText = exStatus.isGeneral ? 'إعفاء عام' : 'معفى';
       return (
         <td
           key={field}
           data-col={widthKey}
           style={cellWidthStyle}
-          className="p-2 text-center font-mono text-xs border-b border-l border-slate-800 bg-slate-900/80 text-slate-400 select-none cursor-not-allowed"
-          title={`حقل معطّل بسبب الإعفاء (${notesInfo.text})`}
+          className={`p-2 text-center font-sans text-xs border-b border-l border-slate-800 select-none cursor-not-allowed ${
+            exStatus.isGeneral ? 'bg-emerald-950/40 text-emerald-300' : 'bg-blue-950/40 text-blue-300'
+          }`}
+          title={
+            score !== null && score !== undefined
+              ? `${notesInfo.text} (توجد درجة سابقة محفوظة: ${score} - معطّلة أثناء الإعفاء)`
+              : `${notesInfo.text} (معفى من الامتحان النهائي)`
+          }
         >
-          <div className="flex items-center justify-center gap-1.5 opacity-75">
-            <Lock className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-            <span className="font-bold text-slate-300 text-sm">
-              {isEmpty ? '—' : formatScore(score)}
+          <div className="flex items-center justify-center gap-1.5 font-bold">
+            <Lock className={`w-3.5 h-3.5 shrink-0 ${exStatus.isGeneral ? 'text-emerald-400' : 'text-blue-400'}`} />
+            <span className="font-black text-xs">
+              {labelText}
             </span>
           </div>
         </td>
@@ -827,7 +852,8 @@ export const GradeTable: React.FC<GradeTableProps> = ({
     keySuffix: string,
     widthKey: ColumnKey,
     isIndividualExempt?: boolean,
-    decisionGrantInfo?: { originalScore: number; scoreAfterDecision: number; isGranted: boolean }
+    decisionGrantInfo?: { originalScore: number; scoreAfterDecision: number; isGranted: boolean },
+    isGeneralExempt?: boolean
   ) => {
     const isMissing = score === null || score === undefined;
     const cellWidthStyle = {
@@ -836,15 +862,43 @@ export const GradeTable: React.FC<GradeTableProps> = ({
       maxWidth: `${colWidths[widthKey]}px`,
     };
 
+    if (isGeneralExempt) {
+      return (
+        <td
+          key={keySuffix}
+          data-col={widthKey}
+          style={cellWidthStyle}
+          className="p-2.5 text-center font-sans text-xs font-black border-b border-l border-slate-800/80 bg-emerald-950/40 text-emerald-300"
+          title="معفى عام (لا يتطلب امتحاناً نهائياً)"
+        >
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+            إعفاء عام
+          </span>
+        </td>
+      );
+    }
+
+    if (isIndividualExempt) {
+      return (
+        <td
+          key={keySuffix}
+          data-col={widthKey}
+          style={cellWidthStyle}
+          className="p-2.5 text-center font-sans text-xs font-black border-b border-l border-slate-800/80 bg-blue-950/40 text-blue-300"
+          title="معفى فردي في هذه المادة (لا يتطلب امتحاناً نهائياً)"
+        >
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+            معفى
+          </span>
+        </td>
+      );
+    }
+
     let colorClasses = isMissing
       ? 'bg-amber-950/10 text-amber-500/80 border-amber-900/20'
       : (decisionGrantInfo?.isGranted ? decisionGrantInfo.scoreAfterDecision : (score ?? 0)) >= settings.passScoreDefault
       ? 'bg-emerald-950/20 text-emerald-400 border-emerald-900/30'
       : 'bg-red-950/30 text-red-400 border-red-900/30';
-
-    if (isIndividualExempt) {
-      colorClasses = 'bg-blue-950/40 text-blue-300 border-blue-900/40';
-    }
 
     const effectiveScore = decisionGrantInfo?.isGranted ? decisionGrantInfo.scoreAfterDecision : score;
     const isMissingEffective = effectiveScore === null || effectiveScore === undefined;
@@ -860,8 +914,8 @@ export const GradeTable: React.FC<GradeTableProps> = ({
           isMissingEffective
             ? `في انتظار اكتمال الدرجات لحساب ${label}`
             : decisionGrantInfo?.isGranted
-            ? `${label}: ${effectiveScore} (بعد القرار الوزاري، الأصلية: ${decisionGrantInfo.originalScore})${isIndividualExempt ? ' (معفى فردياً)' : ''}`
-            : `${label}: ${score}${isIndividualExempt ? ' (معفى فردياً)' : ''}`
+            ? `${label}: ${effectiveScore} (بعد القرار الوزاري، الأصلية: ${decisionGrantInfo.originalScore})`
+            : `${label}: ${score}`
         }
       >
         {isMissingEffective ? (
@@ -884,11 +938,6 @@ export const GradeTable: React.FC<GradeTableProps> = ({
         ) : (
           <div className="flex items-center justify-center gap-1.5">
             <span className="text-base font-extrabold">{score}</span>
-            {isIndividualExempt && (
-              <span className="text-[10px] px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300 font-sans border border-blue-500/30">
-                معفى فردي
-              </span>
-            )}
           </div>
         )}
       </td>
@@ -1172,7 +1221,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
                 );
 
                 const computedFinal = isIndividualExempt || isGeneralExempt
-                  ? computedYearly
+                  ? null
                   : (subEval ? subEval.effectiveFinalScore : (gradeRecord?.finalScore ?? calculateFinalScore(computedYearly, gradeRecord?.finalExamScore ?? null, settings.roundingRule)));
 
                 const computedSecondRoundFinal = gradeRecord?.secondRoundFinalScore ?? calculateSecondRoundFinalScore(
@@ -1318,7 +1367,8 @@ export const GradeTable: React.FC<GradeTableProps> = ({
                         `final_${student.id}`,
                         'finalScore',
                         isIndividualExempt,
-                        r1GrantInfo
+                        r1GrantInfo,
+                        isGeneralExempt
                       )}
 
                     {/* Stage 5 Column: درجة الإكمال (الدور الثاني) */}
