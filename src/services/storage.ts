@@ -872,6 +872,97 @@ export class LocalStorageEngine {
     return { success: false, error: 'الصف غير موجود' };
   }
 
+  public copyClassStructureToYear(sourceYearId: string, targetYearId: string) {
+    if (!sourceYearId || !targetYearId || sourceYearId === targetYearId) {
+      return { success: false, message: 'يرجى تحديد عامين دراسيين مختلفين لنسخ الهيكل.' };
+    }
+
+    const sourceClasses = this.state.classes.filter(c => !c.academicYearId || c.academicYearId === sourceYearId);
+    if (sourceClasses.length === 0) {
+      return { success: false, message: 'العام الدراسي المصدر لا يحتوي على أي صفوف لنسخها.' };
+    }
+
+    const targetClasses = this.state.classes.filter(c => c.academicYearId === targetYearId);
+
+    let createdClassesCount = 0;
+    let createdSectionsCount = 0;
+    let createdSubjectsCount = 0;
+
+    sourceClasses.forEach((srcClass) => {
+      let targetClass = targetClasses.find(
+        (c) => c.name.trim().toLowerCase() === srcClass.name.trim().toLowerCase()
+      );
+
+      if (!targetClass) {
+        const newClassId = `cls-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+        targetClass = {
+          id: newClassId,
+          name: srcClass.name.trim(),
+          stage: srcClass.stage,
+          order: srcClass.order,
+          academicYearId: targetYearId,
+          isArchived: false,
+        };
+        this.state.classes.push(targetClass);
+        targetClasses.push(targetClass);
+        createdClassesCount++;
+      }
+
+      const srcSections = this.state.sections.filter((s) => s.classId === srcClass.id);
+      const targetSections = this.state.sections.filter((s) => s.classId === targetClass!.id);
+
+      srcSections.forEach((srcSec) => {
+        const secExists = targetSections.some(
+          (ts) => ts.name.trim().toLowerCase() === srcSec.name.trim().toLowerCase()
+        );
+        if (!secExists) {
+          const newSecId = `sec-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+          const newSec: Section = {
+            id: newSecId,
+            classId: targetClass!.id,
+            name: srcSec.name.trim(),
+          };
+          this.state.sections.push(newSec);
+          targetSections.push(newSec);
+          createdSectionsCount++;
+        }
+      });
+
+      const srcSubjects = this.state.subjects.filter((s) => s.classId === srcClass.id);
+      const targetSubjects = this.state.subjects.filter((s) => s.classId === targetClass!.id);
+
+      srcSubjects.forEach((srcSub) => {
+        const subExists = targetSubjects.some(
+          (ts) => ts.name.trim().toLowerCase() === srcSub.name.trim().toLowerCase()
+        );
+        if (!subExists) {
+          const newSubId = `sub-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+          const newSub: Subject = {
+            id: newSubId,
+            classId: targetClass!.id,
+            name: srcSub.name.trim(),
+            maxScore: srcSub.maxScore,
+            passScore: srcSub.passScore,
+            order: srcSub.order,
+          };
+          this.state.subjects.push(newSub);
+          targetSubjects.push(newSub);
+          createdSubjectsCount++;
+        }
+      });
+    });
+
+    this.notify(true);
+
+    return {
+      success: true,
+      message: `تم نسخ هيكل الصفوف والشُعب والمواد إلى العام الجديد بنجاح (تم إنشاء ${createdClassesCount} صف، و ${createdSectionsCount} شعبة، و ${createdSubjectsCount} مادة).`,
+      createdClassesCount,
+      createdSectionsCount,
+      createdSubjectsCount,
+    };
+  }
+
   public async deleteClassCascade(classId: string) {
     const prevState = {
       classes: [...this.state.classes],
