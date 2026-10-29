@@ -18,6 +18,9 @@ class AuthService {
       // ignore
     }
     this.currentSession = this.loadSession();
+    if (this.currentSession && typeof window !== 'undefined' && (window as any).electronAPI?.auth) {
+      (window as any).electronAPI.auth.setSession(this.currentSession).catch(() => {});
+    }
   }
 
   private loadSession(): AuthSession | null {
@@ -67,6 +70,9 @@ class AuthService {
     try {
       sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
       localStorage.removeItem(SESSION_STORAGE_KEY);
+      if (typeof window !== 'undefined' && (window as any).electronAPI?.auth) {
+        (window as any).electronAPI.auth.setSession(session).catch(() => {});
+      }
     } catch (e) {
       console.error('Failed to persist auth session', e);
     }
@@ -78,6 +84,9 @@ class AuthService {
     try {
       sessionStorage.removeItem(SESSION_STORAGE_KEY);
       localStorage.removeItem(SESSION_STORAGE_KEY);
+      if (typeof window !== 'undefined' && (window as any).electronAPI?.auth) {
+        (window as any).electronAPI.auth.clearSession().catch(() => {});
+      }
     } catch (e) {
       console.error('Failed to clear auth session', e);
     }

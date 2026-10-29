@@ -16,6 +16,7 @@ import {
   calculateSecondRoundFinalScore,
 } from '../../services/calculations';
 import { db, buildGradeKey } from '../../services/storage';
+import { authService } from '../../services/auth';
 import { EditConfirmationModal } from './EditConfirmationModal';
 import { Check, AlertCircle, Lock, Edit3, MoveHorizontal, RotateCcw } from 'lucide-react';
 
@@ -495,8 +496,12 @@ export const GradeTable: React.FC<GradeTableProps> = ({
     }
   }, [activeCell]);
 
+  const currentRole = authService.getCurrentSession()?.user.role || 'user';
+  const isReadOnly = currentRole === 'user';
+
   // Start editing a cell
   const startEditing = (studentIndex: number, field: EditableField, forceBypassConfirmation = false) => {
+    if (isReadOnly) return;
     const student = filteredStudents[studentIndex];
     if (!student) return;
 
@@ -545,7 +550,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
 
   // Save current active cell
   const handleSave = async (moveTo: 'next' | 'prev' | 'tab' | 'none' = 'none', overrideValue?: string): Promise<boolean> => {
-    if (!activeCell || isSavingRef.current) return false;
+    if (isReadOnly || !activeCell || isSavingRef.current) return false;
     
     // Set saving flag to prevent onBlur from triggering a second save
     isSavingRef.current = true;
@@ -742,8 +747,11 @@ export const GradeTable: React.FC<GradeTableProps> = ({
             <input
               ref={inputRef}
               type="text"
+              readOnly={isReadOnly}
+              disabled={isReadOnly}
               value={inputValue}
               onChange={(e) => {
+                if (isReadOnly) return;
                 setInputValue(e.target.value);
                 if (inputError) setInputError(null);
               }}

@@ -10,6 +10,7 @@ import {
   AppSettings,
 } from '../../types';
 import { db, buildGradeKey } from '../../services/storage';
+import { authService } from '../../services/auth';
 import { filterClassesByAcademicYear } from '../../utils/academicYearUtils';
 import { StageSelector } from './StageSelector';
 import { GradeTable } from './GradeTable';
@@ -279,8 +280,18 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
     document.body.removeChild(link);
   };
 
+  const currentRole = authService.getCurrentSession()?.user.role || 'user';
+  const isReadOnly = currentRole === 'user';
+
   return (
     <div className="flex flex-col gap-5 pb-12">
+      {isReadOnly && (
+        <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs sm:text-sm font-bold flex items-center gap-2.5 no-print shadow-md">
+          <Info className="w-5 h-5 text-amber-400 shrink-0" />
+          <span>وضع المعاينة للقراءة فقط (Read-Only) — يمكنك تصفح الدرجات والإحصائيات وتصدير التقارير بدون إمكانية إدخال أو تعديل الدرجات.</span>
+        </div>
+      )}
+
       {/* Top Banner & Title */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-slate-900 via-slate-900 to-slate-850 p-5 rounded-2xl border border-slate-800 shadow-xl">
         <div>

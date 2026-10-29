@@ -4,6 +4,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   isElectron: true,
   platform: process.platform,
   version: process.versions.electron,
+  auth: {
+    setSession: (session) => ipcRenderer.invoke('auth:setSession', session),
+    clearSession: () => ipcRenderer.invoke('auth:clearSession'),
+  },
   db: {
     init: () => ipcRenderer.invoke('db:init'),
     loadAll: () => ipcRenderer.invoke('db:loadAll'),

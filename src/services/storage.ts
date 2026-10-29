@@ -528,6 +528,9 @@ export class LocalStorageEngine {
 
   public getGradeRecord(key: string) { return this.state.grades[key]; }
   public async saveGradeField(ay: string, cl: string, sec: string, sub: string, st: string, field: string, fieldAr: string, val: number | null, reason?: string) {
+    const perm = this.checkWritePermission();
+    if (!perm.allowed) return { success: false, error: perm.error };
+
     const key = buildGradeKey(ay, cl, sec, sub, st);
     const existing = this.state.grades[key] || { id: key, academicYearId: ay, classId: cl, sectionId: sec, subjectId: sub, studentId: st, term1Score: null, midtermScore: null, term2Score: null, termYearlyScore: null, finalExamScore: null, finalScore: null, secondRoundScore: null, secondRoundFinalScore: null, lastUpdated: new Date().toISOString(), auditHistory: [] };
     const oldVal = (existing as any)[field];
@@ -558,7 +561,13 @@ export class LocalStorageEngine {
     }
   }
 
-  public updateSettings(s: Partial<AppSettings>) { this.state.settings = { ...this.state.settings, ...s }; this.notify(); }
+  public updateSettings(s: Partial<AppSettings>) {
+    const perm = this.checkWritePermission();
+    if (!perm.allowed) return { success: false, error: perm.error };
+    this.state.settings = { ...this.state.settings, ...s };
+    this.notify();
+    return { success: true };
+  }
 
   public whenReady(): Promise<void> {
     return this.initPromise;

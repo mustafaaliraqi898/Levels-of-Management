@@ -49,32 +49,50 @@ function createWindow() {
   });
 }
 
+let currentActiveSession = null;
+
+function requireAdminRole() {
+  if (!currentActiveSession || !currentActiveSession.user || currentActiveSession.user.role !== 'admin') {
+    throw new Error('عفواً، هذه العملية مرفوضة أمنياً: حساب المعاينة للقراءة فقط ولا يملك صلاحية تعديل قاعدة البيانات SQLite.');
+  }
+}
+
 app.whenReady().then(async () => {
   await handleInitDb();
 
+  ipcMain.handle('auth:setSession', (event, session) => {
+    currentActiveSession = session;
+    return { success: true };
+  });
+
+  ipcMain.handle('auth:clearSession', () => {
+    currentActiveSession = null;
+    return { success: true };
+  });
+
   ipcMain.handle('db:init', handleInitDb);
   ipcMain.handle('db:loadAll', () => db.loadAll());
-  ipcMain.handle('db:saveSettings', (event, key, value) => db.saveSettings(key, value));
-  ipcMain.handle('db:upsertUser', (event, user) => db.upsertUser(user));
-  ipcMain.handle('db:upsertYear', (event, year) => db.upsertYear(year));
-  ipcMain.handle('db:upsertClass', (event, cls) => db.upsertClass(cls));
-  ipcMain.handle('db:upsertSection', (event, sec) => db.upsertSection(sec));
-  ipcMain.handle('db:upsertSubject', (event, sub) => db.upsertSubject(sub));
-  ipcMain.handle('db:upsertStudent', (event, stu) => db.upsertStudent(stu));
-  ipcMain.handle('db:upsertGrade', (event, grade) => db.upsertGrade(grade));
-  ipcMain.handle('db:saveExemptionSettings', (event, settings) => db.saveExemptionSettings(settings));
-  ipcMain.handle('db:saveDecisionSettings', (event, settings) => db.saveDecisionSettings(settings));
-  ipcMain.handle('db:upsertDecisionGrant', (event, grant) => db.upsertDecisionGrant(grant));
-  ipcMain.handle('db:saveCertificateTemplate', (event, config, imageData) => db.saveCertificateTemplate(config, imageData));
-  ipcMain.handle('db:upsertPromotionLog', (event, log) => db.upsertPromotionLog(log));
-  ipcMain.handle('db:executeStudentPromotionBatch', (event, students, promotionLog) => db.executeStudentPromotionBatch(students, promotionLog));
-  ipcMain.handle('db:deleteEntity', (event, table, id) => db.deleteEntity(table, id));
-  ipcMain.handle('db:deleteStudentCascade', (event, studentId) => db.deleteStudentCascade(studentId));
-  ipcMain.handle('db:deleteClassCascade', (event, classId) => db.deleteClassCascade(classId));
+  ipcMain.handle('db:saveSettings', (event, key, value) => { requireAdminRole(); return db.saveSettings(key, value); });
+  ipcMain.handle('db:upsertUser', (event, user) => { requireAdminRole(); return db.upsertUser(user); });
+  ipcMain.handle('db:upsertYear', (event, year) => { requireAdminRole(); return db.upsertYear(year); });
+  ipcMain.handle('db:upsertClass', (event, cls) => { requireAdminRole(); return db.upsertClass(cls); });
+  ipcMain.handle('db:upsertSection', (event, sec) => { requireAdminRole(); return db.upsertSection(sec); });
+  ipcMain.handle('db:upsertSubject', (event, sub) => { requireAdminRole(); return db.upsertSubject(sub); });
+  ipcMain.handle('db:upsertStudent', (event, stu) => { requireAdminRole(); return db.upsertStudent(stu); });
+  ipcMain.handle('db:upsertGrade', (event, grade) => { requireAdminRole(); return db.upsertGrade(grade); });
+  ipcMain.handle('db:saveExemptionSettings', (event, settings) => { requireAdminRole(); return db.saveExemptionSettings(settings); });
+  ipcMain.handle('db:saveDecisionSettings', (event, settings) => { requireAdminRole(); return db.saveDecisionSettings(settings); });
+  ipcMain.handle('db:upsertDecisionGrant', (event, grant) => { requireAdminRole(); return db.upsertDecisionGrant(grant); });
+  ipcMain.handle('db:saveCertificateTemplate', (event, config, imageData) => { requireAdminRole(); return db.saveCertificateTemplate(config, imageData); });
+  ipcMain.handle('db:upsertPromotionLog', (event, log) => { requireAdminRole(); return db.upsertPromotionLog(log); });
+  ipcMain.handle('db:executeStudentPromotionBatch', (event, students, promotionLog) => { requireAdminRole(); return db.executeStudentPromotionBatch(students, promotionLog); });
+  ipcMain.handle('db:deleteEntity', (event, table, id) => { requireAdminRole(); return db.deleteEntity(table, id); });
+  ipcMain.handle('db:deleteStudentCascade', (event, studentId) => { requireAdminRole(); return db.deleteStudentCascade(studentId); });
+  ipcMain.handle('db:deleteClassCascade', (event, classId) => { requireAdminRole(); return db.deleteClassCascade(classId); });
   ipcMain.handle('db:createBackup', () => db.createBackup());
   ipcMain.handle('db:getBackupsInfo', () => db.getBackupsInfo());
   ipcMain.handle('db:exportSql', () => db.exportSql());
-  ipcMain.handle('db:restoreDb', (event, path) => db.restoreDb(path));
+  ipcMain.handle('db:restoreDb', (event, path) => { requireAdminRole(); return db.restoreDb(path); });
 
   ipcMain.handle('dialog:openDirectory', async () => {
     const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
