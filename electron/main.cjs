@@ -77,7 +77,7 @@ app.whenReady().then(async () => {
   ipcMain.handle('auth:verifyResetCodeAndChangePassword', (event, username, code, newPassword) => resetService.verifyResetCodeAndChangePassword(username, code, newPassword));
   ipcMain.handle('smtp:getSmtpStatus', () => smtpService.getSmtpStatus());
   ipcMain.handle('smtp:saveConfig', (event, config) => { requireAdminRole(); return smtpService.saveSmtpConfig(config); });
-  ipcMain.handle('smtp:testConnection', (event, config) => smtpService.testSmtpConnection(config));
+  ipcMain.handle('smtp:testConnection', (event, config) => { requireAdminRole(); return smtpService.testSmtpConnection(config); });
 
   ipcMain.handle('db:init', handleInitDb);
   ipcMain.handle('db:loadAll', () => db.loadAll());

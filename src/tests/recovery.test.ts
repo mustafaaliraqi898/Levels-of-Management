@@ -9,6 +9,12 @@ try {
   if (!electron.app) {
     electron.app = { getPath: () => '/tmp/school_test' };
   }
+  // Mock safeStorage for container unit tests
+  electron.safeStorage = {
+    isEncryptionAvailable: () => true,
+    encryptString: (plainText: string) => Buffer.from(plainText, 'utf8'),
+    decryptString: (buffer: Buffer) => buffer.toString('utf8'),
+  };
 } catch {
   // ignore
 }

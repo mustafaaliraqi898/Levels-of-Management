@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
-const { app } = require('electron');
+const { app, safeStorage } = require('electron');
 
 function getSmtpConfigFile() {
   const userDataPath = (app && typeof app.getPath === 'function') ? app.getPath('userData') : '/tmp/school_app_userData';
@@ -9,6 +9,48 @@ function getSmtpConfigFile() {
     try { fs.mkdirSync(userDataPath, { recursive: true }); } catch { /* ignore */ }
   }
   return path.join(userDataPath, 'smtp-config.json');
+}
+
+/**
+ * Safely decrypt a password string if it's encrypted.
+ */
+function decryptPassword(encryptedHex) {
+  if (!encryptedHex) return '';
+  if (safeStorage && safeStorage.isEncryptionAvailable()) {
+    try {
+      const buffer = Buffer.from(encryptedHex, 'hex');
+      return safeStorage.decryptString(buffer);
+    } catch (e) {
+      console.error('Failed to decrypt SMTP password:', e.message);
+      return '';
+    }
+  }
+  // Fallback for container unit tests
+  if (process.env.NODE_ENV === 'test') {
+    return Buffer.from(encryptedHex, 'hex').toString('utf8');
+  }
+  return '';
+}
+
+/**
+ * Safely encrypt a password string.
+ */
+function encryptPassword(plainText) {
+  if (!plainText) return '';
+  if (safeStorage && safeStorage.isEncryptionAvailable()) {
+    try {
+      const buffer = safeStorage.encryptString(plainText);
+      return buffer.toString('hex');
+    } catch (e) {
+      console.error('Failed to encrypt SMTP password:', e.message);
+      return '';
+    }
+  }
+  // Fallback for container unit tests
+  if (process.env.NODE_ENV === 'test') {
+    return Buffer.from(plainText, 'utf8').toString('hex');
+  }
+  return '';
 }
 
 function loadSmtpConfig() {
@@ -25,7 +67,16 @@ function loadSmtpConfig() {
 
   // Priority: environment variables -> configFile
   const user = process.env.GMAIL_USER || fileConfig.user || '';
-  const pass = process.env.GMAIL_APP_PASSWORD || process.env.GMAIL_PASS || fileConfig.pass || '';
+  
+  // Use environment variable if present, otherwise decrypt from file
+  let pass = process.env.GMAIL_APP_PASSWORD || process.env.GMAIL_PASS || '';
+  if (!pass && fileConfig.encryptedPass) {
+    pass = decryptPassword(fileConfig.encryptedPass);
+  } else if (!pass && fileConfig.pass) {
+    // Legacy support for plain text (if any exists), though we aim to eliminate it
+    pass = fileConfig.pass;
+  }
+
   const host = process.env.GMAIL_HOST || fileConfig.host || 'smtp.gmail.com';
   const port = parseInt(process.env.GMAIL_PORT || fileConfig.port || '587', 10);
   const secure = fileConfig.secure !== undefined ? fileConfig.secure : (port === 465);
@@ -36,15 +87,22 @@ function loadSmtpConfig() {
 function saveSmtpConfig(config) {
   const configFile = getSmtpConfigFile();
   const current = loadSmtpConfig();
+  
   const updated = {
     host: config.host || 'smtp.gmail.com',
     port: parseInt(config.port || '587', 10),
     secure: config.port === 465 || config.secure === true,
     user: (config.user !== undefined ? config.user : current.user).trim(),
-    pass: (config.pass !== undefined ? config.pass : current.pass).trim(),
     updatedAt: new Date().toISOString(),
   };
 
+  // Encrypt password before saving
+  const plainPass = (config.pass !== undefined ? config.pass : current.pass).trim();
+  if (plainPass) {
+    updated.encryptedPass = encryptPassword(plainPass);
+  }
+
+  // Never save plain text 'pass' to file
   fs.writeFileSync(configFile, JSON.stringify(updated, null, 2), 'utf8');
   return { success: true };
 }
@@ -67,16 +125,17 @@ function getSmtpStatus() {
     }
   }
 
+  // CRITICAL: NEVER return config.pass or rawEmail secrets to Renderer via IPC
   return {
     isConfigured,
     host: config.host,
     port: config.port,
     userEmail: maskedEmail,
-    rawEmail: config.user,
   };
 }
 
 async function testSmtpConnection(testConfig) {
+  // Use passed config for testing new credentials before saving, or load existing
   const config = testConfig ? {
     host: testConfig.host || 'smtp.gmail.com',
     port: parseInt(testConfig.port || '587', 10),
@@ -191,3 +250,4 @@ module.exports = {
   testSmtpConnection,
   sendPasswordResetEmail,
 };
+
