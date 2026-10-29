@@ -62,6 +62,15 @@ function initDb() {
         }
       });
 
+      db.all("PRAGMA table_info(students)", (err, rows) => {
+        if (!err && rows && rows.length > 0) {
+          const hasNotes = rows.some(r => r.name === 'notes');
+          if (!hasNotes) {
+            db.run("ALTER TABLE students ADD COLUMN notes TEXT");
+          }
+        }
+      });
+
       db.run(`CREATE TABLE IF NOT EXISTS sections (
         id TEXT PRIMARY KEY,
         classId TEXT,
@@ -89,6 +98,7 @@ function initDb() {
         classId TEXT,
         sectionId TEXT,
         gender TEXT,
+        notes TEXT,
         isGeneralExempt INTEGER,
         individualExemptions TEXT,
         FOREIGN KEY(academicYearId) REFERENCES academic_years(id),
@@ -372,9 +382,9 @@ const dbActions = {
   upsertSubject: (s) => run('INSERT OR REPLACE INTO subjects (id, classId, name, maxScore, passScore, "order") VALUES (?, ?, ?, ?, ?, ?)', 
     [s.id, s.classId, s.name, s.maxScore, s.passScore, s.order]),
 
-  upsertStudent: (s) => run(`INSERT OR REPLACE INTO students (id, name, registrationNumber, fatherPhone, seatNumber, academicYearId, classId, sectionId, gender, isGeneralExempt, individualExemptions) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
-    [s.id, s.name, s.registrationNumber, s.fatherPhone, s.seatNumber, s.academicYearId, s.classId, s.sectionId, s.gender, s.isGeneralExempt ? 1 : 0, JSON.stringify(s.individualExemptions || [])]),
+  upsertStudent: (s) => run(`INSERT OR REPLACE INTO students (id, name, registrationNumber, fatherPhone, seatNumber, academicYearId, classId, sectionId, gender, notes, isGeneralExempt, individualExemptions) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
+    [s.id, s.name, (s.registrationNumber !== undefined && s.registrationNumber !== null) ? s.registrationNumber : null, s.fatherPhone ?? null, s.seatNumber, s.academicYearId, s.classId, s.sectionId ?? '', s.gender ?? 'male', s.notes ?? null, s.isGeneralExempt ? 1 : 0, JSON.stringify(s.individualExemptions || [])]),
 
   upsertGrade: (g) => run(`INSERT OR REPLACE INTO grades (id, academicYearId, classId, sectionId, subjectId, studentId, term1Score, midtermScore, term2Score, termYearlyScore, finalExamScore, finalScore, secondRoundScore, secondRoundFinalScore, secondRoundDate, lastUpdated, auditHistory, isIndividualExempt) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
@@ -404,43 +414,50 @@ const dbActions = {
         db.run('BEGIN TRANSACTION', (beginErr) => {
           if (beginErr) return reject(beginErr);
 
-          let errorOccurred = false;
+          let hasSettled = false;
           const errorHandler = (err) => {
-            if (err && !errorOccurred) {
-              errorOccurred = true;
+            if (!hasSettled) {
+              hasSettled = true;
               db.run('ROLLBACK', () => {
                 reject(err);
               });
             }
           };
 
-          const stuSql = `INSERT OR REPLACE INTO students (id, name, registrationNumber, fatherPhone, seatNumber, academicYearId, classId, sectionId, gender, isGeneralExempt, individualExemptions) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+          const stuSql = `INSERT OR REPLACE INTO students (id, name, registrationNumber, fatherPhone, seatNumber, academicYearId, classId, sectionId, gender, notes, isGeneralExempt, individualExemptions) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
           let pendingWrites = students.length + (promotionLog ? 1 : 0);
           if (pendingWrites === 0) {
             db.run('COMMIT', (commitErr) => {
-              if (commitErr) return reject(commitErr);
-              return resolve({ success: true });
+              if (commitErr) return errorHandler(commitErr);
+              if (!hasSettled) {
+                hasSettled = true;
+                return resolve({ success: true });
+              }
             });
             return;
           }
 
           const checkDone = () => {
             pendingWrites--;
-            if (pendingWrites === 0 && !errorOccurred) {
+            if (pendingWrites === 0 && !hasSettled) {
               db.run('COMMIT', (commitErr) => {
                 if (commitErr) return errorHandler(commitErr);
-                resolve({ success: true });
+                if (!hasSettled) {
+                  hasSettled = true;
+                  resolve({ success: true });
+                }
               });
             }
           };
 
           for (const s of students) {
-            if (errorOccurred) break;
+            if (hasSettled) break;
+            const regVal = (s.registrationNumber !== undefined && s.registrationNumber !== null) ? s.registrationNumber : null;
             db.run(
               stuSql,
-              [s.id, s.name, s.registrationNumber || null, s.fatherPhone || null, s.seatNumber, s.academicYearId, s.classId, s.sectionId || '', s.gender || 'male', s.isGeneralExempt ? 1 : 0, JSON.stringify(s.individualExemptions || [])],
+              [s.id, s.name, regVal, s.fatherPhone ?? null, s.seatNumber, s.academicYearId, s.classId, s.sectionId || '', s.gender || 'male', s.notes ?? null, s.isGeneralExempt ? 1 : 0, JSON.stringify(s.individualExemptions || [])],
               function(err) {
                 if (err) return errorHandler(err);
                 checkDone();
@@ -448,7 +465,7 @@ const dbActions = {
             );
           }
 
-          if (promotionLog && !errorOccurred) {
+          if (promotionLog && !hasSettled) {
             const logSql = `INSERT OR REPLACE INTO promotion_logs (id, date, sourceYearId, sourceYearName, targetYearId, targetYearName, promotedCount, repeatingCount, graduatedCount, excludedCount, totalProcessedCount, executedBy) 
               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
             const l = promotionLog;

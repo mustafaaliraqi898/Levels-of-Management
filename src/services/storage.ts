@@ -141,6 +141,7 @@ export class LocalStorageEngine {
   private listeners: Set<() => void> = new Set();
   private isElectron = typeof window !== 'undefined' && !!(window.electronAPI && window.electronAPI.isElectron);
   private isReady = false;
+  private isPromotionExecuting = false;
   private initPromise: Promise<void>;
 
   constructor() {
@@ -340,7 +341,13 @@ export class LocalStorageEngine {
       this.state.classes = data.classes || [];
       this.state.sections = data.sections || [];
       this.state.subjects = data.subjects || [];
-      this.state.students = (data.students || []).map((s: any) => ({ ...s, isGeneralExempt: !!s.isGeneralExempt, individualExemptions: s.individualExemptions ? JSON.parse(s.individualExemptions) : [] }));
+      this.state.students = (data.students || []).map((s: any) => ({
+        ...s,
+        notes: s.notes || undefined,
+        registrationNumber: (s.registrationNumber !== null && s.registrationNumber !== undefined) ? s.registrationNumber : undefined,
+        isGeneralExempt: !!s.isGeneralExempt,
+        individualExemptions: s.individualExemptions ? JSON.parse(s.individualExemptions) : []
+      }));
       const gradeMap: Record<string, GradeRecord> = {};
       (data.grades || []).forEach((g: any) => {
         gradeMap[g.id] = { ...g, auditHistory: g.auditHistory ? JSON.parse(g.auditHistory) : [], isIndividualExempt: !!g.isIndividualExempt };
@@ -1280,204 +1287,219 @@ export class LocalStorageEngine {
     skippedDuplicatesCount?: number;
     error?: string;
   }> {
-    // 1. Strict Batch Validation
-    const sourceYear = this.state.academicYears.find(y => y.id === p.sourceYearId);
-    const targetYear = this.state.academicYears.find(y => y.id === p.targetYearId);
-
-    if (!sourceYear || !targetYear) {
-      return { success: false, message: 'العام الدراسي المصدر أو العام الهدف غير موجود بالنظام.' };
+    // 0. Concurrency Guard to prevent multiple simultaneous promotion batches
+    if (this.isPromotionExecuting) {
+      return { success: false, message: 'عملية ترحيل أخرى قيد المعالجة حالياً. يرجى الانتظار حتى اكتمالها.' };
     }
+    this.isPromotionExecuting = true;
 
-    if (p.sourceYearId === p.targetYearId) {
-      return { success: false, message: 'يجب أن يكون العام الدراسي المصدر والعام الهدف مختلفين.' };
-    }
+    try {
+      // 1. Strict Batch Validation
+      const sourceYear = this.state.academicYears.find(y => y.id === p.sourceYearId);
+      const targetYear = this.state.academicYears.find(y => y.id === p.targetYearId);
 
-    if (p.sourceClassId) {
-      const srcClass = this.state.classes.find(c => c.id === p.sourceClassId);
-      if (!srcClass || (srcClass.academicYearId && srcClass.academicYearId !== p.sourceYearId)) {
-        return { success: false, message: 'الصف المصدر غير صالح أو لا ينتمي إلى العام الدراسي المصدر المحدد.' };
-      }
-    }
-
-    for (const item of p.promotions) {
-      const srcStudent = this.state.students.find(s => s.id === item.sourceStudentId);
-      if (!srcStudent || srcStudent.academicYearId !== p.sourceYearId) {
-        return { success: false, message: `الطالب المصدر (${item.studentName}) غير موجود أو لا ينتمي للسنة المصدر المحددة.` };
+      if (!sourceYear || !targetYear) {
+        return { success: false, message: 'العام الدراسي المصدر أو العام الهدف غير موجود بالنظام.' };
       }
 
-      if (p.sourceClassId && srcStudent.classId !== p.sourceClassId) {
-        return { success: false, message: `الطالب (${item.studentName}) لا ينتمي للصف المصدر المختار.` };
+      if (p.sourceYearId === p.targetYearId) {
+        return { success: false, message: 'يجب أن يكون العام الدراسي المصدر والعام الهدف مختلفين.' };
       }
 
-      if (item.action === 'promote' && item.targetClassId) {
-        const targetClass = this.state.classes.find(c => c.id === item.targetClassId);
-        if (!targetClass || targetClass.academicYearId !== p.targetYearId) {
-          return { success: false, message: `الصف المستهدف للترفيع (${item.studentName}) غير صالح أو لا يتبع العام الدراسي الهدف.` };
-        }
-
-        const classSections = this.state.sections.filter(s => s.classId === item.targetClassId);
-        if (classSections.length > 0) {
-          if (!item.targetSectionId) {
-            return { success: false, message: `الشعبة المستهدفة للطالب (${item.studentName}) غير محددة.` };
-          }
-          const sec = classSections.find(s => s.id === item.targetSectionId);
-          if (!sec) {
-            return { success: false, message: `الشعبة المستهدفة للطالب (${item.studentName}) لا تتبع الصف المستهدف.` };
-          }
+      if (p.sourceClassId) {
+        const srcClass = this.state.classes.find(c => c.id === p.sourceClassId);
+        if (!srcClass || (srcClass.academicYearId && srcClass.academicYearId !== p.sourceYearId)) {
+          return { success: false, message: 'الصف المصدر غير صالح أو لا ينتمي إلى العام الدراسي المصدر المحدد.' };
         }
       }
 
-      if (item.action === 'repeat' && item.targetClassId) {
-        const repClass = this.state.classes.find(c => c.id === item.targetClassId);
-        if (!repClass || repClass.academicYearId !== p.targetYearId) {
-          return { success: false, message: `صف المعيدين المختار للطالب (${item.studentName}) غير صالح أو لا يتبع العام الدراسي الهدف.` };
+      for (const item of p.promotions) {
+        const srcStudent = this.state.students.find(s => s.id === item.sourceStudentId);
+        if (!srcStudent || srcStudent.academicYearId !== p.sourceYearId) {
+          return { success: false, message: `الطالب المصدر (${item.studentName}) غير موجود أو لا ينتمي للسنة المصدر المحددة.` };
         }
 
-        const classSections = this.state.sections.filter(s => s.classId === item.targetClassId);
-        if (classSections.length > 0) {
-          if (!item.targetSectionId) {
-            return { success: false, message: `شعبة المعيدين للطالب (${item.studentName}) غير محددة.` };
+        if (p.sourceClassId && srcStudent.classId !== p.sourceClassId) {
+          return { success: false, message: `الطالب (${item.studentName}) لا ينتمي للصف المصدر المختار.` };
+        }
+
+        if (item.action === 'promote' && item.targetClassId) {
+          const targetClass = this.state.classes.find(c => c.id === item.targetClassId);
+          if (!targetClass || targetClass.academicYearId !== p.targetYearId) {
+            return { success: false, message: `الصف المستهدف للترفيع (${item.studentName}) غير صالح أو لا يتبع العام الدراسي الهدف.` };
           }
-          const sec = classSections.find(s => s.id === item.targetSectionId);
-          if (!sec) {
-            return { success: false, message: `شعبة المعيدين للطالب (${item.studentName}) لا تتبع صف المعيدين في السنة الجديدة.` };
+
+          const classSections = this.state.sections.filter(s => s.classId === item.targetClassId);
+          if (classSections.length > 0) {
+            if (!item.targetSectionId) {
+              return { success: false, message: `الشعبة المستهدفة للطالب (${item.studentName}) غير محددة.` };
+            }
+            const sec = classSections.find(s => s.id === item.targetSectionId);
+            if (!sec) {
+              return { success: false, message: `الشعبة المستهدفة للطالب (${item.studentName}) لا تتبع الصف المستهدف.` };
+            }
           }
         }
-      }
-    }
 
-    // 2. Perform Memory Processing with Rollback Capability
-    const prevStudents = [...this.state.students];
-    const prevLogs = [...(this.state.promotionLogs || [])];
+        if (item.action === 'repeat' && item.targetClassId) {
+          const repClass = this.state.classes.find(c => c.id === item.targetClassId);
+          if (!repClass || repClass.academicYearId !== p.targetYearId) {
+            return { success: false, message: `صف المعيدين المختار للطالب (${item.studentName}) غير صالح أو لا يتبع العام الدراسي الهدف.` };
+          }
 
-    let promotedCount = 0;
-    let repeatingCount = 0;
-    let graduatedCount = 0;
-    let excludedCount = 0;
-    let skippedDuplicatesCount = 0;
-
-    const targetYearStudents = this.state.students.filter(s => s.academicYearId === p.targetYearId);
-    const newStudentsAdded: Student[] = [];
-
-    p.promotions.forEach((item, idx) => {
-      if (item.action === 'graduate') {
-        graduatedCount++;
-        return;
-      }
-      if (item.action === 'exclude') {
-        excludedCount++;
-        return;
-      }
-
-      if (!item.targetClassId) {
-        excludedCount++;
-        return;
-      }
-
-      const cleanReg = item.registrationNumber ? item.registrationNumber.trim() : '';
-      const cleanName = item.studentName.trim().toLowerCase();
-      const cleanPhone = item.fatherPhone ? item.fatherPhone.trim() : '';
-
-      const exists = targetYearStudents.some(s => {
-        if (cleanReg.length > 0 && s.registrationNumber && s.registrationNumber.trim() === cleanReg) {
-          return true;
+          const classSections = this.state.sections.filter(s => s.classId === item.targetClassId);
+          if (classSections.length > 0) {
+            if (!item.targetSectionId) {
+              return { success: false, message: `شعبة المعيدين للطالب (${item.studentName}) غير محددة.` };
+            }
+            const sec = classSections.find(s => s.id === item.targetSectionId);
+            if (!sec) {
+              return { success: false, message: `شعبة المعيدين للطالب (${item.studentName}) لا تتبع صف المعيدين في السنة الجديدة.` };
+            }
+          }
         }
-        if (s.classId === item.targetClassId && s.name.trim().toLowerCase() === cleanName) {
-          if (cleanPhone.length > 0 && s.fatherPhone && s.fatherPhone.trim() === cleanPhone) {
+      }
+
+      // 2. Perform Memory Processing with Rollback Capability
+      const prevStudents = [...this.state.students];
+      const prevLogs = [...(this.state.promotionLogs || [])];
+
+      let promotedCount = 0;
+      let repeatingCount = 0;
+      let graduatedCount = 0;
+      let excludedCount = 0;
+      let skippedDuplicatesCount = 0;
+
+      const targetYearStudents = this.state.students.filter(s => s.academicYearId === p.targetYearId);
+      const newStudentsAdded: Student[] = [];
+
+      p.promotions.forEach((item, idx) => {
+        if (item.action === 'graduate') {
+          graduatedCount++;
+          return;
+        }
+        if (item.action === 'exclude') {
+          excludedCount++;
+          return;
+        }
+
+        if (!item.targetClassId) {
+          excludedCount++;
+          return;
+        }
+
+        // Comparison only - never used to mutate or alter original registration number
+        const cleanRegForComparison = (typeof item.registrationNumber === 'string') ? item.registrationNumber.trim() : '';
+        const srcMarker = `[src:${item.sourceStudentId}]`;
+
+        const exists = targetYearStudents.some(s => {
+          // 1. Reliable direct link to source student ID stored in notes
+          if (s.notes && s.notes.includes(srcMarker)) {
             return true;
           }
-          if (s.notes && s.notes.includes(item.sourceStudentId)) {
+
+          // 2. Match by non-empty registration number only (never treat empty registration numbers as matching)
+          if (cleanRegForComparison.length > 0 && typeof s.registrationNumber === 'string' && s.registrationNumber.trim() === cleanRegForComparison) {
             return true;
           }
-          if (cleanReg.length === 0 && (!s.registrationNumber || s.registrationNumber.trim().length === 0)) {
-            return true;
-          }
+
+          return false;
+        });
+
+        if (exists) {
+          skippedDuplicatesCount++;
+          return;
         }
-        return false;
+
+        const newStudentId = `stu-${Date.now()}-${idx}-${Math.floor(Math.random() * 10000)}`;
+        const targetClassStudents = targetYearStudents.filter(s => s.classId === item.targetClassId);
+
+        // Preserve original registration number verbatim without trim(), formatting, or altering
+        const preservedReg = (item.registrationNumber !== undefined && item.registrationNumber !== null && String(item.registrationNumber).length > 0)
+          ? item.registrationNumber
+          : undefined;
+
+        let studentNotes: string = srcMarker;
+        if (item.notes) {
+          studentNotes = item.notes.includes(srcMarker) ? item.notes : `${item.notes} ${srcMarker}`;
+        }
+
+        const newStudent: Student = {
+          id: newStudentId,
+          name: item.studentName,
+          registrationNumber: preservedReg,
+          fatherPhone: item.fatherPhone,
+          nationalId: item.nationalId,
+          seatNumber: targetClassStudents.length + 1,
+          academicYearId: p.targetYearId,
+          classId: item.targetClassId,
+          sectionId: item.targetSectionId || '',
+          gender: item.gender || 'male',
+          notes: studentNotes,
+        };
+
+        this.state.students.push(newStudent);
+        targetYearStudents.push(newStudent);
+        newStudentsAdded.push(newStudent);
+
+        if (item.action === 'promote') promotedCount++;
+        if (item.action === 'repeat') repeatingCount++;
       });
 
-      if (exists) {
-        skippedDuplicatesCount++;
-        return;
-      }
-
-      const newStudentId = `stu-${Date.now()}-${idx}-${Math.floor(Math.random() * 10000)}`;
-      const targetClassStudents = targetYearStudents.filter(s => s.classId === item.targetClassId);
-      const rawReg = item.registrationNumber ? String(item.registrationNumber).trim() : undefined;
-
-      const newStudent: Student = {
-        id: newStudentId,
-        name: item.studentName.trim(),
-        registrationNumber: rawReg || undefined,
-        fatherPhone: item.fatherPhone ? item.fatherPhone.trim() : undefined,
-        nationalId: item.nationalId,
-        seatNumber: targetClassStudents.length + 1,
-        academicYearId: p.targetYearId,
-        classId: item.targetClassId,
-        sectionId: item.targetSectionId || '',
-        gender: item.gender || 'male',
-        notes: item.notes ? `${item.notes} [src:${item.sourceStudentId}]` : `[src:${item.sourceStudentId}]`,
+      const logId = `log-${Date.now()}`;
+      const newLog: StudentPromotionBatchLog = {
+        id: logId,
+        date: new Date().toISOString(),
+        sourceYearId: p.sourceYearId,
+        sourceYearName: sourceYear.name,
+        targetYearId: p.targetYearId,
+        targetYearName: targetYear.name,
+        promotedCount,
+        repeatingCount,
+        graduatedCount,
+        excludedCount,
+        totalProcessedCount: p.promotions.length,
+        executedBy: p.executedBy || 'النظام',
       };
 
-      this.state.students.push(newStudent);
-      targetYearStudents.push(newStudent);
-      newStudentsAdded.push(newStudent);
+      if (!this.state.promotionLogs) this.state.promotionLogs = [];
+      this.state.promotionLogs.unshift(newLog);
 
-      if (item.action === 'promote') promotedCount++;
-      if (item.action === 'repeat') repeatingCount++;
-    });
-
-    const logId = `log-${Date.now()}`;
-    const newLog: StudentPromotionBatchLog = {
-      id: logId,
-      date: new Date().toISOString(),
-      sourceYearId: p.sourceYearId,
-      sourceYearName: sourceYear.name,
-      targetYearId: p.targetYearId,
-      targetYearName: targetYear.name,
-      promotedCount,
-      repeatingCount,
-      graduatedCount,
-      excludedCount,
-      totalProcessedCount: p.promotions.length,
-      executedBy: p.executedBy || 'النظام',
-    };
-
-    if (!this.state.promotionLogs) this.state.promotionLogs = [];
-    this.state.promotionLogs.unshift(newLog);
-
-    // 3. Atomic Persistence to Storage/Database
-    try {
-      if (this.isElectron && window.electronAPI?.db?.executeStudentPromotionBatch) {
-        const dbRes = await window.electronAPI.db.executeStudentPromotionBatch(newStudentsAdded, newLog);
-        if (dbRes && (dbRes as any).success === false) {
-          throw new Error((dbRes as any).error || 'فشل حفظ دفعة الترحيل في قاعدة بيانات SQLite');
+      // 3. Atomic Persistence to Storage/Database
+      try {
+        if (this.isElectron && window.electronAPI?.db?.executeStudentPromotionBatch) {
+          const dbRes = await window.electronAPI.db.executeStudentPromotionBatch(newStudentsAdded, newLog);
+          if (dbRes && (dbRes as any).success === false) {
+            throw new Error((dbRes as any).error || 'فشل حفظ دفعة الترحيل في قاعدة بيانات SQLite');
+          }
+        } else {
+          await this.persistToDisk(this.state);
         }
-      } else {
-        await this.persistToDisk(this.state);
+      } catch (err: any) {
+        this.state.students = prevStudents;
+        this.state.promotionLogs = prevLogs;
+        console.error('Promotion persistence error:', err);
+        return {
+          success: false,
+          message: `تعذر حفظ دفعة الترحيل: ${err?.message || 'خطأ أثناء الكتابة في التخزين'}`,
+          error: err?.message,
+        };
       }
-    } catch (err: any) {
-      this.state.students = prevStudents;
-      this.state.promotionLogs = prevLogs;
-      console.error('Promotion persistence error:', err);
+
+      this.notify(false);
+
       return {
-        success: false,
-        message: `تعذر حفظ دفعة الترحيل: ${err?.message || 'خطأ أثناء الكتابة في التخزين'}`,
-        error: err?.message,
+        success: true,
+        message: `تمت عملية الترحيل بنجاح: تم ترفيع ${promotedCount} طالب، وتسجيل ${repeatingCount} معيد، وتخرج ${graduatedCount} طالب (تم تجنب ${skippedDuplicatesCount} مكرر).`,
+        promotedCount,
+        repeatingCount,
+        graduatedCount,
+        excludedCount,
+        skippedDuplicatesCount,
       };
+    } finally {
+      this.isPromotionExecuting = false;
     }
-
-    this.notify(false);
-
-    return {
-      success: true,
-      message: `تمت عملية الترحيل بنجاح: تم ترفيع ${promotedCount} طالب، وتسجيل ${repeatingCount} معيد، وتخرج ${graduatedCount} طالب (تم تجنب ${skippedDuplicatesCount} مكرر).`,
-      promotedCount,
-      repeatingCount,
-      graduatedCount,
-      excludedCount,
-      skippedDuplicatesCount,
-    };
   }
 
   public getUsers() { return this.state.users || []; }

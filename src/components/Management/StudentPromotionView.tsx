@@ -323,24 +323,17 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
         reason = 'غير مكتمل (درجات الطالب ناقصة ولم تُحسم نتيجته)';
       }
 
-      // Check for already migrated (Refined Duplicate Detection)
+      // Check for already migrated (Strict source-linked & non-empty registration number detection)
       const cleanReg = student.registrationNumber ? student.registrationNumber.trim() : '';
-      const cleanName = student.name.trim().toLowerCase();
-      const cleanPhone = student.fatherPhone ? student.fatherPhone.trim() : '';
 
       const isAlreadyMigrated = targetYearStudents.some((s) => {
-        // Match by registration number if non-empty
-        if (cleanReg.length > 0 && s.registrationNumber && s.registrationNumber.trim() === cleanReg) {
+        // 1. Reliable link via source student ID stored in notes
+        if (s.notes && s.notes.includes(`[src:${student.id}]`)) {
           return true;
         }
-        // Match by exact name and target class in target year
-        if (s.name.trim().toLowerCase() === cleanName) {
-          if (assignedTargetClassId && s.classId === assignedTargetClassId) {
-            return true;
-          }
-          if (cleanPhone.length > 0 && s.fatherPhone && s.fatherPhone.trim() === cleanPhone) {
-            return true;
-          }
+        // 2. Match by registration number ONLY if non-empty (never treat empty registration numbers as identical)
+        if (cleanReg.length > 0 && s.registrationNumber && s.registrationNumber.trim() === cleanReg) {
+          return true;
         }
         return false;
       });
