@@ -29,45 +29,7 @@ import {
 import { hashPassword, generateSalt } from '../utils/crypto';
 import { filterClassesByAcademicYear } from '../utils/academicYearUtils';
 
-// --- Electron API Types ---
-declare global {
-  interface Window {
-    electronAPI?: {
-      isElectron: boolean;
-      platform: string;
-      version: string;
-      db: {
-        init: () => Promise<{ success: boolean; error?: string }>;
-        loadAll: () => Promise<any>;
-        saveSettings: (key: string, value: any) => Promise<any>;
-        upsertUser: (user: any) => Promise<any>;
-        upsertYear: (year: any) => Promise<any>;
-        upsertClass: (cls: any) => Promise<any>;
-        upsertSection: (sec: any) => Promise<any>;
-        upsertSubject: (sub: any) => Promise<any>;
-        upsertStudent: (stu: any) => Promise<any>;
-        upsertGrade: (grade: any) => Promise<any>;
-        saveExemptionSettings: (settings: any) => Promise<any>;
-        saveDecisionSettings: (settings: any) => Promise<any>;
-        upsertDecisionGrant: (grant: any) => Promise<any>;
-        saveCertificateTemplate: (config: any, imageData?: string) => Promise<any>;
-        upsertPromotionLog: (log: any) => Promise<any>;
-        executeStudentPromotionBatch: (students: any[], promotionLog: any) => Promise<{ success: boolean; error?: string }>;
-        deleteEntity: (table: string, id: string) => Promise<any>;
-        deleteStudentCascade: (studentId: string) => Promise<{ success: boolean, changes: number }>;
-        deleteClassCascade: (classId: string) => Promise<{ success: boolean, changes: number }>;
-        createBackup: () => Promise<{ success: boolean; path: string }>;
-        getBackupsInfo: () => Promise<{ lastBackup: string | null; backupsCount: number }>;
-        exportSql: () => Promise<string>;
-        restoreDb: (path: string) => Promise<{ success: boolean; message: string }>;
-      };
-      dialog: {
-        openDirectory: () => Promise<string | null>;
-        openFile: (filters: { name: string; extensions: string[] }[]) => Promise<string | null>;
-      };
-    };
-  }
-}
+
 
 const STORAGE_KEY = 'school_grades_offline_db_v3';
 

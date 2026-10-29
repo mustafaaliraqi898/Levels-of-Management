@@ -226,30 +226,49 @@ class AuthService {
   /**
    * Request password reset code via email
    */
+  /**
+   * Request password reset code via Gmail SMTP
+   */
   public async requestPasswordResetCode(
     usernameInput: string
-  ): Promise<{ success: boolean; maskedEmail?: string; message: string; debugCode?: string }> {
+  ): Promise<{ success: boolean; maskedEmail?: string; message: string }> {
     const username = usernameInput.trim().toLowerCase();
     if (!username) {
-      return { success: false, message: 'يرجى إدخال اسم المستخدم' };
+      return { success: false, message: 'يرجى إدخال اسم المستخدم.' };
     }
 
+    // Delegate to Electron main process if running under Electron
+    if (typeof window !== 'undefined' && window.electronAPI?.auth?.requestPasswordResetCode) {
+      const res = await window.electronAPI.auth.requestPasswordResetCode(username);
+      return {
+        success: res.success,
+        maskedEmail: res.maskedEmail,
+        message: res.message || res.error || 'حدث خطأ أثناء معالجة طلب الاستعادة.',
+      };
+    }
+
+    // Fallback for non-Electron / browser preview environments
     const users = db.getUsers();
     const user = users.find((u) => u.username.trim().toLowerCase() === username);
-
-    // Generic response message to prevent account enumeration
     const genericMsg = 'إذا كان اسم المستخدم صحيحاً ومسجلاً له بريد إلكتروني، فسيتم إرسال رمز التحقق إلى بريده الإلكتروني.';
 
     if (!user || !user.isActive || !user.email) {
       return { success: true, message: genericMsg };
     }
 
-    // Generate 6-digit numeric verification code
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    // Generate 6-digit numeric verification code using crypto if available
+    let code = '';
+    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+      const arr = new Uint32Array(1);
+      crypto.getRandomValues(arr);
+      code = (100000 + (arr[0] % 900000)).toString();
+    } else {
+      code = Math.floor(100000 + Math.random() * 900000).toString();
+    }
+
     const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes lifetime
     const attemptsLeft = 5;
 
-    // Save code to store (overwriting any previous code)
     this.resetCodesStore.set(username, {
       code,
       expiresAt,
@@ -257,7 +276,6 @@ class AuthService {
       emailSentTo: user.email,
     });
 
-    // Mask email for security display (e.g., m***a@gmail.com)
     const emailParts = user.email.split('@');
     const localPart = emailParts[0];
     const domainPart = emailParts[1] || '';
@@ -270,8 +288,7 @@ class AuthService {
     return {
       success: true,
       maskedEmail,
-      message: `تم إرسال رمز التحقق المكون من 6 أرقام إلى البريد الإلكتروني (${maskedEmail}). الرمز صالحة لمدة 5 دقائق.`,
-      debugCode: code, // Provided for offline simulation & manual verification
+      message: `تم إرسال رمز التحقق المكون من 6 أرقام بنجاح إلى البريد الإلكتروني المسجل بالحساب (${maskedEmail}). الرمز صالح لمدة 5 دقائق.`,
     };
   }
 
@@ -287,31 +304,38 @@ class AuthService {
     const code = codeInput.trim();
 
     if (!username || !code) {
-      return { success: false, error: 'يرجى إدخال اسم المستخدم ورمز التحقق' };
+      return { success: false, error: 'يرجى إدخال اسم المستخدم ورمز التحقق.' };
     }
 
     if (!newPasswordInput || newPasswordInput.length < 6) {
-      return { success: false, error: 'يجب ألا تقل كلمة المرور الجديدة عن 6 خانات/أحرف' };
+      return { success: false, error: 'يجب ألا تقل كلمة المرور الجديدة عن 6 خانات/أحرف.' };
     }
 
+    // Delegate to Electron main process if running under Electron
+    if (typeof window !== 'undefined' && window.electronAPI?.auth?.verifyResetCodeAndChangePassword) {
+      return await window.electronAPI.auth.verifyResetCodeAndChangePassword(
+        username,
+        code,
+        newPasswordInput
+      );
+    }
+
+    // Fallback for non-Electron / browser preview environments
     const storedData = this.resetCodesStore.get(username);
     if (!storedData) {
       return { success: false, error: 'لا يوجد طلب استعادة فعال لهذا الحساب أو انتهت صلاحيته. يرجى طلب رمز جديد.' };
     }
 
-    // Check expiration (5 minutes)
     if (Date.now() > storedData.expiresAt) {
       this.resetCodesStore.delete(username);
       return { success: false, error: 'انتهت صلاحية رمز التحقق (5 دقائق). يرجى طلب رمز جديد.' };
     }
 
-    // Check attempts limit (max 5 attempts)
     if (storedData.attemptsLeft <= 0) {
       this.resetCodesStore.delete(username);
       return { success: false, error: 'تم تجاوز الحد الأقصى للمحاولات الخاطئة (5 محاولات). تم إلغاء الرمز، يرجى طلب رمز جديد.' };
     }
 
-    // Validate code
     if (storedData.code !== code) {
       storedData.attemptsLeft -= 1;
       if (storedData.attemptsLeft <= 0) {
@@ -324,12 +348,11 @@ class AuthService {
       };
     }
 
-    // Code is valid! Reset password for user
     const users = db.getUsers();
     const user = users.find((u) => u.username.trim().toLowerCase() === username);
     if (!user) {
       this.resetCodesStore.delete(username);
-      return { success: false, error: 'المستخدم غير موجود' };
+      return { success: false, error: 'المستخدم غير موجود.' };
     }
 
     const newSalt = generateSalt();

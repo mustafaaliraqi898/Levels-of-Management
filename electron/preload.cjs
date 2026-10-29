@@ -7,6 +7,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
   auth: {
     setSession: (session) => ipcRenderer.invoke('auth:setSession', session),
     clearSession: () => ipcRenderer.invoke('auth:clearSession'),
+    requestPasswordResetCode: (username) => ipcRenderer.invoke('auth:requestPasswordResetCode', username),
+    verifyResetCodeAndChangePassword: (username, code, newPassword) => ipcRenderer.invoke('auth:verifyResetCodeAndChangePassword', username, code, newPassword),
+  },
+  smtp: {
+    getSmtpStatus: () => ipcRenderer.invoke('smtp:getSmtpStatus'),
+    saveConfig: (config) => ipcRenderer.invoke('smtp:saveConfig', config),
+    testConnection: (config) => ipcRenderer.invoke('smtp:testConnection', config),
   },
   db: {
     init: () => ipcRenderer.invoke('db:init'),

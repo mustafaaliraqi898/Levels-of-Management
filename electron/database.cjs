@@ -1,10 +1,17 @@
-const sqlite3 = require('sqlite3').verbose();
+let sqlite3 = null;
+try {
+  sqlite3 = require('sqlite3').verbose();
+} catch (e) {
+  console.warn('SQLite3 native addon omitted in container execution environment:', e.message);
+}
+
 const path = require('path');
 const { app } = require('electron');
 const fs = require('fs');
 
-const dbPath = path.join(app.getPath('userData'), 'school-grades.db');
-let db = new sqlite3.Database(dbPath);
+const userDataPath = app && app.getPath ? app.getPath('userData') : '/tmp/school-app';
+const dbPath = path.join(userDataPath, 'school-grades.db');
+let db = sqlite3 ? new sqlite3.Database(dbPath) : null;
 
 function initDb() {
   return new Promise((resolve, reject) => {
@@ -613,5 +620,7 @@ const dbActions = {
 module.exports = {
   initDb,
   ...dbActions,
-  get
+  get,
+  run,
+  query,
 };

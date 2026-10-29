@@ -2,6 +2,8 @@
 const { app, BrowserWindow, Menu, ipcMain, dialog } = require('electron');
 const path = require('path');
 const db = require('./database.cjs');
+const smtpService = require('./smtp-service.cjs');
+const resetService = require('./reset-service.cjs');
 const fs = require('fs');
 
 let mainWindow = null;
@@ -69,6 +71,13 @@ app.whenReady().then(async () => {
     currentActiveSession = null;
     return { success: true };
   });
+
+  // Password Recovery & SMTP Services
+  ipcMain.handle('auth:requestPasswordResetCode', (event, username) => resetService.requestPasswordResetCode(username));
+  ipcMain.handle('auth:verifyResetCodeAndChangePassword', (event, username, code, newPassword) => resetService.verifyResetCodeAndChangePassword(username, code, newPassword));
+  ipcMain.handle('smtp:getSmtpStatus', () => smtpService.getSmtpStatus());
+  ipcMain.handle('smtp:saveConfig', (event, config) => { requireAdminRole(); return smtpService.saveSmtpConfig(config); });
+  ipcMain.handle('smtp:testConnection', (event, config) => smtpService.testSmtpConnection(config));
 
   ipcMain.handle('db:init', handleInitDb);
   ipcMain.handle('db:loadAll', () => db.loadAll());

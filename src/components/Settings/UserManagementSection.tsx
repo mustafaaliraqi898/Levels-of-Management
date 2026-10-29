@@ -18,6 +18,8 @@ import {
   Lock,
   Eye,
   EyeOff,
+  Mail,
+  Send,
 } from 'lucide-react';
 
 interface UserManagementSectionProps {
@@ -55,7 +57,99 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
   const [resetPassword, setResetPassword] = useState('');
   const [showResetPassword, setShowResetPassword] = useState(false);
 
+  // SMTP Settings State
+  const [smtpUser, setSmtpUser] = useState('');
+  const [smtpPass, setSmtpPass] = useState('');
+  const [smtpHost, setSmtpHost] = useState('smtp.gmail.com');
+  const [smtpPort, setSmtpPort] = useState('587');
+  const [showSmtpPass, setShowSmtpPass] = useState(false);
+  const [smtpIsConfigured, setSmtpIsConfigured] = useState(false);
+  const [smtpMaskedEmail, setSmtpMaskedEmail] = useState('');
+  const [smtpNotice, setSmtpNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [isSmtpTesting, setIsSmtpTesting] = useState(false);
+  const [isSmtpSaving, setIsSmtpSaving] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined' && window.electronAPI?.smtp) {
+      window.electronAPI.smtp.getSmtpStatus().then((status) => {
+        setSmtpIsConfigured(status.isConfigured);
+        setSmtpHost(status.host || 'smtp.gmail.com');
+        setSmtpPort(String(status.port || 587));
+        setSmtpMaskedEmail(status.userEmail || '');
+        if (status.rawEmail) {
+          setSmtpUser(status.rawEmail);
+        }
+      }).catch(() => {});
+    }
+  }, []);
+
+  const handleTestSmtp = async () => {
+    if (!smtpUser.trim() || !smtpPass.trim()) {
+      setSmtpNotice({ type: 'error', message: 'يرجى إدخال عنوان Gmail وكلمة مرور التطبيق (App Password) للاختبار' });
+      return;
+    }
+
+    setIsSmtpTesting(true);
+    setSmtpNotice(null);
+    try {
+      if (typeof window !== 'undefined' && window.electronAPI?.smtp) {
+        const res = await window.electronAPI.smtp.testConnection({
+          host: smtpHost.trim(),
+          port: smtpPort.trim(),
+          user: smtpUser.trim(),
+          pass: smtpPass.trim(),
+        });
+        if (res.success) {
+          setSmtpNotice({ type: 'success', message: res.message || 'تم الاتصال بخدمة Gmail SMTP بنجاح!' });
+        } else {
+          setSmtpNotice({ type: 'error', message: res.error || 'فشل الاتصال بخدمة SMTP' });
+        }
+      } else {
+        setSmtpNotice({ type: 'error', message: 'اختبار SMTP غير متاح في بيئة المتصفح. يتطلب تشغيل تطبيق Electron.' });
+      }
+    } catch {
+      setSmtpNotice({ type: 'error', message: 'حدث خطأ أثناء الاتصال بالخادم' });
+    } finally {
+      setIsSmtpTesting(false);
+    }
+  };
+
+  const handleSaveSmtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!smtpUser.trim() || !smtpPass.trim()) {
+      setSmtpNotice({ type: 'error', message: 'عنوان Gmail وكلمة مرور التطبيق مطلوبان للحفظ' });
+      return;
+    }
+
+    setIsSmtpSaving(true);
+    setSmtpNotice(null);
+    try {
+      if (typeof window !== 'undefined' && window.electronAPI?.smtp) {
+        const res = await window.electronAPI.smtp.saveConfig({
+          host: smtpHost.trim(),
+          port: smtpPort.trim(),
+          user: smtpUser.trim(),
+          pass: smtpPass.trim(),
+        });
+        if (res.success) {
+          setSmtpNotice({ type: 'success', message: 'تم حفظ إعدادات Gmail SMTP بنجاح في مخزن النظام المحلي!' });
+          setSmtpIsConfigured(true);
+          const status = await window.electronAPI.smtp.getSmtpStatus();
+          setSmtpMaskedEmail(status.userEmail);
+        } else {
+          setSmtpNotice({ type: 'error', message: res.error || 'تعذر حفظ الإعدادات' });
+        }
+      } else {
+        setSmtpNotice({ type: 'error', message: 'حفظ الإعدادات متاح فقط داخل تطبيق Windows Electron.' });
+      }
+    } catch {
+      setSmtpNotice({ type: 'error', message: 'حدث خطأ أثناء حفظ الإعدادات' });
+    } finally {
+      setIsSmtpSaving(false);
+    }
+  };
 
   const refreshUsers = () => {
     setUsers([...db.getUsers()]);
@@ -437,6 +531,141 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
         <span>
           حماية أمان النظام: يمنع النظام تلقائياً حذف أو تعطيل آخر مدير نشط لضمان عدم فقدان الوصول الإداري لقاعدة البيانات.
         </span>
+      </div>
+
+      {/* Gmail SMTP Settings Card */}
+      <div className="mt-8 pt-6 border-t border-slate-800">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div>
+            <h4 className="text-sm font-bold text-white flex items-center gap-2">
+              <Mail className="w-4 h-4 text-emerald-400" />
+              إعدادات خادم البريد الإلكتروني (Gmail SMTP Configuration)
+            </h4>
+            <p className="text-xs text-slate-400 mt-1">
+              تهيئة بيانات الاعتماد لإرسال رموز استعادة كلمة المرور تلقائياً إلى بريد المدير الرئيسي
+            </p>
+          </div>
+
+          <div>
+            {smtpIsConfigured ? (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-bold text-xs">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                <span>مفعل لـ ({smtpMaskedEmail})</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 font-bold text-xs">
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                <span>غير مجهز بعد</span>
+              </span>
+            )}
+          </div>
+        </div>
+
+        {smtpNotice && (
+          <div
+            className={`p-3 rounded-xl border mb-4 flex items-center gap-2 text-xs font-bold ${
+              smtpNotice.type === 'success'
+                ? 'bg-emerald-950/60 border-emerald-500/40 text-emerald-300'
+                : 'bg-rose-950/60 border-rose-500/40 text-rose-300'
+            }`}
+          >
+            {smtpNotice.type === 'success' ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            ) : (
+              <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+            )}
+            <span>{smtpNotice.message}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSaveSmtp} className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-950/60 border border-slate-800 p-4 rounded-2xl">
+          <div>
+            <label className="block text-xs font-bold text-slate-300 mb-1">
+              عنوان Gmail الإداري للإرسال
+            </label>
+            <input
+              type="email"
+              required
+              value={smtpUser}
+              onChange={(e) => setSmtpUser(e.target.value)}
+              placeholder="school.admin@gmail.com"
+              className="w-full h-10 px-3 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-emerald-500 focus:outline-hidden dir-ltr font-mono"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-300 mb-1">
+              كلمة مرور التطبيقات (Gmail App Password - 16 حرفاً)
+            </label>
+            <div className="relative">
+              <input
+                type={showSmtpPass ? 'text' : 'password'}
+                required
+                value={smtpPass}
+                onChange={(e) => setSmtpPass(e.target.value)}
+                placeholder="abcd efgh ijkl mnop"
+                className="w-full h-10 pr-3 pl-10 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-emerald-500 focus:outline-hidden dir-ltr font-mono"
+              />
+              <button
+                type="button"
+                onClick={() => setShowSmtpPass(!showSmtpPass)}
+                className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 hover:text-slate-200 cursor-pointer"
+              >
+                {showSmtpPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-400 mb-1">
+              خادم SMTP
+            </label>
+            <input
+              type="text"
+              value={smtpHost}
+              onChange={(e) => setSmtpHost(e.target.value)}
+              className="w-full h-9 px-3 text-xs bg-slate-900 border border-slate-800 rounded-xl text-slate-400 focus:border-emerald-500 focus:outline-hidden dir-ltr font-mono"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-400 mb-1">
+              منفذ الاتصال (Port)
+            </label>
+            <input
+              type="text"
+              value={smtpPort}
+              onChange={(e) => setSmtpPort(e.target.value)}
+              className="w-full h-9 px-3 text-xs bg-slate-900 border border-slate-800 rounded-xl text-slate-400 focus:border-emerald-500 focus:outline-hidden dir-ltr font-mono"
+            />
+          </div>
+
+          <div className="sm:col-span-2 flex flex-col sm:flex-row justify-between items-center gap-3 pt-3 border-t border-slate-800/80">
+            <span className="text-[11px] text-slate-400">
+              * يُحفظ السر آمنياً في مسار بيانات التطبيق المحمي ببيئة Windows Electron ولن يُرفع للإنترنت.
+            </span>
+
+            <div className="flex gap-2 w-full sm:w-auto justify-end">
+              <button
+                type="button"
+                disabled={isSmtpTesting}
+                onClick={handleTestSmtp}
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                <Send className="w-3.5 h-3.5 text-emerald-400" />
+                <span>{isSmtpTesting ? 'جاري الاختبار...' : 'اختبار الاتصال'}</span>
+              </button>
+
+              <button
+                type="submit"
+                disabled={isSmtpSaving}
+                className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 text-xs font-black flex items-center gap-1.5 shadow-md cursor-pointer disabled:opacity-50"
+              >
+                <span>{isSmtpSaving ? 'جاري الحفظ...' : 'حفظ إعدادات SMTP'}</span>
+              </button>
+            </div>
+          </div>
+        </form>
       </div>
 
       {/* MODAL 1: Add User */}

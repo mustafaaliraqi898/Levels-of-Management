@@ -337,4 +337,82 @@ export type ActiveTab =
   | 'backup'
   | 'settings';
 
+declare global {
+  interface Window {
+    electronAPI?: {
+      isElectron: boolean;
+      platform: string;
+      version: string;
+      auth: {
+        setSession: (session: AuthSession) => Promise<{ success: boolean }>;
+        clearSession: () => Promise<{ success: boolean }>;
+        requestPasswordResetCode: (username: string) => Promise<{
+          success: boolean;
+          maskedEmail?: string;
+          message?: string;
+          error?: string;
+        }>;
+        verifyResetCodeAndChangePassword: (
+          username: string,
+          code: string,
+          newPassword: string
+        ) => Promise<{ success: boolean; message?: string; error?: string }>;
+      };
+      smtp: {
+        getSmtpStatus: () => Promise<{
+          isConfigured: boolean;
+          host: string;
+          port: number;
+          userEmail: string;
+          rawEmail: string;
+        }>;
+        saveConfig: (config: {
+          host?: string;
+          port?: number | string;
+          secure?: boolean;
+          user?: string;
+          pass?: string;
+        }) => Promise<{ success: boolean; error?: string }>;
+        testConnection: (config?: {
+          host?: string;
+          port?: number | string;
+          secure?: boolean;
+          user?: string;
+          pass?: string;
+        }) => Promise<{ success: boolean; message?: string; error?: string }>;
+      };
+      db: {
+        init: () => Promise<{ success: boolean; error?: string }>;
+        loadAll: () => Promise<any>;
+        saveSettings: (key: string, value: any) => Promise<any>;
+        upsertUser: (user: UserAccount) => Promise<any>;
+        upsertYear: (year: AcademicYear) => Promise<any>;
+        upsertClass: (cls: SchoolClass) => Promise<any>;
+        upsertSection: (sec: Section) => Promise<any>;
+        upsertSubject: (sub: Subject) => Promise<any>;
+        upsertStudent: (stu: Student) => Promise<any>;
+        upsertGrade: (grade: GradeRecord) => Promise<any>;
+        saveExemptionSettings: (settings: ExemptionSettings) => Promise<any>;
+        saveDecisionSettings: (settings: AcademicYearDecisionSettings) => Promise<any>;
+        upsertDecisionGrant: (grant: DecisionGrantRecord) => Promise<any>;
+        saveCertificateTemplate: (config: CertificateTemplateConfig, imageData?: string) => Promise<any>;
+        upsertPromotionLog: (log: StudentPromotionBatchLog) => Promise<any>;
+        executeStudentPromotionBatch: (students: Student[], promotionLog?: StudentPromotionBatchLog) => Promise<any>;
+        deleteEntity: (table: string, id: string) => Promise<any>;
+        deleteStudentCascade: (studentId: string) => Promise<any>;
+        deleteClassCascade: (classId: string) => Promise<any>;
+        createBackup: () => Promise<any>;
+        getBackupsInfo: () => Promise<any>;
+        exportSql: () => Promise<string>;
+        restoreDb: (filePath: string) => Promise<{ success: boolean; message: string }>;
+      };
+      dialog: {
+        openDirectory: () => Promise<string | null>;
+        openFile: (filters: { name: string; extensions: string[] }[]) => Promise<string | null>;
+      };
+    };
+  }
+}
+
+
 

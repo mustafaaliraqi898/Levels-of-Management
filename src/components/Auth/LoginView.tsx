@@ -40,7 +40,6 @@ export const LoginView: React.FC<LoginViewProps> = ({
   const [recoveryConfirmPassword, setRecoveryConfirmPassword] = useState('');
   const [recoveryError, setRecoveryError] = useState<string | null>(null);
   const [recoveryMsg, setRecoveryMsg] = useState<string | null>(null);
-  const [recoveryDebugCode, setRecoveryDebugCode] = useState<string | undefined>(undefined);
   const [isRecoveryLoading, setIsRecoveryLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -302,7 +301,6 @@ export const LoginView: React.FC<LoginViewProps> = ({
                     const res = await authService.requestPasswordResetCode(recoveryUsername);
                     if (res.success) {
                       setRecoveryMsg(res.message);
-                      setRecoveryDebugCode(res.debugCode);
                       setRecoveryStep('verify');
                     } else {
                       setRecoveryError(res.message);
@@ -328,7 +326,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
                 </div>
 
                 <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-400 leading-relaxed">
-                  سيتم إرسال رمز أمان مكون من 6 أرقام إلى البريد الإلكتروني الخاص بحساب المدير المسجل مسبقاً. صلاحية الرمز 5 دقائق وبحد أقصى 5 محاولات.
+                  سيتم إرسال رمز أمان مكون من 6 أرقام إلى البريد الإلكتروني الخاص بحساب المدير المسجل مسبقاً عبر خدمة Gmail SMTP. صلاحية الرمز 5 دقائق وبحد أقصى 5 محاولات.
                 </div>
 
                 <button
@@ -336,7 +334,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
                   disabled={isRecoveryLoading}
                   className="w-full h-11 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
                 >
-                  {isRecoveryLoading ? 'جاري الإرسال...' : 'إرسال رمز التحقق'}
+                  {isRecoveryLoading ? 'جاري الإرسال عبر Gmail...' : 'إرسال رمز التحقق'}
                 </button>
               </form>
             )}
@@ -375,15 +373,6 @@ export const LoginView: React.FC<LoginViewProps> = ({
                 {recoveryMsg && (
                   <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-xs leading-relaxed">
                     {recoveryMsg}
-                  </div>
-                )}
-
-                {recoveryDebugCode && (
-                  <div className="p-3 rounded-xl bg-amber-950/40 border border-amber-500/40 text-amber-200 text-xs">
-                    <span className="font-bold block mb-1 text-amber-400">رمز التحقق المولد لتطوير البرنامج المحلي:</span>
-                    <span className="font-mono text-base font-black tracking-widest text-amber-300 dir-ltr inline-block bg-slate-950 px-3 py-1 rounded-lg border border-amber-500/30">
-                      {recoveryDebugCode}
-                    </span>
                   </div>
                 )}
 
