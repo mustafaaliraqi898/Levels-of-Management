@@ -65,7 +65,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       id: 'grade_entry',
       label: 'إدخال الدرجات',
       icon: FileSpreadsheet,
-      isHighlight: true,
     },
     {
       id: 'decision_marks',

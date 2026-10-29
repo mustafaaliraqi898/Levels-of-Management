@@ -313,11 +313,15 @@ class AuthService {
 
     // Delegate to Electron main process if running under Electron
     if (typeof window !== 'undefined' && window.electronAPI?.auth?.verifyResetCodeAndChangePassword) {
-      return await window.electronAPI.auth.verifyResetCodeAndChangePassword(
+      const res = await window.electronAPI.auth.verifyResetCodeAndChangePassword(
         username,
         code,
         newPasswordInput
       );
+      if (res.success) {
+        await db.reloadDataFromSqlite();
+      }
+      return res;
     }
 
     // Fallback for non-Electron / browser preview environments

@@ -156,6 +156,12 @@ export class LocalStorageEngine {
     this.notify(false);
   }
 
+  public async reloadDataFromSqlite(): Promise<void> {
+    if (!this.isElectron) return;
+    await this.loadFromSqlite();
+    this.notify(false);
+  }
+
   private async migrateClassesToAcademicYears() {
     const unmappedClasses = this.state.classes.filter(c => !c.academicYearId);
     if (unmappedClasses.length === 0) return;

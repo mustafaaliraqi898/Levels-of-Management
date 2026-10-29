@@ -497,16 +497,6 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
 
         <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
           <button
-            onClick={() => setShowTestCasesGuide(!showTestCasesGuide)}
-            className="flex-1 md:flex-initial px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 hover:border-slate-600 font-semibold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
-            title="عرض دليل حالات الاختبار التجريبية"
-          >
-            <Sparkles className="w-4 h-4 text-amber-400" />
-            <span>دليل حالات الاختبار</span>
-            {showTestCasesGuide ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-          </button>
-
-          <button
             onClick={handleCompleteSeedData}
             className="flex-1 md:flex-initial px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 hover:border-slate-600 font-semibold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
             title="التحقق من اكتمال درجات جميع الطلاب والمواد وتحديثها بأمان"
@@ -514,109 +504,8 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
             <Database className="w-4 h-4 text-teal-400" />
             استكمال بيانات الاختبار
           </button>
-
-          <button
-            onClick={handlePrint}
-            className="flex-1 md:flex-initial px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 hover:border-slate-600 font-medium text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
-          >
-            <Printer className="w-4 h-4 text-amber-400" />
-            طباعة الكشف
-          </button>
         </div>
       </div>
-
-      {/* Seed Sync Feedback Alert */}
-      {seedSyncFeedback && (
-        <div className="bg-teal-500/15 border-2 border-teal-500/30 rounded-2xl p-4 flex items-center gap-3 text-teal-200 text-xs sm:text-sm font-semibold animate-fadeIn shadow-md">
-          <CheckCircle2 className="w-5 h-5 text-teal-400 shrink-0" />
-          <span>{seedSyncFeedback}</span>
-        </div>
-      )}
-
-      {/* Interactive Test Cases Guide Panel (Collapsible) */}
-      {showTestCasesGuide && (
-        <div className="bg-slate-900 border-2 border-amber-500/40 rounded-2xl p-5 shadow-lg space-y-4 animate-fadeIn">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-amber-400" />
-              <h3 className="font-bold text-sm sm:text-base text-slate-100">
-                دليل حالات الاختبار السريع (البيانات النموذجية المهيأة في الخامس العلمي - شعبة أ)
-              </h3>
-            </div>
-            <span className="text-xs text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full font-bold">
-              جاهزة للاختبار الفوري
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
-            {/* Case 1 */}
-            <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3 space-y-1">
-              <div className="font-bold text-emerald-400 flex items-center justify-between">
-                <span>1. أحمد محمد علي التميمي</span>
-                <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded">معفى عام + 7 فردي</span>
-              </div>
-              <p className="text-slate-300 text-[11px]">
-                معدله 97.71% وجميع درجاته بين 96 و 100. يختبر التفوق الشامل والاستحقاق لكلا النوعين.
-              </p>
-            </div>
-
-            {/* Case 2 */}
-            <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3 space-y-1">
-              <div className="font-bold text-amber-400 flex items-center justify-between">
-                <span>2. باقر حيدر شاكر الحسني</span>
-                <span className="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded">معفى عام + 2 فردي</span>
-              </div>
-              <p className="text-slate-300 text-[11px]">
-                معدله 88.14%، جميع مواده &ge; 75. لديه إعفاء فردي في الإنكليزية (90) والإسلامية (92) فقط.
-              </p>
-            </div>
-
-            {/* Case 3 */}
-            <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3 space-y-1">
-              <div className="font-bold text-rose-400 flex items-center justify-between">
-                <span>3. جعفر جاسم حميد الكعبي</span>
-                <span className="text-[10px] bg-rose-500/20 text-rose-300 px-1.5 py-0.5 rounded">معدل 89.29% ومرفوض عام!</span>
-              </div>
-              <p className="text-slate-300 text-[11px]">
-                معدله 89.29%، لكن الكيمياء 72 (&lt; 75). يثبت رفض الإعفاء العام وتوضيح السبب، مع نيله 5 إعفاءات فردية!
-              </p>
-            </div>
-
-            {/* Case 4 */}
-            <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3 space-y-1">
-              <div className="font-bold text-cyan-400 flex items-center justify-between">
-                <span>4. حسين علي عبد الزهرة</span>
-                <span className="text-[10px] bg-cyan-500/20 text-cyan-300 px-1.5 py-0.5 rounded">اختبار الجبر (84.57%)</span>
-              </div>
-              <p className="text-slate-300 text-[11px]">
-                معدله 84.57%. مع إيقاف الجبر: غير مشمول (&lt; 85). مع تفعيل الجبر: معفى عام (85%).
-              </p>
-            </div>
-
-            {/* Case 5 */}
-            <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3 space-y-1">
-              <div className="font-bold text-amber-300 flex items-center justify-between">
-                <span>5. ذو الفقار صلاح مهدي</span>
-                <span className="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded">غير مكتمل (نقص مادة)</span>
-              </div>
-              <p className="text-slate-300 text-[11px]">
-                سعي مادة الأحياء غير مكتمل (فصل ثانٍ ناقص). يحجب الإعفاء العام ويظهر كـ «غير مكتمل».
-              </p>
-            </div>
-
-            {/* Case 6 */}
-            <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3 space-y-1">
-              <div className="font-bold text-teal-400 flex items-center justify-between">
-                <span>6. سجاد قاسم هاشم الشمري</span>
-                <span className="text-[10px] bg-teal-500/20 text-teal-300 px-1.5 py-0.5 rounded">فردي فقط دون عام</span>
-              </div>
-              <p className="text-slate-300 text-[11px]">
-                مستحق للإعفاء الفردي في الرياضيات (93) والفيزياء (91)، وغير مشمول بالعام (معدله 78.29%).
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* 2. Notification Banner if Exemption Settings not yet saved/configured for this year */}
       {!savedSettings.isConfigured && (

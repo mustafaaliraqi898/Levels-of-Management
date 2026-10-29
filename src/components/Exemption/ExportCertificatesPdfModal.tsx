@@ -496,6 +496,11 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
 
         if (i > 0) pdf.addPage('a4', 'landscape');
         pdf.addImage(imgData, 'JPEG', 0, 0, 297, 210, undefined, 'FAST');
+        
+        // Yield to event loop every 2 certificates to keep UI responsive
+        if (i % 2 === 0) {
+          await new Promise(r => setTimeout(r, 10));
+        }
       }
 
       // 3. Save PDF file
@@ -567,6 +572,11 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
 
           const cleanStudentName = `${String(i + 1).padStart(2, '0')}_${student.name.replace(/[\\/:*?"<>|]/g, '_')}`;
           zip.file(`شهادة_${cleanStudentName}.png`, base64Data, { base64: true });
+
+          // Yield to event loop to keep UI responsive
+          if (i % 3 === 0) {
+            await new Promise(r => setTimeout(r, 10));
+          }
         }
 
         const zipBlob = await zip.generateAsync({ type: 'blob' });

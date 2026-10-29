@@ -198,6 +198,11 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
   const [importedFileName, setImportedFileName] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  // Multi-select state
+  const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+  const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
+
   // Filtered students for table
   const filteredStudents = useMemo(() => {
     return students
@@ -225,6 +230,53 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
         return (a.seatNumber || 0) - (b.seatNumber || 0);
       });
   }, [students, selectedYearId, filterClassId, filterSectionId, searchQuery]);
+
+  // Bulk select handlers
+  const handleSelectAll = () => {
+    if (selectedStudentIds.length === filteredStudents.length) {
+      setSelectedStudentIds([]);
+    } else {
+      setSelectedStudentIds(filteredStudents.map((s) => s.id));
+    }
+  };
+
+  const handleSelectStudent = (id: string) => {
+    setSelectedStudentIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedStudentIds.length === 0 || isBulkDeleting) return;
+
+    setIsBulkDeleting(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    try {
+      for (const id of selectedStudentIds) {
+        const res = await db.deleteStudent(id);
+        if (res.success) {
+          successCount++;
+        } else {
+          failCount++;
+        }
+      }
+
+      if (failCount === 0) {
+        showToast(`تم حذف ${successCount} طالب بنجاح مع كافة سجلاتهم.`, 'success');
+      } else {
+        showToast(`تم حذف ${successCount} طالب، وفشل حذف ${failCount} طالب.`, 'error');
+      }
+      setSelectedStudentIds([]);
+      setIsBulkDeleteModalOpen(false);
+    } catch (err) {
+      console.error('Bulk delete error:', err);
+      showToast('حدث خطأ أثناء عملية الحذف الجماعي.', 'error');
+    } finally {
+      setIsBulkDeleting(false);
+    }
+  };
 
   // Set of all existing registration numbers in school (for fast duplicate detection)
   const existingRegNumbers = useMemo(() => {
@@ -628,6 +680,18 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
             <Plus className="w-4 h-4" />
             <span>إضافة طالب جديد</span>
           </button>
+
+          {/* Bulk Delete Button (Visible only if students are selected) */}
+          {selectedStudentIds.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setIsBulkDeleteModalOpen(true)}
+              className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-rose-600/20 cursor-pointer transition-colors animate-in fade-in zoom-in duration-200"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>حذف المحدّد ({selectedStudentIds.length})</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -725,6 +789,14 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
         <table className="w-full border-collapse text-right text-xs">
           <thead>
             <tr className="bg-slate-900 border-b border-slate-700 text-slate-300 font-bold">
+              <th className="p-3 text-center w-12 border-l border-slate-800">
+                <input
+                  type="checkbox"
+                  checked={filteredStudents.length > 0 && selectedStudentIds.length === filteredStudents.length}
+                  onChange={handleSelectAll}
+                  className="w-4 h-4 rounded-sm border-slate-700 bg-slate-950 text-emerald-500 focus:ring-0 cursor-pointer"
+                />
+              </th>
               <th className="p-3 text-center w-14 border-l border-slate-800">ت</th>
               <th className="p-3 min-w-[200px] border-l border-slate-800">اسم الطالب</th>
               <th className="p-3 w-36 border-l border-slate-800 font-mono">رقم القيد</th>
@@ -748,8 +820,20 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                 const studentClass = classes.find((c) => c.id === stu.classId);
                 const studentSection = sections.find((s) => s.id === stu.sectionId);
 
+                const isSelected = selectedStudentIds.includes(stu.id);
+
                 return (
-                  <tr key={stu.id} className="hover:bg-slate-900/50 transition-colors group">
+                  <tr key={stu.id} className={`hover:bg-slate-900/50 transition-colors group ${isSelected ? 'bg-emerald-500/5' : ''}`}>
+                    {/* Checkbox */}
+                    <td className="p-3 text-center border-l border-slate-800">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => handleSelectStudent(stu.id)}
+                        className="w-4 h-4 rounded-sm border-slate-700 bg-slate-950 text-emerald-500 focus:ring-0 cursor-pointer"
+                      />
+                    </td>
+
                     {/* Index */}
                     <td className="p-3 text-center font-mono text-slate-400 border-l border-slate-800">
                       {idx + 1}
@@ -1647,6 +1731,58 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                     <span>تأكيد الحذف النهائي</span>
                   </>
                 )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* =========================================================================
+          MODAL 6: BULK DELETE CONFIRMATION
+          ========================================================================= */}
+      {isBulkDeleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-md bg-slate-900 border border-rose-500/30 rounded-2xl shadow-2xl p-6 text-slate-100 flex flex-col gap-4">
+            <div className="flex items-center gap-3 text-rose-400 border-b border-slate-800 pb-3">
+              <div className="p-2 rounded-lg bg-rose-500/10 border border-rose-500/30">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-black">تأكيد الحذف الجماعي</h3>
+            </div>
+
+            <div className="space-y-3">
+              <p className="text-sm font-bold text-slate-200">
+                هل أنت متأكد من رغبتك في حذف <span className="text-rose-400 underline">{selectedStudentIds.length}</span> طلاب دفعة واحدة؟
+              </p>
+              <div className="p-3 bg-rose-500/5 border border-rose-500/20 rounded-xl space-y-2">
+                <p className="text-xs text-rose-300 leading-relaxed font-bold">
+                  تحذير نهائي: هذا الإجراء سيؤدي إلى مسح الطلاب المحددّين وكافة سجلات درجاتهم وتقاريرهم من قاعدة البيانات بصورة نهائية ولا يمكن التراجع عن ذلك.
+                </p>
+              </div>
+              
+              {isBulkDeleting && (
+                <div className="flex items-center gap-2 text-xs text-amber-400 font-bold animate-pulse">
+                  <div className="w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+                  جاري معالجة الحذف الجماعي... يرجى الانتظار
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                disabled={isBulkDeleting}
+                onClick={() => setIsBulkDeleteModalOpen(false)}
+                className="px-4 py-2 text-xs font-bold rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-300 transition-colors cursor-pointer disabled:opacity-50"
+              >
+                إلغاء
+              </button>
+              <button
+                type="button"
+                disabled={isBulkDeleting}
+                onClick={handleBulkDelete}
+                className="px-6 py-2 text-xs font-black rounded-xl bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-600/20 transition-all cursor-pointer disabled:opacity-50 flex items-center gap-2"
+              >
+                {isBulkDeleting ? 'جاري الحذف...' : 'نعم، احذف الكل نهائياً'}
               </button>
             </div>
           </div>

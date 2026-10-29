@@ -129,7 +129,10 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
   }, [selectedYearId]);
 
   const handlePrint = () => {
-    window.print();
+    // Delay print call slightly to ensure UI stability in Electron environment
+    setTimeout(() => {
+      window.print();
+    }, 50);
   };
 
   return (
