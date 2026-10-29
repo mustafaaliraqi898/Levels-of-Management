@@ -250,10 +250,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     className={`text-[9px] px-1.5 py-0.5 rounded font-bold ${
                       currentUser.role === 'admin'
                         ? 'bg-amber-500/20 text-amber-300'
-                        : 'bg-blue-500/20 text-blue-300'
+                        : 'bg-emerald-500/20 text-emerald-300'
                     }`}
                   >
-                    {currentUser.role === 'admin' ? 'Admin' : 'User'}
+                    {currentUser.role === 'admin' ? 'مدير كامل' : 'معاينة فقط'}
                   </span>
                 </div>
 

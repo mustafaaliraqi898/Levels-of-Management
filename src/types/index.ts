@@ -239,6 +239,7 @@ export interface UserAccount {
   salt: string;
   role: UserRole;
   isActive: boolean;
+  email?: string; // بريد إلكتروني خاص بحسابات الأدمن لاستعادة كلمة المرور
   mustChangePassword?: boolean;
   createdAt: string;
   lastLogin?: string;
@@ -249,6 +250,7 @@ export interface AuthSession {
     id: string;
     username: string;
     role: UserRole;
+    email?: string;
     mustChangePassword?: boolean;
   };
   token: string;

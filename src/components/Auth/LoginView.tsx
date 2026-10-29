@@ -31,6 +31,18 @@ export const LoginView: React.FC<LoginViewProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Recovery Modal State
+  const [isRecoveryOpen, setIsRecoveryOpen] = useState(false);
+  const [recoveryStep, setRecoveryStep] = useState<'request' | 'verify' | 'success'>('request');
+  const [recoveryUsername, setRecoveryUsername] = useState('');
+  const [recoveryCode, setRecoveryCode] = useState('');
+  const [recoveryNewPassword, setRecoveryNewPassword] = useState('');
+  const [recoveryConfirmPassword, setRecoveryConfirmPassword] = useState('');
+  const [recoveryError, setRecoveryError] = useState<string | null>(null);
+  const [recoveryMsg, setRecoveryMsg] = useState<string | null>(null);
+  const [recoveryDebugCode, setRecoveryDebugCode] = useState<string | undefined>(undefined);
+  const [isRecoveryLoading, setIsRecoveryLoading] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -196,11 +208,28 @@ export const LoginView: React.FC<LoginViewProps> = ({
               </div>
             </div>
 
+            {/* Forgot Password Link & Submit Button */}
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => {
+                  setRecoveryUsername(username || '');
+                  setRecoveryStep('request');
+                  setRecoveryError(null);
+                  setRecoveryMsg(null);
+                  setIsRecoveryOpen(true);
+                }}
+                className="text-xs font-bold text-emerald-500 hover:text-emerald-400 hover:underline cursor-pointer transition-colors"
+              >
+                نسيت كلمة المرور؟
+              </button>
+            </div>
+
             {/* Submit Button */}
             <button
               type="submit"
               disabled={isLoading}
-              className="mt-2 w-full h-11 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/25 transition-all cursor-pointer disabled:opacity-50"
+              className="mt-1 w-full h-11 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/25 transition-all cursor-pointer disabled:opacity-50"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
@@ -228,11 +257,220 @@ export const LoginView: React.FC<LoginViewProps> = ({
             <div>اسم المستخدم: <code className="font-mono font-bold text-slate-300">admin</code></div>
             <div>كلمة المرور: <code className="font-mono font-bold text-slate-300">Admin@12345</code></div>
             <div className="text-[10px] text-amber-500 mt-1 font-medium">
-              * يُشترط تغيير كلمة المرور عند أول تسجيل دخول لتعزيز الأمان.
+              * يُشترط تسجيل البريد وتغيير كلمة المرور عند أول تسجيل دخول.
             </div>
           </div>
         </div>
       </div>
+
+      {/* Password Recovery Modal */}
+      {isRecoveryOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" dir="rtl">
+          <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-2xl text-white relative">
+            <button
+              type="button"
+              onClick={() => setIsRecoveryOpen(false)}
+              className="absolute top-5 left-5 p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white"
+            >
+              ✕
+            </button>
+
+            <div className="flex items-center gap-3 mb-5">
+              <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-500">
+                <ShieldCheck className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-base sm:text-lg font-black">استعادة كلمة المرور عبر البريد</h3>
+                <p className="text-xs text-slate-400">إعادة تعيين آمنة لرمز الدخول بحساب المدير</p>
+              </div>
+            </div>
+
+            {recoveryError && (
+              <div className="p-3 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-300 text-xs font-bold mb-4 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
+                <span>{recoveryError}</span>
+              </div>
+            )}
+
+            {recoveryStep === 'request' && (
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  setRecoveryError(null);
+                  setIsRecoveryLoading(true);
+                  try {
+                    const res = await authService.requestPasswordResetCode(recoveryUsername);
+                    if (res.success) {
+                      setRecoveryMsg(res.message);
+                      setRecoveryDebugCode(res.debugCode);
+                      setRecoveryStep('verify');
+                    } else {
+                      setRecoveryError(res.message);
+                    }
+                  } catch {
+                    setRecoveryError('تعذر معالجة طلب الاستعادة');
+                  } finally {
+                    setIsRecoveryLoading(false);
+                  }
+                }}
+                className="flex flex-col gap-4"
+              >
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1.5">اسم المستخدم</label>
+                  <input
+                    type="text"
+                    required
+                    value={recoveryUsername}
+                    onChange={(e) => setRecoveryUsername(e.target.value)}
+                    placeholder="مثال: admin"
+                    className="w-full h-11 px-3.5 text-sm bg-slate-950 border border-slate-700 rounded-xl text-white focus:border-emerald-500 focus:outline-hidden font-bold"
+                  />
+                </div>
+
+                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-400 leading-relaxed">
+                  سيتم إرسال رمز أمان مكون من 6 أرقام إلى البريد الإلكتروني الخاص بحساب المدير المسجل مسبقاً. صلاحية الرمز 5 دقائق وبحد أقصى 5 محاولات.
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isRecoveryLoading}
+                  className="w-full h-11 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
+                >
+                  {isRecoveryLoading ? 'جاري الإرسال...' : 'إرسال رمز التحقق'}
+                </button>
+              </form>
+            )}
+
+            {recoveryStep === 'verify' && (
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  setRecoveryError(null);
+
+                  if (recoveryNewPassword !== recoveryConfirmPassword) {
+                    setRecoveryError('كلمتا المرور غير متطابقتين');
+                    return;
+                  }
+
+                  setIsRecoveryLoading(true);
+                  try {
+                    const res = await authService.verifyResetCodeAndChangePassword(
+                      recoveryUsername,
+                      recoveryCode,
+                      recoveryNewPassword
+                    );
+                    if (res.success) {
+                      setRecoveryStep('success');
+                    } else {
+                      setRecoveryError(res.error || 'رمز التحقق غير صحيح');
+                    }
+                  } catch {
+                    setRecoveryError('تعذر التحقق من الرمز وتغيير كلمة المرور');
+                  } finally {
+                    setIsRecoveryLoading(false);
+                  }
+                }}
+                className="flex flex-col gap-4"
+              >
+                {recoveryMsg && (
+                  <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-xs leading-relaxed">
+                    {recoveryMsg}
+                  </div>
+                )}
+
+                {recoveryDebugCode && (
+                  <div className="p-3 rounded-xl bg-amber-950/40 border border-amber-500/40 text-amber-200 text-xs">
+                    <span className="font-bold block mb-1 text-amber-400">رمز التحقق المولد لتطوير البرنامج المحلي:</span>
+                    <span className="font-mono text-base font-black tracking-widest text-amber-300 dir-ltr inline-block bg-slate-950 px-3 py-1 rounded-lg border border-amber-500/30">
+                      {recoveryDebugCode}
+                    </span>
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">رمز التحقق المكون من 6 أرقام</label>
+                  <input
+                    type="text"
+                    required
+                    maxLength={6}
+                    value={recoveryCode}
+                    onChange={(e) => setRecoveryCode(e.target.value)}
+                    placeholder="123456"
+                    className="w-full h-11 px-3 text-center tracking-widest text-lg font-mono font-black bg-slate-950 border border-emerald-500/50 rounded-xl text-emerald-400 focus:border-emerald-500 focus:outline-hidden dir-ltr"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">كلمة المرور الجديدة (6 خانات على الأقل)</label>
+                  <input
+                    type="password"
+                    required
+                    value={recoveryNewPassword}
+                    onChange={(e) => setRecoveryNewPassword(e.target.value)}
+                    placeholder="أدخل كلمة المرور الجديدة"
+                    className="w-full h-10 px-3 text-xs bg-slate-950 border border-slate-700 rounded-xl text-white focus:border-emerald-500 focus:outline-hidden"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">تأكيد كلمة المرور الجديدة</label>
+                  <input
+                    type="password"
+                    required
+                    value={recoveryConfirmPassword}
+                    onChange={(e) => setRecoveryConfirmPassword(e.target.value)}
+                    placeholder="تأكيد كلمة المرور الجديدة"
+                    className="w-full h-10 px-3 text-xs bg-slate-950 border border-slate-700 rounded-xl text-white focus:border-emerald-500 focus:outline-hidden"
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRecoveryStep('request');
+                      setRecoveryCode('');
+                      setRecoveryError(null);
+                    }}
+                    className="w-1/3 h-11 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs hover:bg-slate-700"
+                  >
+                    طلب رمز جديد
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isRecoveryLoading}
+                    className="w-2/3 h-11 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-md disabled:opacity-50"
+                  >
+                    {isRecoveryLoading ? 'جاري التحقق...' : 'تأكيد وحفظ كلمة المرور'}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {recoveryStep === 'success' && (
+              <div className="flex flex-col items-center text-center py-4 gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+                  ✓
+                </div>
+                <h4 className="text-base font-bold text-white">تم تغيير كلمة المرور بنجاح!</h4>
+                <p className="text-xs text-slate-300 leading-relaxed max-w-xs">
+                  تم تعيين كلمة المرور الجديدة وتشفيرها بنجاح. يمكنك الآن تسجيل الدخول بالحساب.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsRecoveryOpen(false);
+                    setUsername(recoveryUsername);
+                  }}
+                  className="mt-2 w-full h-11 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black text-xs"
+                >
+                  العودة لتسجيل الدخول
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="w-full max-w-5xl text-center py-3">

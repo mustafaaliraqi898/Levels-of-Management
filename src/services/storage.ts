@@ -508,6 +508,24 @@ export class LocalStorageEngine {
   public subscribe(cb: () => void) { this.listeners.add(cb); return () => this.listeners.delete(cb); }
   public getState(): DatabaseState { return { ...this.state, grades: { ...this.state.grades }, decisionGrants: { ...(this.state.decisionGrants || {}) } }; }
 
+  public checkWritePermission(): { allowed: boolean; error?: string } {
+    try {
+      const stored = sessionStorage.getItem('school_app_auth_session');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && parsed.user && parsed.user.role === 'user') {
+          return {
+            allowed: false,
+            error: 'عفواً، هذه العملية غير مصرح بها: حساب المعاينة للقراءة فقط ولا يملك صلاحيات تعديل بيانات النظام.',
+          };
+        }
+      }
+    } catch {
+      // allow during cold startup
+    }
+    return { allowed: true };
+  }
+
   public getGradeRecord(key: string) { return this.state.grades[key]; }
   public async saveGradeField(ay: string, cl: string, sec: string, sub: string, st: string, field: string, fieldAr: string, val: number | null, reason?: string) {
     const key = buildGradeKey(ay, cl, sec, sub, st);
@@ -724,6 +742,9 @@ export class LocalStorageEngine {
   }
 
   public addStudent(s: any) {
+    const perm = this.checkWritePermission();
+    if (!perm.allowed) return { success: false, error: perm.error };
+
     const id = s.id || `stu-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     const reg = s.registrationNumber ? String(s.registrationNumber).trim() : undefined;
     const phone = s.fatherPhone ? String(s.fatherPhone).trim() : undefined;
@@ -741,6 +762,9 @@ export class LocalStorageEngine {
     return res;
   }
   public updateStudent(s: Student) {
+    const perm = this.checkWritePermission();
+    if (!perm.allowed) return { success: false, error: perm.error };
+
     const reg = s.registrationNumber ? String(s.registrationNumber).trim() : undefined;
     const phone = s.fatherPhone ? String(s.fatherPhone).trim() : undefined;
     const sec = s.sectionId ? String(s.sectionId).trim() : '';
@@ -754,6 +778,9 @@ export class LocalStorageEngine {
     this.notify();
   }
   public async deleteStudent(id: string) {
+    const perm = this.checkWritePermission();
+    if (!perm.allowed) return { success: false, error: perm.error };
+
     const prevState = { 
       students: [...this.state.students], 
       grades: { ...this.state.grades },
@@ -1511,8 +1538,35 @@ export class LocalStorageEngine {
 
   public getUsers() { return this.state.users || []; }
   public getUserById(id: string) { return this.state.users?.find(u => u.id === id); }
-  public addUser(u: any) { this.state.users = [...(this.state.users || []), u]; this.notify(); return { success: true, user: u, error: undefined }; }
-  public updateUser(id: string, updates: any) { this.state.users = this.state.users?.map(u => u.id === id ? { ...u, ...updates } : u); this.notify(); return { success: true, error: undefined }; }
+  public addUser(u: any) { 
+    if (u.role === 'admin') {
+      const email = (u.email || '').trim();
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailRegex.test(email)) {
+        return { success: false, user: undefined, error: 'يرجى إدخال بريد إلكتروني صالح للمدير الرئيسي (مطلوب لإدارة الحساب واستعادته).' };
+      }
+      u.email = email;
+    }
+    u.id = u.id || `usr-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    u.createdAt = u.createdAt || new Date().toISOString();
+    this.state.users = [...(this.state.users || []), u]; 
+    this.notify(); 
+    return { success: true, user: u, error: undefined }; 
+  }
+  public updateUser(id: string, updates: any) { 
+    const existing = this.getUserById(id);
+    if (existing && (updates.role === 'admin' || existing.role === 'admin')) {
+      const emailToUse = (updates.email !== undefined ? updates.email : existing.email || '').trim();
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailToUse || !emailRegex.test(emailToUse)) {
+        return { success: false, error: 'يرجى إدخال بريد إلكتروني صالح وتأكيده للمدير الرئيسي' };
+      }
+      updates.email = emailToUse;
+    }
+    this.state.users = this.state.users?.map(u => u.id === id ? { ...u, ...updates } : u); 
+    this.notify(); 
+    return { success: true, error: undefined }; 
+  }
   public deleteUser(id: string) { this.state.users = this.state.users?.filter(u => u.id !== id); if (this.isElectron) window.electronAPI!.db.deleteEntity('users', id).catch(e => console.error(e)); this.notify(); return { success: true, error: undefined }; }
   public toggleUserStatus(id: string) { const u = this.getUserById(id); if (u) { u.isActive = !u.isActive; this.notify(); } return { success: true, newStatus: u?.isActive, error: undefined }; }
   public getActiveAdminsCount() { return this.state.users?.filter(u => u.role === 'admin' && u.isActive).length || 0; }

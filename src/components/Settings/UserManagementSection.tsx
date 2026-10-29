@@ -41,12 +41,14 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
 
   // Add Form State
   const [addUsername, setAddUsername] = useState('');
+  const [addEmail, setAddEmail] = useState('');
   const [addPassword, setAddPassword] = useState('');
   const [addRole, setAddRole] = useState<UserRole>('user');
   const [showAddPassword, setShowAddPassword] = useState(false);
 
   // Edit Form State
   const [editUsername, setEditUsername] = useState('');
+  const [editEmail, setEditEmail] = useState('');
   const [editRole, setEditRole] = useState<UserRole>('user');
 
   // Reset Password State
@@ -76,12 +78,21 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
       return;
     }
 
+    if (addRole === 'admin') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!addEmail.trim() || !emailRegex.test(addEmail.trim())) {
+        showNotice('error', 'البريد الإلكتروني إلزامي وبنسق صحيح لحسابات المدير الرئيسي (Admin)');
+        return;
+      }
+    }
+
     setIsLoading(true);
     try {
       const salt = generateSalt();
       const passwordHash = await hashPassword(addPassword, salt);
       const res = db.addUser({
         username: addUsername.trim(),
+        email: addRole === 'admin' ? addEmail.trim() : (addEmail.trim() || undefined),
         passwordHash,
         salt,
         role: addRole,
@@ -93,6 +104,7 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
         showNotice('success', `تمت إضافة المستخدم "${addUsername.trim()}" بنجاح!`);
         setIsAddModalOpen(false);
         setAddUsername('');
+        setAddEmail('');
         setAddPassword('');
         setAddRole('user');
         refreshUsers();
@@ -110,6 +122,7 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
   const handleOpenEdit = (user: UserAccount) => {
     setSelectedUser(user);
     setEditUsername(user.username);
+    setEditEmail(user.email || '');
     setEditRole(user.role);
     setIsEditModalOpen(true);
   };
@@ -118,8 +131,17 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
     e.preventDefault();
     if (!selectedUser) return;
 
+    if (editRole === 'admin') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!editEmail.trim() || !emailRegex.test(editEmail.trim())) {
+        showNotice('error', 'البريد الإلكتروني إلزامي وبنسق صحيح لحسابات المدير الرئيسي (Admin)');
+        return;
+      }
+    }
+
     const res = db.updateUser(selectedUser.id, {
       username: editUsername.trim(),
+      email: editRole === 'admin' ? editEmail.trim() : (editEmail.trim() || undefined),
       role: editRole,
     });
 
@@ -476,10 +498,26 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
                   onChange={(e) => setAddRole(e.target.value as UserRole)}
                   className="w-full h-10 px-3 text-xs bg-slate-950 border border-slate-700 rounded-xl text-white focus:border-emerald-500 focus:outline-hidden font-bold"
                 >
-                  <option value="user">مستخدم عادي (إدخال درجات، تقارير، استعراض نتائج)</option>
-                  <option value="admin">مدير كامل (إدارة المستخدمين، إعدادات النظام، نسخ احتياطي)</option>
+                  <option value="user">مستخدم عادي (معاينة فقط - Read Only)</option>
+                  <option value="admin">مدير رئيسي كامل (Admin - إدارة ومستخدمون ونسخ احتياطي)</option>
                 </select>
               </div>
+
+              {addRole === 'admin' && (
+                <div>
+                  <label className="block text-xs font-bold text-emerald-400 mb-1">
+                    البريد الإلكتروني للمدير (إلزامي لاستعادة كلمة المرور)
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={addEmail}
+                    onChange={(e) => setAddEmail(e.target.value)}
+                    placeholder="admin@school.edu.iq"
+                    className="w-full h-10 px-3 text-xs bg-slate-950 border border-emerald-500/50 rounded-xl text-white focus:border-emerald-500 focus:outline-hidden dir-ltr font-mono"
+                  />
+                </div>
+              )}
 
               <div className="flex justify-end gap-2.5 mt-2 pt-3 border-t border-slate-800">
                 <button
@@ -539,10 +577,26 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
                   onChange={(e) => setEditRole(e.target.value as UserRole)}
                   className="w-full h-10 px-3 text-xs bg-slate-950 border border-slate-700 rounded-xl text-white focus:border-emerald-500 focus:outline-hidden font-bold"
                 >
-                  <option value="user">مستخدم عادي (User)</option>
+                  <option value="user">مستخدم عادي (معاينة فقط - Read Only)</option>
                   <option value="admin">مدير كامل (Admin)</option>
                 </select>
               </div>
+
+              {editRole === 'admin' && (
+                <div>
+                  <label className="block text-xs font-bold text-emerald-400 mb-1">
+                    البريد الإلكتروني للمدير (إلزامي لاستعادة كلمة المرور)
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={editEmail}
+                    onChange={(e) => setEditEmail(e.target.value)}
+                    placeholder="admin@school.edu.iq"
+                    className="w-full h-10 px-3 text-xs bg-slate-950 border border-emerald-500/50 rounded-xl text-white focus:border-emerald-500 focus:outline-hidden dir-ltr font-mono"
+                  />
+                </div>
+              )}
 
               <div className="flex justify-end gap-2.5 mt-2 pt-3 border-t border-slate-800">
                 <button

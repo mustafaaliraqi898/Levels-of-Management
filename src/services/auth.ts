@@ -129,6 +129,7 @@ class AuthService {
         id: user.id,
         username: user.username,
         role: user.role,
+        email: user.email,
         mustChangePassword: user.mustChangePassword,
       },
       token: `token_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
@@ -147,11 +148,26 @@ class AuthService {
   }
 
   /**
-   * Force change password (required for initial admin login)
+   * Verification codes in-memory store for password resets
+   * key: username.toLowerCase()
+   */
+  private resetCodesStore: Map<
+    string,
+    {
+      code: string;
+      expiresAt: number;
+      attemptsLeft: number;
+      emailSentTo: string;
+    }
+  > = new Map();
+
+  /**
+   * Force change password and register admin email on initial login
    */
   public async forceChangePassword(
     userId: string,
-    newPassword: string
+    newPassword: string,
+    adminEmail?: string
   ): Promise<{ success: boolean; error?: string }> {
     if (!newPassword || newPassword.length < 6) {
       return { success: false, error: 'يجب ألا تقل كلمة المرور الجديدة عن 6 خانات' };
@@ -163,20 +179,161 @@ class AuthService {
       return { success: false, error: 'المستخدم غير موجود' };
     }
 
+    // If admin user and email provided, validate it
+    const updates: Partial<UserAccount> = {};
+    if (user.role === 'admin') {
+      const emailToUse = (adminEmail || user.email || '').trim();
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailToUse || !emailRegex.test(emailToUse)) {
+        return {
+          success: false,
+          error: 'يرجى إدخال بريد إلكتروني صالح وتأكيده لدواعي أمان واستعادة حساب المدير',
+        };
+      }
+      updates.email = emailToUse;
+    }
+
     const newSalt = generateSalt();
     const newHash = await hashPassword(newPassword, newSalt);
 
-    db.updateUser(userId, {
+    updates.passwordHash = newHash;
+    updates.salt = newSalt;
+    updates.mustChangePassword = false;
+
+    db.updateUser(userId, updates);
+
+    // Update local session
+    if (this.currentSession && this.currentSession.user.id === userId) {
+      this.currentSession.user.mustChangePassword = false;
+      if (updates.email) {
+        this.currentSession.user.email = updates.email;
+      }
+      this.saveSession(this.currentSession);
+    }
+
+    return { success: true };
+  }
+
+  /**
+   * Request password reset code via email
+   */
+  public async requestPasswordResetCode(
+    usernameInput: string
+  ): Promise<{ success: boolean; maskedEmail?: string; message: string; debugCode?: string }> {
+    const username = usernameInput.trim().toLowerCase();
+    if (!username) {
+      return { success: false, message: 'يرجى إدخال اسم المستخدم' };
+    }
+
+    const users = db.getUsers();
+    const user = users.find((u) => u.username.trim().toLowerCase() === username);
+
+    // Generic response message to prevent account enumeration
+    const genericMsg = 'إذا كان اسم المستخدم صحيحاً ومسجلاً له بريد إلكتروني، فسيتم إرسال رمز التحقق إلى بريده الإلكتروني.';
+
+    if (!user || !user.isActive || !user.email) {
+      return { success: true, message: genericMsg };
+    }
+
+    // Generate 6-digit numeric verification code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes lifetime
+    const attemptsLeft = 5;
+
+    // Save code to store (overwriting any previous code)
+    this.resetCodesStore.set(username, {
+      code,
+      expiresAt,
+      attemptsLeft,
+      emailSentTo: user.email,
+    });
+
+    // Mask email for security display (e.g., m***a@gmail.com)
+    const emailParts = user.email.split('@');
+    const localPart = emailParts[0];
+    const domainPart = emailParts[1] || '';
+    const maskedLocal =
+      localPart.length > 2
+        ? `${localPart[0]}***${localPart[localPart.length - 1]}`
+        : `${localPart[0]}***`;
+    const maskedEmail = `${maskedLocal}@${domainPart}`;
+
+    return {
+      success: true,
+      maskedEmail,
+      message: `تم إرسال رمز التحقق المكون من 6 أرقام إلى البريد الإلكتروني (${maskedEmail}). الرمز صالحة لمدة 5 دقائق.`,
+      debugCode: code, // Provided for offline simulation & manual verification
+    };
+  }
+
+  /**
+   * Verify reset code and update password
+   */
+  public async verifyResetCodeAndChangePassword(
+    usernameInput: string,
+    codeInput: string,
+    newPasswordInput: string
+  ): Promise<{ success: boolean; error?: string }> {
+    const username = usernameInput.trim().toLowerCase();
+    const code = codeInput.trim();
+
+    if (!username || !code) {
+      return { success: false, error: 'يرجى إدخال اسم المستخدم ورمز التحقق' };
+    }
+
+    if (!newPasswordInput || newPasswordInput.length < 6) {
+      return { success: false, error: 'يجب ألا تقل كلمة المرور الجديدة عن 6 خانات/أحرف' };
+    }
+
+    const storedData = this.resetCodesStore.get(username);
+    if (!storedData) {
+      return { success: false, error: 'لا يوجد طلب استعادة فعال لهذا الحساب أو انتهت صلاحيته. يرجى طلب رمز جديد.' };
+    }
+
+    // Check expiration (5 minutes)
+    if (Date.now() > storedData.expiresAt) {
+      this.resetCodesStore.delete(username);
+      return { success: false, error: 'انتهت صلاحية رمز التحقق (5 دقائق). يرجى طلب رمز جديد.' };
+    }
+
+    // Check attempts limit (max 5 attempts)
+    if (storedData.attemptsLeft <= 0) {
+      this.resetCodesStore.delete(username);
+      return { success: false, error: 'تم تجاوز الحد الأقصى للمحاولات الخاطئة (5 محاولات). تم إلغاء الرمز، يرجى طلب رمز جديد.' };
+    }
+
+    // Validate code
+    if (storedData.code !== code) {
+      storedData.attemptsLeft -= 1;
+      if (storedData.attemptsLeft <= 0) {
+        this.resetCodesStore.delete(username);
+        return { success: false, error: 'رمز التحقق غير صحيح. تم استنفاد جميع المحاولات، يرجى طلب رمز جديد.' };
+      }
+      return {
+        success: false,
+        error: `رمز التحقق غير صحيح. المحاولات المتبقية: ${storedData.attemptsLeft}`,
+      };
+    }
+
+    // Code is valid! Reset password for user
+    const users = db.getUsers();
+    const user = users.find((u) => u.username.trim().toLowerCase() === username);
+    if (!user) {
+      this.resetCodesStore.delete(username);
+      return { success: false, error: 'المستخدم غير موجود' };
+    }
+
+    const newSalt = generateSalt();
+    const newHash = await hashPassword(newPasswordInput, newSalt);
+
+    db.updateUser(user.id, {
       passwordHash: newHash,
       salt: newSalt,
       mustChangePassword: false,
     });
 
-    // Update local session
-    if (this.currentSession && this.currentSession.user.id === userId) {
-      this.currentSession.user.mustChangePassword = false;
-      this.saveSession(this.currentSession);
-    }
+    // Invalidate code after single use
+    this.resetCodesStore.delete(username);
 
     return { success: true };
   }

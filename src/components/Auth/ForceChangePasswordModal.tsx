@@ -15,6 +15,8 @@ export const ForceChangePasswordModal: React.FC<ForceChangePasswordModalProps> =
   onPasswordChanged,
   theme,
 }) => {
+  const [adminEmail, setAdminEmail] = useState('');
+  const [confirmAdminEmail, setConfirmAdminEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -24,6 +26,17 @@ export const ForceChangePasswordModal: React.FC<ForceChangePasswordModalProps> =
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!adminEmail.trim() || !emailRegex.test(adminEmail.trim())) {
+      setError('يرجى إدخال بريد إلكتروني صالح للمدير الرئيسي (مطلوب لاستعادة كلمة المرور).');
+      return;
+    }
+
+    if (adminEmail.trim().toLowerCase() !== confirmAdminEmail.trim().toLowerCase()) {
+      setError('عنوان البريد الإلكتروني وتأكيده غير متطابقين، يرجى إعادة التأكد.');
+      return;
+    }
 
     if (newPassword.length < 6) {
       setError('يجب أن تتكون كلمة المرور الجديدة من 6 خانات/أحرف على الأقل.');
@@ -42,14 +55,14 @@ export const ForceChangePasswordModal: React.FC<ForceChangePasswordModalProps> =
 
     setIsLoading(true);
     try {
-      const res = await authService.forceChangePassword(userId, newPassword);
+      const res = await authService.forceChangePassword(userId, newPassword, adminEmail.trim());
       if (res.success) {
         onPasswordChanged();
       } else {
-        setError(res.error || 'تعذر تغيير كلمة المرور، يرجى المحاولة ثانية');
+        setError(res.error || 'تعذر تغيير كلمة المرور وإعداد البريد، يرجى المحاولة ثانية');
       }
     } catch {
-      setError('حدث خطأ غير متوقع أثناء معالجة كلمة المرور');
+      setError('حدث خطأ غير متوقع أثناء معالجة البيانات');
     } finally {
       setIsLoading(false);
     }
@@ -73,7 +86,7 @@ export const ForceChangePasswordModal: React.FC<ForceChangePasswordModalProps> =
           </div>
           <div>
             <h2 className="text-lg sm:text-xl font-black">
-              تغيير كلمة المرور الافتراضية إلزامي
+              إعداد حساب المدير الرئيسي وبيناته الإلزامية
             </h2>
             <p className={`text-xs mt-0.5 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
               المستخدم: <strong className="font-mono text-emerald-500">{username}</strong>
@@ -88,7 +101,7 @@ export const ForceChangePasswordModal: React.FC<ForceChangePasswordModalProps> =
               : 'bg-amber-50 border-amber-200 text-amber-800'
           }`}
         >
-          هذا هو أول تسجيل دخول للحساب الإداري. لدواعي الأمان وحماية درجات وسجلات المدرسة، يتوجب تعيين كلمة مرور جديدة قوية قبل المتابعة واستخدام النظام.
+          هذا هو أول تسجيل دخول للحساب الإداري. لدواعي أمان المدرسة واستعادة الحساب عند نسيان كلمة المرور، يتوجب تسجيل البريد الإلكتروني للمدير وتأكيده وتغيير كلمة المرور الافتراضية.
         </div>
 
         {error && (
@@ -106,6 +119,42 @@ export const ForceChangePasswordModal: React.FC<ForceChangePasswordModalProps> =
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
+            <label className="block text-xs font-bold mb-1 text-emerald-400">
+              البريد الإلكتروني للمدير الرئيسي (إلزامي لاستعادة كلمة المرور)
+            </label>
+            <input
+              type="email"
+              required
+              value={adminEmail}
+              onChange={(e) => setAdminEmail(e.target.value)}
+              placeholder="admin@school.edu.iq"
+              className={`w-full h-10 px-3 text-xs sm:text-sm rounded-xl border font-medium transition-colors focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 dir-ltr font-mono ${
+                theme === 'dark'
+                  ? 'bg-[#212836] border-[#364153] text-white focus:border-emerald-500'
+                  : 'bg-[#F0F2F5] border-[#D7DCE1] text-[#202631] focus:border-emerald-600'
+              }`}
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold mb-1 text-emerald-400">
+              تأكيد البريد الإلكتروني للمدير
+            </label>
+            <input
+              type="email"
+              required
+              value={confirmAdminEmail}
+              onChange={(e) => setConfirmAdminEmail(e.target.value)}
+              placeholder="أعد إدخال البريد الإلكتروني ذاته"
+              className={`w-full h-10 px-3 text-xs sm:text-sm rounded-xl border font-medium transition-colors focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 dir-ltr font-mono ${
+                theme === 'dark'
+                  ? 'bg-[#212836] border-[#364153] text-white focus:border-emerald-500'
+                  : 'bg-[#F0F2F5] border-[#D7DCE1] text-[#202631] focus:border-emerald-600'
+              }`}
+            />
+          </div>
+
+          <div>
             <label className="block text-xs font-bold mb-1.5">
               كلمة المرور الجديدة (6 أحرف أو أرقام على الأقل)
             </label>
@@ -119,7 +168,7 @@ export const ForceChangePasswordModal: React.FC<ForceChangePasswordModalProps> =
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="أدخل كلمة المرور الجديدة"
-                className={`w-full h-11 pr-10 pl-10 text-sm rounded-xl border font-medium transition-colors focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 ${
+                className={`w-full h-10 pr-10 pl-10 text-xs sm:text-sm rounded-xl border font-medium transition-colors focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 ${
                   theme === 'dark'
                     ? 'bg-[#212836] border-[#364153] text-white focus:border-emerald-500'
                     : 'bg-[#F0F2F5] border-[#D7DCE1] text-[#202631] focus:border-emerald-600'
@@ -150,7 +199,7 @@ export const ForceChangePasswordModal: React.FC<ForceChangePasswordModalProps> =
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="أعد إدخال كلمة المرور الجديدة"
-                className={`w-full h-11 pr-10 pl-3 text-sm rounded-xl border font-medium transition-colors focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 ${
+                className={`w-full h-10 pr-10 pl-3 text-xs sm:text-sm rounded-xl border font-medium transition-colors focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 ${
                   theme === 'dark'
                     ? 'bg-[#212836] border-[#364153] text-white focus:border-emerald-500'
                     : 'bg-[#F0F2F5] border-[#D7DCE1] text-[#202631] focus:border-emerald-600'
@@ -169,7 +218,7 @@ export const ForceChangePasswordModal: React.FC<ForceChangePasswordModalProps> =
             ) : (
               <>
                 <CheckCircle2 className="w-4 h-4" />
-                <span>حفظ كلمة المرور والدخول إلى النظام</span>
+                <span>حفظ البيانات وتفعيل حساب المدير</span>
               </>
             )}
           </button>

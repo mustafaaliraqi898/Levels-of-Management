@@ -182,10 +182,10 @@ export const Header: React.FC<HeaderProps> = ({
                 className={`text-[10px] px-1.5 py-0.2 rounded font-bold hidden md:inline ${
                   currentUser.role === 'admin'
                     ? 'bg-amber-500/20 text-amber-300'
-                    : 'bg-blue-500/20 text-blue-300'
+                    : 'bg-emerald-500/20 text-emerald-300'
                 }`}
               >
-                {currentUser.role === 'admin' ? 'مدير' : 'مستخدم'}
+                {currentUser.role === 'admin' ? 'مدير كامل' : 'معاينة فقط'}
               </span>
             </button>
 

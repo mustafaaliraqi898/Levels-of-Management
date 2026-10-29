@@ -17,8 +17,18 @@ function initDb() {
         role TEXT,
         isActive INTEGER,
         mustChangePassword INTEGER,
-        createdAt TEXT
+        createdAt TEXT,
+        email TEXT
       )`);
+
+      db.all("PRAGMA table_info(users)", (err, rows) => {
+        if (!err && rows && rows.length > 0) {
+          const hasEmail = rows.some(r => r.name === 'email');
+          if (!hasEmail) {
+            db.run("ALTER TABLE users ADD COLUMN email TEXT");
+          }
+        }
+      });
 
       db.run(`CREATE TABLE IF NOT EXISTS academic_years (
         id TEXT PRIMARY KEY,
@@ -335,8 +345,8 @@ const dbActions = {
 
   saveSettings: (key, value) => run('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', [key, JSON.stringify(value)]),
   
-  upsertUser: (u) => run('INSERT OR REPLACE INTO users (id, username, passwordHash, salt, role, isActive, mustChangePassword, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
-    [u.id, u.username, u.passwordHash, u.salt, u.role, u.isActive ? 1 : 0, u.mustChangePassword ? 1 : 0, u.createdAt]),
+  upsertUser: (u) => run('INSERT OR REPLACE INTO users (id, username, passwordHash, salt, role, isActive, mustChangePassword, createdAt, email) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+    [u.id, u.username, u.passwordHash, u.salt, u.role, u.isActive ? 1 : 0, u.mustChangePassword ? 1 : 0, u.createdAt, u.email || null]),
 
   upsertYear: (y) => run('INSERT OR REPLACE INTO academic_years (id, name, isCurrent) VALUES (?, ?, ?)', [y.id, y.name, y.isCurrent ? 1 : 0]),
 
