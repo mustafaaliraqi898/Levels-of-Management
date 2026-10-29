@@ -20,6 +20,8 @@ import {
   EyeOff,
   Mail,
   Send,
+  HelpCircle,
+  ExternalLink,
 } from 'lucide-react';
 
 interface UserManagementSectionProps {
@@ -62,12 +64,14 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
   const [smtpPass, setSmtpPass] = useState('');
   const [smtpHost, setSmtpHost] = useState('smtp.gmail.com');
   const [smtpPort, setSmtpPort] = useState('587');
-  const [showSmtpPass, setShowSmtpPass] = useState(false);
   const [smtpIsConfigured, setSmtpIsConfigured] = useState(false);
   const [smtpMaskedEmail, setSmtpMaskedEmail] = useState('');
+  const [isEditingSmtpUser, setIsEditingSmtpUser] = useState(false);
+  const [isEditingSmtpPass, setIsEditingSmtpPass] = useState(false);
   const [smtpNotice, setSmtpNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [isSmtpTesting, setIsSmtpTesting] = useState(false);
   const [isSmtpSaving, setIsSmtpSaving] = useState(false);
+  const [isSmtpHelpOpen, setIsSmtpHelpOpen] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -78,16 +82,25 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
         setSmtpHost(status.host || 'smtp.gmail.com');
         setSmtpPort(String(status.port || 587));
         setSmtpMaskedEmail(status.userEmail || '');
-        if (status.rawEmail) {
-          setSmtpUser(status.rawEmail);
-        }
+        // Clear editing states on load
+        setIsEditingSmtpUser(false);
+        setIsEditingSmtpPass(false);
+        setSmtpUser('');
+        setSmtpPass('');
       }).catch(() => {});
     }
   }, []);
 
   const handleTestSmtp = async () => {
-    if (!smtpUser.trim() || !smtpPass.trim()) {
-      setSmtpNotice({ type: 'error', message: 'يرجى إدخال عنوان Gmail وكلمة مرور التطبيق (App Password) للاختبار' });
+    const finalUser = isEditingSmtpUser ? smtpUser.trim() : undefined;
+    const finalPass = isEditingSmtpPass ? smtpPass.trim() : undefined;
+
+    if (isEditingSmtpUser && !smtpUser.trim()) {
+      setSmtpNotice({ type: 'error', message: 'يرجى إدخال عنوان Gmail للاختبار' });
+      return;
+    }
+    if (isEditingSmtpPass && !smtpPass.trim()) {
+      setSmtpNotice({ type: 'error', message: 'يرجى إدخال كلمة مرور التطبيق للاختبار' });
       return;
     }
 
@@ -98,8 +111,8 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
         const res = await window.electronAPI.smtp.testConnection({
           host: smtpHost.trim(),
           port: smtpPort.trim(),
-          user: smtpUser.trim(),
-          pass: smtpPass.trim(),
+          user: finalUser,
+          pass: finalPass,
         });
         if (res.success) {
           setSmtpNotice({ type: 'success', message: res.message || 'تم الاتصال بخدمة Gmail SMTP بنجاح!' });
@@ -107,7 +120,7 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
           setSmtpNotice({ type: 'error', message: res.error || 'فشل الاتصال بخدمة SMTP' });
         }
       } else {
-        setSmtpNotice({ type: 'error', message: 'اختبار SMTP غير متاح في بيئة المتصفح. يتطلب تشغيل تطبيق Electron.' });
+        setSmtpNotice({ type: 'error', message: 'اختبار SMTP غير متاح في بيئة المتصفح.' });
       }
     } catch {
       setSmtpNotice({ type: 'error', message: 'حدث خطأ أثناء الاتصال بالخادم' });
@@ -118,9 +131,22 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
 
   const handleSaveSmtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!smtpUser.trim() || !smtpPass.trim()) {
-      setSmtpNotice({ type: 'error', message: 'عنوان Gmail وكلمة مرور التطبيق مطلوبان للحفظ' });
-      return;
+    
+    // Only validate fields if we are changing them or if it's the first setup
+    if (!smtpIsConfigured) {
+      if (!smtpUser.trim() || !smtpPass.trim()) {
+        setSmtpNotice({ type: 'error', message: 'عنوان Gmail وكلمة مرور التطبيق مطلوبان للإعداد الأول' });
+        return;
+      }
+    } else {
+      if (isEditingSmtpUser && !smtpUser.trim()) {
+        setSmtpNotice({ type: 'error', message: 'يرجى إدخال البريد الإلكتروني الجديد أو إلغاء التعديل' });
+        return;
+      }
+      if (isEditingSmtpPass && !smtpPass.trim()) {
+        setSmtpNotice({ type: 'error', message: 'يرجى إدخال كلمة المرور الجديدة أو إلغاء التعديل' });
+        return;
+      }
     }
 
     setIsSmtpSaving(true);
@@ -130,24 +156,34 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
         const res = await window.electronAPI.smtp.saveConfig({
           host: smtpHost.trim(),
           port: smtpPort.trim(),
-          user: smtpUser.trim(),
-          pass: smtpPass.trim(),
+          user: isEditingSmtpUser || !smtpIsConfigured ? smtpUser.trim() : undefined,
+          pass: isEditingSmtpPass || !smtpIsConfigured ? smtpPass.trim() : undefined,
         });
         if (res.success) {
-          setSmtpNotice({ type: 'success', message: 'تم حفظ إعدادات Gmail SMTP بنجاح في مخزن النظام المحلي!' });
+          setSmtpNotice({ type: 'success', message: 'تم حفظ إعدادات Gmail SMTP بنجاح!' });
           setSmtpIsConfigured(true);
           const status = await window.electronAPI.smtp.getSmtpStatus();
           setSmtpMaskedEmail(status.userEmail);
+          setIsEditingSmtpUser(false);
+          setIsEditingSmtpPass(false);
+          setSmtpUser('');
+          setSmtpPass('');
         } else {
           setSmtpNotice({ type: 'error', message: res.error || 'تعذر حفظ الإعدادات' });
         }
       } else {
-        setSmtpNotice({ type: 'error', message: 'حفظ الإعدادات متاح فقط داخل تطبيق Windows Electron.' });
+        setSmtpNotice({ type: 'error', message: 'حفظ الإعدادات متاح فقط داخل التطبيق.' });
       }
     } catch {
       setSmtpNotice({ type: 'error', message: 'حدث خطأ أثناء حفظ الإعدادات' });
     } finally {
       setIsSmtpSaving(false);
+    }
+  };
+
+  const handleOpenGoogleLink = () => {
+    if (typeof window !== 'undefined' && window.electronAPI?.shell) {
+      window.electronAPI.shell.openExternal('https://myaccount.google.com/apppasswords');
     }
   };
 
@@ -536,13 +572,23 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
       {/* Gmail SMTP Settings Card */}
       <div className="mt-8 pt-6 border-t border-slate-800">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-          <div>
-            <h4 className="text-sm font-bold text-white flex items-center gap-2">
-              <Mail className="w-4 h-4 text-emerald-400" />
-              إعدادات خادم البريد الإلكتروني (Gmail SMTP Configuration)
-            </h4>
-            <p className="text-xs text-slate-400 mt-1">
-              تهيئة بيانات الاعتماد لإرسال رموز استعادة كلمة المرور تلقائياً إلى بريد المدير الرئيسي
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                <Mail className="w-4 h-4 text-emerald-400" />
+                إعدادات خادم البريد الإلكتروني (Gmail SMTP)
+              </h4>
+              <button
+                type="button"
+                onClick={() => setIsSmtpHelpOpen(true)}
+                className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[10px] font-bold text-emerald-400 transition-colors cursor-pointer"
+              >
+                <HelpCircle className="w-3 h-3" />
+                طريقة الإعداد
+              </button>
+            </div>
+            <p className="text-[11px] text-slate-400">
+              إرسال رموز استعادة كلمة المرور لبريد المدير الرئيسي (يتطلب Gmail App Password)
             </p>
           </div>
 
@@ -579,40 +625,75 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
         )}
 
         <form onSubmit={handleSaveSmtp} className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-950/60 border border-slate-800 p-4 rounded-2xl">
+          {/* Email Field */}
           <div>
             <label className="block text-xs font-bold text-slate-300 mb-1">
               عنوان Gmail الإداري للإرسال
             </label>
-            <input
-              type="email"
-              required
-              value={smtpUser}
-              onChange={(e) => setSmtpUser(e.target.value)}
-              placeholder="school.admin@gmail.com"
-              className="w-full h-10 px-3 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-emerald-500 focus:outline-hidden dir-ltr font-mono"
-            />
+            <div className="relative">
+              <input
+                type={(isEditingSmtpUser || !smtpIsConfigured) ? "password" : "text"}
+                readOnly={smtpIsConfigured && !isEditingSmtpUser}
+                required={(isEditingSmtpUser || !smtpIsConfigured)}
+                value={(smtpIsConfigured && !isEditingSmtpUser) ? smtpMaskedEmail : smtpUser}
+                onChange={(e) => setSmtpUser(e.target.value)}
+                placeholder={(!smtpIsConfigured || isEditingSmtpUser) ? "أدخل البريد الإلكتروني الجديد" : "school.admin@gmail.com"}
+                className={`w-full h-10 px-3 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-emerald-500 focus:outline-hidden dir-ltr font-mono ${(smtpIsConfigured && !isEditingSmtpUser) ? 'opacity-70 grayscale cursor-default' : ''}`}
+              />
+              {smtpIsConfigured && !isEditingSmtpUser && (
+                <button
+                  type="button"
+                  onClick={() => setIsEditingSmtpUser(true)}
+                  className="absolute inset-y-0 left-0 px-3 flex items-center text-[10px] font-bold text-emerald-500 hover:text-emerald-400 cursor-pointer"
+                >
+                  تغيير العنوان
+                </button>
+              )}
+              {isEditingSmtpUser && (
+                <button
+                  type="button"
+                  onClick={() => { setIsEditingSmtpUser(false); setSmtpUser(''); }}
+                  className="absolute inset-y-0 left-0 px-3 flex items-center text-[10px] font-bold text-rose-500 hover:text-rose-400 cursor-pointer"
+                >
+                  إلغاء
+                </button>
+              )}
+            </div>
           </div>
 
+          {/* Password Field */}
           <div>
             <label className="block text-xs font-bold text-slate-300 mb-1">
-              كلمة مرور التطبيقات (Gmail App Password - 16 حرفاً)
+              كلمة مرور التطبيقات (Gmail App Password - 16 خانة)
             </label>
             <div className="relative">
               <input
-                type={showSmtpPass ? 'text' : 'password'}
-                required
-                value={smtpPass}
+                type="password"
+                readOnly={smtpIsConfigured && !isEditingSmtpPass}
+                required={(isEditingSmtpPass || !smtpIsConfigured)}
+                value={(smtpIsConfigured && !isEditingSmtpPass) ? "••••••••••••••••" : smtpPass}
                 onChange={(e) => setSmtpPass(e.target.value)}
-                placeholder="abcd efgh ijkl mnop"
-                className="w-full h-10 pr-3 pl-10 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-emerald-500 focus:outline-hidden dir-ltr font-mono"
+                placeholder={(!smtpIsConfigured || isEditingSmtpPass) ? "أدخل الرمز المكون من 16 حرفاً" : ""}
+                className={`w-full h-10 px-3 text-xs bg-slate-900 border border-slate-700 rounded-xl text-white focus:border-emerald-500 focus:outline-hidden dir-ltr font-mono ${(smtpIsConfigured && !isEditingSmtpPass) ? 'opacity-70 grayscale cursor-default' : ''}`}
               />
-              <button
-                type="button"
-                onClick={() => setShowSmtpPass(!showSmtpPass)}
-                className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 hover:text-slate-200 cursor-pointer"
-              >
-                {showSmtpPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
+              {smtpIsConfigured && !isEditingSmtpPass && (
+                <button
+                  type="button"
+                  onClick={() => setIsEditingSmtpPass(true)}
+                  className="absolute inset-y-0 left-0 px-3 flex items-center text-[10px] font-bold text-emerald-500 hover:text-emerald-400 cursor-pointer"
+                >
+                  تغيير الرمز
+                </button>
+              )}
+              {isEditingSmtpPass && (
+                <button
+                  type="button"
+                  onClick={() => { setIsEditingSmtpPass(false); setSmtpPass(''); }}
+                  className="absolute inset-y-0 left-0 px-3 flex items-center text-[10px] font-bold text-rose-500 hover:text-rose-400 cursor-pointer"
+                >
+                  إلغاء
+                </button>
+              )}
             </div>
           </div>
 
@@ -946,6 +1027,92 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
                 نعم، احذف المستخدم
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {/* MODAL 5: Gmail SMTP Setup Instructions */}
+      {isSmtpHelpOpen && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200" 
+          dir="rtl"
+          onClick={() => setIsSmtpHelpOpen(false)}
+        >
+          <div 
+            className="w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl text-white relative animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => { if (e.key === 'Escape') setIsSmtpHelpOpen(false); }}
+            tabIndex={-1}
+          >
+            <button
+              type="button"
+              onClick={() => setIsSmtpHelpOpen(false)}
+              className="absolute top-6 left-6 p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors cursor-pointer"
+              title="إغلاق"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-4 mb-6">
+              <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                <HelpCircle className="w-7 h-7" />
+              </div>
+              <div>
+                <h3 className="text-lg sm:text-xl font-black">طريقة إعداد بريد Gmail</h3>
+                <p className="text-xs text-slate-400">خطوات تفعيل إرسال رموز استعادة كلمة المرور</p>
+              </div>
+            </div>
+
+            <div className="space-y-4 mb-8">
+              <div className="flex gap-4">
+                <div className="w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">١</div>
+                <p className="text-sm text-slate-200 leading-relaxed">سجّل الدخول إلى حساب <strong>Gmail</strong> المخصص لإرسال بريد النظام.</p>
+              </div>
+              
+              <div className="flex gap-4">
+                <div className="w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">٢</div>
+                <p className="text-sm text-slate-200 leading-relaxed">تأكد من تفعيل خاصية <strong>التحقق بخطوتين (2-Step Verification)</strong> في إعدادات الأمان بالحساب.</p>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">٣</div>
+                <div className="flex flex-col gap-2">
+                  <p className="text-sm text-slate-200 leading-relaxed">افتح صفحة <strong>كلمات مرور التطبيقات</strong> الرسمية من جوجل:</p>
+                  <button
+                    type="button"
+                    onClick={handleOpenGoogleLink}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 text-xs font-bold self-start transition-all cursor-pointer border border-emerald-500/10"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    فتح صفحة إنشاء كلمة مرور التطبيقات
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">٤</div>
+                <p className="text-sm text-slate-200 leading-relaxed">أنشئ كلمة مرور تطبيقات جديدة باسم <strong>"School Grades App"</strong>.</p>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">٥</div>
+                <p className="text-sm text-slate-200 leading-relaxed">انسخ الرمز المكون من <strong>١٦ حرفاً</strong> الملحق به والصقه في حقل «كلمة مرور التطبيقات» في هذه الشاشة.</p>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20 text-xs text-amber-200/80 leading-relaxed mb-8 flex gap-3">
+              <ShieldAlert className="w-5 h-5 text-amber-500 shrink-0" />
+              <span>
+                <strong>تنبيه أمني:</strong> كلمة مرور التطبيقات تختلف عن كلمة مرور حسابك العادية. لا تشارك هذا الرمز مع أحد، ولا تقم برفعه إلى مستودعات الكود العامة (مثل GitHub).
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsSmtpHelpOpen(false)}
+              className="w-full h-12 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black text-sm transition-all shadow-lg shadow-emerald-600/20 cursor-pointer"
+            >
+              فهمت، العودة للإعدادات
+            </button>
           </div>
         </div>
       )}

@@ -410,6 +410,9 @@ declare global {
         openDirectory: () => Promise<string | null>;
         openFile: (filters: { name: string; extensions: string[] }[]) => Promise<string | null>;
       };
+      shell: {
+        openExternal: (url: string) => Promise<{ success: boolean; error?: string }>;
+      };
     };
   }
 }

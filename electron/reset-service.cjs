@@ -109,8 +109,8 @@ async function requestPasswordResetCode(usernameInput) {
   const localPart = emailParts[0];
   const domainPart = emailParts[1] || '';
   const maskedLocal = localPart.length > 2
-    ? `${localPart[0]}***${localPart[localPart.length - 1]}`
-    : `${localPart[0]}***`;
+    ? `${localPart[0]}•••••${localPart[localPart.length - 1]}`
+    : `${localPart[0]}•••••`;
   const maskedEmail = `${maskedLocal}@${domainPart}`;
 
   return {

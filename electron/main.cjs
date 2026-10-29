@@ -1,5 +1,4 @@
-// Electron main process for Windows Desktop Standalone App
-const { app, BrowserWindow, Menu, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const db = require('./database.cjs');
 const smtpService = require('./smtp-service.cjs');
@@ -128,6 +127,14 @@ app.whenReady().then(async () => {
     } else {
       return filePaths[0];
     }
+  });
+
+  ipcMain.handle('shell:openExternal', async (event, url) => {
+    if (url.startsWith('https://')) {
+      await shell.openExternal(url);
+      return { success: true };
+    }
+    return { success: false, error: 'Invalid URL' };
   });
 
   createWindow();

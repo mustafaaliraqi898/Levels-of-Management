@@ -120,7 +120,7 @@ function getSmtpStatus() {
     const parts = config.user.split('@');
     if (parts.length === 2) {
       const local = parts[0];
-      const maskedLocal = local.length > 2 ? `${local[0]}***${local[local.length - 1]}` : `${local[0]}***`;
+      const maskedLocal = local.length > 2 ? `${local[0]}•••••${local[local.length - 1]}` : `${local[0]}•••••`;
       maskedEmail = `${maskedLocal}@${parts[1]}`;
     }
   }
