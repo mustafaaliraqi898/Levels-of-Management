@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { Student, SchoolClass, Section, AcademicYear } from '../../types';
 import { db } from '../../services/storage';
+import { filterClassesByAcademicYear } from '../../utils/academicYearUtils';
 import { downloadStudentTemplate, parseStudentExcelFile, ParsedStudentRow, ExcelParseResult } from '../../services/excelService';
 import {
   Users,
@@ -45,9 +46,23 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
 
   // Filters state
   const [selectedYearId, setSelectedYearId] = useState<string>(currentYear?.id || '');
+
+  // Classes filtered strictly by selected academic year
+  const availableClasses = useMemo(() => {
+    return filterClassesByAcademicYear(classes, selectedYearId, currentYear?.id);
+  }, [classes, selectedYearId, currentYear?.id]);
+
   const [filterClassId, setFilterClassId] = useState<string>('all');
   const [filterSectionId, setFilterSectionId] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Reset or align filterClassId if selection is not in availableClasses
+  React.useEffect(() => {
+    if (filterClassId !== 'all' && !availableClasses.some((c) => c.id === filterClassId)) {
+      setFilterClassId('all');
+      setFilterSectionId('all');
+    }
+  }, [availableClasses, filterClassId]);
 
   // Toast notifications
   const [toastMessage, setToastMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null);
@@ -64,9 +79,20 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
   const [addName, setAddName] = useState('');
   const [addRegNumber, setAddRegNumber] = useState('');
   const [addFatherPhone, setAddFatherPhone] = useState('');
-  const [addClassId, setAddClassId] = useState<string>(classes[0]?.id || '');
+  const [addClassId, setAddClassId] = useState<string>(availableClasses[0]?.id || '');
   const [addSectionId, setAddSectionId] = useState<string>('');
   const [addError, setAddError] = useState<string | null>(null);
+
+  // Sync addClassId with availableClasses
+  React.useEffect(() => {
+    if (availableClasses.length > 0) {
+      if (!availableClasses.some((c) => c.id === addClassId)) {
+        setAddClassId(availableClasses[0].id);
+      }
+    } else if (addClassId !== '') {
+      setAddClassId('');
+    }
+  }, [availableClasses, addClassId]);
 
   // Sync add modal section with selected class
   const addAvailableSections = useMemo(
@@ -636,7 +662,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
               className="h-10 px-3 pr-3 pl-8 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-200 font-bold focus:outline-hidden appearance-none cursor-pointer"
             >
               <option value="all">كل الصفوف الدراسية</option>
-              {classes.map((c) => (
+              {availableClasses.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
                 </option>
@@ -911,7 +937,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                       onChange={(e) => setAddClassId(e.target.value)}
                       className="w-full h-9 px-3 pr-3 pl-8 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-100 font-bold appearance-none cursor-pointer"
                     >
-                      {classes.map((c) => (
+                      {availableClasses.map((c) => (
                         <option key={c.id} value={c.id}>
                           {c.name}
                         </option>

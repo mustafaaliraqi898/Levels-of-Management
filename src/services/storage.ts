@@ -27,6 +27,7 @@ import {
   completeDemoSeedData,
 } from './seedData';
 import { hashPassword, generateSalt } from '../utils/crypto';
+import { filterClassesByAcademicYear } from '../utils/academicYearUtils';
 
 // --- Electron API Types ---
 declare global {
@@ -862,6 +863,12 @@ export class LocalStorageEngine {
     this.state.classes.push(res);
     this.notify(true);
     return res;
+  }
+
+  public getClassesByAcademicYear(yearId?: string): SchoolClass[] {
+    const currentYear = this.state.academicYears.find(y => y.isCurrent) || this.state.academicYears[0];
+    const defaultYearId = currentYear?.id || '';
+    return filterClassesByAcademicYear(this.state.classes, yearId || defaultYearId, defaultYearId);
   }
 
   public updateClass(c: SchoolClass) {

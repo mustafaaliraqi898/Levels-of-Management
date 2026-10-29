@@ -12,6 +12,11 @@ import {
 } from '../../types';
 import { buildGradeKey } from '../../services/storage';
 import {
+  filterClassesByAcademicYear,
+  filterSectionsByClassIds,
+  filterStudentsByAcademicYear,
+} from '../../utils/academicYearUtils';
+import {
   Calendar,
   Layers,
   Users,
@@ -61,6 +66,22 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onNavigate,
 }) => {
   const currentYear = academicYears.find((y) => y.isCurrent) || academicYears[0];
+  const defaultYearId = currentYear?.id || '';
+
+  // Filter classes, sections, and students strictly for active academic year
+  const activeClasses = useMemo(() => {
+    return filterClassesByAcademicYear(classes, currentYear?.id, defaultYearId);
+  }, [classes, currentYear?.id, defaultYearId]);
+
+  const activeClassIdSet = useMemo(() => new Set(activeClasses.map((c) => c.id)), [activeClasses]);
+
+  const activeSections = useMemo(() => {
+    return filterSectionsByClassIds(sections, activeClassIdSet);
+  }, [sections, activeClassIdSet]);
+
+  const activeStudents = useMemo(() => {
+    return filterStudentsByAcademicYear(students, currentYear?.id);
+  }, [students, currentYear?.id]);
 
   // Selected stage for completion monitoring (default: term1)
   const [selectedStage, setSelectedStage] = useState<GradeStage>('term1');
@@ -68,16 +89,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   // Track expanded classes (Set of classId)
   const [expandedClassIds, setExpandedClassIds] = useState<Set<string>>(() => {
     // Expand the first class by default for immediate visual feedback
-    const firstClass = [...classes].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))[0];
+    const firstClass = [...activeClasses].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))[0];
     return new Set(firstClass ? [firstClass.id] : []);
   });
 
   // Track expanded sections (Set of `${classId}_${sectionId}`)
   const [expandedSectionKeys, setExpandedSectionKeys] = useState<Set<string>>(() => {
     // Expand the first section of the first class by default
-    const sortedCls = [...classes].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    const sortedCls = [...activeClasses].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
     if (sortedCls.length > 0) {
-      const firstSec = sections.filter((s) => s.classId === sortedCls[0].id)[0];
+      const firstSec = activeSections.filter((s) => s.classId === sortedCls[0].id)[0];
       if (firstSec) {
         return new Set([`${sortedCls[0].id}_${firstSec.id}`]);
       }
@@ -111,10 +132,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   };
 
   const expandAll = () => {
-    setExpandedClassIds(new Set(classes.map((c) => c.id)));
+    setExpandedClassIds(new Set(activeClasses.map((c) => c.id)));
     const allSecKeys = new Set<string>();
-    classes.forEach((c) => {
-      sections
+    activeClasses.forEach((c) => {
+      activeSections
         .filter((s) => s.classId === c.id)
         .forEach((s) => allSecKeys.add(`${c.id}_${s.id}`));
     });
@@ -128,8 +149,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   // Comprehensive Hierarchical Completion Stats: Classes -> Sections -> Subjects
   const hierarchyStats = useMemo(() => {
-    // 1. Sort classes strictly according to the approved academic order
-    const sortedClasses = [...classes].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    // 1. Sort active classes strictly according to the approved academic order
+    const sortedClasses = [...activeClasses].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
     let totalSectionSubjectPairs = 0;
     let completedSectionSubjectPairs = 0;
@@ -138,7 +159,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
     const classStats = sortedClasses.map((schoolClass) => {
       // 2. Sections in this class (preserving registered order)
-      const realSections = sections.filter((s) => s.classId === schoolClass.id);
+      const realSections = activeSections.filter((s) => s.classId === schoolClass.id);
       const classSections = realSections.length > 0 
         ? realSections 
         : [{ id: '', name: 'بدون شعبة', classId: schoolClass.id } as Section];
@@ -149,8 +170,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
       // Students in this class for the active academic year
-      const classStudents = students.filter(
-        (s) => s.academicYearId === currentYear?.id && s.classId === schoolClass.id
+      const classStudents = activeStudents.filter(
+        (s) => s.classId === schoolClass.id
       );
 
       let classExpectedSlots = 0;
@@ -302,7 +323,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       pendingCount: pendingSectionSubjectPairs,
       overallPercent,
     };
-  }, [classes, sections, subjects, students, grades, currentYear, selectedStage]);
+  }, [activeClasses, activeSections, subjects, activeStudents, grades, currentYear, selectedStage]);
 
   return (
     <div className="flex flex-col gap-6 pb-12">
@@ -367,7 +388,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <Layers className="w-4 h-4 text-teal-400 group-hover:scale-110 transition-transform" />
           </div>
           <div className="text-2xl font-black text-white font-mono">
-            {classes.length}
+            {activeClasses.length}
           </div>
           <span className="text-[11px] text-teal-400 mt-1 flex items-center gap-1">
             إدارة الصفوف ←
@@ -384,7 +405,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <Layers className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
           </div>
           <div className="text-2xl font-black text-white font-mono">
-            {sections.length}
+            {activeSections.length}
           </div>
           <span className="text-[11px] text-amber-400 mt-1 flex items-center gap-1">
             عرض الشعب ←
@@ -401,7 +422,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <Users className="w-4 h-4 text-indigo-400 group-hover:scale-110 transition-transform" />
           </div>
           <div className="text-2xl font-black text-white font-mono">
-            {students.length}
+            {activeStudents.length}
           </div>
           <span className="text-[11px] text-indigo-400 mt-1 flex items-center gap-1">
             سجل الطلاب ←

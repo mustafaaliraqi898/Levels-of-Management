@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { SchoolClass, Section, Student, Subject, GradeRecord, AcademicYear } from '../../types';
 import { db } from '../../services/storage';
+import { filterClassesByAcademicYear } from '../../utils/academicYearUtils';
 import {
   Layers,
   Plus,
@@ -85,12 +86,10 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
     }
   }, [currentYear, selectedYearId]);
 
-  // Filter classes by selected academic year
+  // Filter classes strictly by selected academic year
   const filteredClasses = useMemo(() => {
-    return classes.filter(
-      (c) => (!c.academicYearId || c.academicYearId === selectedYearId)
-    );
-  }, [classes, selectedYearId]);
+    return filterClassesByAcademicYear(classes, selectedYearId, currentYear?.id);
+  }, [classes, selectedYearId, currentYear?.id]);
 
   // Auto-dismiss toast after 4 seconds
   useEffect(() => {

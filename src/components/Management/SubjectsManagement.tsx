@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Subject, SchoolClass } from '../../types';
+import { Subject, SchoolClass, AcademicYear } from '../../types';
 import { db } from '../../services/storage';
+import { filterClassesByAcademicYear } from '../../utils/academicYearUtils';
 import {
   BookOpen,
   Plus,
@@ -20,13 +21,33 @@ import {
 interface SubjectsManagementProps {
   subjects: Subject[];
   classes: SchoolClass[];
+  academicYears?: AcademicYear[];
 }
 
 export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
   subjects,
   classes,
+  academicYears,
 }) => {
-  const [selectedClassId, setSelectedClassId] = useState(classes[0]?.id || '');
+  const currentYear = academicYears?.find((y) => y.isCurrent) || academicYears?.[0];
+  const [selectedYearId, setSelectedYearId] = useState<string>(currentYear?.id || '');
+
+  const availableClasses = useMemo(() => {
+    return filterClassesByAcademicYear(classes, selectedYearId || currentYear?.id, currentYear?.id);
+  }, [classes, selectedYearId, currentYear?.id]);
+
+  const [selectedClassId, setSelectedClassId] = useState<string>(availableClasses[0]?.id || '');
+
+  useEffect(() => {
+    if (availableClasses.length > 0) {
+      if (!availableClasses.some((c) => c.id === selectedClassId)) {
+        setSelectedClassId(availableClasses[0].id);
+      }
+    } else if (selectedClassId !== '') {
+      setSelectedClassId('');
+    }
+  }, [availableClasses, selectedClassId]);
+
   const [newName, setNewName] = useState('');
   const [newMaxScore, setNewMaxScore] = useState(100);
   const [newPassScore, setNewPassScore] = useState(50);
@@ -358,19 +379,42 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
               </p>
             </div>
 
-            <div className="relative min-w-[180px]">
-              <select
-                value={selectedClassId}
-                onChange={(e) => setSelectedClassId(e.target.value)}
-                className="w-full h-9 px-3 pr-3 pl-8 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-200 font-bold focus:outline-hidden appearance-none cursor-pointer"
-              >
-                {classes.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="w-4 h-4 text-slate-400 absolute left-2.5 top-2.5 pointer-events-none" />
+            <div className="flex flex-wrap items-center gap-2.5">
+              {academicYears && academicYears.length > 1 && (
+                <div className="relative min-w-[150px]">
+                  <select
+                    value={selectedYearId}
+                    onChange={(e) => setSelectedYearId(e.target.value)}
+                    className="w-full h-9 px-3 pr-3 pl-8 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-200 font-bold focus:outline-hidden appearance-none cursor-pointer"
+                  >
+                    {academicYears.map((y) => (
+                      <option key={y.id} value={y.id}>
+                        {y.name} {y.isCurrent ? '(الحالي)' : ''}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-4 h-4 text-slate-400 absolute left-2.5 top-2.5 pointer-events-none" />
+                </div>
+              )}
+
+              <div className="relative min-w-[180px]">
+                <select
+                  value={selectedClassId}
+                  onChange={(e) => setSelectedClassId(e.target.value)}
+                  className="w-full h-9 px-3 pr-3 pl-8 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-200 font-bold focus:outline-hidden appearance-none cursor-pointer"
+                >
+                  {availableClasses.length === 0 ? (
+                    <option value="">(لا توجد صفوف مسجلة لهذا العام)</option>
+                  ) : (
+                    availableClasses.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name} ({c.stage})
+                      </option>
+                    ))
+                  )}
+                </select>
+                <ChevronDown className="w-4 h-4 text-slate-400 absolute left-2.5 top-2.5 pointer-events-none" />
+              </div>
             </div>
           </div>
 

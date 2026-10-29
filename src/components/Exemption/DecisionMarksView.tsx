@@ -11,6 +11,7 @@ import {
   StudentComprehensiveEvaluation,
 } from '../../types';
 import { db, buildGradeKey } from '../../services/storage';
+import { filterClassesByAcademicYear } from '../../utils/academicYearUtils';
 import {
   evaluateStudentAcademicYearDecisions,
   formatScore,
@@ -60,14 +61,18 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
   const [selectedYearId, setSelectedYearId] = useState<string>(currentYear?.id || '');
 
   const availableClasses = useMemo(() => {
-    return [...classes].sort((a, b) => a.order - b.order);
-  }, [classes]);
+    return filterClassesByAcademicYear(classes, selectedYearId, currentYear?.id);
+  }, [classes, selectedYearId, currentYear?.id]);
 
   const [selectedClassId, setSelectedClassId] = useState<string>(availableClasses[0]?.id || '');
 
   useEffect(() => {
-    if (!availableClasses.some((c) => c.id === selectedClassId) && availableClasses.length > 0) {
-      setSelectedClassId(availableClasses[0].id);
+    if (availableClasses.length > 0) {
+      if (!availableClasses.some((c) => c.id === selectedClassId)) {
+        setSelectedClassId(availableClasses[0].id);
+      }
+    } else if (selectedClassId !== '') {
+      setSelectedClassId('');
     }
   }, [availableClasses, selectedClassId]);
 

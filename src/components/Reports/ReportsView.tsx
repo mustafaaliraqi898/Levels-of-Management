@@ -10,6 +10,7 @@ import {
   GradeStage,
 } from '../../types';
 import { buildGradeKey, db } from '../../services/storage';
+import { filterClassesByAcademicYear } from '../../utils/academicYearUtils';
 import { evaluateStudentAcademicYearDecisions } from '../../services/calculations';
 import { getStudentReportFinalStatus, getSubjectReportDisplay } from '../../utils/exemptionUtils';
 import {
@@ -45,7 +46,23 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 }) => {
   const currentYear = academicYears.find((y) => y.isCurrent) || academicYears[0];
   const [selectedYearId, setSelectedYearId] = useState<string>(currentYear?.id || '');
-  const [selectedClassId, setSelectedClassId] = useState<string>(classes[0]?.id || '');
+
+  const availableClasses = useMemo(() => {
+    return filterClassesByAcademicYear(classes, selectedYearId, currentYear?.id);
+  }, [classes, selectedYearId, currentYear?.id]);
+
+  const [selectedClassId, setSelectedClassId] = useState<string>(availableClasses[0]?.id || '');
+
+  React.useEffect(() => {
+    if (availableClasses.length > 0) {
+      if (!availableClasses.some((c) => c.id === selectedClassId)) {
+        setSelectedClassId(availableClasses[0].id);
+      }
+    } else if (selectedClassId !== '') {
+      setSelectedClassId('');
+    }
+  }, [availableClasses, selectedClassId]);
+
   const [masterGradeType, setMasterGradeType] = useState<'termYearlyScore' | 'finalScore'>('finalScore');
 
   const availableSections = useMemo(
@@ -208,9 +225,13 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                 onChange={(e) => setSelectedClassId(e.target.value)}
                 className="w-full h-9 px-3 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-200 font-bold focus:outline-hidden appearance-none cursor-pointer"
               >
-                {classes.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
+                {availableClasses.length === 0 ? (
+                  <option value="">(لا توجد صفوف مسجلة لهذا العام)</option>
+                ) : (
+                  availableClasses.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))
+                )}
               </select>
               <ChevronDown className="w-4 h-4 text-slate-400 absolute left-2.5 top-2.5 pointer-events-none" />
             </div>

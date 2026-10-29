@@ -11,6 +11,7 @@ import {
   GeneralExemptionResult,
 } from '../../types';
 import { db, buildGradeKey } from '../../services/storage';
+import { filterClassesByAcademicYear } from '../../utils/academicYearUtils';
 import {
   evaluateStudentExemption,
   ROUNDING_RULE_LABELS,
@@ -73,17 +74,21 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
     }
   }, [selectedYearId, currentYear]);
 
-  // Classes & sections available for selected year
+  // Classes & sections available strictly for selected year
   const availableClasses = useMemo(() => {
-    return [...classes].sort((a, b) => a.order - b.order);
-  }, [classes]);
+    return filterClassesByAcademicYear(classes, selectedYearId, currentYear?.id);
+  }, [classes, selectedYearId, currentYear?.id]);
 
   const [selectedClassId, setSelectedClassId] = useState<string>(availableClasses[0]?.id || '');
   const [selectedSectionId, setSelectedSectionId] = useState<string>('');
 
   useEffect(() => {
-    if (!availableClasses.some((c) => c.id === selectedClassId) && availableClasses.length > 0) {
-      setSelectedClassId(availableClasses[0].id);
+    if (availableClasses.length > 0) {
+      if (!availableClasses.some((c) => c.id === selectedClassId)) {
+        setSelectedClassId(availableClasses[0].id);
+      }
+    } else if (selectedClassId !== '') {
+      setSelectedClassId('');
     }
   }, [availableClasses, selectedClassId]);
 

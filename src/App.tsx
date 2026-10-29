@@ -359,6 +359,7 @@ export default function App() {
             <SubjectsManagement
               subjects={dbState.subjects}
               classes={dbState.classes}
+              academicYears={dbState.academicYears}
             />
           )}
 

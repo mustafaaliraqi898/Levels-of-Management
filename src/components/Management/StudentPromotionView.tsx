@@ -10,6 +10,7 @@ import {
   StudentComprehensiveEvaluation,
 } from '../../types';
 import { db, buildGradeKey } from '../../services/storage';
+import { filterClassesByAcademicYear } from '../../utils/academicYearUtils';
 import { evaluateStudentAcademicYearDecisions } from '../../services/calculations';
 import * as XLSX from 'xlsx';
 import {
@@ -74,10 +75,8 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
 
   // Filter Source Classes strictly belonging to Source Academic Year
   const availableSourceClasses = useMemo(() => {
-    return classes
-      .filter((c) => !c.academicYearId || c.academicYearId === sourceYearId)
-      .sort((a, b) => a.order - b.order);
-  }, [classes, sourceYearId]);
+    return filterClassesByAcademicYear(classes, sourceYearId, currentYear?.id);
+  }, [classes, sourceYearId, currentYear?.id]);
 
   const [sourceClassId, setSourceClassId] = useState<string>('');
 

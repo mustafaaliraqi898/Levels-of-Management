@@ -10,6 +10,7 @@ import {
   CertificateElementConfig,
 } from '../../types';
 import { db } from '../../services/storage';
+import { filterClassesByAcademicYear } from '../../utils/academicYearUtils';
 import { processTemplateImage } from '../../utils/imageUtils';
 import { CertificateCanvas } from './CertificateCanvas';
 import {
@@ -84,12 +85,28 @@ export const CertificateTemplateView: React.FC<CertificateTemplateViewProps> = (
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
 
-  // Student recipient selection
+  // Student recipient selection (strictly scoped to active academic year)
   const currentYear =
     academicYears.find((y) => y.isCurrent) || academicYears[0];
+
+  const availableClasses = useMemo(() => {
+    return filterClassesByAcademicYear(classes, currentYear?.id, currentYear?.id);
+  }, [classes, currentYear?.id]);
+
   const [selectedClassId, setSelectedClassId] = useState<string>(
-    classes[0]?.id || ''
+    availableClasses[0]?.id || ''
   );
+
+  useEffect(() => {
+    if (availableClasses.length > 0) {
+      if (!availableClasses.some((c) => c.id === selectedClassId)) {
+        setSelectedClassId(availableClasses[0].id);
+      }
+    } else if (selectedClassId !== '') {
+      setSelectedClassId('');
+    }
+  }, [availableClasses, selectedClassId]);
+
   const availableSections = useMemo(
     () => sections.filter((s) => s.classId === selectedClassId),
     [sections, selectedClassId]
@@ -113,10 +130,11 @@ export const CertificateTemplateView: React.FC<CertificateTemplateViewProps> = (
   const availableStudents = useMemo(() => {
     return students.filter(
       (s) =>
+        s.academicYearId === currentYear?.id &&
         (!selectedClassId || s.classId === selectedClassId) &&
         (availableSections.length === 0 || !selectedSectionId || s.sectionId === selectedSectionId)
     );
-  }, [students, selectedClassId, selectedSectionId, availableSections]);
+  }, [students, currentYear?.id, selectedClassId, selectedSectionId, availableSections]);
 
   const [selectedStudentId, setSelectedStudentId] = useState<string>(
     availableStudents[0]?.id || ''
@@ -953,11 +971,15 @@ export const CertificateTemplateView: React.FC<CertificateTemplateViewProps> = (
                     onChange={(e) => setSelectedClassId(e.target.value)}
                     className="w-full h-8 px-2 text-xs bg-slate-950 border border-slate-800 rounded-lg text-slate-200"
                   >
-                    {classes.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
+                    {availableClasses.length === 0 ? (
+                      <option value="">(لا توجد صفوف مسجلة لهذا العام)</option>
+                    ) : (
+                      availableClasses.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))
+                    )}
                   </select>
                 </div>
 

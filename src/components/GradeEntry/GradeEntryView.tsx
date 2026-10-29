@@ -10,6 +10,7 @@ import {
   AppSettings,
 } from '../../types';
 import { db, buildGradeKey } from '../../services/storage';
+import { filterClassesByAcademicYear } from '../../utils/academicYearUtils';
 import { StageSelector } from './StageSelector';
 import { GradeTable } from './GradeTable';
 import {
@@ -52,8 +53,22 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
   const currentYear = academicYears.find((y) => y.isCurrent) || academicYears[0];
   const [selectedYearId, setSelectedYearId] = useState<string>(currentYear?.id || '');
 
-  const availableClasses = classes;
-  const [selectedClassId, setSelectedClassId] = useState<string>(classes[0]?.id || '');
+  const availableClasses = useMemo(() => {
+    return filterClassesByAcademicYear(classes, selectedYearId, currentYear?.id);
+  }, [classes, selectedYearId, currentYear?.id]);
+
+  const [selectedClassId, setSelectedClassId] = useState<string>(availableClasses[0]?.id || '');
+
+  // Synchronize selectedClassId when availableClasses changes
+  React.useEffect(() => {
+    if (availableClasses.length > 0) {
+      if (!availableClasses.some((c) => c.id === selectedClassId)) {
+        setSelectedClassId(availableClasses[0].id);
+      }
+    } else if (selectedClassId !== '') {
+      setSelectedClassId('');
+    }
+  }, [availableClasses, selectedClassId]);
 
   const availableSections = useMemo(
     () => sections.filter((s) => s.classId === selectedClassId),
@@ -351,11 +366,15 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
                 onChange={(e) => setSelectedClassId(e.target.value)}
                 className="w-full h-10 px-3 pr-3 pl-8 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-100 font-bold focus:border-emerald-500 focus:outline-hidden appearance-none cursor-pointer"
               >
-                {availableClasses.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name} ({c.stage})
-                  </option>
-                ))}
+                {availableClasses.length === 0 ? (
+                  <option value="">(لا توجد صفوف مسجلة لهذا العام)</option>
+                ) : (
+                  availableClasses.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name} ({c.stage})
+                    </option>
+                  ))
+                )}
               </select>
               <ChevronDown className="w-4 h-4 text-slate-400 absolute left-2.5 top-3 pointer-events-none" />
             </div>
