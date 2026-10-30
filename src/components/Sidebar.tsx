@@ -54,38 +54,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
     id: ActiveTab;
     label: string;
     icon: React.ComponentType<{ className?: string }>;
-    isHighlight?: boolean;
   }[] = [
     { id: 'dashboard', label: 'لوحة التحكم', icon: LayoutDashboard },
     { id: 'years', label: 'إدارة الأعوام الدراسية', icon: Calendar },
     { id: 'classes', label: 'إدارة الصفوف والشعب', icon: Layers },
     { id: 'students', label: 'إدارة الطلاب', icon: Users },
     { id: 'subjects', label: 'إدارة المواد الدراسية', icon: BookOpen },
-    {
-      id: 'grade_entry',
-      label: 'إدخال الدرجات',
-      icon: FileSpreadsheet,
-    },
-    {
-      id: 'decision_marks',
-      label: 'إضافة درجات القرار',
-      icon: ShieldCheck,
-      isHighlight: false,
-    },
+    { id: 'grade_entry', label: 'إدخال الدرجات', icon: FileSpreadsheet },
+    { id: 'decision_marks', label: 'إضافة درجات القرار', icon: ShieldCheck },
     { id: 'results', label: 'عرض النتائج', icon: GraduationCap },
-    { id: 'exemption', label: 'الإعفاء العام والفردي', icon: Award, isHighlight: false },
+    { id: 'exemption', label: 'الإعفاء العام والفردي', icon: Award },
     { id: 'reports', label: 'التقارير والطباعة', icon: Printer },
-    {
-      id: 'student_promotion',
-      label: 'ترحيل الطلاب',
-      icon: GraduationCap,
-      isHighlight: false,
-    },
-    {
-      id: 'certificate_template',
-      label: 'ضبط قالب الشهادات',
-      icon: Sparkles,
-    },
+    { id: 'student_promotion', label: 'ترحيل الطلاب', icon: GraduationCap },
+    { id: 'certificate_template', label: 'ضبط قالب الشهادات', icon: Sparkles },
     { id: 'backup', label: 'النسخ الاحتياطي واستعادة البيانات', icon: Database },
     { id: 'settings', label: 'الإعدادات', icon: Settings },
   ];
@@ -185,12 +166,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       : 'justify-between px-3.5 py-2.5'
                   } ${
                     isActive
-                      ? item.isHighlight
-                        ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20'
-                        : 'bg-slate-800 text-white border border-slate-700 shadow-xs'
-                      : item.isHighlight
-                      ? 'bg-emerald-950/40 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-950/60'
-                      : 'text-slate-300 hover:bg-slate-850 hover:text-white'
+                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-xs'
+                      : 'text-slate-300 hover:bg-slate-850 hover:text-white border border-transparent'
                   }`}
                   aria-label={item.label}
                 >
@@ -198,10 +175,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <Icon
                       className={`w-5 h-5 shrink-0 ${
                         isActive
-                          ? item.isHighlight
-                            ? 'text-white'
-                            : 'text-emerald-400'
-                          : item.isHighlight
                           ? 'text-emerald-400'
                           : 'text-slate-400 group-hover:text-slate-200'
                       }`}
@@ -209,8 +182,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     {!isCollapsed && <span className="tracking-wide truncate">{item.label}</span>}
                   </div>
 
-                  {/* Indicator Dot for Collapsed Highlight */}
-                  {isCollapsed && item.isHighlight && (
+                  {/* Indicator Dot for Collapsed Active Item */}
+                  {isCollapsed && isActive && (
                     <span className="absolute top-1.5 left-1.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-slate-900" />
                   )}
                 </button>
