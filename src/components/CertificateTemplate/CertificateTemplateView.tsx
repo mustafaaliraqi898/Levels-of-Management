@@ -385,13 +385,13 @@ export const CertificateTemplateView: React.FC<CertificateTemplateViewProps> = (
       <div className="no-print bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-slate-950 font-bold shadow-lg shadow-amber-500/20">
-              <Award className="w-5 h-5 text-slate-950" />
+            <div className="w-10 h-10 rounded-xl bg-[#60CDFF]/15 border border-[#60CDFF]/30 flex items-center justify-center text-[#60CDFF] font-bold shadow-sm">
+              <Award className="w-5 h-5 text-[#60CDFF]" />
             </div>
             <div>
               <h1 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
                 ضبط قالب الشهادات
-                <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold">
+                <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#60CDFF]/15 text-[#60CDFF] border border-[#60CDFF]/30 font-bold">
                   A4 أفقي
                 </span>
               </h1>
@@ -934,7 +934,7 @@ export const CertificateTemplateView: React.FC<CertificateTemplateViewProps> = (
                     type="button"
                     disabled={isProcessingUpload}
                     onClick={() => fileInputRef.current?.click()}
-                    className="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 text-xs font-bold flex items-center gap-2 cursor-pointer shadow-md shadow-amber-600/20 disabled:opacity-50"
+                    className="px-4 py-2.5 rounded-xl bg-[#60CDFF] hover:bg-[#60CDFF]/90 text-slate-950 text-xs font-bold flex items-center gap-2 cursor-pointer shadow-md shadow-[#60CDFF]/20 disabled:opacity-50"
                   >
                     {isProcessingUpload ? (
                       <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />

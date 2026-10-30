@@ -478,13 +478,13 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
       <div className="no-print bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-slate-950 shadow-lg shadow-amber-500/20">
-              <Award className="w-6 h-6 text-slate-950 font-bold" />
+            <div className="w-12 h-12 rounded-xl bg-[#60CDFF]/15 border border-[#60CDFF]/30 flex items-center justify-center text-[#60CDFF] shadow-sm">
+              <Award className="w-6 h-6 text-[#60CDFF] font-bold" />
             </div>
             <div>
               <h1 className="text-xl sm:text-2xl font-black text-slate-100 flex items-center gap-2">
                 الإعفاء العام والفردي
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold">
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#60CDFF]/15 text-[#60CDFF] border border-[#60CDFF]/30 font-bold">
                   ضوابط واستحقاق الطلبة
                 </span>
               </h1>
@@ -528,10 +528,10 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
       <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
         <div className="p-4 sm:p-5 bg-slate-850/80 border-b border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <Sliders className="w-5 h-5 text-amber-400" />
+            <Sliders className="w-5 h-5 text-[#60CDFF]" />
             <h2 className="font-bold text-base sm:text-lg text-slate-100">
               إعدادات شروط الإعفاء للعام الدراسي:
-              <span className="text-amber-400 font-extrabold mr-2">
+              <span className="text-[#60CDFF] font-extrabold mr-2">
                 {activeYearObj?.name || selectedYearId}
               </span>
             </h2>
@@ -539,7 +539,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
 
           <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
             {isDirty && (
-              <span className="text-xs px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 font-medium flex items-center gap-1.5 animate-pulse">
+              <span className="text-xs px-2.5 py-1 rounded-full bg-[#D99A55]/15 text-[#D99A55] border border-[#D99A55]/30 font-medium flex items-center gap-1.5 animate-pulse">
                 <AlertCircle className="w-3.5 h-3.5" />
                 توجد تعديلات بانتظار الحفظ
               </span>
@@ -556,11 +556,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
 
             <button
               onClick={handleSaveSettings}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer shadow-md ${
-                isDirty || !savedSettings.isConfigured
-                  ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-amber-500/20'
-                  : 'bg-emerald-600 hover:bg-emerald-500 text-white'
-              }`}
+              className="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer shadow-md bg-[#65C18C] hover:bg-[#65C18C]/90 text-slate-950 shadow-[#65C18C]/20"
             >
               <Save className="w-4 h-4" />
               حفظ الشروط
@@ -946,7 +942,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
           onClick={() => setActiveTab('general')}
           className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
             activeTab === 'general'
-              ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-black'
+              ? 'bg-[#60CDFF] text-slate-950 shadow-md shadow-[#60CDFF]/20 font-black'
               : 'text-slate-400 hover:text-slate-200 hover:bg-slate-850'
           }`}
         >
@@ -989,7 +985,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
           <div className="p-4 sm:p-5 bg-slate-850/80 border-b border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
               <h3 className="font-bold text-slate-100 text-base sm:text-lg flex items-center gap-2">
-                <Award className="w-5 h-5 text-amber-400" />
+                <Award className="w-5 h-5 text-[#60CDFF]" />
                 قائمة المستحقين للإعفاء العام
                 <span className="text-xs text-slate-400 font-normal">
                   ({activeClassObj?.name} - شعبة {activeSectionObj?.name})
@@ -1009,7 +1005,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
               <button
                 type="button"
                 onClick={handleOpenExportCertificates}
-                className="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-md shadow-amber-500/20 active:scale-95"
+                className="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer bg-[#60CDFF] hover:bg-[#60CDFF]/90 text-slate-950 shadow-md shadow-[#60CDFF]/20 active:scale-95"
                 title="تصدير شهادات شكر وتقدير للإعفاء العام بصيغة PDF للطلبة المحددين"
               >
                 <FileText className="w-4 h-4 stroke-[2.5]" />
@@ -1027,7 +1023,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                 onClick={() => setShowNearEligible(!showNearEligible)}
                 className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer border shadow-xs ${
                   showNearEligible
-                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-amber-500/10'
+                    ? 'bg-[#60CDFF]/15 text-[#60CDFF] border-[#60CDFF]/30 shadow-[#60CDFF]/10'
                     : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-750 hover:text-white'
                 }`}
                 title="إظهار الطلبة الذين يحققون شرط المعدل ولديهم مادة أو مادتان دون الحد الأدنى"
@@ -1035,7 +1031,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                 <div
                   className={`w-4 h-4 rounded flex items-center justify-center border transition-colors ${
                     showNearEligible
-                      ? 'bg-amber-500 border-amber-400 text-slate-950 font-bold'
+                      ? 'bg-[#60CDFF] border-[#60CDFF] text-slate-950 font-bold'
                       : 'border-slate-500 bg-slate-900'
                   }`}
                 >

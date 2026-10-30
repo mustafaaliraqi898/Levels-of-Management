@@ -933,7 +933,7 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm" dir="rtl">
           <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl text-white">
             <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
-              <h4 className="text-base font-bold flex items-center gap-2 text-amber-400">
+              <h4 className="text-base font-bold flex items-center gap-2 text-[#60CDFF]">
                 <KeyRound className="w-5 h-5" />
                 إعادة تعيين كلمة المرور
               </h4>
@@ -983,7 +983,7 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black"
+                  className="px-5 py-2 rounded-xl bg-[#60CDFF] hover:bg-[#60CDFF]/90 text-slate-950 text-xs font-bold"
                 >
                   {isLoading ? 'جاري الحفظ...' : 'تأكيد التعيين'}
                 </button>

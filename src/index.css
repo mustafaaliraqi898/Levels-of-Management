@@ -13,34 +13,38 @@
 :root,
 html.dark {
   color-scheme: dark;
-  --bg-page: #202631;
-  --bg-card: #293241;
-  --bg-card-sub: #2E3848;
-  --bg-input: #323D4D;
-  --bg-input-hover: #3A4759;
-  --border-color: #414C5D;
-  --border-subtle: #36404F;
-  --text-primary: #E0E6ED;
-  --text-secondary: #B0BAC8;
-  --text-muted: #8E9CAE;
-  --accent-gold: #E0B85C;
-  --accent-gold-bg: rgba(224, 184, 92, 0.16);
-  --accent-gold-border: rgba(224, 184, 92, 0.35);
-  --accent-emerald: #34D399;
-  --accent-emerald-bg: rgba(52, 211, 153, 0.16);
-  --accent-emerald-border: rgba(52, 211, 153, 0.35);
+  --bg-page: #202020;
+  --bg-sidebar: #292929;
+  --bg-card: #2B2B2B;
+  --bg-card-sub: #353535;
+  --bg-input: #323232;
+  --bg-input-hover: #3A3A3A;
+  --border-color: #383838;
+  --border-subtle: #303030;
+  --text-primary: #F3F3F3;
+  --text-secondary: #BFBFBF;
+  --text-muted: #8E8E8E;
+  --accent-gold: #D99A55;
+  --accent-gold-bg: rgba(217, 154, 85, 0.12);
+  --accent-gold-border: rgba(217, 154, 85, 0.28);
+  --accent-warning: #D99A55;
+  --accent-warning-bg: rgba(217, 154, 85, 0.12);
+  --accent-warning-border: rgba(217, 154, 85, 0.28);
+  --accent-emerald: #65C18C;
+  --accent-emerald-bg: rgba(101, 193, 140, 0.14);
+  --accent-emerald-border: rgba(101, 193, 140, 0.3);
   --accent-teal: #2DD4BF;
   --accent-teal-bg: rgba(45, 212, 191, 0.16);
   --accent-teal-border: rgba(45, 212, 191, 0.35);
   --accent-rose: #FB7185;
   --accent-rose-bg: rgba(251, 113, 133, 0.16);
   --accent-rose-border: rgba(251, 113, 133, 0.35);
-  --accent-blue: #60A5FA;
-  --accent-blue-bg: rgba(96, 165, 250, 0.16);
-  --accent-blue-border: rgba(96, 165, 250, 0.35);
-  --accent-cyan: #38BDF8;
-  --accent-cyan-bg: rgba(56, 189, 248, 0.16);
-  --accent-cyan-border: rgba(56, 189, 248, 0.35);
+  --accent-blue: #60CDFF;
+  --accent-blue-bg: rgba(96, 205, 255, 0.15);
+  --accent-blue-border: rgba(96, 205, 255, 0.3);
+  --accent-cyan: #60CDFF;
+  --accent-cyan-bg: rgba(96, 205, 255, 0.15);
+  --accent-cyan-border: rgba(96, 205, 255, 0.3);
   --accent-indigo: #A78BFA;
   --accent-indigo-bg: rgba(167, 139, 250, 0.16);
   --accent-indigo-border: rgba(167, 139, 250, 0.35);
@@ -233,7 +237,7 @@ html.dark ::-webkit-scrollbar-thumb,
 
 html.dark ::-webkit-scrollbar-thumb:hover,
 :root:not(.light) ::-webkit-scrollbar-thumb:hover {
-  background: #505E72;
+  background: #4A4A4A;
 }
 
 /* Light mode scrollbars */
@@ -275,9 +279,14 @@ html.dark .bg-slate-950\/10 {
   background-color: var(--bg-page) !important;
 }
 
+/* Dark: Sidebar */
+html.dark aside {
+  background-color: var(--bg-sidebar) !important;
+  border-color: var(--border-color) !important;
+}
+
 /* Dark: Cards & Containers */
 html.dark header,
-html.dark aside,
 html.dark .bg-slate-900,
 html.dark .bg-slate-900\/95,
 html.dark .bg-slate-900\/90,
@@ -339,7 +348,7 @@ html.dark .text-slate-100 {
 
 html.dark .text-slate-200,
 html.dark .text-slate-300 {
-  color: #CCD6E2 !important;
+  color: #E2E2E2 !important;
 }
 
 html.dark .text-slate-400 {
@@ -355,12 +364,12 @@ html.dark .text-amber-400,
 html.dark .text-amber-300,
 html.dark [class*="text-amber-400"],
 html.dark [class*="text-amber-300"] {
-  color: var(--accent-gold) !important;
+  color: var(--accent-warning) !important;
 }
 
 html.dark .text-amber-200,
 html.dark [class*="text-amber-200"] {
-  color: #FDE68A !important;
+  color: #E2E2E2 !important;
 }
 
 html.dark .text-teal-400,
@@ -384,7 +393,7 @@ html.dark [class*="text-emerald-300"] {
 
 html.dark .text-emerald-200,
 html.dark [class*="text-emerald-200"] {
-  color: #A7F3D0 !important;
+  color: #D1FAE5 !important;
 }
 
 html.dark .text-rose-400,
@@ -418,10 +427,24 @@ html.dark [class*="text-purple-400"] {
 html.dark .bg-amber-500\/10,
 html.dark .bg-amber-500\/15,
 html.dark .bg-amber-500\/20,
-html.dark .bg-amber-500\/30 {
-  background-color: var(--accent-gold-bg) !important;
-  border-color: var(--accent-gold-border) !important;
-  color: var(--accent-gold) !important;
+html.dark .bg-amber-500\/30,
+html.dark .bg-amber-950\/20,
+html.dark .bg-amber-950\/30,
+html.dark .bg-amber-950\/40,
+html.dark .bg-amber-950 {
+  background-color: var(--accent-warning-bg) !important;
+  border-color: var(--accent-warning-border) !important;
+  color: var(--accent-warning) !important;
+}
+
+html.dark .border-amber-500\/30,
+html.dark .border-amber-500\/20,
+html.dark .border-amber-500\/40,
+html.dark .border-amber-800,
+html.dark .border-amber-800\/40,
+html.dark .border-amber-800\/50,
+html.dark .border-amber-800\/60 {
+  border-color: var(--accent-warning-border) !important;
 }
 
 html.dark .bg-teal-500\/10,
@@ -493,9 +516,9 @@ html.dark textarea {
 html.dark input:focus,
 html.dark select:focus,
 html.dark textarea:focus {
-  border-color: #10B981 !important;
+  border-color: var(--accent-blue) !important;
   outline: none !important;
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25) !important;
+  box-shadow: 0 0 0 2px rgba(96, 205, 255, 0.25) !important;
 }
 
 html.dark input::placeholder,
@@ -510,18 +533,18 @@ html.dark table {
 }
 
 html.dark table thead tr {
-  background-color: var(--bg-page) !important;
+  background-color: var(--bg-card-sub) !important;
   border-bottom: 2px solid var(--border-color) !important;
 }
 
 html.dark table thead th {
-  background-color: var(--bg-page) !important;
+  background-color: var(--bg-card-sub) !important;
   color: var(--text-primary) !important;
   border-color: var(--border-color) !important;
 }
 
 html.dark table thead th[style*="sticky"] {
-  background-color: var(--bg-page) !important;
+  background-color: var(--bg-card-sub) !important;
   color: var(--text-primary) !important;
   border-color: var(--border-color) !important;
 }
@@ -548,12 +571,62 @@ html.dark table tr:hover td[style*="sticky"] {
   background-color: var(--bg-card-sub) !important;
 }
 
+/* Dark: Active/Focused Grade Entry Table Cell */
+html.dark td.ring-emerald-500,
+html.dark td:has(input:focus) {
+  --tw-ring-color: #60CDFF !important;
+  box-shadow: 0 0 0 2px #60CDFF !important;
+  border-color: #60CDFF !important;
+}
+
+html.dark td.ring-emerald-500 input {
+  border-color: #60CDFF !important;
+  color: #60CDFF !important;
+}
+
 /* Dark: Modals & Dialogs */
 html.dark [role="dialog"],
 html.dark div[class*="backdrop-blur"] > div.bg-slate-900 {
   background-color: var(--bg-card) !important;
   border: 1px solid var(--border-color) !important;
   color: var(--text-primary) !important;
+}
+
+/* Dark: Header Icon Gradients (Convert harsh gold/amber gradients to subtle Sky Blue brand styling) */
+html.dark .from-amber-500.to-amber-700,
+html.dark .from-amber-500.to-amber-600 {
+  background-image: none !important;
+  background-color: var(--accent-blue-bg) !important;
+  border: 1px solid var(--accent-blue-border) !important;
+  color: var(--accent-blue) !important;
+}
+
+html.dark .from-amber-500.to-amber-700 svg,
+html.dark .from-amber-500.to-amber-600 svg {
+  color: var(--accent-blue) !important;
+}
+
+/* Dark: Functional Buttons (Success & Save using calm #65C18C, Warning using calm #D99A55) */
+html.dark button.bg-emerald-600,
+html.dark button.bg-emerald-500 {
+  background-color: var(--accent-emerald) !important;
+  color: #121212 !important;
+}
+
+html.dark button.bg-emerald-600:hover,
+html.dark button.bg-emerald-500:hover {
+  background-color: #7AD4A2 !important;
+}
+
+html.dark button.bg-amber-500,
+html.dark button.bg-amber-600 {
+  background-color: var(--accent-warning) !important;
+  color: #121212 !important;
+}
+
+html.dark button.bg-amber-500:hover,
+html.dark button.bg-amber-600:hover {
+  background-color: #E6A763 !important;
 }
 
 /* =========================================================================

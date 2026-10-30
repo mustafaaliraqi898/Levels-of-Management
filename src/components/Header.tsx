@@ -141,14 +141,14 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={onToggleTheme}
             className={`w-9 h-9 rounded-xl border transition-all duration-200 flex items-center justify-center cursor-pointer shadow-xs ${
               theme === 'dark'
-                ? 'bg-[#202631] border-[#414C5D] hover:bg-[#323D4D] text-[#E0B85C] hover:text-[#FDE68A] hover:border-[#E0B85C]/50 hover:shadow-amber-500/10'
+                ? 'bg-[#2B2B2B] border-[#383838] hover:bg-[#353535] text-[#60CDFF] hover:border-[#60CDFF]/50'
                 : 'bg-[#F0F2F5] border-[#E0E4E8] hover:bg-[#EAEFF4] text-[#414957] hover:text-[#202631] hover:border-[#B58A35]/50'
             }`}
             title={theme === 'dark' ? 'التبديل إلى الوضع الفاتح (Light Mode)' : 'التبديل إلى الوضع الداكن (Dark Mode)'}
             aria-label={theme === 'dark' ? 'التبديل إلى الوضع الفاتح' : 'التبديل إلى الوضع الداكن'}
           >
             {theme === 'dark' ? (
-              <Sun className="w-4 h-4 transition-transform duration-200 group-hover/theme:rotate-45 text-[#E0B85C]" />
+              <Sun className="w-4 h-4 transition-transform duration-200 group-hover/theme:rotate-45 text-[#60CDFF]" />
             ) : (
               <Moon className="w-4 h-4 transition-transform duration-200 group-hover/theme:-rotate-12 text-[#414957]" />
             )}
@@ -174,15 +174,21 @@ export const Header: React.FC<HeaderProps> = ({
               }`}
               title="إعدادات الحساب وتغيير كلمة المرور"
             >
-              <div className="w-5 h-5 rounded-md bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-[10px]">
+              <div className={`w-5 h-5 rounded-md flex items-center justify-center font-bold text-[10px] ${
+                theme === 'dark' ? 'bg-[#60CDFF]/15 text-[#60CDFF]' : 'bg-emerald-500/20 text-emerald-600'
+              }`}>
                 <User className="w-3.5 h-3.5" />
               </div>
               <span className="hidden sm:inline max-w-[100px] truncate">{currentUser.username}</span>
               <span
                 className={`text-[10px] px-1.5 py-0.2 rounded font-bold hidden md:inline ${
                   currentUser.role === 'admin'
-                    ? 'bg-amber-500/20 text-amber-300'
-                    : 'bg-emerald-500/20 text-emerald-300'
+                    ? theme === 'dark'
+                      ? 'bg-[#60CDFF]/15 text-[#60CDFF] border border-[#60CDFF]/30'
+                      : 'bg-amber-100 text-amber-800'
+                    : theme === 'dark'
+                      ? 'bg-[#65C18C]/15 text-[#65C18C] border border-[#65C18C]/30'
+                      : 'bg-emerald-100 text-emerald-800'
                 }`}
               >
                 {currentUser.role === 'admin' ? 'مدير كامل' : 'معاينة فقط'}

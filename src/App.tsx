@@ -166,7 +166,7 @@ export default function App() {
   return (
     <div
       className={`min-h-screen ${
-        theme === 'dark' ? 'bg-[#202631] text-[#E0E6ED]' : 'bg-[#F3F5F7] text-[#414957]'
+        theme === 'dark' ? 'bg-[#202020] text-[#F3F3F3]' : 'bg-[#F3F5F7] text-[#414957]'
       } flex flex-row-reverse transition-colors duration-200 print:bg-white print:text-black print:block`}
       dir="rtl"
     >
@@ -211,6 +211,7 @@ export default function App() {
         currentUser={authSession.user}
         onOpenAccountSettings={() => setIsAccountModalOpen(true)}
         onLogout={handleLogout}
+        theme={theme}
       />
 
       {/* Main Content Area */}

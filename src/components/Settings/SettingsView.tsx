@@ -409,10 +409,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-amber-400" />
+              <Sparkles className="w-5 h-5 text-[#60CDFF]" />
               <h3 className="text-base font-bold text-white">شعار المدرسة بالخط الكوفي</h3>
             </div>
-            <span className="text-xs text-amber-400/90 font-medium">
+            <span className="text-xs text-slate-400 font-medium">
               شعار هندسي بالخط الكوفي مخصص للشهادات، وثائق التقدير، والمناسبات المدرسية الخاصة
             </span>
           </div>
@@ -453,7 +453,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     className="w-full h-full object-contain pointer-events-none select-none"
                   />
                 </div>
-                <div className="absolute -bottom-2 -left-2 px-2 py-0.5 rounded-md bg-amber-500 text-slate-950 text-[10px] font-black shadow-xs">
+                <div className="absolute -bottom-2 -left-2 px-2 py-0.5 rounded-md bg-[#60CDFF] text-slate-950 text-[10px] font-black shadow-xs">
                   كوفي معتمد
                 </div>
               </div>
@@ -464,7 +464,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   <span className="font-bold text-sm text-white">
                     تم ضبط وتثبيت شعار المدرسة بالخط الكوفي بنجاح
                   </span>
-                  <span className="text-[11px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-medium">
+                  <span className="text-[11px] px-2 py-0.5 rounded bg-[#60CDFF]/15 text-[#60CDFF] border border-[#60CDFF]/30 font-medium">
                     مستقل عن الشعار الرسمي العام
                   </span>
                 </div>
@@ -482,7 +482,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     {kuficProcessing ? (
                       <div className="w-3.5 h-3.5 border-2 border-slate-200 border-t-transparent rounded-full animate-spin" />
                     ) : (
-                      <RefreshCw className="w-3.5 h-3.5 text-amber-400" />
+                      <RefreshCw className="w-3.5 h-3.5 text-[#60CDFF]" />
                     )}
                     <span>تغيير الشعار الكوفي</span>
                   </button>
@@ -501,10 +501,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
           ) : (
             /* Upload Action Prompt when No Kufic Logo Exists */
-            <div className="border-2 border-dashed border-slate-700 hover:border-amber-500/60 rounded-2xl p-6 sm:p-8 flex flex-col items-center justify-center text-center transition-colors bg-slate-950/30">
-              <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mb-3 shadow-inner">
+            <div className="border-2 border-dashed border-slate-700 hover:border-[#60CDFF]/60 rounded-2xl p-6 sm:p-8 flex flex-col items-center justify-center text-center transition-colors bg-slate-950/30">
+              <div className="w-14 h-14 rounded-2xl bg-[#60CDFF]/10 border border-[#60CDFF]/20 text-[#60CDFF] flex items-center justify-center mb-3 shadow-inner">
                 {kuficProcessing ? (
-                  <div className="w-6 h-6 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+                  <div className="w-6 h-6 border-2 border-[#60CDFF] border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <Upload className="w-6 h-6" />
                 )}
@@ -521,7 +521,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 type="button"
                 disabled={kuficProcessing}
                 onClick={() => kuficFileInputRef.current?.click()}
-                className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-slate-950 text-xs font-bold flex items-center gap-2 cursor-pointer transition-all shadow-lg shadow-amber-600/25 disabled:opacity-50"
+                className="px-5 py-2.5 rounded-xl bg-[#60CDFF] hover:bg-[#60CDFF]/90 text-slate-950 text-xs font-bold flex items-center gap-2 cursor-pointer transition-all shadow-lg shadow-[#60CDFF]/20 disabled:opacity-50"
               >
                 {kuficProcessing ? (
                   <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
@@ -589,7 +589,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         {/* 3. Security & Confirmation Preferences */}
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg">
           <div className="flex items-center gap-2 mb-4">
-            <ShieldAlert className="w-5 h-5 text-amber-400" />
+            <ShieldAlert className="w-5 h-5 text-[#60CDFF]" />
             <h3 className="text-base font-bold text-white">
               ضوابط الأمان وحماية الدرجات السابقة
             </h3>

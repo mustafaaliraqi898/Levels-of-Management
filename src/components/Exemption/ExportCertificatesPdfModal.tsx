@@ -617,8 +617,8 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
         {/* Modal Header */}
         <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-slate-950 font-black shadow-lg shadow-amber-500/20">
-              <Award className="w-5 h-5 text-slate-950" />
+            <div className="w-10 h-10 rounded-xl bg-[#60CDFF]/15 border border-[#60CDFF]/30 flex items-center justify-center text-[#60CDFF] font-black shadow-sm">
+              <Award className="w-5 h-5 text-[#60CDFF]" />
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
@@ -644,9 +644,9 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
         {/* Modal Body */}
         <div className="p-5 overflow-y-auto space-y-5 flex-1">
           {/* Summary Banner */}
-          <div className="p-4 rounded-xl bg-gradient-to-r from-amber-950/40 via-slate-950 to-slate-950 border border-amber-500/30 flex items-center justify-between">
+          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
             <div className="space-y-0.5">
-              <span className="text-xs text-amber-300 font-bold block">
+              <span className="text-xs text-[#60CDFF] font-bold block">
                 بيانات التصدير الأكاديمية:
               </span>
               <span className="text-xs text-slate-300">
@@ -655,7 +655,7 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
             </div>
             <div className="text-left">
               <span className="text-[11px] text-slate-400 block">الشهادات المحددة</span>
-              <span className="text-lg font-black font-mono text-amber-400">
+              <span className="text-lg font-black font-mono text-[#60CDFF]">
                 {selectedStudents.length} / {eligibleStudents.length}
               </span>
             </div>

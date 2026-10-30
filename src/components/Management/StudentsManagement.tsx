@@ -1418,7 +1418,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                   transferTargetClassId === transferringStudent.classId &&
                   transferTargetSectionId === transferringStudent.sectionId
                 }
-                className="px-5 py-2 text-xs font-bold rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed text-slate-950 shadow-lg shadow-amber-500/20 flex items-center gap-2 transition-colors cursor-pointer"
+                className="px-5 py-2 text-xs font-bold rounded-xl bg-[#60CDFF] hover:bg-[#60CDFF]/90 disabled:opacity-50 disabled:cursor-not-allowed text-slate-950 shadow-md shadow-[#60CDFF]/20 flex items-center gap-2 transition-colors cursor-pointer"
               >
                 <Check className="w-4 h-4" />
                 <span>تأكيد وتنفيذ النقل</span>

@@ -747,7 +747,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
               </span>
             </div>
             <h1 className="text-2xl font-black text-white flex items-center gap-2.5">
-              <Trophy className="w-6 h-6 text-amber-400" />
+              <Trophy className="w-6 h-6 text-[#60CDFF]" />
               <span>عرض وتدقيق نتائج وتقييم الطلاب</span>
             </h1>
             <p className="text-xs text-slate-400 mt-1">
@@ -928,15 +928,15 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
 
       {/* Top 5 Honors Cards for this Selected Grade Type */}
       {topStudents.length > 0 && (
-        <div className="bg-gradient-to-r from-amber-950/20 via-slate-900 to-slate-900 border border-amber-500/30 rounded-2xl p-5 shadow-xl no-print">
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl no-print">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Award className="w-5 h-5 text-amber-400" />
-              <h3 className="font-bold text-base text-amber-300">
+              <Award className="w-5 h-5 text-[#60CDFF]" />
+              <h3 className="font-bold text-base text-[#60CDFF]">
                 لوحة الشرف — المتفوقون في {activeGradeConfig.label} ({activeClass?.name} - شعبة {activeSection?.name})
               </h3>
             </div>
-            <span className="text-xs text-amber-400/80 font-mono">
+            <span className="text-xs text-slate-400 font-mono">
               أعلى معدل: {classStats.highestAvg !== null ? `${classStats.highestAvg}%` : '—'}
             </span>
           </div>
@@ -945,13 +945,13 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
             {topStudents.slice(0, 5).map((rankItem, idx) => (
               <div
                 key={rankItem.student.id}
-                className="bg-slate-950/80 border border-amber-500/30 p-3.5 rounded-xl flex flex-col justify-between hover:border-amber-400/60 transition-colors"
+                className="bg-slate-950/80 border border-slate-800 p-3.5 rounded-xl flex flex-col justify-between hover:border-[#60CDFF]/50 transition-colors"
               >
                 <div className="flex items-center justify-between">
-                  <span className="w-6 h-6 rounded-full bg-amber-500 text-slate-950 font-black text-xs flex items-center justify-center font-mono">
+                  <span className="w-6 h-6 rounded-full bg-[#60CDFF] text-slate-950 font-black text-xs flex items-center justify-center font-mono">
                     {idx + 1}
                   </span>
-                  <span className="text-xs font-mono font-bold text-amber-400">
+                  <span className="text-xs font-mono font-bold text-[#60CDFF]">
                     معدل: {rankItem.average}%
                   </span>
                 </div>

@@ -689,7 +689,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                                     <div
                                       className={`w-7 h-7 rounded-lg flex items-center justify-center border text-xs font-bold transition-colors shrink-0 ${
                                         isSectionExpanded
-                                          ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                                          ? 'bg-[#60CDFF]/15 text-[#60CDFF] border-[#60CDFF]/30'
                                           : 'bg-slate-800 text-slate-400 border-slate-700'
                                       }`}
                                     >
@@ -780,7 +780,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                                       aria-label={isSectionExpanded ? 'إخفاء المواد' : 'عرض المواد'}
                                     >
                                       {isSectionExpanded ? (
-                                        <ChevronUp className="w-4 h-4 text-amber-400" />
+                                        <ChevronUp className="w-4 h-4 text-[#60CDFF]" />
                                       ) : (
                                         <ChevronDown className="w-4 h-4 text-slate-400" />
                                       )}

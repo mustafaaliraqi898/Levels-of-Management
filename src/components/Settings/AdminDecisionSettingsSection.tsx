@@ -85,7 +85,7 @@ export const AdminDecisionSettingsSection: React.FC<AdminDecisionSettingsSection
     <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-[#60CDFF]/15 border border-[#60CDFF]/30 text-[#60CDFF] flex items-center justify-center shrink-0">
             <Award className="w-5 h-5" />
           </div>
           <div>
@@ -105,7 +105,7 @@ export const AdminDecisionSettingsSection: React.FC<AdminDecisionSettingsSection
           <select
             value={selectedYearId}
             onChange={(e) => handleYearChange(e.target.value)}
-            className="bg-transparent text-xs font-bold text-amber-400 focus:outline-hidden cursor-pointer"
+            className="bg-transparent text-xs font-bold text-[#60CDFF] focus:outline-hidden cursor-pointer"
           >
             {academicYears.map((year) => (
               <option key={year.id} value={year.id} className="bg-slate-900 text-slate-100">
@@ -156,7 +156,7 @@ export const AdminDecisionSettingsSection: React.FC<AdminDecisionSettingsSection
                       maxFailedSubjectsAllowed: Math.max(1, parseInt(e.target.value) || 1),
                     })
                   }
-                  className="w-full h-11 px-3 text-sm font-bold bg-slate-900 border border-slate-700 rounded-lg text-amber-300 focus:border-amber-500 focus:outline-hidden"
+                  className="w-full h-11 px-3 text-sm font-bold bg-slate-900 border border-slate-700 rounded-lg text-slate-100 focus:border-[#60CDFF] focus:outline-hidden"
                   required
                 />
                 <span className="absolute left-3 top-3 text-xs text-slate-400 pointer-events-none">
@@ -246,7 +246,7 @@ export const AdminDecisionSettingsSection: React.FC<AdminDecisionSettingsSection
 
         {/* Informative Guidance Callout */}
         <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 flex items-start gap-3">
-          <Info className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+          <Info className="w-5 h-5 text-[#60CDFF] shrink-0 mt-0.5" />
           <div className="space-y-1.5 leading-relaxed">
             <div className="font-bold text-slate-200">
               قواعد الاحتساب الآلي المعتمدة لعام {selectedYear?.name}:
@@ -272,7 +272,7 @@ export const AdminDecisionSettingsSection: React.FC<AdminDecisionSettingsSection
         <div className="flex justify-end pt-2">
           <button
             type="submit"
-            className="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-black text-xs flex items-center gap-2 shadow-lg shadow-amber-500/20 cursor-pointer transition-all"
+            className="px-6 py-2.5 rounded-xl bg-[#65C18C] hover:bg-[#65C18C]/90 active:bg-[#65C18C] text-slate-950 font-black text-xs flex items-center gap-2 shadow-md shadow-[#65C18C]/20 cursor-pointer transition-all"
           >
             <span>حفظ إعدادات القرار لعام {selectedYear?.name}</span>
           </button>

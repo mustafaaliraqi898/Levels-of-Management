@@ -537,14 +537,14 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                     if (addSectionError) setAddSectionError(null);
                   }}
                   placeholder="مثال: أ أو ب أو ج"
-                  className="w-full h-10 px-3 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-100 focus:border-amber-500 focus:outline-hidden"
+                  className="w-full h-10 px-3 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-100 focus:border-[#60CDFF] focus:outline-hidden"
                   required
                 />
               </div>
 
               <button
                 type="submit"
-                className="h-10 mt-1 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-md shadow-amber-600/20"
+                className="h-10 mt-1 rounded-lg bg-[#60CDFF] hover:bg-[#60CDFF]/90 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-md shadow-[#60CDFF]/20"
               >
                 <Plus className="w-4 h-4" />
                 <span>إضافة الشعبة</span>
@@ -995,7 +995,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 text-xs font-bold rounded-lg bg-amber-600 hover:bg-amber-500 text-white flex items-center gap-1.5 transition-colors cursor-pointer shadow-md shadow-amber-600/20"
+                  className="px-5 py-2 text-xs font-bold rounded-lg bg-[#65C18C] hover:bg-[#65C18C]/90 text-slate-950 flex items-center gap-1.5 transition-colors cursor-pointer shadow-md shadow-[#65C18C]/20"
                 >
                   <Check className="w-4 h-4" />
                   <span>حفظ التعديل</span>

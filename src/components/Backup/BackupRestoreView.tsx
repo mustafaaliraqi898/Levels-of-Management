@@ -393,7 +393,7 @@ export const BackupRestoreView: React.FC = () => {
             type="button"
             onClick={handleRestoreDB}
             disabled={!isElectron}
-            className="mt-6 w-full h-11 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors shadow-lg shadow-amber-600/20"
+            className="mt-6 w-full h-11 rounded-xl bg-[#D99A55] hover:bg-[#D99A55]/90 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition-colors shadow-md shadow-[#D99A55]/20"
           >
             <RefreshCw className="w-4 h-4" />
             <span>استعادة ملف .db</span>

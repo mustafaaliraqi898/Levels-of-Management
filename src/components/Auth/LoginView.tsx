@@ -85,7 +85,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
           onClick={onToggleTheme}
           className={`w-9 h-9 rounded-xl border transition-all duration-200 flex items-center justify-center cursor-pointer shadow-xs ${
             theme === 'dark'
-              ? 'bg-[#262E3B] border-[#414C5D] text-[#E0B85C] hover:text-[#FDE68A]'
+              ? 'bg-[#2B2B2B] border-[#383838] text-[#60CDFF] hover:border-[#60CDFF]/50'
               : 'bg-[#FAFAF9] border-[#E0E4E8] text-[#414957] hover:text-[#202631]'
           }`}
           title={theme === 'dark' ? 'التبديل إلى الوضع النهاري' : 'التبديل إلى الوضع الليلي'}
@@ -99,7 +99,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
         <div
           className={`rounded-3xl border p-6 sm:p-8 shadow-2xl transition-all duration-200 ${
             theme === 'dark'
-              ? 'bg-[#181F2A] border-[#2E3748] shadow-black/40'
+              ? 'bg-[#2B2B2B] border-[#383838] shadow-black/40'
               : 'bg-[#FAFAF9] border-[#E0E4E8] shadow-slate-300/40'
           }`}
         >

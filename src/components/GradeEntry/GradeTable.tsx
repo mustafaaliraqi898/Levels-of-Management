@@ -741,7 +741,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
         <td
           key={field}
           style={cellWidthStyle}
-          className="p-1 bg-slate-900 ring-2 ring-emerald-500 relative z-[15] border-b border-l border-slate-800"
+          className="p-1 bg-slate-900 ring-2 ring-emerald-500 dark:ring-[#60CDFF] relative z-[15] border-b border-l border-slate-800"
         >
           <div className="relative">
             <input
@@ -762,7 +762,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
                   await handleSave('none');
                 }
               }}
-              className="w-full h-10 px-3 text-center font-mono text-base font-bold bg-slate-950 border border-emerald-500 rounded text-emerald-400 focus:outline-hidden"
+              className="w-full h-10 px-3 text-center font-mono text-base font-bold bg-slate-950 border border-emerald-500 dark:border-[#60CDFF] rounded text-emerald-600 dark:text-[#60CDFF] focus:outline-hidden"
               placeholder={`0 - ${maxScore}`}
               dir="ltr"
             />

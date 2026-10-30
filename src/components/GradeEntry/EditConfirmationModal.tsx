@@ -25,22 +25,22 @@ export const EditConfirmationModal: React.FC<EditConfirmationModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-xs p-4 animate-in fade-in duration-150">
       <div 
-        className="w-full max-w-lg bg-slate-900 border border-amber-500/40 rounded-xl shadow-2xl p-6 text-slate-100 flex flex-col gap-5"
+        className="w-full max-w-lg bg-slate-900 border border-[#D99A55]/30 rounded-xl shadow-2xl p-6 text-slate-100 flex flex-col gap-5"
         role="dialog"
         aria-modal="true"
       >
         <div className="flex items-start gap-4">
-          <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-amber-400 shrink-0">
+          <div className="p-3 bg-[#D99A55]/10 border border-[#D99A55]/20 rounded-xl text-[#D99A55] shrink-0">
             <AlertTriangle className="w-7 h-7" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-amber-300">
+            <h3 className="text-lg font-bold text-[#D99A55]">
               تنبيه حماية وتعديل الدرجات السابقة
             </h3>
             <p className="text-slate-300 mt-2 text-sm leading-relaxed">
-              أنت على وشك تعديل <span className="font-bold text-amber-200">«{fieldArabic}»</span> للطالب <span className="font-bold text-white underline decoration-amber-400 decoration-2">«{studentName}»</span>.
+              أنت على وشك تعديل <span className="font-bold text-slate-100">«{fieldArabic}»</span> للطالب <span className="font-bold text-white underline decoration-[#D99A55] decoration-2">«{studentName}»</span>.
             </p>
-            <p className="text-amber-400/90 mt-1.5 text-xs font-semibold">
+            <p className="text-[#D99A55] mt-1.5 text-xs font-semibold">
               ⚠️ قد يؤثر هذا التعديل على درجة السعي السنوي والدرجة النهائية المحسوبة للطالب. هل تريد المتابعة؟
             </p>
           </div>
@@ -74,7 +74,7 @@ export const EditConfirmationModal: React.FC<EditConfirmationModalProps> = ({
           <button
             type="button"
             onClick={onConfirm}
-            className="px-5 py-2 text-sm font-bold rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors flex items-center gap-2 shadow-lg shadow-amber-500/20 cursor-pointer"
+            className="px-5 py-2 text-sm font-bold rounded-lg bg-[#D99A55] hover:bg-[#D99A55]/90 text-slate-950 transition-colors flex items-center gap-2 shadow-md shadow-[#D99A55]/20 cursor-pointer"
           >
             <Check className="w-4 h-4" />
             تأكيد التعديل
