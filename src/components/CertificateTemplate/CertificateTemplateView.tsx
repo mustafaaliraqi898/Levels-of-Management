@@ -1160,22 +1160,6 @@ export const CertificateTemplateView: React.FC<CertificateTemplateViewProps> = (
           />
         </div>
       </PrintPreviewModal>
-
-      {/* 4. Dedicated Print Container (Visible ONLY during window.print) */}
-      <div className="hidden print:block fixed inset-0 w-[297mm] h-[210mm] m-0 p-0 overflow-hidden bg-white z-[99999]">
-        <CertificateCanvas
-          config={config}
-          settings={settings}
-          studentName={displayStudentName}
-          classNameStr={studentClass?.name}
-          sectionNameStr={studentSection?.name}
-          registrationNumber={selectedStudent?.registrationNumber}
-          seatNumber={selectedStudent?.seatNumber}
-          academicYear={displayYearName}
-          directorName={displayDirectorName}
-          isForPrint={true}
-        />
-      </div>
     </div>
   );
 };

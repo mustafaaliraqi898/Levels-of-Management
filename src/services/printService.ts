@@ -130,22 +130,48 @@ export async function getInstalledPrinters(): Promise<PrinterDevice[]> {
 
 /**
  * Serializes an isolated HTMLElement into a standalone, full-fledged HTML document
- * containing all stylesheets, Google fonts, exact print CSS, and RTL attributes.
+ * containing all inlined stylesheets, offline Arabic typography fallbacks, exact print CSS,
+ * and base64-resolved image assets.
  */
 export function buildIsolatedReportHtml(element: HTMLElement, landscape: boolean): string {
   if (typeof document === 'undefined') return '';
 
-  // 1. Gather all existing <style> and <link rel="stylesheet"> elements
+  // 1. Gather and inline all CSS rules from document.styleSheets
+  // This guarantees Tailwind classes and custom table styles are 100% self-contained
+  // without relying on relative path resolution or external CSS files.
+  let inlinedStyles = '';
+  try {
+    for (let i = 0; i < document.styleSheets.length; i++) {
+      const sheet = document.styleSheets[i];
+      try {
+        const rules = sheet.cssRules || sheet.rules;
+        if (rules) {
+          for (let j = 0; j < rules.length; j++) {
+            inlinedStyles += rules[j].cssText + '\n';
+          }
+        }
+      } catch {
+        // Cross-origin stylesheet link (e.g. Google Fonts)
+        if (sheet.href) {
+          inlinedStyles += `@import url("${sheet.href}");\n`;
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Could not extract document.styleSheets:', err);
+  }
+
+  // Also include any inline <style> elements directly in document head
   const headElements: string[] = [];
 
-  // Explicitly ensure Arabic typography links are included
+  // Google fonts link as progressive enhancement if online
   headElements.push(`
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;500;600;700;800;900&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
   `);
 
-  document.querySelectorAll('link[rel="stylesheet"], style').forEach((node) => {
+  document.querySelectorAll('link[rel="stylesheet"]').forEach((node) => {
     headElements.push(node.outerHTML);
   });
 
@@ -160,6 +186,52 @@ export function buildIsolatedReportHtml(element: HTMLElement, landscape: boolean
   clone.style.margin = '0 auto';
   clone.classList.remove('shadow-[0_20px_50px_rgba(0,0,0,0.6)]', 'border', 'border-slate-300');
 
+  // Convert any <canvas> elements to <img> data URLs
+  const origCanvases = element.querySelectorAll<HTMLCanvasElement>('canvas');
+  const cloneCanvases = clone.querySelectorAll<HTMLCanvasElement>('canvas');
+  origCanvases.forEach((orig, i) => {
+    const cl = cloneCanvases[i];
+    if (cl) {
+      try {
+        const dataUrl = orig.toDataURL('image/png');
+        const img = document.createElement('img');
+        img.src = dataUrl;
+        img.className = cl.className;
+        img.style.cssText = cl.style.cssText;
+        cl.parentNode?.replaceChild(img, cl);
+      } catch {
+        // canvas tainted or empty
+      }
+    }
+  });
+
+  // Ensure all <img> tags have absolute resolved URLs or base64 data URLs
+  const origImgs = element.querySelectorAll<HTMLImageElement>('img');
+  const cloneImgs = clone.querySelectorAll<HTMLImageElement>('img');
+  origImgs.forEach((orig, i) => {
+    const cl = cloneImgs[i];
+    if (cl && orig.src) {
+      cl.src = orig.src;
+      cl.loading = 'eager';
+
+      // Try converting loaded same-origin images to data URLs for complete offline isolation
+      if (!orig.src.startsWith('data:') && orig.complete && orig.naturalWidth > 0) {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = orig.naturalWidth;
+          canvas.height = orig.naturalHeight;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(orig, 0, 0);
+            cl.src = canvas.toDataURL('image/png');
+          }
+        } catch {
+          // Keep original absolute src if canvas export fails
+        }
+      }
+    }
+  });
+
   return `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -167,6 +239,9 @@ export function buildIsolatedReportHtml(element: HTMLElement, landscape: boolean
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>تقرير مدرسي</title>
   ${headElements.join('\n')}
+  <style>
+    ${inlinedStyles}
+  </style>
   <style>
     @page {
       size: A4 ${orientation} !important;
@@ -183,7 +258,7 @@ export function buildIsolatedReportHtml(element: HTMLElement, landscape: boolean
       background: #ffffff !important;
       color: #000000 !important;
       direction: rtl !important;
-      font-family: 'Cairo', 'Tajawal', 'Amiri', system-ui, -apple-system, sans-serif !important;
+      font-family: 'Cairo', 'Tajawal', 'Amiri', 'Segoe UI', Tahoma, 'Traditional Arabic', Arial, sans-serif !important;
       width: 100% !important;
       min-height: 100% !important;
       overflow: visible !important;
@@ -200,6 +275,21 @@ export function buildIsolatedReportHtml(element: HTMLElement, landscape: boolean
     .print-isolated-sheet * {
       transform: none !important;
     }
+    table {
+      border-collapse: collapse !important;
+      width: 100% !important;
+      page-break-inside: auto !important;
+    }
+    thead {
+      display: table-header-group !important;
+    }
+    tfoot {
+      display: table-footer-group !important;
+    }
+    tr {
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
     .no-print, .no-print * {
       display: none !important;
     }
@@ -214,14 +304,34 @@ export function buildIsolatedReportHtml(element: HTMLElement, landscape: boolean
 }
 
 /**
- * Prints HTML content via a hidden iframe (used as browser fallback outside Electron)
+ * Prints HTML content via a hidden iframe (used as browser fallback outside Electron).
+ * Never triggers window.print() on error to avoid accidentally printing the full app UI.
  */
 export async function printViaHiddenIframe(html: string): Promise<{ success: boolean; error?: string }> {
-  if (typeof document === 'undefined') return { success: false, error: 'Document not available' };
+  if (typeof document === 'undefined') {
+    return { success: false, error: 'بيئة المستند غير متاحة' };
+  }
 
   return new Promise((resolve) => {
+    let iframe: HTMLIFrameElement | null = null;
+    let hasResolved = false;
+
+    const cleanup = () => {
+      if (iframe && document.body.contains(iframe)) {
+        document.body.removeChild(iframe);
+        iframe = null;
+      }
+    };
+
+    const finish = (result: { success: boolean; error?: string }) => {
+      if (hasResolved) return;
+      hasResolved = true;
+      resolve(result);
+      setTimeout(cleanup, 3500);
+    };
+
     try {
-      const iframe = document.createElement('iframe');
+      iframe = document.createElement('iframe');
       iframe.style.position = 'fixed';
       iframe.style.right = '0';
       iframe.style.bottom = '0';
@@ -234,10 +344,12 @@ export async function printViaHiddenIframe(html: string): Promise<{ success: boo
       document.body.appendChild(iframe);
 
       const iframeDoc = iframe.contentWindow?.document || iframe.contentDocument;
-      if (!iframeDoc) {
-        if (document.body.contains(iframe)) document.body.removeChild(iframe);
-        window.print();
-        resolve({ success: true });
+      if (!iframeDoc || !iframe.contentWindow) {
+        cleanup();
+        finish({
+          success: false,
+          error: 'تعذر تهيئة نافذة الطباعة المعزولة في المتصفح.',
+        });
         return;
       }
 
@@ -247,30 +359,41 @@ export async function printViaHiddenIframe(html: string): Promise<{ success: boo
 
       const triggerPrint = () => {
         try {
-          iframe.contentWindow?.focus();
-          iframe.contentWindow?.print();
-          resolve({ success: true });
+          if (!iframe?.contentWindow) {
+            finish({ success: false, error: 'تعذر الوصول إلى إطار الطباعة المعزول.' });
+            return;
+          }
+          iframe.contentWindow.focus();
+          iframe.contentWindow.print();
+          finish({ success: true });
         } catch (e: any) {
           console.error('Hidden iframe print error:', e);
-          resolve({ success: false, error: e.message || 'فشلت الطباعة عبر الإطار المخفي' });
-        } finally {
-          setTimeout(() => {
-            if (document.body.contains(iframe)) {
-              document.body.removeChild(iframe);
-            }
-          }, 3000);
+          finish({
+            success: false,
+            error: e?.message || 'فشلت الطباعة المعزولة عبر المتصفح.',
+          });
         }
       };
 
-      if (iframe.contentWindow?.document.readyState === 'complete') {
-        setTimeout(triggerPrint, 250);
+      if (iframe.contentWindow.document.readyState === 'complete') {
+        setTimeout(triggerPrint, 300);
       } else {
-        iframe.onload = () => setTimeout(triggerPrint, 250);
+        iframe.onload = () => setTimeout(triggerPrint, 300);
       }
+
+      // Safety timeout after 8 seconds
+      setTimeout(() => {
+        if (!hasResolved) {
+          finish({ success: false, error: 'استغرقت عملية تحضير الطباعة وقتاً أطول من المتوقع.' });
+        }
+      }, 8000);
     } catch (err: any) {
       console.error('Failed to create hidden print iframe:', err);
-      window.print();
-      resolve({ success: true });
+      cleanup();
+      finish({
+        success: false,
+        error: err?.message || 'تعذر تشغيل أمر الطباعة المعزول في المتصفح.',
+      });
     }
   });
 }
@@ -371,7 +494,10 @@ export async function exportToPdf(
 
   // 5. Browser fallback: if isolated HTML is present, trigger print via hidden iframe
   if (isolatedHtml) {
-    await printViaHiddenIframe(isolatedHtml);
+    const iframeRes = await printViaHiddenIframe(isolatedHtml);
+    if (!iframeRes.success) {
+      return { success: false, error: iframeRes.error || 'تعذر تشغيل نافذة الطباعة لتصدير PDF' };
+    }
     return {
       success: true,
       error: 'يرجى اختيار «حفظ كملف PDF» أو «Save as PDF» من وجهة الطباعة في المتصفح.',

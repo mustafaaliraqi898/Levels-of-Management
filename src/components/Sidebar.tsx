@@ -321,22 +321,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Sidebar Footer */}
         <div className={`p-3 border-t ${isLight ? 'border-slate-200 bg-slate-50' : 'border-[#383838] bg-[#202020]'}`}>
           {!isCollapsed ? (
-            <div className="flex flex-col gap-1 text-center select-none">
-              <span className={`text-[11px] font-normal leading-tight ${isLight ? 'text-slate-500' : 'text-[#8E8E8E]'}`}>
-                فكرة وإشراف
-              </span>
-              <span className={`text-xs font-bold leading-tight ${isLight ? 'text-blue-600' : 'text-[#60CDFF]'}`}>
-                الأستاذ مصطفى
-              </span>
-              <span className={`text-xs font-semibold leading-tight ${isLight ? 'text-slate-800' : 'text-[#F3F3F3]'}`}>
-                مدرس الرياضيات
-              </span>
-              <span className={`text-[11px] font-normal leading-tight ${isLight ? 'text-slate-500' : 'text-[#BFBFBF]'}`}>
-                إعدادية داقوق للبنين
-              </span>
+            <div className="flex flex-col gap-1 text-center select-none" dir="rtl">
+              {/* Line 1: Concept & Supervision + Teacher Name */}
+              <div className="flex items-center justify-center gap-1.5 text-xs">
+                <span className={isLight ? 'text-slate-500' : 'text-[#BFBFBF]'}>فكرة وإشراف</span>
+                <span className={`text-[10px] leading-none select-none ${isLight ? 'text-blue-600' : 'text-[#60CDFF]'}`}>◆</span>
+                <span className={`font-bold ${isLight ? 'text-blue-600' : 'text-[#60CDFF]'}`}>الأستاذ مصطفى</span>
+              </div>
+
+              {/* Line 2: Subject Role + School Name */}
+              <div className="flex items-center justify-center gap-1.5 text-[11px]">
+                <span className={`font-medium ${isLight ? 'text-slate-800' : 'text-[#F3F3F3]'}`}>مدرس الرياضيات</span>
+                <span className={`text-[10px] leading-none select-none ${isLight ? 'text-blue-600' : 'text-[#60CDFF]'}`}>◆</span>
+                <span className={isLight ? 'text-slate-500' : 'text-[#BFBFBF]'}>إعدادية داقوق للبنين</span>
+              </div>
 
               <div className={`border-t my-1.5 ${isLight ? 'border-slate-200' : 'border-[#383838]'}`} />
 
+              {/* Version & Copyright */}
               <div className="flex items-center justify-between text-[10px] px-0.5">
                 <span className={isLight ? 'text-slate-400' : 'text-[#8E8E8E]'}>
                   جميع الحقوق محفوظة © 2026
@@ -350,13 +352,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="flex flex-col items-center justify-center py-1 group relative">
               <span className="font-mono text-[10px] text-slate-500 font-medium">v1.2.0</span>
               {/* Tooltip for collapsed mode */}
-              <div className={`hidden md:flex flex-col absolute right-full bottom-0 mr-3 p-2.5 border rounded-xl shadow-2xl z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 gap-0.5 min-w-[140px] text-center ${
+              <div className={`hidden md:flex flex-col absolute right-full bottom-0 mr-3 p-2.5 border rounded-xl shadow-2xl z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 gap-1 min-w-[210px] text-center ${
                 isLight ? 'bg-white border-slate-200 text-slate-800' : 'bg-[#292929] border-[#383838] text-[#F3F3F3]'
-              }`}>
-                <span className={`text-[10px] ${isLight ? 'text-slate-500' : 'text-[#8E8E8E]'}`}>فكرة وإشراف</span>
-                <span className={`font-bold text-xs ${isLight ? 'text-blue-600' : 'text-[#60CDFF]'}`}>الأستاذ مصطفى</span>
-                <span className={`text-[11px] font-medium ${isLight ? 'text-slate-800' : 'text-[#F3F3F3]'}`}>مدرس الرياضيات</span>
-                <span className={`text-[10px] ${isLight ? 'text-slate-500' : 'text-[#BFBFBF]'}`}>إعدادية داقوق للبنين</span>
+              }`} dir="rtl">
+                <div className="flex items-center justify-center gap-1.5 text-xs whitespace-nowrap">
+                  <span className={isLight ? 'text-slate-500' : 'text-[#BFBFBF]'}>فكرة وإشراف</span>
+                  <span className={`text-[9px] leading-none select-none ${isLight ? 'text-blue-600' : 'text-[#60CDFF]'}`}>◆</span>
+                  <span className={`font-bold ${isLight ? 'text-blue-600' : 'text-[#60CDFF]'}`}>الأستاذ مصطفى</span>
+                </div>
+                <div className="flex items-center justify-center gap-1.5 text-[11px] whitespace-nowrap">
+                  <span className={`font-medium ${isLight ? 'text-slate-800' : 'text-[#F3F3F3]'}`}>مدرس الرياضيات</span>
+                  <span className={`text-[9px] leading-none select-none ${isLight ? 'text-blue-600' : 'text-[#60CDFF]'}`}>◆</span>
+                  <span className={isLight ? 'text-slate-500' : 'text-[#BFBFBF]'}>إعدادية داقوق للبنين</span>
+                </div>
                 <div className={`border-t my-1 ${isLight ? 'border-slate-200' : 'border-[#383838]'}`} />
                 <div className="flex items-center justify-between text-[9px] text-slate-500 gap-2">
                   <span className={isLight ? 'text-slate-400' : 'text-[#8E8E8E]'}>جميع الحقوق محفوظة © 2026</span>

@@ -1213,11 +1213,6 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
         </div>
       </div>
 
-      {/* Dedicated Printable Document Container (Visible ONLY during print) */}
-      <div className="hidden print:block">
-        {renderPrintableContent()}
-      </div>
-
       {/* Unified Interactive Print Preview Modal */}
       <PrintPreviewModal
         isOpen={showPrintPreview}

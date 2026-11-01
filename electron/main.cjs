@@ -1,5 +1,6 @@
 const { app, BrowserWindow, Menu, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
+const url = require('url');
 const db = require('./database.cjs');
 const smtpService = require('./smtp-service.cjs');
 const resetService = require('./reset-service.cjs');
@@ -164,37 +165,75 @@ app.whenReady().then(async () => {
         nodeIntegration: false,
         contextIsolation: true,
         sandbox: false,
+        webSecurity: false, // Allows reading local files and inlined data without cross-origin blocks
       },
     });
 
-    const isDev = process.env.NODE_ENV === 'development';
-    const baseUrl = isDev ? 'http://localhost:3000/' : `file://${path.join(__dirname, '../dist/')}`;
-
-    await printWin.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`, {
-      baseURLForDataURL: baseUrl,
-    });
-
+    // Write the self-contained HTML to a temporary file and load it via an RFC-compliant file URL.
+    // This completely circumvents Windows path issues (spaces, backslashes, drive letters, and Arabic folder names).
+    let tempHtmlFile = null;
     try {
-      await printWin.webContents.executeJavaScript(`
-        Promise.all([
-          document.fonts ? document.fonts.ready : Promise.resolve(),
-          Promise.all(Array.from(document.images).map(img => {
-            if (img.complete) return Promise.resolve();
-            return new Promise(res => { img.onload = img.onerror = res; });
-          }))
-        ])
-      `);
-    } catch (e) {
-      console.warn('Wait for fonts/images in printWin:', e);
+      const tempDir = app.getPath('temp');
+      tempHtmlFile = path.join(
+        tempDir,
+        `print_doc_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.html`
+      );
+      await fs.promises.writeFile(tempHtmlFile, htmlContent, 'utf8');
+
+      const fileUrl = url.pathToFileURL(tempHtmlFile).href;
+      await printWin.loadURL(fileUrl);
+    } catch (loadErr) {
+      console.error('Failed to write or load isolated HTML in print window:', loadErr);
+      if (tempHtmlFile) {
+        fs.promises.unlink(tempHtmlFile).catch(() => {});
+      }
+      throw loadErr;
     }
 
-    await new Promise((r) => setTimeout(r, 120));
+    printWin._tempHtmlFile = tempHtmlFile;
+
+    // Wait until document, fonts (Cairo, Tajawal, Amiri, system fallbacks), and images are decoded
+    try {
+      await printWin.webContents.executeJavaScript(`
+        new Promise((resolve) => {
+          const waitForResources = () => {
+            const fontPromise = document.fonts ? document.fonts.ready : Promise.resolve();
+            const imgPromises = Array.from(document.images).map((img) => {
+              if (img.complete && img.naturalWidth > 0) {
+                if ('decode' in img && typeof img.decode === 'function') {
+                  return img.decode().catch(() => {});
+                }
+                return Promise.resolve();
+              }
+              return new Promise((res) => {
+                img.addEventListener('load', res, { once: true });
+                img.addEventListener('error', res, { once: true });
+                setTimeout(res, 2500); // 2.5s fallback per image
+              });
+            });
+
+            Promise.all([fontPromise, Promise.all(imgPromises)]).then(() => {
+              setTimeout(resolve, 180); // stabilization tick
+            });
+          };
+
+          if (document.readyState === 'complete') {
+            waitForResources();
+          } else {
+            window.addEventListener('load', waitForResources, { once: true });
+          }
+        });
+      `);
+    } catch (e) {
+      console.warn('Wait for fonts/images in printWin warning:', e);
+    }
+
     return printWin;
   }
 
   ipcMain.handle('print:printDocument', async (event, options = {}) => {
     if (!mainWindow || !mainWindow.webContents) {
-      return { success: false, error: 'Main window not available' };
+      return { success: false, error: 'النافذة الرئيسية غير متاحة' };
     }
 
     const printOpts = {
@@ -221,7 +260,10 @@ app.whenReady().then(async () => {
         targetWebContents.print(printOpts, (success, failureReason) => {
           if (!success) {
             console.error('Print failed:', failureReason);
-            resolve({ success: false, error: failureReason });
+            resolve({
+              success: false,
+              error: failureReason || 'فشلت عملية إرسال أمر الطباعة إلى الطابعة المحددة أو ألغيت من المستخدم.',
+            });
           } else {
             resolve({ success: true });
           }
@@ -229,24 +271,28 @@ app.whenReady().then(async () => {
       });
     } catch (err) {
       console.error('Print failed with error:', err);
-      return { success: false, error: err.message };
+      return { success: false, error: err.message || 'حدث خطأ غير متوقع أثناء الطباعة' };
     } finally {
-      if (tempWin) {
+      if (tempWin && !tempWin.isDestroyed()) {
+        const tempFile = tempWin._tempHtmlFile;
         tempWin.destroy();
+        if (tempFile) {
+          fs.promises.unlink(tempFile).catch(() => {});
+        }
       }
     }
   });
 
   ipcMain.handle('print:savePdf', async (event, options = {}) => {
     if (!mainWindow || !mainWindow.webContents) {
-      return { success: false, error: 'Main window not available' };
+      return { success: false, error: 'النافذة الرئيسية غير متاحة' };
     }
 
     const defaultTitle = options.title || 'تقرير_مدرسي';
     const { canceled, filePath } = await dialog.showSaveDialog(mainWindow, {
       title: 'حفظ التقرير كملف PDF',
       defaultPath: `${defaultTitle}.pdf`,
-      filters: [{ name: 'مستندات PDF', extensions: ['pdf'] }],
+      filters: [{ name: 'مستندات PDF (*.pdf)', extensions: ['pdf'] }],
     });
 
     if (canceled || !filePath) {
@@ -269,14 +315,22 @@ app.whenReady().then(async () => {
         preferCSSPageSize: true,
       });
 
+      if (!pdfBuffer || pdfBuffer.length === 0) {
+        return { success: false, error: 'تعذر توليد بيانات PDF من المستند المطبوع (ملف فارغ)' };
+      }
+
       await fs.promises.writeFile(filePath, pdfBuffer);
       return { success: true, filePath };
     } catch (err) {
       console.error('Failed to generate or save PDF:', err);
-      return { success: false, error: err.message };
+      return { success: false, error: err.message || 'حدث خطأ أثناء تصدير وحفظ ملف PDF' };
     } finally {
-      if (tempWin) {
+      if (tempWin && !tempWin.isDestroyed()) {
+        const tempFile = tempWin._tempHtmlFile;
         tempWin.destroy();
+        if (tempFile) {
+          fs.promises.unlink(tempFile).catch(() => {});
+        }
       }
     }
   });

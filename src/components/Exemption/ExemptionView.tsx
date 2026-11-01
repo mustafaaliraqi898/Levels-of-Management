@@ -462,22 +462,6 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
 
   return (
     <div className="space-y-6 pb-12" dir="rtl">
-      {/* Printable Official Header with School Logo (Visible ONLY during print) */}
-      <div className="hidden print:block text-black bg-white">
-        <ReportHeader
-          settings={settings}
-          title={
-            activeTab === 'general'
-              ? `كشف الطلبة المشمولين بالإعفاء العام — ${activeClass?.name || ''} (شعبة ${activeSection?.name || ''})`
-              : `كشف الطلبة المشمولين بالإعفاء الفردي — ${activeClass?.name || ''} (شعبة ${activeSection?.name || ''})`
-          }
-          subTitle={`استناداً إلى درجات السعي السنوي • العام الدراسي: ${activeYear?.name || ''}`}
-          academicYearName={activeYear?.name}
-          classNameStr={activeClass?.name}
-          sectionNameStr={activeSection?.name}
-        />
-      </div>
-
       {/* 1. Header Bar */}
       <div className="no-print bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
