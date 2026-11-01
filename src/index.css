@@ -149,6 +149,41 @@ html.light {
     visibility: hidden !important;
   }
 
+  /* Print Preview Modal isolation when printed in-place */
+  .print-preview-modal-root {
+    position: static !important;
+    background: transparent !important;
+    color: #000000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    display: block !important;
+    inset: auto !important;
+    z-index: auto !important;
+  }
+
+  .print-preview-viewport {
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+
+  .printable-paper-sheet {
+    transform: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    width: 100% !important;
+    overflow: visible !important;
+  }
+
+  .printable-paper-sheet * {
+    transform: none !important;
+  }
+
   .print-only {
     display: block !important;
     visibility: visible !important;

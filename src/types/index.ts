@@ -431,6 +431,7 @@ export interface PrinterDevice {
 }
 
 export interface PrintDocumentOptions {
+  html?: string;
   silent?: boolean;
   deviceName?: string;
   landscape?: boolean;
@@ -447,6 +448,7 @@ export interface PrintDocumentOptions {
 }
 
 export interface SavePdfOptions {
+  html?: string;
   title?: string;
   landscape?: boolean;
   printBackground?: boolean;

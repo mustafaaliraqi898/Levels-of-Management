@@ -129,9 +129,156 @@ export async function getInstalledPrinters(): Promise<PrinterDevice[]> {
 }
 
 /**
+ * Serializes an isolated HTMLElement into a standalone, full-fledged HTML document
+ * containing all stylesheets, Google fonts, exact print CSS, and RTL attributes.
+ */
+export function buildIsolatedReportHtml(element: HTMLElement, landscape: boolean): string {
+  if (typeof document === 'undefined') return '';
+
+  // 1. Gather all existing <style> and <link rel="stylesheet"> elements
+  const headElements: string[] = [];
+
+  // Explicitly ensure Arabic typography links are included
+  headElements.push(`
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;500;600;700;800;900&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  `);
+
+  document.querySelectorAll('link[rel="stylesheet"], style').forEach((node) => {
+    headElements.push(node.outerHTML);
+  });
+
+  const orientation = landscape ? 'landscape' : 'portrait';
+
+  // 2. Clone the report element and strip preview-specific scaling & shadows
+  const clone = element.cloneNode(true) as HTMLElement;
+  clone.style.transform = 'none';
+  clone.style.webkitTransform = 'none';
+  clone.style.boxShadow = 'none';
+  clone.style.border = 'none';
+  clone.style.margin = '0 auto';
+  clone.classList.remove('shadow-[0_20px_50px_rgba(0,0,0,0.6)]', 'border', 'border-slate-300');
+
+  return `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تقرير مدرسي</title>
+  ${headElements.join('\n')}
+  <style>
+    @page {
+      size: A4 ${orientation} !important;
+      margin: 8mm !important;
+    }
+    *, *::before, *::after {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      box-sizing: border-box !important;
+    }
+    html, body {
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #ffffff !important;
+      color: #000000 !important;
+      direction: rtl !important;
+      font-family: 'Cairo', 'Tajawal', 'Amiri', system-ui, -apple-system, sans-serif !important;
+      width: 100% !important;
+      min-height: 100% !important;
+      overflow: visible !important;
+    }
+    .print-isolated-sheet {
+      width: 100% !important;
+      margin: 0 auto !important;
+      padding: 0 !important;
+      background: #ffffff !important;
+      box-shadow: none !important;
+      border: none !important;
+      transform: none !important;
+    }
+    .print-isolated-sheet * {
+      transform: none !important;
+    }
+    .no-print, .no-print * {
+      display: none !important;
+    }
+  </style>
+</head>
+<body class="print-${orientation}">
+  <div class="print-isolated-sheet">
+    ${clone.outerHTML}
+  </div>
+</body>
+</html>`;
+}
+
+/**
+ * Prints HTML content via a hidden iframe (used as browser fallback outside Electron)
+ */
+export async function printViaHiddenIframe(html: string): Promise<{ success: boolean; error?: string }> {
+  if (typeof document === 'undefined') return { success: false, error: 'Document not available' };
+
+  return new Promise((resolve) => {
+    try {
+      const iframe = document.createElement('iframe');
+      iframe.style.position = 'fixed';
+      iframe.style.right = '0';
+      iframe.style.bottom = '0';
+      iframe.style.width = '0';
+      iframe.style.height = '0';
+      iframe.style.border = '0';
+      iframe.style.visibility = 'hidden';
+      iframe.setAttribute('aria-hidden', 'true');
+
+      document.body.appendChild(iframe);
+
+      const iframeDoc = iframe.contentWindow?.document || iframe.contentDocument;
+      if (!iframeDoc) {
+        if (document.body.contains(iframe)) document.body.removeChild(iframe);
+        window.print();
+        resolve({ success: true });
+        return;
+      }
+
+      iframeDoc.open();
+      iframeDoc.write(html);
+      iframeDoc.close();
+
+      const triggerPrint = () => {
+        try {
+          iframe.contentWindow?.focus();
+          iframe.contentWindow?.print();
+          resolve({ success: true });
+        } catch (e: any) {
+          console.error('Hidden iframe print error:', e);
+          resolve({ success: false, error: e.message || 'فشلت الطباعة عبر الإطار المخفي' });
+        } finally {
+          setTimeout(() => {
+            if (document.body.contains(iframe)) {
+              document.body.removeChild(iframe);
+            }
+          }, 3000);
+        }
+      };
+
+      if (iframe.contentWindow?.document.readyState === 'complete') {
+        setTimeout(triggerPrint, 250);
+      } else {
+        iframe.onload = () => setTimeout(triggerPrint, 250);
+      }
+    } catch (err: any) {
+      console.error('Failed to create hidden print iframe:', err);
+      window.print();
+      resolve({ success: true });
+    }
+  });
+}
+
+/**
  * Unified printing pipeline:
  * Handles font pre-loading, orientation injection, exact color preservation,
- * and delegates to Electron IPC or Browser fallback.
+ * and delegates to Electron IPC or Browser fallback with isolated report content.
  */
 export async function executePrint(
   options: PrintExecutionOptions = {}
@@ -144,7 +291,10 @@ export async function executePrint(
   // 2. Set dynamic orientation
   applyPrintPageOrientation(landscape);
 
-  // 3. Electron IPC Printing
+  // 3. Build isolated HTML representation if element is provided
+  const isolatedHtml = options.element ? buildIsolatedReportHtml(options.element, landscape) : undefined;
+
+  // 4. Electron IPC Printing
   if (isElectron()) {
     try {
       const result = await window.electronAPI!.print.printDocument({
@@ -157,6 +307,7 @@ export async function executePrint(
         margins: {
           marginType: 'printableArea',
         },
+        html: isolatedHtml,
       });
 
       return result;
@@ -166,7 +317,11 @@ export async function executePrint(
     }
   }
 
-  // 4. Browser fallback
+  // 5. Browser fallback: print isolated content in hidden iframe
+  if (isolatedHtml) {
+    return await printViaHiddenIframe(isolatedHtml);
+  }
+
   try {
     window.focus();
     window.print();
@@ -192,7 +347,10 @@ export async function exportToPdf(
   // 2. Apply page orientation
   applyPrintPageOrientation(landscape);
 
-  // 3. Electron IPC PDF Save
+  // 3. Build isolated HTML representation if element is provided
+  const isolatedHtml = options.element ? buildIsolatedReportHtml(options.element, landscape) : undefined;
+
+  // 4. Electron IPC PDF Save
   if (isElectron()) {
     try {
       const safeTitle = options.title.replace(/[\\/:*?"<>|]/g, '_').trim();
@@ -201,6 +359,7 @@ export async function exportToPdf(
         landscape,
         printBackground: true,
         pageSize: options.pageSize || 'A4',
+        html: isolatedHtml,
       });
 
       return result;
@@ -210,7 +369,15 @@ export async function exportToPdf(
     }
   }
 
-  // 4. Browser fallback: trigger print dialog where user selects "Save as PDF"
+  // 5. Browser fallback: if isolated HTML is present, trigger print via hidden iframe
+  if (isolatedHtml) {
+    await printViaHiddenIframe(isolatedHtml);
+    return {
+      success: true,
+      error: 'يرجى اختيار «حفظ كملف PDF» أو «Save as PDF» من وجهة الطباعة في المتصفح.',
+    };
+  }
+
   try {
     window.focus();
     window.print();

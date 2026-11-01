@@ -155,6 +155,43 @@ app.whenReady().then(async () => {
     }
   });
 
+  async function renderHtmlToPrintWindow(htmlContent, landscape) {
+    const printWin = new BrowserWindow({
+      show: false,
+      width: landscape ? 1400 : 1000,
+      height: landscape ? 1000 : 1400,
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true,
+        sandbox: false,
+      },
+    });
+
+    const isDev = process.env.NODE_ENV === 'development';
+    const baseUrl = isDev ? 'http://localhost:3000/' : `file://${path.join(__dirname, '../dist/')}`;
+
+    await printWin.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`, {
+      baseURLForDataURL: baseUrl,
+    });
+
+    try {
+      await printWin.webContents.executeJavaScript(`
+        Promise.all([
+          document.fonts ? document.fonts.ready : Promise.resolve(),
+          Promise.all(Array.from(document.images).map(img => {
+            if (img.complete) return Promise.resolve();
+            return new Promise(res => { img.onload = img.onerror = res; });
+          }))
+        ])
+      `);
+    } catch (e) {
+      console.warn('Wait for fonts/images in printWin:', e);
+    }
+
+    await new Promise((r) => setTimeout(r, 120));
+    return printWin;
+  }
+
   ipcMain.handle('print:printDocument', async (event, options = {}) => {
     if (!mainWindow || !mainWindow.webContents) {
       return { success: false, error: 'Main window not available' };
@@ -171,16 +208,33 @@ app.whenReady().then(async () => {
       pageSize: options.pageSize || 'A4',
     };
 
-    return new Promise((resolve) => {
-      mainWindow.webContents.print(printOpts, (success, failureReason) => {
-        if (!success) {
-          console.error('Print failed:', failureReason);
-          resolve({ success: false, error: failureReason });
-        } else {
-          resolve({ success: true });
-        }
+    let targetWebContents = mainWindow.webContents;
+    let tempWin = null;
+
+    try {
+      if (options.html) {
+        tempWin = await renderHtmlToPrintWindow(options.html, Boolean(options.landscape));
+        targetWebContents = tempWin.webContents;
+      }
+
+      return await new Promise((resolve) => {
+        targetWebContents.print(printOpts, (success, failureReason) => {
+          if (!success) {
+            console.error('Print failed:', failureReason);
+            resolve({ success: false, error: failureReason });
+          } else {
+            resolve({ success: true });
+          }
+        });
       });
-    });
+    } catch (err) {
+      console.error('Print failed with error:', err);
+      return { success: false, error: err.message };
+    } finally {
+      if (tempWin) {
+        tempWin.destroy();
+      }
+    }
   });
 
   ipcMain.handle('print:savePdf', async (event, options = {}) => {
@@ -199,8 +253,16 @@ app.whenReady().then(async () => {
       return { success: false, canceled: true };
     }
 
+    let targetWebContents = mainWindow.webContents;
+    let tempWin = null;
+
     try {
-      const pdfBuffer = await mainWindow.webContents.printToPDF({
+      if (options.html) {
+        tempWin = await renderHtmlToPrintWindow(options.html, Boolean(options.landscape));
+        targetWebContents = tempWin.webContents;
+      }
+
+      const pdfBuffer = await targetWebContents.printToPDF({
         landscape: Boolean(options.landscape),
         printBackground: options.printBackground !== false,
         pageSize: options.pageSize || 'A4',
@@ -212,6 +274,10 @@ app.whenReady().then(async () => {
     } catch (err) {
       console.error('Failed to generate or save PDF:', err);
       return { success: false, error: err.message };
+    } finally {
+      if (tempWin) {
+        tempWin.destroy();
+      }
     }
   });
 

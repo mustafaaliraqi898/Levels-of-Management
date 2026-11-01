@@ -170,11 +170,11 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
 
   return (
     <div
-      className="no-print fixed inset-0 z-[9999] flex flex-col bg-black/85 backdrop-blur-md text-slate-100 select-none animate-in fade-in duration-200"
+      className="print-preview-modal-root fixed inset-0 z-[9999] flex flex-col bg-black/85 backdrop-blur-md text-slate-100 select-none animate-in fade-in duration-200 print:static print:bg-white print:text-black print:p-0 print:m-0 print:overflow-visible print:block"
       dir="rtl"
     >
       {/* Top Application Bar */}
-      <div className="bg-[#292929] border-b border-[#383838] px-4 py-3 flex flex-wrap items-center justify-between gap-3 shadow-xl shrink-0">
+      <div className="no-print bg-[#292929] border-b border-[#383838] px-4 py-3 flex flex-wrap items-center justify-between gap-3 shadow-xl shrink-0">
         {/* Title & Document Badge */}
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-[#60CDFF]/15 border border-[#60CDFF]/30 text-[#60CDFF] flex items-center justify-center shrink-0">
@@ -338,7 +338,7 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
 
       {/* Floating Status / Feedback Alert */}
       {statusMessage && (
-        <div className="px-4 py-2.5 bg-[#202020] border-b border-[#383838] flex items-center justify-center gap-2 text-xs font-bold animate-in slide-in-from-top-2 duration-150">
+        <div className="no-print px-4 py-2.5 bg-[#202020] border-b border-[#383838] flex items-center justify-center gap-2 text-xs font-bold animate-in slide-in-from-top-2 duration-150">
           {statusMessage.type === 'success' && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
           {statusMessage.type === 'error' && <AlertCircle className="w-4 h-4 text-rose-400" />}
           {statusMessage.type === 'info' && (
@@ -359,7 +359,7 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
       )}
 
       {/* Interactive Paper Canvas Viewport */}
-      <div className="flex-1 overflow-auto p-4 sm:p-8 flex justify-center items-start bg-[#1a1a1a]">
+      <div className="print-preview-viewport flex-1 overflow-auto p-4 sm:p-8 flex justify-center items-start bg-[#1a1a1a] print:bg-transparent print:p-0 print:m-0 print:overflow-visible print:block">
         <div
           ref={paperRef}
           style={{
@@ -367,7 +367,7 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
             transformOrigin: 'top center',
             transition: 'transform 0.15s ease-out, width 0.2s ease-in-out',
           }}
-          className={`bg-white text-slate-950 rounded-xs shadow-[0_20px_50px_rgba(0,0,0,0.6)] font-sans select-text border border-slate-300 transition-all ${
+          className={`printable-paper-sheet bg-white text-slate-950 rounded-xs shadow-[0_20px_50px_rgba(0,0,0,0.6)] font-sans select-text border border-slate-300 transition-all print:transform-none print:shadow-none print:border-none print:m-0 print:p-0 print:w-full print:rounded-none ${
             orientation === 'landscape'
               ? 'w-[297mm] min-h-[210mm] p-[10mm]'
               : 'w-[210mm] min-h-[297mm] p-[12mm]'
@@ -379,7 +379,7 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
       </div>
 
       {/* Footer Info & Keyboard Hints */}
-      <div className="bg-[#202020] border-t border-[#383838] px-4 py-2 flex items-center justify-between text-[11px] text-slate-400 shrink-0">
+      <div className="no-print bg-[#202020] border-t border-[#383838] px-4 py-2 flex items-center justify-between text-[11px] text-slate-400 shrink-0">
         <div className="flex items-center gap-4">
           <span>
             ورق الطباعة: <strong>A4 ({orientation === 'landscape' ? '297 × 210 مم أفقي' : '210 × 297 مم عمودي'})</strong>
