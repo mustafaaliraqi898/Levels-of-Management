@@ -137,6 +137,84 @@ app.whenReady().then(async () => {
     return { success: false, error: 'Invalid URL' };
   });
 
+  // Print & PDF Export Services
+  ipcMain.handle('print:getPrinters', async () => {
+    if (!mainWindow || !mainWindow.webContents) return [];
+    try {
+      const printers = await mainWindow.webContents.getPrintersAsync();
+      return printers.map((p) => ({
+        name: p.name,
+        displayName: p.displayName || p.name,
+        description: p.description || '',
+        isDefault: Boolean(p.isDefault),
+        status: p.status,
+      }));
+    } catch (err) {
+      console.error('Failed to get printers:', err);
+      return [];
+    }
+  });
+
+  ipcMain.handle('print:printDocument', async (event, options = {}) => {
+    if (!mainWindow || !mainWindow.webContents) {
+      return { success: false, error: 'Main window not available' };
+    }
+
+    const printOpts = {
+      silent: Boolean(options.silent),
+      printBackground: options.printBackground !== false,
+      deviceName: options.deviceName || '',
+      color: options.color !== false,
+      landscape: Boolean(options.landscape),
+      margins: options.margins || { marginType: 'printableArea' },
+      copies: options.copies || 1,
+      pageSize: options.pageSize || 'A4',
+    };
+
+    return new Promise((resolve) => {
+      mainWindow.webContents.print(printOpts, (success, failureReason) => {
+        if (!success) {
+          console.error('Print failed:', failureReason);
+          resolve({ success: false, error: failureReason });
+        } else {
+          resolve({ success: true });
+        }
+      });
+    });
+  });
+
+  ipcMain.handle('print:savePdf', async (event, options = {}) => {
+    if (!mainWindow || !mainWindow.webContents) {
+      return { success: false, error: 'Main window not available' };
+    }
+
+    const defaultTitle = options.title || 'تقرير_مدرسي';
+    const { canceled, filePath } = await dialog.showSaveDialog(mainWindow, {
+      title: 'حفظ التقرير كملف PDF',
+      defaultPath: `${defaultTitle}.pdf`,
+      filters: [{ name: 'مستندات PDF', extensions: ['pdf'] }],
+    });
+
+    if (canceled || !filePath) {
+      return { success: false, canceled: true };
+    }
+
+    try {
+      const pdfBuffer = await mainWindow.webContents.printToPDF({
+        landscape: Boolean(options.landscape),
+        printBackground: options.printBackground !== false,
+        pageSize: options.pageSize || 'A4',
+        preferCSSPageSize: true,
+      });
+
+      await fs.promises.writeFile(filePath, pdfBuffer);
+      return { success: true, filePath };
+    } catch (err) {
+      console.error('Failed to generate or save PDF:', err);
+      return { success: false, error: err.message };
+    }
+  });
+
   createWindow();
 
   let isQuitting = false;

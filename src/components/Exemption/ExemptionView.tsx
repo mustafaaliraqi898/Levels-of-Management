@@ -40,9 +40,11 @@ import {
   ChevronUp,
   Download,
   FileText,
+  Eye,
 } from 'lucide-react';
 import { ReportHeader } from '../Common/ReportHeader';
 import { ExportCertificatesPdfModal } from './ExportCertificatesPdfModal';
+import { PrintPreviewModal } from '../Common/PrintPreviewModal';
 
 interface ExemptionViewProps {
   academicYears: AcademicYear[];
@@ -452,8 +454,10 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
     }, 6000);
   };
 
+  const [showPrintPreview, setShowPrintPreview] = useState(false);
+
   const handlePrint = () => {
-    window.print();
+    setShowPrintPreview(true);
   };
 
   return (
@@ -496,6 +500,16 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+          <button
+            type="button"
+            onClick={handlePrint}
+            className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md shadow-emerald-600/20"
+            title="معاينة وطباعة كشف نتائج الإعفاء الحالي"
+          >
+            <Printer className="w-4 h-4" />
+            <span>طباعة ومعاينة الكشف</span>
+          </button>
+
           <button
             onClick={handleCompleteSeedData}
             className="flex-1 md:flex-initial px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 hover:border-slate-600 font-semibold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
@@ -1814,6 +1828,126 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
           sectionNameStr={activeSection?.name || ''}
         />
       )}
+
+      {/* Unified Interactive Print Preview Modal */}
+      <PrintPreviewModal
+        isOpen={showPrintPreview}
+        onClose={() => setShowPrintPreview(false)}
+        title={
+          activeTab === 'general'
+            ? `كشف الطلبة المشمولين بالإعفاء العام — ${activeClass?.name || ''} (${activeSection?.name || ''})`
+            : `كشف الطلبة المشمولين بالإعفاء الفردي — ${activeClass?.name || ''} (${activeSection?.name || ''})`
+        }
+        subtitle={`استناداً إلى درجات السعي السنوي • العام الدراسي: ${activeYear?.name || ''}`}
+        defaultOrientation="landscape"
+        suggestedFileName={activeTab === 'general' ? 'كشف_الإعفاء_العام' : 'كشف_الإعفاء_الفردي'}
+      >
+        <div className="bg-white text-black font-sans p-6 rounded-lg" dir="rtl">
+          <ReportHeader
+            settings={settings}
+            title={
+              activeTab === 'general'
+                ? `كشف الطلبة المشمولين بالإعفاء العام — ${activeClass?.name || ''} (${activeSection?.name || ''})`
+                : `كشف الطلبة المشمولين بالإعفاء الفردي — ${activeClass?.name || ''} (${activeSection?.name || ''})`
+            }
+            subTitle={`استناداً إلى درجات السعي السنوي • العام الدراسي: ${activeYear?.name || ''}`}
+            academicYearName={activeYear?.name}
+            classNameStr={activeClass?.name}
+            sectionNameStr={activeSection?.name}
+          />
+
+          <div className="mt-4">
+            <p className="text-xs font-bold text-slate-700 mb-2">
+              الصف: {activeClass?.name || '—'} | الشعبة: {activeSection?.name || '—'} | العام الدراسي: {activeYear?.name || '—'}
+            </p>
+            <table className="w-full border-collapse border border-black text-xs">
+              <thead>
+                <tr className="bg-slate-100 border-b border-black">
+                  <th className="border border-black p-2 text-center w-10 font-bold">ت</th>
+                  <th className="border border-black p-2 text-right font-bold">اسم الطالب</th>
+                  {activeTab === 'general' ? (
+                    <>
+                      <th className="border border-black p-2 text-center font-bold">المعدل العام</th>
+                      <th className="border border-black p-2 text-center font-bold">أدنى درجة درس</th>
+                      <th className="border border-black p-2 text-center font-bold">حالة الإعفاء العام</th>
+                    </>
+                  ) : (
+                    <>
+                      <th className="border border-black p-2 text-center font-bold">المواد المشمولة بالإعفاء الفردي</th>
+                      <th className="border border-black p-2 text-center font-bold">عدد المواد</th>
+                    </>
+                  )}
+                </tr>
+              </thead>
+              <tbody>
+                {activeTab === 'general' ? (
+                  evaluatedResults.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="p-4 text-center text-slate-500 font-bold">
+                        لا توجد نتائج مسجلة لهذه الشعبة.
+                      </td>
+                    </tr>
+                  ) : (
+                    evaluatedResults.map((res, idx) => (
+                      <tr key={res.student.id} className="border-b border-slate-400">
+                        <td className="border border-black p-1.5 text-center font-mono">{idx + 1}</td>
+                        <td className="border border-black p-1.5 font-bold">{res.student.name}</td>
+                        <td className="border border-black p-1.5 text-center font-mono font-bold">
+                          {res.evaluatedAverage !== null ? `${res.evaluatedAverage}%` : '—'}
+                        </td>
+                        <td className="border border-black p-1.5 text-center font-mono">
+                          {res.minSubjectScore !== null ? res.minSubjectScore : '—'}
+                        </td>
+                        <td className="border border-black p-1.5 text-center font-bold">
+                          {res.status === 'معفى عام' ? (
+                            <span className="text-emerald-800 font-black">مشمول بالإعفاء العام</span>
+                          ) : (
+                            <span className="text-slate-600">{res.status}</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  )
+                ) : (
+                  evaluatedResults.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="p-4 text-center text-slate-500 font-bold">
+                        لا توجد نتائج مسجلة لهذه الشعبة.
+                      </td>
+                    </tr>
+                  ) : (
+                    evaluatedResults.map((res, idx) => {
+                      const indivExemptSubs = res.individualResults.filter((s) => s.status === 'مستحق للإعفاء الفردي');
+                      return (
+                        <tr key={res.student.id} className="border-b border-slate-400">
+                          <td className="border border-black p-1.5 text-center font-mono">{idx + 1}</td>
+                          <td className="border border-black p-1.5 font-bold">{res.student.name}</td>
+                          <td className="border border-black p-1.5 text-right font-bold text-blue-900">
+                            {indivExemptSubs.length > 0
+                              ? indivExemptSubs.map((s) => `${s.subjectName} (${s.yearlyScore})`).join(' ، ')
+                              : '—'}
+                          </td>
+                          <td className="border border-black p-1.5 text-center font-mono font-bold">
+                            {indivExemptSubs.length}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-8 pt-4 border-t border-black flex justify-end text-right text-xs font-bold text-slate-900">
+            <div className="flex flex-col items-center text-center">
+              <p className="font-black">مدير المدرسة والختم الرسمي</p>
+              <p className="font-black text-sm mt-2">{settings.directorName || ''}</p>
+              <div className="mt-8 border-b border-dotted border-black w-36" />
+            </div>
+          </div>
+        </div>
+      </PrintPreviewModal>
     </div>
   );
 };

@@ -97,8 +97,22 @@ html.light {
    ========================================================================= */
 @media print {
   @page {
-    size: A4 landscape;
+    size: A4;
     margin: 8mm;
+  }
+
+  body.print-landscape {
+    @page {
+      size: A4 landscape !important;
+      margin: 8mm !important;
+    }
+  }
+
+  body.print-portrait {
+    @page {
+      size: A4 portrait !important;
+      margin: 8mm !important;
+    }
   }
 
   *,

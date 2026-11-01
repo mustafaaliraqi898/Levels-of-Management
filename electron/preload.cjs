@@ -46,5 +46,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   shell: {
     openExternal: (url) => ipcRenderer.invoke('shell:openExternal', url),
+  },
+  print: {
+    getPrinters: () => ipcRenderer.invoke('print:getPrinters'),
+    printDocument: (options) => ipcRenderer.invoke('print:printDocument', options),
+    savePdf: (options) => ipcRenderer.invoke('print:savePdf', options),
   }
 });

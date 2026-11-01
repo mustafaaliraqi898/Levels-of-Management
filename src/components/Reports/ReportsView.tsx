@@ -20,8 +20,10 @@ import {
   Award,
   ChevronDown,
   School,
+  Eye,
 } from 'lucide-react';
 import { SchoolLogo } from '../Common/SchoolLogo';
+import { PrintPreviewModal } from '../Common/PrintPreviewModal';
 
 interface ReportsViewProps {
   academicYears: AcademicYear[];
@@ -124,15 +126,21 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
     return db.getDecisionSettings(selectedYearId);
   }, [selectedYearId]);
 
+  const [showPrintPreview, setShowPrintPreview] = useState(false);
+
   const exemptionSettings = useMemo(() => {
     return db.getExemptionSettings(selectedYearId);
   }, [selectedYearId]);
 
+  const reportTitle = useMemo(() => {
+    if (activeReport === 'master_sheet') return 'شيت الدرجات الرسمي العام';
+    if (activeReport === 'student_card') return `بطاقة الدرجات - ${targetStudent?.name || ''}`;
+    if (activeReport === 'honor_roll') return `لوحة الشرف والتفوق الدراسي - ${activeClass?.name || ''}`;
+    return 'التقرير المدرسي الرسمي';
+  }, [activeReport, targetStudent, activeClass]);
+
   const handlePrint = () => {
-    // Delay print call slightly to ensure UI stability in Electron environment
-    setTimeout(() => {
-      window.print();
-    }, 50);
+    setShowPrintPreview(true);
   };
 
   return (
@@ -150,14 +158,26 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={handlePrint}
-            className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/25 transition-all cursor-pointer"
-          >
-            <Printer className="w-4 h-4" />
-            <span>طباعة التقرير الحالي</span>
-          </button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              type="button"
+              onClick={() => setShowPrintPreview(true)}
+              className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+              title="فتح نافذة المعاينة التفاعلية والطباعة"
+            >
+              <Eye className="w-4 h-4 text-[#60CDFF]" />
+              <span>معاينة للطباعة</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handlePrint}
+              className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/25 transition-all cursor-pointer"
+            >
+              <Printer className="w-4 h-4" />
+              <span>طباعة التقرير الحالي</span>
+            </button>
+          </div>
         </div>
 
         {/* Report Selector Tabs */}
@@ -692,6 +712,146 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Interactive Print Preview Modal */}
+      <PrintPreviewModal
+        isOpen={showPrintPreview}
+        onClose={() => setShowPrintPreview(false)}
+        title={reportTitle}
+        subtitle={`الصف: ${activeClass?.name || '—'} • الشعبة: ${activeSection?.name || '—'} • العام الدراسي: ${activeYear?.name || '—'}`}
+        defaultOrientation="landscape"
+        suggestedFileName={`تقرير_${activeClass?.name || 'الصف'}_شعبة_${activeSection?.name || 'الشعبة'}`}
+      >
+        <div className="bg-white text-slate-950 p-6 md:p-8 rounded-lg font-sans" dir="rtl">
+          {/* Official Header */}
+          <div className="border-b-2 border-slate-900 pb-4 mb-6">
+            <div className="flex items-center justify-between text-center">
+              <div className="text-right text-xs">
+                <p className="font-bold text-slate-900 text-sm">إدارة</p>
+                <p className="font-bold text-slate-900 text-sm">{settings.schoolName}</p>
+              </div>
+
+              <div className="flex flex-col items-center">
+                {settings.schoolLogo ? (
+                  <div className="mb-1.5 flex items-center justify-center">
+                    <SchoolLogo
+                      logoUrl={settings.schoolLogo}
+                      schoolName={settings.schoolName}
+                      size="lg"
+                      className="max-h-16 max-w-[120px]"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-12 h-12 rounded-full border-2 border-slate-900 flex items-center justify-center font-black text-lg mb-1">
+                    <School className="w-6 h-6 text-slate-900" />
+                  </div>
+                )}
+                <h2 className="font-black text-base text-slate-900">
+                  {settings.schoolName}
+                </h2>
+              </div>
+
+              <div className="text-left font-mono text-xs text-slate-800">
+                {activeReport === 'student_card' && targetStudent ? (
+                  <div className="flex flex-col gap-0.5 text-right font-sans font-bold">
+                    <p>اسم الطالب: {targetStudent.name}</p>
+                    <p>الصف والشعبة: {activeClass?.name} - {activeSection?.name}</p>
+                    <p>رقم القيد: {targetStudent.registrationNumber || `#${targetStudent.seatNumber}`}</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-0.5 text-right font-sans font-bold">
+                    <p>الصف: {activeClass?.name}</p>
+                    <p>الشعبة: {activeSection?.name ? `شعبة ${activeSection.name}` : '—'}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="text-center mt-3 pt-2 border-t border-slate-300">
+              <h1 className="text-lg font-black text-slate-900">
+                {activeReport === 'master_sheet' && 'شيت الدرجات الرسمي العام'}
+                {activeReport === 'student_card' && `بطاقة الدرجات للعام الدراسي ${activeYear?.name || ''}`}
+                {activeReport === 'honor_roll' && `لوحة الشرف والتفوق الدراسي — الصف: ${activeClass?.name}`}
+              </h1>
+            </div>
+          </div>
+
+          {/* Master Sheet Report Content */}
+          {activeReport === 'master_sheet' && (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse border border-slate-800 text-xs">
+                <thead>
+                  <tr className="bg-slate-200 border-b border-slate-800 font-bold">
+                    <th className="border border-slate-800 p-2 text-center w-8">ت</th>
+                    <th className="border border-slate-800 p-2 text-right">اسم الطالب الثلاثي واللقب</th>
+                    {classSubjects.map((sub) => (
+                      <th key={sub.id} className="border border-slate-800 p-1.5 text-center">
+                        <div className="font-black">{sub.name}</div>
+                      </th>
+                    ))}
+                    <th className="border border-slate-800 p-2 text-center w-14">المجموع</th>
+                    <th className="border border-slate-800 p-2 text-center w-14">المعدل</th>
+                    <th className="border border-slate-800 p-2 text-center w-20">النتيجة</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sectionStudents.map((stu, sIdx) => {
+                    const studentGradesBySubject: Record<string, GradeRecord | undefined> = {};
+                    classSubjects.forEach((sub) => {
+                      const key = buildGradeKey(selectedYearId, selectedClassId, selectedSectionId, sub.id, stu.id);
+                      studentGradesBySubject[sub.id] = grades[key];
+                    });
+                    const evaluation = evaluateStudentAcademicYearDecisions(
+                      stu,
+                      classSubjects,
+                      studentGradesBySubject,
+                      decisionSettings,
+                      settings.roundingRule,
+                      db.getDecisionGrants(),
+                      exemptionSettings
+                    );
+                    const finalStatusSummary = getStudentReportFinalStatus(stu, evaluation);
+                    return (
+                      <tr key={stu.id} className="border-b border-slate-400">
+                        <td className="border border-slate-700 p-1.5 text-center font-mono">{sIdx + 1}</td>
+                        <td className="border border-slate-700 p-1.5 font-bold">{stu.name}</td>
+                        {classSubjects.map((sub) => {
+                          const rec = studentGradesBySubject[sub.id];
+                          const subEval = evaluation.subjects[sub.id];
+                          const subDisplay = getSubjectReportDisplay(stu, sub, rec, subEval, masterGradeType);
+                          return (
+                            <td key={sub.id} className="border border-slate-700 p-1 text-center font-mono text-[11px]">
+                              {subDisplay.gradeDisplayText}
+                            </td>
+                          );
+                        })}
+                        <td className="border border-slate-700 p-1.5 text-center font-mono font-bold">
+                          {finalStatusSummary.isGeneralExempt ? 'إعفاء عام' : '—'}
+                        </td>
+                        <td className="border border-slate-700 p-1.5 text-center font-mono font-black">
+                          {finalStatusSummary.isGeneralExempt ? 'إعفاء عام' : '—'}
+                        </td>
+                        <td className="border border-slate-700 p-1.5 text-center font-bold text-[11px]">
+                          {finalStatusSummary.finalStatusText}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Official Signatures */}
+          <div className="mt-12 pt-6 border-t border-slate-800 flex justify-end text-right text-xs font-bold text-slate-800">
+            <div className="flex flex-col items-center text-center">
+              <p className="text-slate-900 font-black">مدير المدرسة والختم الرسمي</p>
+              <p className="font-black text-sm text-slate-950 mt-2">{settings.directorName || ''}</p>
+              <div className="mt-8 border-b border-dotted border-black w-36" />
+            </div>
+          </div>
+        </div>
+      </PrintPreviewModal>
     </div>
   );
 };

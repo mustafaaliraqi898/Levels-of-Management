@@ -413,8 +413,44 @@ declare global {
       shell: {
         openExternal: (url: string) => Promise<{ success: boolean; error?: string }>;
       };
+      print: {
+        getPrinters: () => Promise<PrinterDevice[]>;
+        printDocument: (options?: PrintDocumentOptions) => Promise<{ success: boolean; error?: string }>;
+        savePdf: (options?: SavePdfOptions) => Promise<{ success: boolean; filePath?: string; canceled?: boolean; error?: string }>;
+      };
     };
   }
+}
+
+export interface PrinterDevice {
+  name: string;
+  displayName: string;
+  description: string;
+  isDefault: boolean;
+  status: number;
+}
+
+export interface PrintDocumentOptions {
+  silent?: boolean;
+  deviceName?: string;
+  landscape?: boolean;
+  printBackground?: boolean;
+  pageSize?: 'A4' | 'Letter';
+  copies?: number;
+  margins?: {
+    marginType?: 'default' | 'none' | 'printableArea' | 'custom';
+    top?: number;
+    bottom?: number;
+    left?: number;
+    right?: number;
+  };
+}
+
+export interface SavePdfOptions {
+  title?: string;
+  landscape?: boolean;
+  printBackground?: boolean;
+  pageSize?: 'A4' | 'Letter';
 }
 
 

@@ -13,6 +13,7 @@ import { db } from '../../services/storage';
 import { filterClassesByAcademicYear } from '../../utils/academicYearUtils';
 import { processTemplateImage } from '../../utils/imageUtils';
 import { CertificateCanvas } from './CertificateCanvas';
+import { PrintPreviewModal } from '../Common/PrintPreviewModal';
 import {
   Award,
   Upload,
@@ -1135,73 +1136,30 @@ export const CertificateTemplateView: React.FC<CertificateTemplateViewProps> = (
         </div>
       </div>
 
-      {/* 3. Dedicated Print Preview Modal */}
-      {showPrintModal && (
-        <div
-          className="no-print fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-sm"
-          dir="rtl"
-        >
-          <div className="w-full max-w-6xl max-h-[94vh] flex flex-col bg-slate-900 border border-slate-750 rounded-2xl shadow-2xl overflow-hidden text-white">
-            <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-                  <Printer className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-sm">
-                    معاينة طباعة الشهادة على ورق A4 أفقي
-                  </h3>
-                  <p className="text-[11px] text-slate-400">
-                    الطالب: <strong className="text-white">{displayStudentName}</strong> • العام الدراسي: {displayYearName}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  disabled={isPrinting}
-                  onClick={handlePrint}
-                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-2 cursor-pointer shadow-md shadow-emerald-600/20 disabled:opacity-50"
-                >
-                  {isPrinting ? (
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <Printer className="w-4 h-4" />
-                  )}
-                  <span>طباعة الآن</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setShowPrintModal(false)}
-                  className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* Modal Certificate Canvas Preview */}
-            <div className="flex-1 overflow-auto p-4 sm:p-6 bg-slate-950/70 flex justify-center items-center">
-              <div className="w-full max-w-4xl aspect-[1123/794] shadow-2xl rounded-lg overflow-hidden border border-slate-400 bg-white">
-                <CertificateCanvas
-                  config={config}
-                  settings={settings}
-                  studentName={displayStudentName}
-                  classNameStr={studentClass?.name}
-                  sectionNameStr={studentSection?.name}
-                  registrationNumber={selectedStudent?.registrationNumber}
-                  seatNumber={selectedStudent?.seatNumber}
-                  academicYear={displayYearName}
-                  directorName={displayDirectorName}
-                  isForPrint={true}
-                />
-              </div>
-            </div>
-          </div>
+      {/* Unified Interactive Print Preview Modal */}
+      <PrintPreviewModal
+        isOpen={showPrintModal}
+        onClose={() => setShowPrintModal(false)}
+        title={`شهادة تقديرية — ${displayStudentName}`}
+        subtitle={`الصف: ${studentClass?.name || '—'} • العام الدراسي: ${displayYearName}`}
+        defaultOrientation="landscape"
+        suggestedFileName={`شهادة_${displayStudentName}`}
+      >
+        <div className="w-full aspect-[1123/794] shadow-2xl rounded-lg overflow-hidden border border-slate-400 bg-white">
+          <CertificateCanvas
+            config={config}
+            settings={settings}
+            studentName={displayStudentName}
+            classNameStr={studentClass?.name}
+            sectionNameStr={studentSection?.name}
+            registrationNumber={selectedStudent?.registrationNumber}
+            seatNumber={selectedStudent?.seatNumber}
+            academicYear={displayYearName}
+            directorName={displayDirectorName}
+            isForPrint={true}
+          />
         </div>
-      )}
+      </PrintPreviewModal>
 
       {/* 4. Dedicated Print Container (Visible ONLY during window.print) */}
       <div className="hidden print:block fixed inset-0 w-[297mm] h-[210mm] m-0 p-0 overflow-hidden bg-white z-[99999]">

@@ -35,6 +35,7 @@ import {
   HelpCircle,
 } from 'lucide-react';
 import { SchoolLogo } from '../Common/SchoolLogo';
+import { PrintPreviewModal } from '../Common/PrintPreviewModal';
 
 interface ResultsViewProps {
   academicYears: AcademicYear[];
@@ -1217,55 +1218,19 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
         {renderPrintableContent()}
       </div>
 
-      {/* Interactive Print Preview Modal */}
-      {showPrintPreview && (
-        <div className="no-print fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm" dir="rtl">
-          <div className="w-full max-w-6xl max-h-[92vh] flex flex-col bg-slate-900 border border-slate-750 rounded-2xl shadow-2xl overflow-hidden text-white">
-            <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-                  <Printer className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-sm">معاينة كشف النتائج للطباعة (ورق A4 أفقي)</h3>
-                  <p className="text-[11px] text-slate-400">
-                    هكذا ستظهر صفحة الطباعة على ورق A4 مع كامل الترويسة والدرجات والتواقيع
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  disabled={isPrinting}
-                  onClick={handlePrint}
-                  className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-2 cursor-pointer shadow-md shadow-emerald-600/20 disabled:opacity-50"
-                >
-                  {isPrinting ? (
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <Printer className="w-4 h-4" />
-                  )}
-                  <span>طباعة الآن</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowPrintPreview(false)}
-                  className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-auto p-4 sm:p-6 bg-slate-950/60 flex justify-center">
-              <div className="bg-white text-slate-950 p-6 sm:p-8 rounded-lg shadow-xl w-full max-w-5xl border border-slate-300 font-sans">
-                {renderPrintableContent()}
-              </div>
-            </div>
-          </div>
+      {/* Unified Interactive Print Preview Modal */}
+      <PrintPreviewModal
+        isOpen={showPrintPreview}
+        onClose={() => setShowPrintPreview(false)}
+        title={`كشف النتائج الرسمية — ${activeClass?.name || 'الصف'} (شعبة ${activeSection?.name || 'الشعبة'})`}
+        subtitle={`نوع الدرجة: ${activeGradeConfig.label} • العام الدراسي: ${activeYear?.name || '—'}`}
+        defaultOrientation="landscape"
+        suggestedFileName={`نتائج_${activeClass?.name || 'الصف'}_شعبة_${activeSection?.name || 'الشعبة'}`}
+      >
+        <div className="bg-white text-slate-950 font-sans" dir="rtl">
+          {renderPrintableContent()}
         </div>
-      )}
+      </PrintPreviewModal>
     </div>
   );
 };
