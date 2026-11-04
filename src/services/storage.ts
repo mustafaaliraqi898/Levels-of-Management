@@ -34,34 +34,26 @@ import { filterClassesByAcademicYear } from '../utils/academicYearUtils';
 
 const STORAGE_KEY = 'school_grades_offline_db_v3';
 
-const SEED_PASS_INITIAL = ['Admin', '@', '12345'].join('');
-const SEED_SALT_INITIAL = ['school', 'admin', 'salt', 'seed', '2026'].join('_');
-
 const SEED_USER_PASS = ['user', '123'].join('');
 const SEED_USER_SALT = ['school', 'user', 'salt', 'seed', '2026'].join('_');
 
-function getInitialDefaultAdmin(): UserAccount {
-  let hashVal = '';
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const nodeCrypto = require('crypto');
-    if (nodeCrypto && typeof nodeCrypto.createHash === 'function') {
-      hashVal = nodeCrypto.createHash('sha256').update(`${SEED_PASS_INITIAL}:${SEED_SALT_INITIAL}`).digest('hex');
-    }
-  } catch {
-    hashVal = ['4cb3c70fb1df82313360bf6ef219389c7ccea0bd5', '061e8a5a39bd8d2085c1cc4'].join('');
-  }
+export async function createDynamicRandomAdminAccount(customPassword?: string): Promise<{ adminUser: UserAccount; tempPass: string }> {
+  const salt = generateSalt(16);
+  const tempPass = customPassword || generateSalt(8);
+  const hashVal = await hashPassword(tempPass, salt);
 
-  return {
+  const adminUser: UserAccount = {
     id: 'usr-admin-default',
     username: 'admin',
     passwordHash: hashVal,
-    salt: SEED_SALT_INITIAL,
+    salt,
     role: 'admin',
     isActive: true,
     mustChangePassword: true,
-    createdAt: '2026-09-01T08:00:00.000Z',
+    createdAt: new Date().toISOString(),
   };
+
+  return { adminUser, tempPass };
 }
 
 function getInitialPreviewUser(): UserAccount {
@@ -88,8 +80,34 @@ function getInitialPreviewUser(): UserAccount {
   };
 }
 
-export const INITIAL_DEFAULT_ADMIN: UserAccount = getInitialDefaultAdmin();
+function getInitialDefaultAdminSync(): UserAccount {
+  const salt = generateSalt(16);
+  const tempPass = generateSalt(8);
+  let hashVal = '';
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const nodeCrypto = require('crypto');
+    if (nodeCrypto && typeof nodeCrypto.createHash === 'function') {
+      hashVal = nodeCrypto.createHash('sha256').update(`${tempPass}:${salt}`).digest('hex');
+    }
+  } catch {
+    hashVal = '';
+  }
+
+  return {
+    id: 'usr-admin-default',
+    username: 'admin',
+    passwordHash: hashVal,
+    salt,
+    role: 'admin',
+    isActive: true,
+    mustChangePassword: true,
+    createdAt: new Date().toISOString(),
+  };
+}
+
 export const INITIAL_PREVIEW_USER: UserAccount = getInitialPreviewUser();
+export const INITIAL_DEFAULT_ADMIN: UserAccount = getInitialDefaultAdminSync();
 
 export const DEFAULT_CERTIFICATE_CONFIG: CertificateTemplateConfig = {
   templateImage: undefined,

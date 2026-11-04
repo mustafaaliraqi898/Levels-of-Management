@@ -176,12 +176,7 @@ class AuthService {
   }
 
   private generateSecure6DigitCode(): string {
-    if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
-      const arr = new Uint32Array(1);
-      crypto.getRandomValues(arr);
-      return (100000 + (arr[0] % 900000)).toString();
-    }
-
+    // 1. Prefer Node.js crypto.randomInt(100000, 1000000) when running under Node/Electron main
     try {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const nodeCrypto = require('crypto');
@@ -190,6 +185,21 @@ class AuthService {
       }
     } catch {
       // ignore
+    }
+
+    // 2. Web Crypto API with Rejection Sampling to eliminate modulo bias completely
+    if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+      const range = 900000;
+      const maxUnbiasedLimit = 4294900000; // 4,772 * 900,000
+      const buffer = new Uint32Array(1);
+
+      let val = 0;
+      do {
+        crypto.getRandomValues(buffer);
+        val = buffer[0];
+      } while (val >= maxUnbiasedLimit);
+
+      return (100000 + (val % range)).toString();
     }
 
     throw new Error('عفواً، تعذر توليد رمز التحقق: بيئة النظام الحالية لا توفر مولد أرقام عشوائية آمن تشفيرياً.');

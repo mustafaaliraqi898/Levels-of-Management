@@ -25,6 +25,84 @@ function resolveUserDataPath() {
   return path.join(os.homedir(), '.school-app-data');
 }
 
+function verifyDatabaseMigrationSync(legacyPath, targetPath) {
+  if (!fs.existsSync(targetPath) || !fs.existsSync(legacyPath)) {
+    throw new Error('أحد ملفات قاعدة البيانات غير موجود أثناء التحقق من النقل');
+  }
+
+  const srcStat = fs.statSync(legacyPath);
+  const destStat = fs.statSync(targetPath);
+  if (destStat.size === 0 || destStat.size < srcStat.size) {
+    throw new Error(`حجم الملف المنقول (${destStat.size} بايت) لا يطابق أو أصغر من قاعدة البيانات الأصلية (${srcStat.size} بايت)`);
+  }
+
+  const fd = fs.openSync(targetPath, 'r');
+  const buffer = Buffer.alloc(16);
+  fs.readSync(fd, buffer, 0, 16, 0);
+  fs.closeSync(fd);
+  if (buffer.toString('utf8', 0, 15) !== 'SQLite format 3') {
+    throw new Error('تنسيق الملف المنقول غير صالح ولا يطابق ترويسة SQLite الرسمية');
+  }
+
+  return true;
+}
+
+function verifyDatabaseIntegrityAndCounts(legacyPath, targetPath) {
+  verifyDatabaseMigrationSync(legacyPath, targetPath);
+
+  if (!sqlite3) {
+    return Promise.resolve(true);
+  }
+
+  return new Promise((resolve, reject) => {
+    const dbTarget = new sqlite3.Database(targetPath, sqlite3.OPEN_READONLY, (err1) => {
+      if (err1) return reject(new Error(`تعذر فتح قاعدة البيانات المنقولة: ${err1.message}`));
+
+      dbTarget.get('PRAGMA integrity_check', (err2, row) => {
+        if (err2 || !row || Object.values(row)[0] !== 'ok') {
+          dbTarget.close();
+          return reject(new Error('فشل فحص السلامة الهيكلية لقاعدة البيانات PRAGMA integrity_check'));
+        }
+
+        const dbLegacy = new sqlite3.Database(legacyPath, sqlite3.OPEN_READONLY, (err3) => {
+          if (err3) {
+            dbTarget.close();
+            return reject(new Error(`تعذر فتح القاعدة الأصلية للمقارنة: ${err3.message}`));
+          }
+
+          const tables = ['users', 'students', 'grades', 'academic_years', 'classes', 'sections', 'subjects'];
+          let pending = tables.length;
+          let hasMismatch = false;
+          let mismatchDetails = '';
+
+          tables.forEach((tableName) => {
+            const countSql = `SELECT count(*) as cnt FROM ${tableName}`;
+            dbLegacy.get(countSql, (errLeg, rowLeg) => {
+              dbTarget.get(countSql, (errTar, rowTar) => {
+                pending--;
+                if (!errLeg && !errTar && rowLeg && rowTar) {
+                  if (rowLeg.cnt !== rowTar.cnt) {
+                    hasMismatch = true;
+                    mismatchDetails += ` [جدول ${tableName}: الأصلي ${rowLeg.cnt} != المنقول ${rowTar.cnt}]`;
+                  }
+                }
+                if (pending === 0) {
+                  dbLegacy.close();
+                  dbTarget.close();
+                  if (hasMismatch) {
+                    return reject(new Error(`عدم تطابق أعداد السجلات بين القاعدة الأصلية والقاعدة المنقولة:${mismatchDetails}`));
+                  }
+                  resolve(true);
+                }
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+}
+
 function getDatabasePath() {
   const targetDir = resolveUserDataPath();
   if (!fs.existsSync(targetDir)) {
@@ -42,13 +120,14 @@ function getDatabasePath() {
     try {
       console.log('Migrating legacy database from public temp directory to user data folder...');
       fs.copyFileSync(legacyPublicDbPath, targetDbPath);
-      const srcStat = fs.statSync(legacyPublicDbPath);
-      const destStat = fs.statSync(targetDbPath);
-      if (destStat.size === srcStat.size) {
-        console.log('Legacy database migrated and verified successfully.');
-      }
+      verifyDatabaseMigrationSync(legacyPublicDbPath, targetDbPath);
+      console.log('Legacy database migrated and verified successfully.');
     } catch (migErr) {
-      console.error('Failed to migrate legacy database:', migErr);
+      if (fs.existsSync(targetDbPath)) {
+        try { fs.unlinkSync(targetDbPath); } catch {}
+      }
+      console.error('Failed to migrate legacy database:', migErr.message);
+      throw new Error(`فشل نقل قاعدة البيانات القديمة: ${migErr.message}. تم إيقاف التهيئة لحماية بياناتك الأصلية.`);
     }
   }
 
@@ -276,12 +355,33 @@ function initDb() {
 
       db.get("SELECT id FROM users WHERE username = 'admin'", (err, row) => {
         if (!row) {
-          const initialPass = 'Admin@12345';
-          const initialSalt = 'school_admin_salt_seed_2026';
-          const initialHash = hashPasswordNode(initialPass, initialSalt);
+          const initialSalt = crypto.randomBytes(16).toString('hex');
+          const randomInitialPass = crypto.randomBytes(6).toString('hex');
+          const initialHash = hashPasswordNode(randomInitialPass, initialSalt);
           db.run(`INSERT INTO users (id, username, passwordHash, salt, role, isActive, mustChangePassword, createdAt)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-            ['usr-admin-default', 'admin', initialHash, initialSalt, 'admin', 1, 1, new Date().toISOString()]
+            ['usr-admin-default', 'admin', initialHash, initialSalt, 'admin', 1, 1, new Date().toISOString()],
+            (insertErr) => {
+              if (!insertErr) {
+                try {
+                  const targetDir = resolveUserDataPath();
+                  const credsFile = path.join(targetDir, 'INITIAL_ADMIN_CREDENTIALS.txt');
+                  const credsNotice = [
+                    '====================================================================',
+                    '  تعليمات تسجيل الدخول الأول لحساب المدير (First-Time Admin Setup)',
+                    '====================================================================',
+                    'اسم المستخدم: admin',
+                    `كلمة المرور المؤقتة: ${randomInitialPass}`,
+                    'ملاحظة مهمة: يرجى تغيير كلمة المرور هذه فور تسجيل الدخول الأول.',
+                    '====================================================================',
+                  ].join('\n');
+                  fs.writeFileSync(credsFile, credsNotice, { encoding: 'utf8', mode: 0o600 });
+                  console.log(`[SECURITY] First-time admin account initialized. Temporary password saved in: ${credsFile}`);
+                } catch (e) {
+                  console.error('Failed to write initial admin credentials file:', e);
+                }
+              }
+            }
           );
         }
       });
