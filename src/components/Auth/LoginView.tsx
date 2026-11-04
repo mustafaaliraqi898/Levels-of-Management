@@ -241,23 +241,10 @@ export const LoginView: React.FC<LoginViewProps> = ({
             </button>
           </form>
 
-          {/* Default Credentials Hint Notice */}
-          <div
-            className={`mt-6 p-3 rounded-xl border text-[11px] leading-relaxed ${
-              theme === 'dark'
-                ? 'bg-slate-900/60 border-slate-800 text-slate-400'
-                : 'bg-slate-100 border-slate-200 text-slate-600'
-            }`}
-          >
-            <div className="font-bold flex items-center gap-1.5 mb-1 text-emerald-500">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>الحساب الإداري الافتراضي:</span>
-            </div>
-            <div>اسم المستخدم: <code className="font-mono font-bold text-slate-300">admin</code></div>
-            <div>كلمة المرور: <code className="font-mono font-bold text-slate-300">Admin@12345</code></div>
-            <div className="text-[10px] text-amber-500 mt-1 font-medium">
-              * يُشترط تسجيل البريد وتغيير كلمة المرور عند أول تسجيل دخول.
-            </div>
+          <div className="mt-8 text-center">
+            <p className="text-slate-500 text-xs">
+              في حال نسيان كلمة المرور، يرجى التواصل مع مسؤول النظام أو استخدام خيار الاستعادة.
+            </p>
           </div>
         </div>
       </div>

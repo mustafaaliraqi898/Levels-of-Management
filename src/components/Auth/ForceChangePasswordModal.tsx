@@ -43,10 +43,6 @@ export const ForceChangePasswordModal: React.FC<ForceChangePasswordModalProps> =
       return;
     }
 
-    if (newPassword === 'Admin@12345') {
-      setError('لا يمكن استخدام كلمة المرور الافتراضية ذاتها، يرجى اختيار كلمة مرور جديدة.');
-      return;
-    }
 
     if (newPassword !== confirmPassword) {
       setError('كلمتا المرور غير متطابقتين، يرجى إعادة التأكد.');

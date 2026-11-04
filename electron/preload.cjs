@@ -5,7 +5,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   platform: process.platform,
   version: process.versions.electron,
   auth: {
-    setSession: (session) => ipcRenderer.invoke('auth:setSession', session),
+    login: (username, password) => ipcRenderer.invoke('auth:login', username, password),
+    setupFirstAdmin: (data) => ipcRenderer.invoke('auth:setupFirstAdmin', data),
+    getSetupStatus: () => ipcRenderer.invoke('auth:getSetupStatus'),
+    getCurrentUser: () => ipcRenderer.invoke('auth:getCurrentUser'),
     clearSession: () => ipcRenderer.invoke('auth:clearSession'),
     requestPasswordResetCode: (username) => ipcRenderer.invoke('auth:requestPasswordResetCode', username),
     verifyResetCodeAndChangePassword: (username, code, newPassword) => ipcRenderer.invoke('auth:verifyResetCodeAndChangePassword', username, code, newPassword),

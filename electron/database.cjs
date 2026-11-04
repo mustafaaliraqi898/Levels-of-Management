@@ -353,48 +353,9 @@ function initDb() {
         executedBy TEXT
       )`);
 
-      db.get("SELECT id FROM users WHERE username = 'admin'", (err, row) => {
-        if (!row) {
-          const initialSalt = crypto.randomBytes(16).toString('hex');
-          const randomInitialPass = crypto.randomBytes(6).toString('hex');
-          const initialHash = hashPasswordNode(randomInitialPass, initialSalt);
-          db.run(`INSERT INTO users (id, username, passwordHash, salt, role, isActive, mustChangePassword, createdAt)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-            ['usr-admin-default', 'admin', initialHash, initialSalt, 'admin', 1, 1, new Date().toISOString()],
-            (insertErr) => {
-              if (!insertErr) {
-                try {
-                  const targetDir = resolveUserDataPath();
-                  const credsFile = path.join(targetDir, 'INITIAL_ADMIN_CREDENTIALS.txt');
-                  const credsNotice = [
-                    '====================================================================',
-                    '  تعليمات تسجيل الدخول الأول لحساب المدير (First-Time Admin Setup)',
-                    '====================================================================',
-                    'اسم المستخدم: admin',
-                    `كلمة المرور المؤقتة: ${randomInitialPass}`,
-                    'ملاحظة مهمة: يرجى تغيير كلمة المرور هذه فور تسجيل الدخول الأول.',
-                    '====================================================================',
-                  ].join('\n');
-                  fs.writeFileSync(credsFile, credsNotice, { encoding: 'utf8', mode: 0o600 });
-                  console.log(`[SECURITY] First-time admin account initialized. Temporary password saved in: ${credsFile}`);
-                } catch (e) {
-                  console.error('Failed to write initial admin credentials file:', e);
-                }
-              }
-            }
-          );
-        }
-      });
-
-      db.get("SELECT id FROM users WHERE username = 'user'", (err, row) => {
-        if (!row) {
-          const initialUserPass = 'user123';
-          const initialUserSalt = 'school_user_salt_seed_2026';
-          const initialUserHash = hashPasswordNode(initialUserPass, initialUserSalt);
-          db.run(`INSERT INTO users (id, username, passwordHash, salt, role, isActive, mustChangePassword, createdAt)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-            ['usr-user-preview', 'user', initialUserHash, initialUserSalt, 'user', 1, 0, new Date().toISOString()]
-          );
+      db.get("SELECT count(*) as count FROM users", (err, row) => {
+        if (!err && row && row.count === 0) {
+          console.log('[SECURITY] Database is empty. First-run setup required.');
         }
       });
 
@@ -503,7 +464,8 @@ async function cleanupOldBackups(backupsDir) {
 const dbActions = {
   loadAll: async () => {
     const data = {};
-    data.users = await query('SELECT * FROM users');
+    // SECURITY: Never return passwordHash or salt to the renderer
+    data.users = await query('SELECT id, username, role, isActive, mustChangePassword, createdAt, email FROM users');
     data.academicYears = await query('SELECT * FROM academic_years');
     data.classes = await query('SELECT * FROM classes');
     data.sections = await query('SELECT * FROM sections');
@@ -517,6 +479,72 @@ const dbActions = {
     data.certificateTemplates = await query('SELECT * FROM certificate_templates');
     data.promotionLogs = await query('SELECT * FROM promotion_logs');
     return data;
+  },
+
+  getSetupStatus: async () => {
+    const row = await get("SELECT count(*) as count FROM users");
+    return { setupRequired: row.count === 0 };
+  },
+
+  verifyCredentials: async (username, password) => {
+    const user = await get("SELECT * FROM users WHERE LOWER(username) = LOWER(?)", [username.trim()]);
+    if (!user) return { success: false, error: 'اسم المستخدم أو كلمة المرور غير صحيحة' };
+    if (!user.isActive) return { success: false, error: 'هذا الحساب معطل حالياً من قبل الإدارة.' };
+
+    const calculatedHash = hashPasswordNode(password, user.salt);
+    if (calculatedHash !== user.passwordHash) {
+      return { success: false, error: 'اسم المستخدم أو كلمة المرور غير صحيحة' };
+    }
+
+    // Return safe user object
+    const { passwordHash, salt, ...safeUser } = user;
+    return { success: true, user: { ...safeUser, isActive: !!safeUser.isActive, mustChangePassword: !!safeUser.mustChangePassword } };
+  },
+
+  setupFirstAdmin: async (username, password) => {
+    const status = await dbActions.getSetupStatus();
+    if (!status.setupRequired) {
+      throw new Error('عفواً، لا يمكن إتمام الإعداد الأولي: النظام يحتوي بالفعل على حسابات مستخدمين.');
+    }
+
+    const id = `usr-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`;
+    const salt = crypto.randomBytes(16).toString('hex');
+    const hash = hashPasswordNode(password, salt);
+    
+    await run('INSERT INTO users (id, username, passwordHash, salt, role, isActive, mustChangePassword, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [id, username.trim(), hash, salt, 'admin', 1, 0, new Date().toISOString()]);
+
+    return { 
+      success: true, 
+      user: { id, username: username.trim(), role: 'admin', isActive: true, mustChangePassword: false, createdAt: new Date().toISOString() } 
+    };
+  },
+
+  updateUserLastLogin: (id) => run('UPDATE users SET lastLogin = ? WHERE id = ?', [new Date().toISOString(), id]),
+
+  updateUser: (id, updates) => {
+    const fields = [];
+    const values = [];
+    for (const [key, val] of Object.entries(updates)) {
+      if (['passwordHash', 'salt'].includes(key)) continue; // Don't allow updating these via general update
+      fields.push(`${key} = ?`);
+      values.push(typeof val === 'boolean' ? (val ? 1 : 0) : val);
+    }
+    if (fields.length === 0) return Promise.resolve({ changes: 0 });
+    values.push(id);
+    return run(`UPDATE users SET ${fields.join(', ')} WHERE id = ?`, values);
+  },
+
+  updateUserPassword: async (id, newPassword) => {
+    const salt = crypto.randomBytes(16).toString('hex');
+    const hash = hashPasswordNode(newPassword, salt);
+    return run('UPDATE users SET passwordHash = ?, salt = ?, mustChangePassword = 0 WHERE id = ?', [hash, salt, id]);
+  },
+
+  deleteEntity: (table, id) => {
+    const allowedTables = ['academic_years', 'classes', 'sections', 'subjects', 'students', 'grades', 'users', 'promotion_logs'];
+    if (!allowedTables.includes(table)) throw new Error('Unauthorized table deletion');
+    return run(`DELETE FROM ${table} WHERE id = ?`, [id]);
   },
 
   saveSettings: (key, value) => run('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', [key, JSON.stringify(value)]),

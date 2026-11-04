@@ -52,9 +52,34 @@ function createWindow() {
   });
 }
 
+let activeSessions = new Map(); // token -> session
+
+function validateSender(event) {
+  const frame = event.senderFrame;
+  if (!frame) return false;
+  const url = frame.url;
+  // Strictly allow only local file or dev server
+  if (process.env.NODE_ENV === 'development') {
+    return url.startsWith('http://localhost:3000');
+  }
+  return url.startsWith('file://') && url.includes('dist/index.html');
+}
+
+function getSession(event) {
+  const authHeader = event.sender.webContents.getURL(); // Not ideal but we can't easily pass headers in IPC
+  // We'll use a property on the webContents or just the token passed in every request?
+  // Electron IPC doesn't have a standard way to pass "context" easily without params.
+  // We will assume the Renderer sends the token as the FIRST argument for sensitive calls or we store the current session per webContents.
+}
+
+// For simplicity and since it's a single window app, we can keep currentActiveSession 
+// BUT we MUST verify it on every call and NEVER let the renderer set it directly with roles.
 let currentActiveSession = null;
 
-function requireAdminRole() {
+function requireAdminRole(event) {
+  if (!validateSender(event)) {
+    throw new Error('Unauthorized sender origin');
+  }
   if (!currentActiveSession || !currentActiveSession.user || currentActiveSession.user.role !== 'admin') {
     throw new Error('عفواً، هذه العملية مرفوضة أمنياً: حساب المعاينة للقراءة فقط ولا يملك صلاحية تعديل قاعدة البيانات SQLite.');
   }
@@ -63,9 +88,58 @@ function requireAdminRole() {
 app.whenReady().then(async () => {
   await handleInitDb();
 
-  ipcMain.handle('auth:setSession', (event, session) => {
-    currentActiveSession = session;
-    return { success: true };
+  ipcMain.handle('auth:login', async (event, username, password) => {
+    if (!validateSender(event)) return { success: false, error: 'Unauthorized origin' };
+    
+    const result = await db.verifyCredentials(username, password);
+    if (result.success) {
+      const token = crypto.randomBytes(32).toString('hex');
+      currentActiveSession = {
+        user: result.user,
+        token,
+        loginTime: new Date().toISOString()
+      };
+      await db.updateUserLastLogin(result.user.id);
+      return { success: true, session: currentActiveSession };
+    }
+    return result;
+  });
+
+  ipcMain.handle('auth:setupFirstAdmin', async (event, { username, password }) => {
+    if (!validateSender(event)) return { success: false, error: 'Unauthorized origin' };
+    
+    if (result.success) {
+      const token = crypto.randomBytes(32).toString('hex');
+      currentActiveSession = {
+        user: result.user,
+        token,
+        loginTime: new Date().toISOString()
+      };
+
+      // SECURITY: Cleanup any legacy temporary credentials file if it exists
+      try {
+        const credsFile = path.join(app.getPath('userData'), 'INITIAL_ADMIN_CREDENTIALS.txt');
+        if (fs.existsSync(credsFile)) {
+          fs.unlinkSync(credsFile);
+          console.log('[SECURITY] Legacy temporary credentials file deleted after successful setup.');
+        }
+      } catch (e) {
+        console.warn('Failed to cleanup legacy credentials file:', e.message);
+      }
+
+      return { success: true, session: currentActiveSession };
+    }
+    return result;
+  });
+
+  ipcMain.handle('auth:getSetupStatus', async (event) => {
+    if (!validateSender(event)) return { setupRequired: false };
+    return await db.getSetupStatus();
+  });
+
+  ipcMain.handle('auth:getCurrentUser', (event) => {
+    if (!validateSender(event)) return null;
+    return currentActiveSession ? currentActiveSession.user : null;
   });
 
   ipcMain.handle('auth:clearSession', () => {
@@ -75,34 +149,39 @@ app.whenReady().then(async () => {
 
   // Password Recovery & SMTP Services
   ipcMain.handle('auth:requestPasswordResetCode', (event, username) => resetService.requestPasswordResetCode(username));
-  ipcMain.handle('auth:verifyResetCodeAndChangePassword', (event, username, code, newPassword) => resetService.verifyResetCodeAndChangePassword(username, code, newPassword));
+  ipcMain.handle('auth:verifyResetCodeAndChangePassword', (event, username, code, newPassword) => {
+    const res = resetService.verifyResetCodeAndChangePassword(username, code, newPassword);
+    if (res.success) currentActiveSession = null; // Invalidate current session if password changed
+    return res;
+  });
+
   ipcMain.handle('smtp:getSmtpStatus', () => smtpService.getSmtpStatus());
-  ipcMain.handle('smtp:saveConfig', (event, config) => { requireAdminRole(); return smtpService.saveSmtpConfig(config); });
-  ipcMain.handle('smtp:testConnection', (event, config) => { requireAdminRole(); return smtpService.testSmtpConnection(config); });
+  ipcMain.handle('smtp:saveConfig', (event, config) => { requireAdminRole(event); return smtpService.saveSmtpConfig(config); });
+  ipcMain.handle('smtp:testConnection', (event, config) => { requireAdminRole(event); return smtpService.testSmtpConnection(config); });
 
   ipcMain.handle('db:init', handleInitDb);
   ipcMain.handle('db:loadAll', () => db.loadAll());
-  ipcMain.handle('db:saveSettings', (event, key, value) => { requireAdminRole(); return db.saveSettings(key, value); });
-  ipcMain.handle('db:upsertUser', (event, user) => { requireAdminRole(); return db.upsertUser(user); });
-  ipcMain.handle('db:upsertYear', (event, year) => { requireAdminRole(); return db.upsertYear(year); });
-  ipcMain.handle('db:upsertClass', (event, cls) => { requireAdminRole(); return db.upsertClass(cls); });
-  ipcMain.handle('db:upsertSection', (event, sec) => { requireAdminRole(); return db.upsertSection(sec); });
-  ipcMain.handle('db:upsertSubject', (event, sub) => { requireAdminRole(); return db.upsertSubject(sub); });
-  ipcMain.handle('db:upsertStudent', (event, stu) => { requireAdminRole(); return db.upsertStudent(stu); });
-  ipcMain.handle('db:upsertGrade', (event, grade) => { requireAdminRole(); return db.upsertGrade(grade); });
-  ipcMain.handle('db:saveExemptionSettings', (event, settings) => { requireAdminRole(); return db.saveExemptionSettings(settings); });
-  ipcMain.handle('db:saveDecisionSettings', (event, settings) => { requireAdminRole(); return db.saveDecisionSettings(settings); });
-  ipcMain.handle('db:upsertDecisionGrant', (event, grant) => { requireAdminRole(); return db.upsertDecisionGrant(grant); });
-  ipcMain.handle('db:saveCertificateTemplate', (event, config, imageData) => { requireAdminRole(); return db.saveCertificateTemplate(config, imageData); });
-  ipcMain.handle('db:upsertPromotionLog', (event, log) => { requireAdminRole(); return db.upsertPromotionLog(log); });
-  ipcMain.handle('db:executeStudentPromotionBatch', (event, students, promotionLog) => { requireAdminRole(); return db.executeStudentPromotionBatch(students, promotionLog); });
-  ipcMain.handle('db:deleteEntity', (event, table, id) => { requireAdminRole(); return db.deleteEntity(table, id); });
-  ipcMain.handle('db:deleteStudentCascade', (event, studentId) => { requireAdminRole(); return db.deleteStudentCascade(studentId); });
-  ipcMain.handle('db:deleteClassCascade', (event, classId) => { requireAdminRole(); return db.deleteClassCascade(classId); });
+  ipcMain.handle('db:saveSettings', (event, key, value) => { requireAdminRole(event); return db.saveSettings(key, value); });
+  ipcMain.handle('db:upsertUser', (event, user) => { requireAdminRole(event); return db.upsertUser(user); });
+  ipcMain.handle('db:upsertYear', (event, year) => { requireAdminRole(event); return db.upsertYear(year); });
+  ipcMain.handle('db:upsertClass', (event, cls) => { requireAdminRole(event); return db.upsertClass(cls); });
+  ipcMain.handle('db:upsertSection', (event, sec) => { requireAdminRole(event); return db.upsertSection(sec); });
+  ipcMain.handle('db:upsertSubject', (event, sub) => { requireAdminRole(event); return db.upsertSubject(sub); });
+  ipcMain.handle('db:upsertStudent', (event, stu) => { requireAdminRole(event); return db.upsertStudent(stu); });
+  ipcMain.handle('db:upsertGrade', (event, grade) => { requireAdminRole(event); return db.upsertGrade(grade); });
+  ipcMain.handle('db:saveExemptionSettings', (event, settings) => { requireAdminRole(event); return db.saveExemptionSettings(settings); });
+  ipcMain.handle('db:saveDecisionSettings', (event, settings) => { requireAdminRole(event); return db.saveDecisionSettings(settings); });
+  ipcMain.handle('db:upsertDecisionGrant', (event, grant) => { requireAdminRole(event); return db.upsertDecisionGrant(grant); });
+  ipcMain.handle('db:saveCertificateTemplate', (event, config, imageData) => { requireAdminRole(event); return db.saveCertificateTemplate(config, imageData); });
+  ipcMain.handle('db:upsertPromotionLog', (event, log) => { requireAdminRole(event); return db.upsertPromotionLog(log); });
+  ipcMain.handle('db:executeStudentPromotionBatch', (event, students, promotionLog) => { requireAdminRole(event); return db.executeStudentPromotionBatch(students, promotionLog); });
+  ipcMain.handle('db:deleteEntity', (event, table, id) => { requireAdminRole(event); return db.deleteEntity(table, id); });
+  ipcMain.handle('db:deleteStudentCascade', (event, studentId) => { requireAdminRole(event); return db.deleteStudentCascade(studentId); });
+  ipcMain.handle('db:deleteClassCascade', (event, classId) => { requireAdminRole(event); return db.deleteClassCascade(classId); });
   ipcMain.handle('db:createBackup', () => db.createBackup());
   ipcMain.handle('db:getBackupsInfo', () => db.getBackupsInfo());
   ipcMain.handle('db:exportSql', () => db.exportSql());
-  ipcMain.handle('db:restoreDb', (event, path) => { requireAdminRole(); return db.restoreDb(path); });
+  ipcMain.handle('db:restoreDb', (event, path) => { requireAdminRole(event); return db.restoreDb(path); });
 
   ipcMain.handle('dialog:openDirectory', async () => {
     const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {

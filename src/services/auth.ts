@@ -17,10 +17,25 @@ class AuthService {
     } catch {
       // ignore
     }
-    this.currentSession = this.loadSession();
-    if (this.currentSession && typeof window !== 'undefined' && (window as any).electronAPI?.auth) {
-      (window as any).electronAPI.auth.setSession(this.currentSession).catch(() => {});
+    
+    this.initSession();
+  }
+
+  private async initSession() {
+    if (typeof window !== 'undefined' && (window as any).electronAPI?.auth) {
+      const user = await (window as any).electronAPI.auth.getCurrentUser();
+      if (user) {
+        this.currentSession = {
+          user,
+          token: 'managed-by-main',
+          loginTime: new Date().toISOString()
+        };
+        this.notify();
+        return;
+      }
     }
+    
+    this.currentSession = this.loadSession();
   }
 
   private loadSession(): AuthSession | null {
@@ -31,18 +46,19 @@ class AuthService {
       const parsed: AuthSession = JSON.parse(stored);
       if (!parsed || !parsed.user || !parsed.user.id) return null;
 
-      // Re-validate that user still exists and is active in the database
-      const users = db.getUsers();
-      const existing = users.find((u) => u.id === parsed.user.id);
-      if (!existing || !existing.isActive) {
-        this.clearSession();
-        return null;
+      // In browser mode, we still need to check the user list
+      if (!(typeof window !== 'undefined' && (window as any).electronAPI)) {
+        const users = db.getUsers();
+        const existing = users.find((u) => u.id === parsed.user.id);
+        if (!existing || !existing.isActive) {
+          this.clearSession();
+          return null;
+        }
+        parsed.user.role = existing.role;
+        parsed.user.username = existing.username;
+        parsed.user.mustChangePassword = !!existing.mustChangePassword;
       }
-
-      // Sync role and mustChangePassword state if changed
-      parsed.user.role = existing.role;
-      parsed.user.username = existing.username;
-      parsed.user.mustChangePassword = !!existing.mustChangePassword;
+      
       return parsed;
     } catch {
       return null;
@@ -50,9 +66,6 @@ class AuthService {
   }
 
   public getCurrentSession(): AuthSession | null {
-    if (!this.currentSession) {
-      this.currentSession = this.loadSession();
-    }
     return this.currentSession;
   }
 
@@ -70,22 +83,19 @@ class AuthService {
     try {
       sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
       localStorage.removeItem(SESSION_STORAGE_KEY);
-      if (typeof window !== 'undefined' && (window as any).electronAPI?.auth) {
-        (window as any).electronAPI.auth.setSession(session).catch(() => {});
-      }
     } catch (e) {
       console.error('Failed to persist auth session', e);
     }
     this.notify();
   }
 
-  public clearSession() {
+  public async clearSession() {
     this.currentSession = null;
     try {
       sessionStorage.removeItem(SESSION_STORAGE_KEY);
       localStorage.removeItem(SESSION_STORAGE_KEY);
       if (typeof window !== 'undefined' && (window as any).electronAPI?.auth) {
-        (window as any).electronAPI.auth.clearSession().catch(() => {});
+        await (window as any).electronAPI.auth.clearSession();
       }
     } catch (e) {
       console.error('Failed to clear auth session', e);
@@ -109,6 +119,16 @@ class AuthService {
       await db.whenReady();
     }
 
+    // 1. Production Electron Flow
+    if (typeof window !== 'undefined' && (window as any).electronAPI?.auth) {
+      const res = await (window as any).electronAPI.auth.login(username, passwordInput);
+      if (res.success && res.session) {
+        this.saveSession(res.session);
+      }
+      return res;
+    }
+
+    // 2. Web Demo Fallback
     const users = db.getUsers();
     const user = users.find(
       (u) => u.username.trim().toLowerCase() === username.toLowerCase()
@@ -147,6 +167,53 @@ class AuthService {
 
     this.saveSession(session);
     return { success: true, session };
+  }
+
+  public async getSetupStatus(): Promise<{ setupRequired: boolean }> {
+    if (typeof window !== 'undefined' && (window as any).electronAPI?.auth) {
+      return await (window as any).electronAPI.auth.getSetupStatus();
+    }
+    // For web demo, check if any users exist
+    const users = db.getUsers();
+    return { setupRequired: users.length === 0 };
+  }
+
+  public async setupFirstAdmin(data: { username: string; password: string }): Promise<{ success: boolean; session?: AuthSession; error?: string }> {
+    if (typeof window !== 'undefined' && (window as any).electronAPI?.auth) {
+      const res = await (window as any).electronAPI.auth.setupFirstAdmin(data);
+      if (res.success && res.session) {
+        this.saveSession(res.session);
+      }
+      return res;
+    }
+    
+    // For web demo, use storage service
+    const res = db.addUser({
+      username: data.username,
+      passwordHash: await hashPassword(data.password, 'demo-salt'),
+      salt: 'demo-salt',
+      role: 'admin',
+      isActive: true,
+      mustChangePassword: false,
+      email: 'admin@demo.local'
+    });
+    
+    if (res.success && res.user) {
+      const session: AuthSession = {
+        user: {
+          id: res.user.id,
+          username: res.user.username,
+          role: res.user.role,
+          email: res.user.email,
+          mustChangePassword: false,
+        },
+        token: 'demo-token',
+        loginTime: new Date().toISOString()
+      };
+      this.saveSession(session);
+      return { success: true, session };
+    }
+    return { success: false, error: res.error };
   }
 
   private generateSecureSessionToken(): string {

@@ -19,6 +19,7 @@ import { SettingsView } from './components/Settings/SettingsView';
 import { CertificateTemplateView } from './components/CertificateTemplate/CertificateTemplateView';
 import { StudentPromotionView } from './components/Management/StudentPromotionView';
 import { LoginView } from './components/Auth/LoginView';
+import { SetupWizard } from './components/Auth/SetupWizard';
 import { CreateAccessCodeView } from './components/Auth/CreateAccessCodeView';
 import { ForceChangePasswordModal } from './components/Auth/ForceChangePasswordModal';
 import { AccountSettingsModal } from './components/Auth/AccountSettingsModal';
@@ -26,6 +27,9 @@ import { AccountSettingsModal } from './components/Auth/AccountSettingsModal';
 export default function App() {
   // Database reactive state
   const [dbState, setDbState] = useState<DatabaseState>(() => db.getState());
+
+  // Setup Required status
+  const [setupRequired, setSetupRequired] = useState<boolean | null>(null);
 
   // Authentication session state
   const [authSession, setAuthSession] = useState<AuthSession | null>(() =>
@@ -91,6 +95,16 @@ export default function App() {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
+  // Check setup status
+  useEffect(() => {
+    const checkSetup = async () => {
+      await db.whenReady();
+      const status = await authService.getSetupStatus();
+      setSetupRequired(status.setupRequired);
+    };
+    checkSetup();
+  }, [authSession]);
+
   // Subscribe to real-time database changes
   useEffect(() => {
     const unsubscribe = db.subscribe(() => {
@@ -127,6 +141,20 @@ export default function App() {
     setAuthSession(null);
     setIsAccountModalOpen(false);
   };
+
+  // Loading state
+  if (setupRequired === null) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  // First-run Setup
+  if (setupRequired && !authSession) {
+    return <SetupWizard />;
+  }
 
   // 1. If not authenticated, render LoginView directly (first launch & subsequent cold starts)
   if (!authSession) {

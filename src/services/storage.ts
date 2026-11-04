@@ -34,81 +34,6 @@ import { filterClassesByAcademicYear } from '../utils/academicYearUtils';
 
 const STORAGE_KEY = 'school_grades_offline_db_v3';
 
-const SEED_USER_PASS = ['user', '123'].join('');
-const SEED_USER_SALT = ['school', 'user', 'salt', 'seed', '2026'].join('_');
-
-export async function createDynamicRandomAdminAccount(customPassword?: string): Promise<{ adminUser: UserAccount; tempPass: string }> {
-  const salt = generateSalt(16);
-  const tempPass = customPassword || generateSalt(8);
-  const hashVal = await hashPassword(tempPass, salt);
-
-  const adminUser: UserAccount = {
-    id: 'usr-admin-default',
-    username: 'admin',
-    passwordHash: hashVal,
-    salt,
-    role: 'admin',
-    isActive: true,
-    mustChangePassword: true,
-    createdAt: new Date().toISOString(),
-  };
-
-  return { adminUser, tempPass };
-}
-
-function getInitialPreviewUser(): UserAccount {
-  let hashVal = '';
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const nodeCrypto = require('crypto');
-    if (nodeCrypto && typeof nodeCrypto.createHash === 'function') {
-      hashVal = nodeCrypto.createHash('sha256').update(`${SEED_USER_PASS}:${SEED_USER_SALT}`).digest('hex');
-    }
-  } catch {
-    hashVal = ['b326e496c171f8ffa63670adc616ff9d', 'a33f355866344de6d2c54ff9e27b3d18'].join('');
-  }
-
-  return {
-    id: 'usr-user-preview',
-    username: 'user',
-    passwordHash: hashVal,
-    salt: SEED_USER_SALT,
-    role: 'user',
-    isActive: true,
-    mustChangePassword: false,
-    createdAt: '2026-09-01T08:00:00.000Z',
-  };
-}
-
-function getInitialDefaultAdminSync(): UserAccount {
-  const salt = generateSalt(16);
-  const tempPass = generateSalt(8);
-  let hashVal = '';
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const nodeCrypto = require('crypto');
-    if (nodeCrypto && typeof nodeCrypto.createHash === 'function') {
-      hashVal = nodeCrypto.createHash('sha256').update(`${tempPass}:${salt}`).digest('hex');
-    }
-  } catch {
-    hashVal = '';
-  }
-
-  return {
-    id: 'usr-admin-default',
-    username: 'admin',
-    passwordHash: hashVal,
-    salt,
-    role: 'admin',
-    isActive: true,
-    mustChangePassword: true,
-    createdAt: new Date().toISOString(),
-  };
-}
-
-export const INITIAL_PREVIEW_USER: UserAccount = getInitialPreviewUser();
-export const INITIAL_DEFAULT_ADMIN: UserAccount = getInitialDefaultAdminSync();
-
 export const DEFAULT_CERTIFICATE_CONFIG: CertificateTemplateConfig = {
   templateImage: undefined,
   elements: {
@@ -189,7 +114,7 @@ export class LocalStorageEngine {
       exemptionSettings: {},
       decisionSettings: {},
       decisionGrants: {},
-      users: [INITIAL_DEFAULT_ADMIN, INITIAL_PREVIEW_USER],
+      users: [],
       version: '1.0.0',
       lastBackupDate: new Date().toISOString(),
     };
@@ -206,6 +131,10 @@ export class LocalStorageEngine {
       } catch (e) { console.error('SQLite init error', e); }
     } else {
       this.state = this.loadFromStorage();
+      // Browser demo seeding if empty
+      if (!this.state.users || this.state.users.length === 0) {
+        completeDemoSeedData(this.state);
+      }
       try {
         const img = await loadTemplateImageFromDB();
         if (img && this.state.certificateTemplate) {
@@ -369,12 +298,9 @@ export class LocalStorageEngine {
     try {
       const data = await db.loadAll();
       if (data.users?.length) {
-        const loadedUsers: UserAccount[] = data.users.map((u: any) => ({ ...u, isActive: !!u.isActive, mustChangePassword: !!u.mustChangePassword }));
-        if (!loadedUsers.some(u => u.username === 'admin')) loadedUsers.unshift(INITIAL_DEFAULT_ADMIN);
-        if (!loadedUsers.some(u => u.username === 'user')) loadedUsers.push(INITIAL_PREVIEW_USER);
-        this.state.users = loadedUsers;
+        this.state.users = data.users.map((u: any) => ({ ...u, isActive: !!u.isActive, mustChangePassword: !!u.mustChangePassword }));
       } else {
-        this.state.users = [INITIAL_DEFAULT_ADMIN, INITIAL_PREVIEW_USER];
+        this.state.users = [];
       }
       this.state.academicYears = (data.academicYears || []).map((y: any) => ({ ...y, isCurrent: !!y.isCurrent }));
       this.state.classes = data.classes || [];
@@ -508,11 +434,8 @@ export class LocalStorageEngine {
       if (data) {
         const parsed = JSON.parse(data);
         if (parsed.academicYears && parsed.grades) {
-          if (!parsed.users || !parsed.users.length) {
-            parsed.users = [INITIAL_DEFAULT_ADMIN, INITIAL_PREVIEW_USER];
-          } else {
-            if (!parsed.users.some((u: any) => u.username === 'admin')) parsed.users.unshift(INITIAL_DEFAULT_ADMIN);
-            if (!parsed.users.some((u: any) => u.username === 'user')) parsed.users.push(INITIAL_PREVIEW_USER);
+          if (!parsed.users) {
+            parsed.users = [];
           }
           if (Array.isArray(parsed.students)) {
             parsed.students = parsed.students.map((s: any) => ({
