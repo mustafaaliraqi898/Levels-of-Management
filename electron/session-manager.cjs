@@ -7,12 +7,33 @@ const activeSessions = new Map(); // webContents.id -> session
 function validateSender(event) {
   const frame = event.senderFrame;
   if (!frame) return false;
-  const url = frame.url;
-  // Strictly allow only local file or dev server
-  if (process.env.NODE_ENV === 'development') {
-    return url.startsWith('http://localhost:3000');
+  const urlString = frame.url;
+
+  try {
+    const parsedUrl = new URL(urlString);
+
+    if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+      // Strictly allow only local dev server
+      return (
+        parsedUrl.protocol === 'http:' &&
+        parsedUrl.hostname === 'localhost' &&
+        parsedUrl.port === '3000' &&
+        !parsedUrl.username &&
+        !parsedUrl.password
+      );
+    }
+
+    // In production, strictly allow only the app's local index file
+    return (
+      parsedUrl.protocol === 'file:' &&
+      (parsedUrl.pathname.endsWith('/dist/index.html') || parsedUrl.pathname.endsWith('/index.html')) &&
+      !parsedUrl.host &&
+      !parsedUrl.username &&
+      !parsedUrl.password
+    );
+  } catch (e) {
+    return false;
   }
-  return url.startsWith('file://') && (url.includes('dist/index.html') || url.includes('index.html'));
 }
 
 function getSession(webContentsId) {
