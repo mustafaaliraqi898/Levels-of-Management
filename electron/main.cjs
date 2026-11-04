@@ -6,6 +6,7 @@ const db = require('./database.cjs');
 const smtpService = require('./smtp-service.cjs');
 const resetService = require('./reset-service.cjs');
 const fs = require('fs');
+const sessionManager = require('./session-manager.cjs');
 
 let mainWindow = null;
 
@@ -48,44 +49,13 @@ function createWindow() {
   Menu.setApplicationMenu(null);
 
   mainWindow.on('closed', () => {
-    activeSessions.delete(mainWindow.webContents.id);
+    sessionManager.clearSession(mainWindow.webContents.id);
     mainWindow = null;
   });
 }
 
-// Map to store active sessions per webContents ID (session isolation)
-const activeSessions = new Map(); // webContents.id -> session
-
-function validateSender(event) {
-  const frame = event.senderFrame;
-  if (!frame) return false;
-  const url = frame.url;
-  // Strictly allow only local file or dev server
-  if (process.env.NODE_ENV === 'development') {
-    return url.startsWith('http://localhost:3000');
-  }
-  return url.startsWith('file://') && url.includes('dist/index.html');
-}
-
-function requireAdminRole(event) {
-  if (!validateSender(event)) {
-    throw new Error('Unauthorized sender origin');
-  }
-  const session = activeSessions.get(event.sender.id);
-  if (!session || !session.user || session.user.role !== 'admin') {
-    throw new Error('عفواً، هذه العملية مرفوضة أمنياً: حساب المعاينة للقراءة فقط ولا يملك صلاحية تعديل قاعدة البيانات SQLite.');
-  }
-}
-
-function requireAuth(event) {
-  if (!validateSender(event)) {
-    throw new Error('Unauthorized sender origin');
-  }
-  const session = activeSessions.get(event.sender.id);
-  if (!session || !session.user) {
-    throw new Error('عفواً، يجب تسجيل الدخول للقيام بهذه العملية.');
-  }
-}
+// Session and Authorization logic moved to session-manager.cjs
+const { validateSender, requireAuth, requireAdminRole } = sessionManager;
 
 app.whenReady().then(async () => {
   await handleInitDb();
@@ -95,13 +65,7 @@ app.whenReady().then(async () => {
     
     const result = await db.verifyCredentials(username, password);
     if (result.success) {
-      const token = crypto.randomBytes(32).toString('hex');
-      const session = {
-        user: result.user,
-        token,
-        loginTime: new Date().toISOString()
-      };
-      activeSessions.set(event.sender.id, session);
+      const session = sessionManager.createSession(event.sender.id, result.user);
       await db.updateUserLastLogin(result.user.id);
       return { success: true, session };
     }
@@ -113,13 +77,7 @@ app.whenReady().then(async () => {
     
     const result = await db.setupFirstAdmin(username, password);
     if (result.success) {
-      const token = crypto.randomBytes(32).toString('hex');
-      const session = {
-        user: result.user,
-        token,
-        loginTime: new Date().toISOString()
-      };
-      activeSessions.set(event.sender.id, session);
+      const session = sessionManager.createSession(event.sender.id, result.user);
 
       // SECURITY: Cleanup any legacy temporary credentials file if it exists
       try {
@@ -144,13 +102,13 @@ app.whenReady().then(async () => {
 
   ipcMain.handle('auth:getCurrentUser', (event) => {
     if (!validateSender(event)) return null;
-    const session = activeSessions.get(event.sender.id);
+    const session = sessionManager.getSession(event.sender.id);
     return session ? session.user : null;
   });
 
   ipcMain.handle('auth:clearSession', (event) => {
     if (!validateSender(event)) return { success: false };
-    activeSessions.delete(event.sender.id);
+    sessionManager.clearSession(event.sender.id);
     return { success: true };
   });
 
@@ -163,7 +121,7 @@ app.whenReady().then(async () => {
   ipcMain.handle('auth:verifyResetCodeAndChangePassword', async (event, username, code, newPassword) => {
     if (!validateSender(event)) return { success: false, error: 'Unauthorized' };
     const res = await resetService.verifyResetCodeAndChangePassword(username, code, newPassword);
-    if (res.success) activeSessions.delete(event.sender.id); // Invalidate current session if password changed
+    if (res.success) sessionManager.clearSession(event.sender.id); // Invalidate current session if password changed
     return res;
   });
 
