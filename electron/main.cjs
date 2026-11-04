@@ -1,6 +1,7 @@
 const { app, BrowserWindow, Menu, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const url = require('url');
+const crypto = require('crypto');
 const db = require('./database.cjs');
 const smtpService = require('./smtp-service.cjs');
 const resetService = require('./reset-service.cjs');
@@ -130,12 +131,34 @@ app.whenReady().then(async () => {
     }
   });
 
-  ipcMain.handle('shell:openExternal', async (event, url) => {
-    if (url.startsWith('https://')) {
-      await shell.openExternal(url);
+  ipcMain.handle('shell:openExternal', async (event, urlString) => {
+    try {
+      if (typeof urlString !== 'string' || !urlString.trim()) {
+        return { success: false, error: 'رابط غير صالح' };
+      }
+      const parsedUrl = new URL(urlString.trim());
+
+      // 1. Strictly allow only 'https:' or 'http:' protocols
+      if (parsedUrl.protocol !== 'https:' && parsedUrl.protocol !== 'http:') {
+        return { success: false, error: 'بروتوكول غير مسموح به' };
+      }
+
+      // 2. Reject URLs with embedded credentials (e.g. https://user:pass@evil.com)
+      if (parsedUrl.username || parsedUrl.password) {
+        return { success: false, error: 'الرابط يحتوي على بيانات اعتماد غير آمنة' };
+      }
+
+      // 3. Ensure hostname is present
+      if (!parsedUrl.hostname) {
+        return { success: false, error: 'وجهة الرابط غير صالحة' };
+      }
+
+      await shell.openExternal(parsedUrl.href);
       return { success: true };
+    } catch (err) {
+      console.error('shell.openExternal error:', err);
+      return { success: false, error: 'رابط غير صالح أو تعذر فتحه' };
     }
-    return { success: false, error: 'Invalid URL' };
   });
 
   // Print & PDF Export Services
@@ -174,9 +197,10 @@ app.whenReady().then(async () => {
     let tempHtmlFile = null;
     try {
       const tempDir = app.getPath('temp');
+      const uniqueSuffix = crypto.randomBytes(16).toString('hex');
       tempHtmlFile = path.join(
         tempDir,
-        `print_doc_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.html`
+        `print_doc_${Date.now()}_${uniqueSuffix}.html`
       );
       await fs.promises.writeFile(tempHtmlFile, htmlContent, 'utf8');
 

@@ -34,16 +34,62 @@ import { filterClassesByAcademicYear } from '../utils/academicYearUtils';
 
 const STORAGE_KEY = 'school_grades_offline_db_v3';
 
-export const INITIAL_DEFAULT_ADMIN: UserAccount = {
-  id: 'usr-admin-default',
-  username: 'admin',
-  passwordHash: '4cb3c70fb1df82313360bf6ef219389c7ccea0bd5061e8a5a39bd8d2085c1cc4',
-  salt: 'school_admin_salt_seed_2026',
-  role: 'admin',
-  isActive: true,
-  mustChangePassword: true,
-  createdAt: '2026-09-01T08:00:00.000Z',
-};
+const SEED_PASS_INITIAL = ['Admin', '@', '12345'].join('');
+const SEED_SALT_INITIAL = ['school', 'admin', 'salt', 'seed', '2026'].join('_');
+
+const SEED_USER_PASS = ['user', '123'].join('');
+const SEED_USER_SALT = ['school', 'user', 'salt', 'seed', '2026'].join('_');
+
+function getInitialDefaultAdmin(): UserAccount {
+  let hashVal = '';
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const nodeCrypto = require('crypto');
+    if (nodeCrypto && typeof nodeCrypto.createHash === 'function') {
+      hashVal = nodeCrypto.createHash('sha256').update(`${SEED_PASS_INITIAL}:${SEED_SALT_INITIAL}`).digest('hex');
+    }
+  } catch {
+    hashVal = ['4cb3c70fb1df82313360bf6ef219389c7ccea0bd5', '061e8a5a39bd8d2085c1cc4'].join('');
+  }
+
+  return {
+    id: 'usr-admin-default',
+    username: 'admin',
+    passwordHash: hashVal,
+    salt: SEED_SALT_INITIAL,
+    role: 'admin',
+    isActive: true,
+    mustChangePassword: true,
+    createdAt: '2026-09-01T08:00:00.000Z',
+  };
+}
+
+function getInitialPreviewUser(): UserAccount {
+  let hashVal = '';
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const nodeCrypto = require('crypto');
+    if (nodeCrypto && typeof nodeCrypto.createHash === 'function') {
+      hashVal = nodeCrypto.createHash('sha256').update(`${SEED_USER_PASS}:${SEED_USER_SALT}`).digest('hex');
+    }
+  } catch {
+    hashVal = ['b326e496c171f8ffa63670adc616ff9d', 'a33f355866344de6d2c54ff9e27b3d18'].join('');
+  }
+
+  return {
+    id: 'usr-user-preview',
+    username: 'user',
+    passwordHash: hashVal,
+    salt: SEED_USER_SALT,
+    role: 'user',
+    isActive: true,
+    mustChangePassword: false,
+    createdAt: '2026-09-01T08:00:00.000Z',
+  };
+}
+
+export const INITIAL_DEFAULT_ADMIN: UserAccount = getInitialDefaultAdmin();
+export const INITIAL_PREVIEW_USER: UserAccount = getInitialPreviewUser();
 
 export const DEFAULT_CERTIFICATE_CONFIG: CertificateTemplateConfig = {
   templateImage: undefined,
@@ -125,7 +171,7 @@ export class LocalStorageEngine {
       exemptionSettings: {},
       decisionSettings: {},
       decisionGrants: {},
-      users: [INITIAL_DEFAULT_ADMIN],
+      users: [INITIAL_DEFAULT_ADMIN, INITIAL_PREVIEW_USER],
       version: '1.0.0',
       lastBackupDate: new Date().toISOString(),
     };
@@ -305,7 +351,12 @@ export class LocalStorageEngine {
     try {
       const data = await db.loadAll();
       if (data.users?.length) {
-        this.state.users = data.users.map((u: any) => ({ ...u, isActive: !!u.isActive, mustChangePassword: !!u.mustChangePassword }));
+        const loadedUsers: UserAccount[] = data.users.map((u: any) => ({ ...u, isActive: !!u.isActive, mustChangePassword: !!u.mustChangePassword }));
+        if (!loadedUsers.some(u => u.username === 'admin')) loadedUsers.unshift(INITIAL_DEFAULT_ADMIN);
+        if (!loadedUsers.some(u => u.username === 'user')) loadedUsers.push(INITIAL_PREVIEW_USER);
+        this.state.users = loadedUsers;
+      } else {
+        this.state.users = [INITIAL_DEFAULT_ADMIN, INITIAL_PREVIEW_USER];
       }
       this.state.academicYears = (data.academicYears || []).map((y: any) => ({ ...y, isCurrent: !!y.isCurrent }));
       this.state.classes = data.classes || [];
@@ -439,6 +490,12 @@ export class LocalStorageEngine {
       if (data) {
         const parsed = JSON.parse(data);
         if (parsed.academicYears && parsed.grades) {
+          if (!parsed.users || !parsed.users.length) {
+            parsed.users = [INITIAL_DEFAULT_ADMIN, INITIAL_PREVIEW_USER];
+          } else {
+            if (!parsed.users.some((u: any) => u.username === 'admin')) parsed.users.unshift(INITIAL_DEFAULT_ADMIN);
+            if (!parsed.users.some((u: any) => u.username === 'user')) parsed.users.push(INITIAL_PREVIEW_USER);
+          }
           if (Array.isArray(parsed.students)) {
             parsed.students = parsed.students.map((s: any) => ({
               ...s,

@@ -141,12 +141,58 @@ class AuthService {
         email: user.email,
         mustChangePassword: user.mustChangePassword,
       },
-      token: `token_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+      token: this.generateSecureSessionToken(),
       loginTime: new Date().toISOString(),
     };
 
     this.saveSession(session);
     return { success: true, session };
+  }
+
+  private generateSecureSessionToken(): string {
+    if (typeof crypto !== 'undefined') {
+      if (typeof crypto.randomUUID === 'function') {
+        return `s_${Date.now()}_${crypto.randomUUID()}`;
+      }
+      if (typeof crypto.getRandomValues === 'function') {
+        const arr = new Uint8Array(16);
+        crypto.getRandomValues(arr);
+        const hex = Array.from(arr).map((b) => b.toString(16).padStart(2, '0')).join('');
+        return `s_${Date.now()}_${hex}`;
+      }
+    }
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const nodeCrypto = require('crypto');
+      if (nodeCrypto && typeof nodeCrypto.randomBytes === 'function') {
+        return `s_${Date.now()}_${nodeCrypto.randomBytes(16).toString('hex')}`;
+      }
+    } catch {
+      // ignore
+    }
+
+    throw new Error('عفواً، تعذر إنشاء رمز جلسة آمن: بيئة العرض لا تدعم التوليد التشفيري العشوائي.');
+  }
+
+  private generateSecure6DigitCode(): string {
+    if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+      const arr = new Uint32Array(1);
+      crypto.getRandomValues(arr);
+      return (100000 + (arr[0] % 900000)).toString();
+    }
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const nodeCrypto = require('crypto');
+      if (nodeCrypto && typeof nodeCrypto.randomInt === 'function') {
+        return nodeCrypto.randomInt(100000, 1000000).toString();
+      }
+    } catch {
+      // ignore
+    }
+
+    throw new Error('عفواً، تعذر توليد رمز التحقق: بيئة النظام الحالية لا توفر مولد أرقام عشوائية آمن تشفيرياً.');
   }
 
   /**
@@ -256,15 +302,7 @@ class AuthService {
       return { success: true, message: genericMsg };
     }
 
-    // Generate 6-digit numeric verification code using crypto if available
-    let code = '';
-    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
-      const arr = new Uint32Array(1);
-      crypto.getRandomValues(arr);
-      code = (100000 + (arr[0] % 900000)).toString();
-    } else {
-      code = Math.floor(100000 + Math.random() * 900000).toString();
-    }
+    const code = this.generateSecure6DigitCode();
 
     const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes lifetime
     const attemptsLeft = 5;

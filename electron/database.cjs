@@ -8,10 +8,59 @@ try {
 const path = require('path');
 const { app } = require('electron');
 const fs = require('fs');
+const os = require('os');
+const crypto = require('crypto');
 
-const userDataPath = app && app.getPath ? app.getPath('userData') : '/tmp/school-app';
-const dbPath = path.join(userDataPath, 'school-grades.db');
+function resolveUserDataPath() {
+  if (app && typeof app.getPath === 'function') {
+    try {
+      return app.getPath('userData');
+    } catch {
+      // Fallback if app.getPath fails
+    }
+  }
+  if (process.env.NODE_ENV === 'test') {
+    return path.join(process.cwd(), '.test-data');
+  }
+  return path.join(os.homedir(), '.school-app-data');
+}
+
+function getDatabasePath() {
+  const targetDir = resolveUserDataPath();
+  if (!fs.existsSync(targetDir)) {
+    try {
+      fs.mkdirSync(targetDir, { recursive: true, mode: 0o700 });
+    } catch (e) {
+      console.error('Failed to create user data directory:', e);
+    }
+  }
+
+  const targetDbPath = path.join(targetDir, 'school-grades.db');
+  const legacyPublicDbPath = path.join('/tmp', 'school-app', 'school-grades.db');
+
+  if (!fs.existsSync(targetDbPath) && fs.existsSync(legacyPublicDbPath)) {
+    try {
+      console.log('Migrating legacy database from public temp directory to user data folder...');
+      fs.copyFileSync(legacyPublicDbPath, targetDbPath);
+      const srcStat = fs.statSync(legacyPublicDbPath);
+      const destStat = fs.statSync(targetDbPath);
+      if (destStat.size === srcStat.size) {
+        console.log('Legacy database migrated and verified successfully.');
+      }
+    } catch (migErr) {
+      console.error('Failed to migrate legacy database:', migErr);
+    }
+  }
+
+  return targetDbPath;
+}
+
+const dbPath = getDatabasePath();
 let db = sqlite3 ? new sqlite3.Database(dbPath) : null;
+
+function hashPasswordNode(password, salt) {
+  return crypto.createHash('sha256').update(`${password}:${salt}`).digest('hex');
+}
 
 function initDb() {
   return new Promise((resolve, reject) => {
@@ -227,9 +276,24 @@ function initDb() {
 
       db.get("SELECT id FROM users WHERE username = 'admin'", (err, row) => {
         if (!row) {
+          const initialPass = 'Admin@12345';
+          const initialSalt = 'school_admin_salt_seed_2026';
+          const initialHash = hashPasswordNode(initialPass, initialSalt);
           db.run(`INSERT INTO users (id, username, passwordHash, salt, role, isActive, mustChangePassword, createdAt)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-            ['usr-admin-default', 'admin', '4cb3c70fb1df82313360bf6ef219389c7ccea0bd5061e8a5a39bd8d2085c1cc4', 'school_admin_salt_seed_2026', 'admin', 1, 1, new Date().toISOString()]
+            ['usr-admin-default', 'admin', initialHash, initialSalt, 'admin', 1, 1, new Date().toISOString()]
+          );
+        }
+      });
+
+      db.get("SELECT id FROM users WHERE username = 'user'", (err, row) => {
+        if (!row) {
+          const initialUserPass = 'user123';
+          const initialUserSalt = 'school_user_salt_seed_2026';
+          const initialUserHash = hashPasswordNode(initialUserPass, initialUserSalt);
+          db.run(`INSERT INTO users (id, username, passwordHash, salt, role, isActive, mustChangePassword, createdAt)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            ['usr-user-preview', 'user', initialUserHash, initialUserSalt, 'user', 1, 0, new Date().toISOString()]
           );
         }
       });

@@ -3,12 +3,41 @@ const fs = require('fs');
 const path = require('path');
 const { app, safeStorage } = require('electron');
 
+const os = require('os');
+
 function getSmtpConfigFile() {
-  const userDataPath = (app && typeof app.getPath === 'function') ? app.getPath('userData') : '/tmp/school_app_userData';
-  if (!fs.existsSync(userDataPath)) {
-    try { fs.mkdirSync(userDataPath, { recursive: true }); } catch { /* ignore */ }
+  let userDataPath;
+  if (app && typeof app.getPath === 'function') {
+    try {
+      userDataPath = app.getPath('userData');
+    } catch {
+      userDataPath = path.join(os.homedir(), '.school-app-data');
+    }
+  } else if (process.env.NODE_ENV === 'test') {
+    userDataPath = path.join(process.cwd(), '.test-data');
+  } else {
+    userDataPath = path.join(os.homedir(), '.school-app-data');
   }
-  return path.join(userDataPath, 'smtp-config.json');
+
+  if (!fs.existsSync(userDataPath)) {
+    try {
+      fs.mkdirSync(userDataPath, { recursive: true, mode: 0o700 });
+    } catch { /* ignore */ }
+  }
+
+  const targetFile = path.join(userDataPath, 'smtp-config.json');
+  const legacyFile = path.join('/tmp', 'school_app_userData', 'smtp-config.json');
+
+  if (!fs.existsSync(targetFile) && fs.existsSync(legacyFile)) {
+    try {
+      fs.copyFileSync(legacyFile, targetFile);
+      fs.chmodSync(targetFile, 0o600);
+    } catch (e) {
+      console.error('Failed to migrate legacy SMTP config:', e);
+    }
+  }
+
+  return targetFile;
 }
 
 /**
@@ -102,8 +131,8 @@ function saveSmtpConfig(config) {
     updated.encryptedPass = encryptPassword(plainPass);
   }
 
-  // Never save plain text 'pass' to file
-  fs.writeFileSync(configFile, JSON.stringify(updated, null, 2), 'utf8');
+  // Never save plain text 'pass' to file and set mode 0o600
+  fs.writeFileSync(configFile, JSON.stringify(updated, null, 2), { encoding: 'utf8', mode: 0o600 });
   return { success: true };
 }
 
