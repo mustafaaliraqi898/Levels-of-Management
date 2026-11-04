@@ -55,6 +55,87 @@ function runPrintTests() {
     );
     assert(html.includes('print-isolated-sheet'), 'تغليف التقرير بحاوية عزل نظيفة بدون هوامش أو تشويش');
     assert(html.includes('<div id="test-report">'), 'احتواء المستند المعزول على محتوى التقرير المطلوب');
+
+    // Test 2: Student Card Individual Grade Card full table isolation & portrait test
+    const fakeStudentCardElement = {
+      cloneNode: () => ({
+        style: {},
+        classList: { remove: () => {} },
+        querySelectorAll: () => [],
+        outerHTML: `
+          <div class="printable-card">
+            <h1>بطاقة الدرجات للعام الدراسي 2025-2026</h1>
+            <p>اسم الطالب: أحمد علي محمد</p>
+            <table class="w-full border-collapse border border-slate-800">
+              <thead>
+                <tr>
+                  <th>الدروس</th>
+                  <th>معدل الفصل الأول</th>
+                  <th>درجة نصف السنة</th>
+                  <th>معدل النصف الثاني</th>
+                  <th>معدل السعي السنوي</th>
+                  <th>الدرجة النهائية</th>
+                  <th>الملاحظات</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>الرياضيات</td>
+                  <td>85</td>
+                  <td>90</td>
+                  <td>88</td>
+                  <td>88</td>
+                  <td>92</td>
+                  <td>ناجح</td>
+                </tr>
+              </tbody>
+            </table>
+            <div>الحالة النهائية للطالب: ناجح</div>
+            <div>مدير المدرسة والختم الرسمي</div>
+          </div>
+        `,
+      }),
+      querySelectorAll: () => [],
+      outerHTML: `
+        <div class="printable-card">
+          <h1>بطاقة الدرجات للعام الدراسي 2025-2026</h1>
+          <p>اسم الطالب: أحمد علي محمد</p>
+          <table class="w-full border-collapse border border-slate-800">
+            <thead>
+              <tr>
+                <th>الدروس</th>
+                <th>معدل الفصل الأول</th>
+                <th>درجة نصف السنة</th>
+                <th>معدل النصف الثاني</th>
+                <th>معدل السعي السنوي</th>
+                <th>الدرجة النهائية</th>
+                <th>الملاحظات</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>الرياضيات</td>
+                <td>85</td>
+                <td>90</td>
+                <td>88</td>
+                <td>88</td>
+                <td>92</td>
+                <td>ناجح</td>
+              </tr>
+            </tbody>
+          </table>
+          <div>الحالة النهائية للطالب: ناجح</div>
+          <div>مدير المدرسة والختم الرسمي</div>
+        </div>
+      `,
+    } as any;
+
+    const studentCardHtml = buildIsolatedReportHtml(fakeStudentCardElement, false); // portrait
+    assert(studentCardHtml.includes('size: A4 portrait !important;'), 'تطبيق اتجاه الورقة العمودي A4 portrait لبطاقة الطالب الفردية');
+    assert(studentCardHtml.includes('بطاقة الدرجات للعام الدراسي'), 'حفظ عنوان بطاقة درجات الطالب الفردية');
+    assert(studentCardHtml.includes('الدروس') && studentCardHtml.includes('الدرجة النهائية'), 'وجود كامل أعمدة جدول درجات الطالب الفردية في الطباعة');
+    assert(studentCardHtml.includes('الرياضيات') && studentCardHtml.includes('92'), 'تضمين أسماء المواد ودرجات الطالب داخل المستند المعزول للطباعة');
+    assert(studentCardHtml.includes('الحالة النهائية للطالب: ناجح'), 'ظهور ملخص الحالة النهائية والتوقيع الرسمي مع جدول الدرجات');
   }
 
   console.log('--------------------------------------------------');

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import jsPDF from 'jspdf';
 import JSZip from 'jszip';
 import {
@@ -6,7 +6,6 @@ import {
   AppSettings,
   CertificateTemplateConfig,
 } from '../../types';
-import { CertificateCanvas } from '../CertificateTemplate/CertificateCanvas';
 import { db, buildGradeKey } from '../../services/storage';
 import {
   FileText,
@@ -61,10 +60,6 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
   const [currentStudentName, setCurrentStudentName] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-
-  // Dedicated off-screen render container ref for html2canvas
-  const hiddenRenderContainerRef = useRef<HTMLDivElement>(null);
-  const [renderStudent, setRenderStudent] = useState<Student | null>(null);
 
   if (!isOpen) return null;
 
@@ -127,55 +122,8 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
     };
   };
 
-  /** Waits for DOM paint, web fonts, and container images to be completely ready */
-  const waitForContainerReady = async (container: HTMLDivElement) => {
-    // 1. Wait for React state change to reflect in DOM
-    await new Promise((r) => setTimeout(r, 120));
-
-    // 2. Wait for Arabic web fonts to be completely ready
-    if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
-      try {
-        await document.fonts.ready;
-      } catch (e) {
-        console.warn('Font loading wait warning:', e);
-      }
-    }
-
-    // 3. Wait for all <img> elements in the container to load and decode
-    const containerImgs = Array.from(container.querySelectorAll('img'));
-    await Promise.all(
-      containerImgs.map((img) => {
-        if (img.complete && img.naturalWidth > 0) {
-          return typeof img.decode === 'function' ? img.decode().catch(() => {}) : Promise.resolve();
-        }
-        return new Promise<void>((resolve) => {
-          let resolved = false;
-          const finish = () => {
-            if (!resolved) {
-              resolved = true;
-              img.removeEventListener('load', finish);
-              img.removeEventListener('error', finish);
-              if (typeof img.decode === 'function') {
-                img.decode().then(resolve).catch(resolve);
-              } else {
-                resolve();
-              }
-            }
-          };
-          img.addEventListener('load', finish);
-          img.addEventListener('error', finish);
-          setTimeout(finish, 1500); // 1.5s safety fallback
-        });
-      })
-    );
-
-    // 4. Final animation frame
-    await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 80)));
-  };
-
   /** Generates high-resolution student certificate canvas matching original template dimensions */
   const renderStudentCanvas = async (student: Student): Promise<HTMLCanvasElement> => {
-    setRenderStudent(student);
     const templateConfig = db.getCertificateTemplate();
     const gradesInfo = getStudentGradesData(student);
 
@@ -521,7 +469,6 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
     } finally {
       setIsGenerating(false);
       setExportMode(null);
-      setRenderStudent(null);
     }
   };
 
@@ -604,7 +551,6 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
     } finally {
       setIsGenerating(false);
       setExportMode(null);
-      setRenderStudent(null);
     }
   };
 
@@ -868,41 +814,6 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
               )}
             </button>
           </div>
-        </div>
-
-        {/* Fixed Off-Screen Render Container for html2canvas (CRITICAL: opacity: 1, visibility: visible) */}
-        <div
-          ref={hiddenRenderContainerRef}
-          style={{
-            position: 'fixed',
-            left: 0,
-            top: 0,
-            width: '1123px',
-            height: '794px',
-            overflow: 'hidden',
-            pointerEvents: 'none',
-            zIndex: -99999,
-            background: '#ffffff',
-            opacity: 1,
-            visibility: 'visible',
-          }}
-        >
-          {renderStudent && (
-            <CertificateCanvas
-              config={db.getCertificateTemplate()}
-              settings={settings}
-              studentName={renderStudent.name}
-              academicYear={academicYearName}
-              directorName={settings.directorName || 'إدارة المدرسة'}
-              classNameStr={classNameStr}
-              sectionNameStr={sectionNameStr}
-              registrationNumber={renderStudent.registrationNumber}
-              seatNumber={renderStudent.seatNumber}
-              gradesData={getStudentGradesData(renderStudent)}
-              isForPrint={true}
-              fixedScale={true}
-            />
-          )}
         </div>
       </div>
     </div>
