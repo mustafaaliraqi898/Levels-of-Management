@@ -48,11 +48,13 @@ function createWindow() {
   Menu.setApplicationMenu(null);
 
   mainWindow.on('closed', () => {
+    activeSessions.delete(mainWindow.webContents.id);
     mainWindow = null;
   });
 }
 
-let activeSessions = new Map(); // token -> session
+// Map to store active sessions per webContents ID (session isolation)
+const activeSessions = new Map(); // webContents.id -> session
 
 function validateSender(event) {
   const frame = event.senderFrame;
@@ -65,15 +67,12 @@ function validateSender(event) {
   return url.startsWith('file://') && url.includes('dist/index.html');
 }
 
-// For simplicity and since it's a single window app, we can keep currentActiveSession 
-// BUT we MUST verify it on every call and NEVER let the renderer set it directly with roles.
-let currentActiveSession = null;
-
 function requireAdminRole(event) {
   if (!validateSender(event)) {
     throw new Error('Unauthorized sender origin');
   }
-  if (!currentActiveSession || !currentActiveSession.user || currentActiveSession.user.role !== 'admin') {
+  const session = activeSessions.get(event.sender.id);
+  if (!session || !session.user || session.user.role !== 'admin') {
     throw new Error('عفواً، هذه العملية مرفوضة أمنياً: حساب المعاينة للقراءة فقط ولا يملك صلاحية تعديل قاعدة البيانات SQLite.');
   }
 }
@@ -82,7 +81,8 @@ function requireAuth(event) {
   if (!validateSender(event)) {
     throw new Error('Unauthorized sender origin');
   }
-  if (!currentActiveSession || !currentActiveSession.user) {
+  const session = activeSessions.get(event.sender.id);
+  if (!session || !session.user) {
     throw new Error('عفواً، يجب تسجيل الدخول للقيام بهذه العملية.');
   }
 }
@@ -96,13 +96,14 @@ app.whenReady().then(async () => {
     const result = await db.verifyCredentials(username, password);
     if (result.success) {
       const token = crypto.randomBytes(32).toString('hex');
-      currentActiveSession = {
+      const session = {
         user: result.user,
         token,
         loginTime: new Date().toISOString()
       };
+      activeSessions.set(event.sender.id, session);
       await db.updateUserLastLogin(result.user.id);
-      return { success: true, session: currentActiveSession };
+      return { success: true, session };
     }
     return result;
   });
@@ -113,11 +114,12 @@ app.whenReady().then(async () => {
     const result = await db.setupFirstAdmin(username, password);
     if (result.success) {
       const token = crypto.randomBytes(32).toString('hex');
-      currentActiveSession = {
+      const session = {
         user: result.user,
         token,
         loginTime: new Date().toISOString()
       };
+      activeSessions.set(event.sender.id, session);
 
       // SECURITY: Cleanup any legacy temporary credentials file if it exists
       try {
@@ -130,7 +132,7 @@ app.whenReady().then(async () => {
         console.warn('Failed to cleanup legacy credentials file:', e.message);
       }
 
-      return { success: true, session: currentActiveSession };
+      return { success: true, session };
     }
     return result;
   });
@@ -142,12 +144,13 @@ app.whenReady().then(async () => {
 
   ipcMain.handle('auth:getCurrentUser', (event) => {
     if (!validateSender(event)) return null;
-    return currentActiveSession ? currentActiveSession.user : null;
+    const session = activeSessions.get(event.sender.id);
+    return session ? session.user : null;
   });
 
   ipcMain.handle('auth:clearSession', (event) => {
     if (!validateSender(event)) return { success: false };
-    currentActiveSession = null;
+    activeSessions.delete(event.sender.id);
     return { success: true };
   });
 
@@ -160,7 +163,7 @@ app.whenReady().then(async () => {
   ipcMain.handle('auth:verifyResetCodeAndChangePassword', async (event, username, code, newPassword) => {
     if (!validateSender(event)) return { success: false, error: 'Unauthorized' };
     const res = await resetService.verifyResetCodeAndChangePassword(username, code, newPassword);
-    if (res.success) currentActiveSession = null; // Invalidate current session if password changed
+    if (res.success) activeSessions.delete(event.sender.id); // Invalidate current session if password changed
     return res;
   });
 
