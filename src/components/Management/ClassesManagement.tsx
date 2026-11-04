@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { SchoolClass, Section, Student, Subject, GradeRecord, AcademicYear } from '../../types';
 import { db } from '../../services/storage';
 import { filterClassesByAcademicYear } from '../../utils/academicYearUtils';
@@ -43,6 +43,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
   const [selectedYearId, setSelectedYearId] = useState<string>(currentYear?.id || '');
 
   // Add Class Form State
+  const newClassNameInputRef = useRef<HTMLInputElement>(null);
   const [newClassName, setNewClassName] = useState('');
   const [newClassStage, setNewClassStage] = useState('إعدادي');
   const [addClassError, setAddClassError] = useState<string | null>(null);
@@ -52,6 +53,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
   const [copySourceYearId, setCopySourceYearId] = useState<string>('');
 
   // Add Section Form State
+  const newSectionNameInputRef = useRef<HTMLInputElement>(null);
   const [selectedClassId, setSelectedClassId] = useState('');
   const [newSectionName, setNewSectionName] = useState('');
   const [addSectionError, setAddSectionError] = useState<string | null>(null);
@@ -137,6 +139,9 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
 
     setNewClassName('');
     showToast(`تمت إضافة الصف الدراسي «${cleanName}» بنجاح.`);
+    requestAnimationFrame(() => {
+      newClassNameInputRef.current?.focus();
+    });
   };
 
   // --- Handlers: Copy Structure from Previous Year ---
@@ -185,6 +190,9 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
     setNewSectionName('');
     const parentClass = classes.find((c) => c.id === selectedClassId);
     showToast(`تمت إضافة شعبة «${cleanName}» إلى صف «${parentClass?.name || ''}» بنجاح.`);
+    requestAnimationFrame(() => {
+      newSectionNameInputRef.current?.focus();
+    });
   };
 
   // --- Handlers: Edit Class ---
@@ -457,6 +465,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
               <div>
                 <label className="block text-xs font-bold text-slate-300 mb-1">اسم الصف</label>
                 <input
+                  ref={newClassNameInputRef}
                   type="text"
                   value={newClassName}
                   onChange={(e) => {
@@ -530,6 +539,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
               <div>
                 <label className="block text-xs font-bold text-slate-300 mb-1">اسم أو رمز الشعبة</label>
                 <input
+                  ref={newSectionNameInputRef}
                   type="text"
                   value={newSectionName}
                   onChange={(e) => {

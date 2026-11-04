@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Subject, SchoolClass, AcademicYear } from '../../types';
 import { db } from '../../services/storage';
 import { filterClassesByAcademicYear } from '../../utils/academicYearUtils';
@@ -48,6 +48,7 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
     }
   }, [availableClasses, selectedClassId]);
 
+  const subjectNameInputRef = useRef<HTMLInputElement>(null);
   const [newName, setNewName] = useState('');
   const [newMaxScore, setNewMaxScore] = useState(100);
   const [newPassScore, setNewPassScore] = useState(50);
@@ -101,6 +102,9 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
 
     setNewName('');
     setSaveSuccessNotification(`تمت إضافة مادة «${newName.trim()}» وحفظ ترتيبها تلقائياً.`);
+    requestAnimationFrame(() => {
+      subjectNameInputRef.current?.focus();
+    });
   };
 
   // Drag & Drop Handlers
@@ -315,6 +319,7 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
             <div>
               <label className="block text-xs font-bold text-slate-300 mb-1">اسم المادة</label>
               <input
+                ref={subjectNameInputRef}
                 type="text"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
