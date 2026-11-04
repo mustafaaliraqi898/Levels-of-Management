@@ -30,6 +30,7 @@ export default function App() {
 
   // Setup Required status
   const [setupRequired, setSetupRequired] = useState<boolean | null>(null);
+  const [dbError, setDbError] = useState<string | null>(null);
 
   // Authentication session state
   const [authSession, setAuthSession] = useState<AuthSession | null>(() =>
@@ -99,6 +100,11 @@ export default function App() {
   useEffect(() => {
     const checkSetup = async () => {
       await db.whenReady();
+      const err = db.getDbError();
+      if (err) {
+        setDbError(err);
+        return;
+      }
       const status = await authService.getSetupStatus();
       setSetupRequired(status.setupRequired);
     };
@@ -141,6 +147,25 @@ export default function App() {
     setAuthSession(null);
     setIsAccountModalOpen(false);
   };
+
+  // Database Error View
+  if (dbError) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 text-center" dir="rtl">
+        <div className="max-w-md w-full bg-slate-900 border border-red-500/20 p-8 rounded-2xl">
+          <div className="w-16 h-16 bg-red-500/10 border border-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6 text-red-500 text-2xl font-bold">!</div>
+          <h1 className="text-xl font-bold text-white mb-4">خطأ في تهيئة قاعدة البيانات</h1>
+          <p className="text-slate-400 mb-8">{dbError}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl transition-all"
+          >
+            إعادة محاولة التشغيل
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // Loading state
   if (setupRequired === null) {

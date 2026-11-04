@@ -502,22 +502,52 @@ const dbActions = {
   },
 
   setupFirstAdmin: async (username, password) => {
-    const status = await dbActions.getSetupStatus();
-    if (!status.setupRequired) {
-      throw new Error('عفواً، لا يمكن إتمام الإعداد الأولي: النظام يحتوي بالفعل على حسابات مستخدمين.');
-    }
+    return new Promise((resolve, reject) => {
+      db.serialize(() => {
+        // Use BEGIN IMMEDIATE to lock the database for writing immediately
+        db.run('BEGIN IMMEDIATE', (err) => {
+          if (err) return resolve({ success: false, error: 'تعذر بدء عملية الإعداد: قاعدة البيانات مشغولة.' });
 
-    const id = `usr-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`;
-    const salt = crypto.randomBytes(16).toString('hex');
-    const hash = hashPasswordNode(password, salt);
-    
-    await run('INSERT INTO users (id, username, passwordHash, salt, role, isActive, mustChangePassword, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [id, username.trim(), hash, salt, 'admin', 1, 0, new Date().toISOString()]);
+          db.get("SELECT count(*) as count FROM users", async (countErr, row) => {
+            if (countErr || !row || row.count > 0) {
+              db.run('ROLLBACK');
+              return resolve({ success: false, error: 'عفواً، لا يمكن إتمام الإعداد الأولي: النظام يحتوي بالفعل على حسابات مستخدمين.' });
+            }
 
-    return { 
-      success: true, 
-      user: { id, username: username.trim(), role: 'admin', isActive: true, mustChangePassword: false, createdAt: new Date().toISOString() } 
-    };
+            try {
+              const id = `usr-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`;
+              const salt = crypto.randomBytes(16).toString('hex');
+              const hash = hashPasswordNode(password, salt);
+              
+              db.run('INSERT INTO users (id, username, passwordHash, salt, role, isActive, mustChangePassword, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                [id, username.trim(), hash, salt, 'admin', 1, 0, new Date().toISOString()],
+                (insertErr) => {
+                  if (insertErr) {
+                    db.run('ROLLBACK');
+                    return resolve({ success: false, error: 'فشل حفظ بيانات المدير في قاعدة البيانات.' });
+                  }
+
+                  db.run('COMMIT', (commitErr) => {
+                    if (commitErr) {
+                      db.run('ROLLBACK');
+                      return resolve({ success: false, error: 'فشل تأكيد عملية حفظ البيانات.' });
+                    }
+
+                    resolve({ 
+                      success: true, 
+                      user: { id, username: username.trim(), role: 'admin', isActive: true, mustChangePassword: false, createdAt: new Date().toISOString() } 
+                    });
+                  });
+                }
+              );
+            } catch (ex) {
+              db.run('ROLLBACK');
+              resolve({ success: false, error: 'حدث خطأ غير متوقع أثناء المعالجة التشفيرية.' });
+            }
+          });
+        });
+      });
+    });
   },
 
   updateUserLastLogin: (id) => run('UPDATE users SET lastLogin = ? WHERE id = ?', [new Date().toISOString(), id]),

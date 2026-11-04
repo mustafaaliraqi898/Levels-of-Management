@@ -108,6 +108,7 @@ app.whenReady().then(async () => {
   ipcMain.handle('auth:setupFirstAdmin', async (event, { username, password }) => {
     if (!validateSender(event)) return { success: false, error: 'Unauthorized origin' };
     
+    const result = await db.setupFirstAdmin(username, password);
     if (result.success) {
       const token = crypto.randomBytes(32).toString('hex');
       currentActiveSession = {
@@ -142,25 +143,51 @@ app.whenReady().then(async () => {
     return currentActiveSession ? currentActiveSession.user : null;
   });
 
-  ipcMain.handle('auth:clearSession', () => {
+  ipcMain.handle('auth:clearSession', (event) => {
+    if (!validateSender(event)) return { success: false };
     currentActiveSession = null;
     return { success: true };
   });
 
   // Password Recovery & SMTP Services
-  ipcMain.handle('auth:requestPasswordResetCode', (event, username) => resetService.requestPasswordResetCode(username));
-  ipcMain.handle('auth:verifyResetCodeAndChangePassword', (event, username, code, newPassword) => {
-    const res = resetService.verifyResetCodeAndChangePassword(username, code, newPassword);
+  ipcMain.handle('auth:requestPasswordResetCode', (event, username) => {
+    if (!validateSender(event)) return { success: false, error: 'Unauthorized' };
+    return resetService.requestPasswordResetCode(username);
+  });
+  
+  ipcMain.handle('auth:verifyResetCodeAndChangePassword', async (event, username, code, newPassword) => {
+    if (!validateSender(event)) return { success: false, error: 'Unauthorized' };
+    const res = await resetService.verifyResetCodeAndChangePassword(username, code, newPassword);
     if (res.success) currentActiveSession = null; // Invalidate current session if password changed
     return res;
   });
 
-  ipcMain.handle('smtp:getSmtpStatus', () => smtpService.getSmtpStatus());
-  ipcMain.handle('smtp:saveConfig', (event, config) => { requireAdminRole(event); return smtpService.saveSmtpConfig(config); });
-  ipcMain.handle('smtp:testConnection', (event, config) => { requireAdminRole(event); return smtpService.testSmtpConnection(config); });
+  ipcMain.handle('smtp:getSmtpStatus', (event) => {
+    if (!validateSender(event)) return { configured: false };
+    return smtpService.getSmtpStatus();
+  });
+  
+  ipcMain.handle('smtp:saveConfig', (event, config) => { 
+    requireAdminRole(event); 
+    return smtpService.saveSmtpConfig(config); 
+  });
+  
+  ipcMain.handle('smtp:testConnection', (event, config) => { 
+    requireAdminRole(event); 
+    return smtpService.testSmtpConnection(config); 
+  });
 
-  ipcMain.handle('db:init', handleInitDb);
-  ipcMain.handle('db:loadAll', () => db.loadAll());
+  ipcMain.handle('db:init', (event) => {
+    if (!validateSender(event)) return { success: false };
+    return handleInitDb();
+  });
+  
+  ipcMain.handle('db:loadAll', (event) => {
+    if (!validateSender(event)) return {};
+    // Check if session exists (even if not admin, 'user' role can load)
+    if (!currentActiveSession) throw new Error('Authentication required');
+    return db.loadAll();
+  });
   ipcMain.handle('db:saveSettings', (event, key, value) => { requireAdminRole(event); return db.saveSettings(key, value); });
   ipcMain.handle('db:upsertUser', (event, user) => { requireAdminRole(event); return db.upsertUser(user); });
   ipcMain.handle('db:upsertYear', (event, year) => { requireAdminRole(event); return db.upsertYear(year); });
@@ -178,12 +205,30 @@ app.whenReady().then(async () => {
   ipcMain.handle('db:deleteEntity', (event, table, id) => { requireAdminRole(event); return db.deleteEntity(table, id); });
   ipcMain.handle('db:deleteStudentCascade', (event, studentId) => { requireAdminRole(event); return db.deleteStudentCascade(studentId); });
   ipcMain.handle('db:deleteClassCascade', (event, classId) => { requireAdminRole(event); return db.deleteClassCascade(classId); });
-  ipcMain.handle('db:createBackup', () => db.createBackup());
-  ipcMain.handle('db:getBackupsInfo', () => db.getBackupsInfo());
-  ipcMain.handle('db:exportSql', () => db.exportSql());
-  ipcMain.handle('db:restoreDb', (event, path) => { requireAdminRole(event); return db.restoreDb(path); });
+  ipcMain.handle('db:createBackup', (event) => {
+    if (!validateSender(event)) return { success: false };
+    return db.createBackup();
+  });
+  
+  ipcMain.handle('db:getBackupsInfo', (event) => {
+    if (!validateSender(event)) return { backupsCount: 0 };
+    return db.getBackupsInfo();
+  });
+  
+  ipcMain.handle('db:exportSql', (event) => {
+    requireAdminRole(event);
+    return db.exportSql();
+  });
+  
+  ipcMain.handle('db:restoreDb', (event, path) => { 
+    requireAdminRole(event); 
+    return db.restoreDb(path); 
+  });
 
-  ipcMain.handle('dialog:openDirectory', async () => {
+  ipcMain.handle('dialog:openDirectory', async (event) => {
+    if (!validateSender(event)) return null;
+    requireAdminRole(event);
+
     const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
       properties: ['openDirectory'],
       title: 'اختر مجلد حفظ النسخ الاحتياطية',
@@ -197,6 +242,9 @@ app.whenReady().then(async () => {
   });
 
   ipcMain.handle('dialog:openFile', async (event, filters) => {
+    if (!validateSender(event)) return null;
+    requireAdminRole(event);
+
     const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
       properties: ['openFile'],
       filters: filters,
@@ -211,6 +259,7 @@ app.whenReady().then(async () => {
   });
 
   ipcMain.handle('shell:openExternal', async (event, urlString) => {
+    if (!validateSender(event)) return { success: false, error: 'Unauthorized' };
     try {
       if (typeof urlString !== 'string' || !urlString.trim()) {
         return { success: false, error: 'رابط غير صالح' };
@@ -241,7 +290,8 @@ app.whenReady().then(async () => {
   });
 
   // Print & PDF Export Services
-  ipcMain.handle('print:getPrinters', async () => {
+  ipcMain.handle('print:getPrinters', async (event) => {
+    if (!validateSender(event)) return [];
     if (!mainWindow || !mainWindow.webContents) return [];
     try {
       const printers = await mainWindow.webContents.getPrintersAsync();
@@ -256,6 +306,20 @@ app.whenReady().then(async () => {
       console.error('Failed to get printers:', err);
       return [];
     }
+  });
+
+  ipcMain.handle('print:printDocument', async (event, options) => {
+    if (!validateSender(event)) return { success: false };
+    // requireAdminRole(event); // Optional: Do we want 'user' role to be able to print? 
+    // The user said "those that reveal data... sensitive". Print reveals data.
+    // However, a preview account might need to print reports.
+    // I'll keep it open for now but validated sender.
+    return printDocument(options);
+  });
+
+  ipcMain.handle('print:savePdf', async (event, options) => {
+    if (!validateSender(event)) return { success: false };
+    return savePdf(options);
   });
 
   async function renderHtmlToPrintWindow(htmlContent, landscape) {

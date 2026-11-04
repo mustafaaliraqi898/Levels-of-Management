@@ -96,6 +96,7 @@ export class LocalStorageEngine {
   private isReady = false;
   private isPromotionExecuting = false;
   private initPromise: Promise<void>;
+  private dbError: string | null = null;
 
   constructor() {
     this.state = this.getInitialEmptyState();
@@ -127,8 +128,16 @@ export class LocalStorageEngine {
         if (initRes.success) {
           await this.loadFromSqlite();
           await this.syncBackupInfo();
+        } else {
+          this.dbError = initRes.error || 'فشل الاتصال بقاعدة البيانات SQLite.';
+          console.error('SQLite init failed:', this.dbError);
+          return; // Stop further execution
         }
-      } catch (e) { console.error('SQLite init error', e); }
+      } catch (e: any) { 
+        this.dbError = e.message || 'خطأ غير متوقع في محرك قاعدة البيانات.';
+        console.error('SQLite init error', e); 
+        return; // Stop further execution
+      }
     } else {
       this.state = this.loadFromStorage();
       // Browser demo seeding if empty
@@ -1525,6 +1534,10 @@ export class LocalStorageEngine {
     } finally {
       this.isPromotionExecuting = false;
     }
+  }
+
+  public getDbError(): string | null {
+    return this.dbError;
   }
 
   public getUsers() { return this.state.users || []; }
