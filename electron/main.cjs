@@ -65,13 +65,6 @@ function validateSender(event) {
   return url.startsWith('file://') && url.includes('dist/index.html');
 }
 
-function getSession(event) {
-  const authHeader = event.sender.webContents.getURL(); // Not ideal but we can't easily pass headers in IPC
-  // We'll use a property on the webContents or just the token passed in every request?
-  // Electron IPC doesn't have a standard way to pass "context" easily without params.
-  // We will assume the Renderer sends the token as the FIRST argument for sensitive calls or we store the current session per webContents.
-}
-
 // For simplicity and since it's a single window app, we can keep currentActiveSession 
 // BUT we MUST verify it on every call and NEVER let the renderer set it directly with roles.
 let currentActiveSession = null;
@@ -82,6 +75,15 @@ function requireAdminRole(event) {
   }
   if (!currentActiveSession || !currentActiveSession.user || currentActiveSession.user.role !== 'admin') {
     throw new Error('عفواً، هذه العملية مرفوضة أمنياً: حساب المعاينة للقراءة فقط ولا يملك صلاحية تعديل قاعدة البيانات SQLite.');
+  }
+}
+
+function requireAuth(event) {
+  if (!validateSender(event)) {
+    throw new Error('Unauthorized sender origin');
+  }
+  if (!currentActiveSession || !currentActiveSession.user) {
+    throw new Error('عفواً، يجب تسجيل الدخول للقيام بهذه العملية.');
   }
 }
 
@@ -183,9 +185,7 @@ app.whenReady().then(async () => {
   });
   
   ipcMain.handle('db:loadAll', (event) => {
-    if (!validateSender(event)) return {};
-    // Check if session exists (even if not admin, 'user' role can load)
-    if (!currentActiveSession) throw new Error('Authentication required');
+    requireAuth(event);
     return db.loadAll();
   });
   ipcMain.handle('db:saveSettings', (event, key, value) => { requireAdminRole(event); return db.saveSettings(key, value); });
@@ -205,13 +205,14 @@ app.whenReady().then(async () => {
   ipcMain.handle('db:deleteEntity', (event, table, id) => { requireAdminRole(event); return db.deleteEntity(table, id); });
   ipcMain.handle('db:deleteStudentCascade', (event, studentId) => { requireAdminRole(event); return db.deleteStudentCascade(studentId); });
   ipcMain.handle('db:deleteClassCascade', (event, classId) => { requireAdminRole(event); return db.deleteClassCascade(classId); });
+  
   ipcMain.handle('db:createBackup', (event) => {
-    if (!validateSender(event)) return { success: false };
+    requireAdminRole(event);
     return db.createBackup();
   });
   
   ipcMain.handle('db:getBackupsInfo', (event) => {
-    if (!validateSender(event)) return { backupsCount: 0 };
+    requireAdminRole(event);
     return db.getBackupsInfo();
   });
   
@@ -289,9 +290,10 @@ app.whenReady().then(async () => {
     }
   });
 
+
   // Print & PDF Export Services
   ipcMain.handle('print:getPrinters', async (event) => {
-    if (!validateSender(event)) return [];
+    requireAuth(event);
     if (!mainWindow || !mainWindow.webContents) return [];
     try {
       const printers = await mainWindow.webContents.getPrintersAsync();
@@ -306,20 +308,6 @@ app.whenReady().then(async () => {
       console.error('Failed to get printers:', err);
       return [];
     }
-  });
-
-  ipcMain.handle('print:printDocument', async (event, options) => {
-    if (!validateSender(event)) return { success: false };
-    // requireAdminRole(event); // Optional: Do we want 'user' role to be able to print? 
-    // The user said "those that reveal data... sensitive". Print reveals data.
-    // However, a preview account might need to print reports.
-    // I'll keep it open for now but validated sender.
-    return printDocument(options);
-  });
-
-  ipcMain.handle('print:savePdf', async (event, options) => {
-    if (!validateSender(event)) return { success: false };
-    return savePdf(options);
   });
 
   async function renderHtmlToPrintWindow(htmlContent, landscape) {
@@ -399,6 +387,7 @@ app.whenReady().then(async () => {
   }
 
   ipcMain.handle('print:printDocument', async (event, options = {}) => {
+    requireAuth(event);
     if (!mainWindow || !mainWindow.webContents) {
       return { success: false, error: 'النافذة الرئيسية غير متاحة' };
     }
@@ -451,6 +440,7 @@ app.whenReady().then(async () => {
   });
 
   ipcMain.handle('print:savePdf', async (event, options = {}) => {
+    requireAuth(event);
     if (!mainWindow || !mainWindow.webContents) {
       return { success: false, error: 'النافذة الرئيسية غير متاحة' };
     }

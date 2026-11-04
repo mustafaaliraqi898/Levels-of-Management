@@ -90,19 +90,9 @@ async function runSetupFlowTests() {
      const status = await authService.getSetupStatus();
      assert.strictEqual(status.setupRequired, false);
 
-     // Simulate setup call - it should be rejected by the backend logic we implemented
-     // In this web-mock environment, we rely on the state check in auth.ts
-     try {
-       const res = await authService.setupFirstAdmin({ username: 'evil', password: '123' });
-       // If it doesn't throw, check if success is false
-       if (res.success) {
-          // If it succeeded in this test, it might be because our web mock is less strict
-          // than the BEGIN IMMEDIATE in SQLite. 
-          // But in auth.ts we added a check: if users.length > 0 return error.
-       }
-     } catch (e) {
-        // success
-     }
+     // Attempt second setup - it should be rejected
+     const res = await authService.setupFirstAdmin({ username: 'evil', password: '123' });
+     assert.strictEqual(res.success, false, 'Setup MUST fail if users already exist');
   });
 
   // Test 4: Role spoofing protection (IPC Channel Removal)
@@ -123,6 +113,27 @@ async function runSetupFlowTests() {
      // This is tested by checking if dbError stops execution in storage.ts
      // We can check if getDbError is available.
      assert.ok(typeof (db as any).getDbError === 'function');
+  });
+
+  // Test 7: Write permission check (Frontend Logic)
+  await test('7. Write permission is denied for user role', async () => {
+    // 1. User role
+    const userSession = {
+      user: { id: 'u1', username: 'viewer', role: 'user' as const, isActive: true, mustChangePassword: false },
+      token: 't1',
+      loginTime: new Date().toISOString()
+    };
+    sessionStorage.setItem('school_app_auth_session', JSON.stringify(userSession));
+    const perm = db.checkWritePermission();
+    assert.strictEqual(perm.allowed, false, 'User role MUST be denied write permission');
+    assert.ok(perm.error?.includes('غير مصرح'));
+  });
+
+  // Test 8: Logout invalidates session
+  await test('8. Logout clears session state and storage', async () => {
+    await authService.clearSession();
+    assert.strictEqual(authService.getCurrentSession(), null);
+    assert.strictEqual(sessionStorage.getItem('school_app_auth_session'), null);
   });
 
   console.log('\n--------------------------------------------------');

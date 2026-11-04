@@ -188,10 +188,16 @@ class AuthService {
     }
     
     // For web demo, use storage service
+    const status = await this.getSetupStatus();
+    if (!status.setupRequired) {
+      return { success: false, error: 'عفواً، لا يمكن إتمام الإعداد الأولي: النظام يحتوي بالفعل على حسابات مستخدمين.' };
+    }
+
+    const salt = generateSalt(16);
     const res = db.addUser({
       username: data.username,
-      passwordHash: await hashPassword(data.password, 'demo-salt'),
-      salt: 'demo-salt',
+      passwordHash: await hashPassword(data.password, salt),
+      salt: salt,
       role: 'admin',
       isActive: true,
       mustChangePassword: false,
