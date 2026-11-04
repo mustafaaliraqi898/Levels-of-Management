@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { SchoolLogo } from '../Common/SchoolLogo';
 import { PrintPreviewModal } from '../Common/PrintPreviewModal';
+import { StudentStatusBadge } from '../Common/StudentStatusBadge';
 
 interface ReportsViewProps {
   academicYears: AcademicYear[];
@@ -179,7 +180,10 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           <div className="text-left font-mono text-xs text-slate-800">
             {activeReport === 'student_card' && targetStudent ? (
               <div className="flex flex-col gap-0.5 text-right font-sans font-bold">
-                <p>اسم الطالب: {targetStudent.name}</p>
+                <div className="flex items-center gap-1.5">
+                  <p>اسم الطالب: {targetStudent.name}</p>
+                  <StudentStatusBadge status={targetStudent.status} />
+                </div>
                 <p>الصف والشعبة: {activeClass?.name} - {activeSection?.name}</p>
                 <p>رقم القيد: {targetStudent.registrationNumber || `#${targetStudent.seatNumber}`}</p>
               </div>
@@ -268,7 +272,10 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                     </td>
                     <td className="border border-slate-700 p-1.5 font-bold">
                       <div className="flex items-center justify-between">
-                        <span>{stu.name}</span>
+                        <div className="flex items-center gap-1.5">
+                          <span>{stu.name}</span>
+                          <StudentStatusBadge status={stu.status} />
+                        </div>
                         {isGeneralExempt && (
                           <span className="text-[9px] px-1 py-0.2 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
                             إعفاء عام
@@ -511,7 +518,10 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                     {idx + 1}
                   </span>
                   <div>
-                    <h4 className="font-bold text-sm text-slate-900">{stu.name}</h4>
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-bold text-sm text-slate-900">{stu.name}</h4>
+                      <StudentStatusBadge status={stu.status} />
+                    </div>
                     <span className="text-xs text-slate-500">#{stu.seatNumber}</span>
                   </div>
                 </div>
@@ -687,7 +697,9 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                   className="w-full h-9 px-3 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-200 font-bold focus:outline-hidden appearance-none cursor-pointer"
                 >
                   {sectionStudents.map((s) => (
-                    <option key={s.id} value={s.id}>#{s.seatNumber} - {s.name}</option>
+                    <option key={s.id} value={s.id}>
+                      #{s.seatNumber} - {s.name}{s.status === 'affiliated' ? ' (انتساب)' : ''}
+                    </option>
                   ))}
                 </select>
                 <ChevronDown className="w-4 h-4 text-slate-400 absolute left-2.5 top-2.5 pointer-events-none" />

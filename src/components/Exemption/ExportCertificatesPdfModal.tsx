@@ -19,6 +19,7 @@ import {
   Image as ImageIcon,
   Check,
 } from 'lucide-react';
+import { StudentStatusBadge } from '../Common/StudentStatusBadge';
 
 interface ExportCertificatesPdfModalProps {
   isOpen: boolean;
@@ -728,9 +729,12 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
                           className="w-4 h-4 rounded-sm border-slate-700 bg-slate-900 text-amber-500 focus:ring-0 cursor-pointer"
                         />
                         <div>
-                          <span className="text-xs font-bold text-white block">
-                            {idx + 1}. {student.name}
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-bold text-white block">
+                              {idx + 1}. {student.name}
+                            </span>
+                            <StudentStatusBadge status={student.status} />
+                          </div>
                           {student.registrationNumber && (
                             <span className="text-[11px] text-slate-400 font-mono">
                               رقم القيد: {student.registrationNumber}

@@ -85,6 +85,10 @@ function initDb() {
           if (!hasNotes) {
             db.run("ALTER TABLE students ADD COLUMN notes TEXT");
           }
+          const hasStatus = rows.some(r => r.name === 'status');
+          if (!hasStatus) {
+            db.run("ALTER TABLE students ADD COLUMN status TEXT DEFAULT 'regular'");
+          }
         }
       });
 
@@ -116,6 +120,7 @@ function initDb() {
         sectionId TEXT,
         gender TEXT,
         notes TEXT,
+        status TEXT DEFAULT 'regular',
         isGeneralExempt INTEGER,
         individualExemptions TEXT,
         FOREIGN KEY(academicYearId) REFERENCES academic_years(id),
@@ -399,9 +404,9 @@ const dbActions = {
   upsertSubject: (s) => run('INSERT OR REPLACE INTO subjects (id, classId, name, maxScore, passScore, "order") VALUES (?, ?, ?, ?, ?, ?)', 
     [s.id, s.classId, s.name, s.maxScore, s.passScore, s.order]),
 
-  upsertStudent: (s) => run(`INSERT OR REPLACE INTO students (id, name, registrationNumber, fatherPhone, seatNumber, academicYearId, classId, sectionId, gender, notes, isGeneralExempt, individualExemptions) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
-    [s.id, s.name, (s.registrationNumber !== undefined && s.registrationNumber !== null) ? s.registrationNumber : null, s.fatherPhone ?? null, s.seatNumber, s.academicYearId, s.classId, s.sectionId ?? '', s.gender ?? 'male', s.notes ?? null, s.isGeneralExempt ? 1 : 0, JSON.stringify(s.individualExemptions || [])]),
+  upsertStudent: (s) => run(`INSERT OR REPLACE INTO students (id, name, registrationNumber, fatherPhone, seatNumber, academicYearId, classId, sectionId, gender, notes, status, isGeneralExempt, individualExemptions) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
+    [s.id, s.name, (s.registrationNumber !== undefined && s.registrationNumber !== null) ? s.registrationNumber : null, s.fatherPhone ?? null, s.seatNumber, s.academicYearId, s.classId, s.sectionId ?? '', s.gender ?? 'male', s.notes ?? null, s.status || 'regular', s.isGeneralExempt ? 1 : 0, JSON.stringify(s.individualExemptions || [])]),
 
   upsertGrade: (g) => run(`INSERT OR REPLACE INTO grades (id, academicYearId, classId, sectionId, subjectId, studentId, term1Score, midtermScore, term2Score, termYearlyScore, finalExamScore, finalScore, secondRoundScore, secondRoundFinalScore, secondRoundDate, lastUpdated, auditHistory, isIndividualExempt) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
@@ -441,8 +446,8 @@ const dbActions = {
             }
           };
 
-          const stuSql = `INSERT OR REPLACE INTO students (id, name, registrationNumber, fatherPhone, seatNumber, academicYearId, classId, sectionId, gender, notes, isGeneralExempt, individualExemptions) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+          const stuSql = `INSERT OR REPLACE INTO students (id, name, registrationNumber, fatherPhone, seatNumber, academicYearId, classId, sectionId, gender, notes, status, isGeneralExempt, individualExemptions) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
           let pendingWrites = students.length + (promotionLog ? 1 : 0);
           if (pendingWrites === 0) {
@@ -474,7 +479,7 @@ const dbActions = {
             const regVal = (s.registrationNumber !== undefined && s.registrationNumber !== null) ? s.registrationNumber : null;
             db.run(
               stuSql,
-              [s.id, s.name, regVal, s.fatherPhone ?? null, s.seatNumber, s.academicYearId, s.classId, s.sectionId || '', s.gender || 'male', s.notes ?? null, s.isGeneralExempt ? 1 : 0, JSON.stringify(s.individualExemptions || [])],
+              [s.id, s.name, regVal, s.fatherPhone ?? null, s.seatNumber, s.academicYearId, s.classId, s.sectionId || '', s.gender || 'male', s.notes ?? null, s.status || 'regular', s.isGeneralExempt ? 1 : 0, JSON.stringify(s.individualExemptions || [])],
               function(err) {
                 if (err) return errorHandler(err);
                 checkDone();

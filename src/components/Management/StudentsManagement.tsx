@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { Student, SchoolClass, Section, AcademicYear } from '../../types';
+import { Student, StudentStatus, SchoolClass, Section, AcademicYear } from '../../types';
+import { StudentStatusBadge } from '../Common/StudentStatusBadge';
 import { db } from '../../services/storage';
 import { filterClassesByAcademicYear } from '../../utils/academicYearUtils';
 import { downloadStudentTemplate, parseStudentExcelFile, ParsedStudentRow, ExcelParseResult } from '../../services/excelService';
@@ -54,6 +55,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
 
   const [filterClassId, setFilterClassId] = useState<string>('all');
   const [filterSectionId, setFilterSectionId] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'regular' | 'affiliated'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Reset or align filterClassId if selection is not in availableClasses
@@ -81,6 +83,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
   const [addFatherPhone, setAddFatherPhone] = useState('');
   const [addClassId, setAddClassId] = useState<string>(availableClasses[0]?.id || '');
   const [addSectionId, setAddSectionId] = useState<string>('');
+  const [addStatus, setAddStatus] = useState<StudentStatus>('regular');
   const [addError, setAddError] = useState<string | null>(null);
 
   // Sync addClassId with availableClasses
@@ -119,6 +122,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
   const [editFatherPhone, setEditFatherPhone] = useState('');
   const [editClassId, setEditClassId] = useState('');
   const [editSectionId, setEditSectionId] = useState('');
+  const [editStatus, setEditStatus] = useState<StudentStatus>('regular');
   const [editError, setEditError] = useState<string | null>(null);
 
   const editAvailableSections = useMemo(
@@ -146,6 +150,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
     setEditFatherPhone(student.fatherPhone || '');
     setEditClassId(student.classId);
     setEditSectionId(student.sectionId || '');
+    setEditStatus(student.status === 'affiliated' ? 'affiliated' : 'regular');
     setEditError(null);
   };
 
@@ -213,6 +218,9 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
           filterSectionId === 'all' ||
           s.sectionId === filterSectionId ||
           (filterSectionId === 'none' && !s.sectionId);
+        const matchesStatus =
+          filterStatus === 'all' ||
+          (filterStatus === 'affiliated' ? s.status === 'affiliated' : s.status !== 'affiliated');
 
         const q = searchQuery.trim().toLowerCase();
         const matchesSearch =
@@ -221,7 +229,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
           (s.registrationNumber && s.registrationNumber.toLowerCase().includes(q)) ||
           (s.fatherPhone && s.fatherPhone.includes(q));
 
-        return matchesYear && matchesClass && matchesSection && matchesSearch;
+        return matchesYear && matchesClass && matchesSection && matchesStatus && matchesSearch;
       })
       .sort((a, b) => {
         // Sort by class, then section, then registration number or seat number
@@ -229,7 +237,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
         if (a.sectionId !== b.sectionId) return a.sectionId.localeCompare(b.sectionId);
         return (a.seatNumber || 0) - (b.seatNumber || 0);
       });
-  }, [students, selectedYearId, filterClassId, filterSectionId, searchQuery]);
+  }, [students, selectedYearId, filterClassId, filterSectionId, filterStatus, searchQuery]);
 
   // Bulk select handlers
   const handleSelectAll = () => {
@@ -337,6 +345,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
       classId: addClassId,
       sectionId: finalSectionId,
       gender: 'male',
+      status: addStatus,
     });
 
     showToast(`تمت إضافة الطالب «${cleanName}» بنجاح.`);
@@ -344,6 +353,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
     setAddName('');
     setAddRegNumber('');
     setAddFatherPhone('');
+    setAddStatus('regular');
     setAddError(null);
   };
 
@@ -395,6 +405,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
       fatherPhone: editFatherPhone.trim() || undefined,
       classId: editClassId,
       sectionId: finalSectionId,
+      status: editStatus,
     };
 
     db.updateStudent(updatedStudent);
@@ -760,6 +771,20 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
             </select>
             <ChevronDown className="w-4 h-4 text-slate-400 absolute left-2.5 top-3 pointer-events-none" />
           </div>
+
+          {/* Status Filter */}
+          <div className="relative">
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value as 'all' | 'regular' | 'affiliated')}
+              className="h-10 px-3 pr-3 pl-8 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-200 font-bold focus:outline-hidden appearance-none cursor-pointer"
+            >
+              <option value="all">كل الحالات (الكل)</option>
+              <option value="regular">منتظم فقط</option>
+              <option value="affiliated">انتساب فقط</option>
+            </select>
+            <ChevronDown className="w-4 h-4 text-slate-400 absolute left-2.5 top-3 pointer-events-none" />
+          </div>
         </div>
 
         {/* Search input */}
@@ -841,7 +866,10 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
 
                     {/* Student Name */}
                     <td className="p-3 font-bold text-slate-200 text-sm border-l border-slate-800">
-                      <span className="group-hover:text-emerald-400 transition-colors">{stu.name}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="group-hover:text-emerald-400 transition-colors">{stu.name}</span>
+                        <StudentStatusBadge status={stu.status} />
+                      </div>
                     </td>
 
                     {/* Registration Number (رقم القيد) */}
@@ -1073,6 +1101,25 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                 </div>
               </div>
 
+              {/* حالة الطالب (منتظم / انتساب) */}
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center justify-between">
+                  <span>حالة الطالب</span>
+                  <span className="text-[10px] text-slate-400 font-normal">الافتراضي: منتظم</span>
+                </label>
+                <div className="relative">
+                  <select
+                    value={addStatus}
+                    onChange={(e) => setAddStatus(e.target.value as StudentStatus)}
+                    className="w-full h-10 px-3 pr-3 pl-8 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-100 font-bold appearance-none cursor-pointer focus:border-emerald-500 focus:outline-hidden"
+                  >
+                    <option value="regular">منتظم</option>
+                    <option value="affiliated">انتساب</option>
+                  </select>
+                  <ChevronDown className="w-4 h-4 text-slate-400 absolute left-2 top-3 pointer-events-none" />
+                </div>
+              </div>
+
               {/* Modal Buttons */}
               <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800 mt-2">
                 <button
@@ -1238,9 +1285,28 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                 </div>
               </div>
 
+              {/* حالة الطالب (منتظم / انتساب) */}
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center justify-between">
+                  <span>حالة الطالب</span>
+                  <span className="text-[10px] text-slate-400 font-normal">الحالة الحالية قابلة للتعديل</span>
+                </label>
+                <div className="relative">
+                  <select
+                    value={editStatus}
+                    onChange={(e) => setEditStatus(e.target.value as StudentStatus)}
+                    className="w-full h-10 px-3 pr-3 pl-8 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-100 font-bold appearance-none cursor-pointer focus:border-blue-500 focus:outline-hidden"
+                  >
+                    <option value="regular">منتظم</option>
+                    <option value="affiliated">انتساب</option>
+                  </select>
+                  <ChevronDown className="w-4 h-4 text-slate-400 absolute left-2 top-3 pointer-events-none" />
+                </div>
+              </div>
+
               <div className="text-[11px] text-slate-400 bg-slate-950/40 p-2.5 rounded-lg border border-slate-800 flex items-center gap-2">
                 <Info className="w-4 h-4 text-blue-400 shrink-0" />
-                <span>سيتم تحديث اسم الطالب ورقم قيده في جميع الجداول وكشوفات الدرجات تلقائياً.</span>
+                <span>سيتم تحديث اسم الطالب ورقم قيده وحالته في جميع الجداول وكشوفات الدرجات تلقائياً.</span>
               </div>
 
               {/* Modal Buttons */}

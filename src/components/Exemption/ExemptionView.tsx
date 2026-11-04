@@ -45,6 +45,7 @@ import {
 import { ReportHeader } from '../Common/ReportHeader';
 import { ExportCertificatesPdfModal } from './ExportCertificatesPdfModal';
 import { PrintPreviewModal } from '../Common/PrintPreviewModal';
+import { StudentStatusBadge } from '../Common/StudentStatusBadge';
 
 interface ExemptionViewProps {
   academicYears: AcademicYear[];
@@ -1160,7 +1161,8 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                         {/* 2. اسم الطالب */}
                         <td className="py-3 px-4">
                           <div className="font-bold text-slate-100 flex items-center gap-2">
-                            {row.student.name}
+                            <span>{row.student.name}</span>
+                            <StudentStatusBadge status={row.student.status} />
                             {isExempt && (
                               <span title="معفى عام">
                                 <Award className="w-4 h-4 text-amber-400 shrink-0" />
@@ -1430,7 +1432,8 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                           <td className="py-3 px-3 text-center font-mono text-slate-400">{idx + 1}</td>
                           <td className="py-3 px-4">
                             <div className="font-bold text-slate-100 flex items-center gap-2">
-                              {row.student.name}
+                              <span>{row.student.name}</span>
+                              <StudentStatusBadge status={row.student.status} />
                               {row.status === 'معفى عام' && (
                                 <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold flex items-center gap-1" title="مشمول بالإعفاء العام أيضاً">
                                   <Award className="w-3 h-3 text-amber-400" />
@@ -1624,7 +1627,8 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                           {/* 2. اسم الطالب */}
                           <td className="py-3.5 px-4">
                             <div className="font-bold text-slate-100 flex items-center gap-2 flex-wrap">
-                              {row.student.name}
+                              <span>{row.student.name}</span>
+                              <StudentStatusBadge status={row.student.status} />
                               {row.isGeneralExempt && (
                                 <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold flex items-center gap-1" title="مستوفٍ أيضاً لشروط الإعفاء العام">
                                   <Award className="w-3 h-3 text-amber-400" />

@@ -36,6 +36,7 @@ import {
   X,
   FileCheck,
 } from 'lucide-react';
+import { StudentStatusBadge } from '../Common/StudentStatusBadge';
 
 interface DecisionMarksViewProps {
   academicYears: AcademicYear[];
@@ -522,7 +523,10 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
                         #{student.seatNumber}
                       </div>
                       <div>
-                        <h3 className="text-base font-bold text-slate-100">{student.name}</h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-base font-bold text-slate-100">{student.name}</h3>
+                          <StudentStatusBadge status={student.status} />
+                        </div>
                         <p className="text-xs text-slate-400 font-mono">
                           الصف: {classObj?.name} | الشعبة: ({sectionObj?.name || '—'}) | رقم القيد: {student.registrationNumber || '—'}
                         </p>

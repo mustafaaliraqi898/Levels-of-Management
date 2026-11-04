@@ -18,6 +18,7 @@ import {
 import { db, buildGradeKey } from '../../services/storage';
 import { authService } from '../../services/auth';
 import { EditConfirmationModal } from './EditConfirmationModal';
+import { StudentStatusBadge } from '../Common/StudentStatusBadge';
 import { Check, AlertCircle, Lock, Edit3, MoveHorizontal, RotateCcw } from 'lucide-react';
 
 interface GradeTableProps {
@@ -1304,6 +1305,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
                           >
                             {student.name}
                           </span>
+                          <StudentStatusBadge status={student.status} />
                           {isGeneralExempt && (
                             <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0">
                               إعفاء عام

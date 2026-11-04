@@ -11,6 +11,7 @@
     "lint": "tsc --noEmit",
     "test:promotion": "tsx src/tests/promotion.test.ts",
     "test:print": "tsx src/tests/print.test.ts",
+    "test:status": "tsx src/tests/studentStatus.test.ts",
     "electron:dev": "NODE_ENV=development electron electron/main.cjs",
     "electron:build": "vite build && electron-builder"
   },

@@ -46,6 +46,8 @@ export interface Subject {
   order: number;
 }
 
+export type StudentStatus = 'regular' | 'affiliated'; // 'regular' (منتظم) | 'affiliated' (انتساب)
+
 export interface Student {
   id: string;
   name: string; // اسم الطالب
@@ -57,6 +59,7 @@ export interface Student {
   classId: string;
   sectionId: string;
   gender?: 'male' | 'female';
+  status?: StudentStatus; // حالة الطالب: منتظم أو انتساب
   notes?: string;
   isGeneralExempt?: boolean; // مشمول بالإعفاء العام
   individualExemptions?: string[]; // مصفوفة بالمواد المعفى منها فردياً (subjectId)

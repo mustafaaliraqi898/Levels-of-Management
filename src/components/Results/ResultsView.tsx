@@ -36,6 +36,7 @@ import {
 } from 'lucide-react';
 import { SchoolLogo } from '../Common/SchoolLogo';
 import { PrintPreviewModal } from '../Common/PrintPreviewModal';
+import { StudentStatusBadge } from '../Common/StudentStatusBadge';
 
 interface ResultsViewProps {
   academicYears: AcademicYear[];
@@ -577,7 +578,10 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                   </td>
                   <td className="border border-black p-1 pr-2 text-right font-bold text-xs text-black">
                     <div className="flex items-center justify-between">
-                      <span>{r.student.name}</span>
+                      <div className="flex items-center gap-1.5">
+                        <span>{r.student.name}</span>
+                        <StudentStatusBadge status={r.student.status} />
+                      </div>
                       {isGeneralExempt && (
                         <span className="text-[9px] font-bold px-1 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
                           إعفاء عام

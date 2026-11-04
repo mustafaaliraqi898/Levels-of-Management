@@ -4,6 +4,7 @@ import {
   Section,
   Subject,
   Student,
+  StudentStatus,
   GradeRecord,
   AppSettings,
   GradeStage,
@@ -312,6 +313,7 @@ export class LocalStorageEngine {
       this.state.subjects = data.subjects || [];
       this.state.students = (data.students || []).map((s: any) => ({
         ...s,
+        status: (s.status === 'affiliated' ? 'affiliated' : 'regular') as StudentStatus,
         notes: s.notes || undefined,
         registrationNumber: (s.registrationNumber !== null && s.registrationNumber !== undefined) ? s.registrationNumber : undefined,
         isGeneralExempt: !!s.isGeneralExempt,
@@ -437,6 +439,12 @@ export class LocalStorageEngine {
       if (data) {
         const parsed = JSON.parse(data);
         if (parsed.academicYears && parsed.grades) {
+          if (Array.isArray(parsed.students)) {
+            parsed.students = parsed.students.map((s: any) => ({
+              ...s,
+              status: (s.status === 'affiliated' ? 'affiliated' : 'regular') as StudentStatus,
+            }));
+          }
           if (localStorage.getItem('school_app_access_code_configured') === 'true') {
             if (parsed.settings) parsed.settings.isAccessCodeConfigured = true;
           }
@@ -726,9 +734,11 @@ export class LocalStorageEngine {
     const reg = s.registrationNumber ? String(s.registrationNumber).trim() : undefined;
     const phone = s.fatherPhone ? String(s.fatherPhone).trim() : undefined;
     const sec = s.sectionId ? String(s.sectionId).trim() : '';
+    const status: StudentStatus = s.status === 'affiliated' ? 'affiliated' : 'regular';
     const res: Student = {
       ...s,
       id,
+      status,
       seatNumber: s.seatNumber || (this.state.students.length + 1),
       registrationNumber: reg || undefined,
       fatherPhone: phone || undefined,
@@ -745,8 +755,10 @@ export class LocalStorageEngine {
     const reg = s.registrationNumber ? String(s.registrationNumber).trim() : undefined;
     const phone = s.fatherPhone ? String(s.fatherPhone).trim() : undefined;
     const sec = s.sectionId ? String(s.sectionId).trim() : '';
+    const status: StudentStatus = s.status === 'affiliated' ? 'affiliated' : 'regular';
     const cleanStudent: Student = {
       ...s,
+      status,
       registrationNumber: reg || undefined,
       fatherPhone: phone || undefined,
       sectionId: sec,
@@ -1435,6 +1447,9 @@ export class LocalStorageEngine {
           studentNotes = item.notes.includes(srcMarker) ? item.notes : `${item.notes} ${srcMarker}`;
         }
 
+        const srcStudent = this.state.students.find(s => s.id === item.sourceStudentId);
+        const studentStatus: StudentStatus = ((item as any).status === 'affiliated' || srcStudent?.status === 'affiliated') ? 'affiliated' : 'regular';
+
         const newStudent: Student = {
           id: newStudentId,
           name: item.studentName,
@@ -1446,6 +1461,7 @@ export class LocalStorageEngine {
           classId: item.targetClassId,
           sectionId: item.targetSectionId || '',
           gender: item.gender || 'male',
+          status: studentStatus,
           notes: studentNotes,
         };
 

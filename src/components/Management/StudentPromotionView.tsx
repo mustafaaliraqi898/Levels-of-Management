@@ -36,6 +36,7 @@ import {
   ShieldCheck,
   Copy,
 } from 'lucide-react';
+import { StudentStatusBadge } from '../Common/StudentStatusBadge';
 
 interface StudentPromotionViewProps {
   academicYears: AcademicYear[];
@@ -1429,7 +1430,10 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
                         {idx + 1}
                       </td>
                       <td className="p-2.5 border-l border-slate-800">
-                        <div className="font-bold text-slate-200">{item.student.name}</div>
+                        <div className="font-bold text-slate-200 flex items-center gap-1.5">
+                          <span>{item.student.name}</span>
+                          <StudentStatusBadge status={item.student.status} />
+                        </div>
                         <div className="text-[10px] text-slate-500 font-mono">
                           قيد: {item.student.registrationNumber || `#${item.student.seatNumber}`}
                         </div>
