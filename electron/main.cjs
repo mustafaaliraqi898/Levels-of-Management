@@ -45,6 +45,26 @@ function createWindow() {
     mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
   }
 
+  // Security: Prevent unauthorized navigation and handle external links
+  mainWindow.webContents.on('will-navigate', (event, navigationUrl) => {
+    try {
+      const parsed = new URL(navigationUrl);
+      if (process.env.NODE_ENV === 'development') {
+        if (parsed.protocol === 'http:' && parsed.hostname === 'localhost' && parsed.port === '3000') return;
+      } else {
+        if (parsed.protocol === 'file:') return;
+      }
+    } catch {}
+    event.preventDefault();
+  });
+
+  mainWindow.webContents.setWindowOpenHandler(({ url: openUrl }) => {
+    if (openUrl.startsWith('http://') || openUrl.startsWith('https://')) {
+      shell.openExternal(openUrl);
+    }
+    return { action: 'deny' };
+  });
+
   // Remove standard English menu for a clean custom dark native feel
   Menu.setApplicationMenu(null);
 
@@ -228,6 +248,23 @@ app.whenReady().then(async () => {
     return db.createBackup();
   });
   
+  // Access Code IPC Services
+  ipcMain.handle('auth:setAccessCode', async (event, code, newAdminPassword) => {
+    if (!validateSender(event)) return { success: false, error: 'Unauthorized origin' };
+    requireAdminRole(event);
+    return await db.setAccessCode(code, newAdminPassword);
+  });
+
+  ipcMain.handle('auth:verifyAccessCode', async (event, code) => {
+    if (!validateSender(event)) return false;
+    return await db.verifyAccessCode(code);
+  });
+
+  ipcMain.handle('auth:isAccessCodeConfigured', async (event) => {
+    if (!validateSender(event)) return { isConfigured: false };
+    return await db.isAccessCodeConfigured();
+  });
+
   ipcMain.handle('db:getBackupsInfo', (event) => {
     requireAdminRole(event);
     return db.getBackupsInfo();
@@ -238,9 +275,23 @@ app.whenReady().then(async () => {
     return db.exportSql();
   });
   
-  ipcMain.handle('db:restoreDb', (event, path) => { 
+  ipcMain.handle('db:restoreDb', async (event, passedPath) => { 
     requireAdminRole(event); 
-    return db.restoreDb(path); 
+    let targetPath = passedPath;
+
+    if (!targetPath || typeof targetPath !== 'string') {
+      const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
+        title: 'اختر ملف قاعدة البيانات للاستعادة (.db)',
+        filters: [{ name: 'SQLite Database', extensions: ['db', 'sqlite', 'sqlite3'] }],
+        properties: ['openFile']
+      });
+      if (canceled || !filePaths || filePaths.length === 0) {
+        return { success: false, error: 'تم إلغاء عملية اختيار ملف الاستعادة.' };
+      }
+      targetPath = filePaths[0];
+    }
+
+    return await db.restoreDb(targetPath); 
   });
 
   ipcMain.handle('dialog:openDirectory', async (event) => {
@@ -328,6 +379,20 @@ app.whenReady().then(async () => {
   });
 
   async function renderHtmlToPrintWindow(htmlContent, landscape) {
+    if (!htmlContent || typeof htmlContent !== 'string') {
+      throw new Error('محتوى المستند المراد طباعته غير متاح.');
+    }
+
+    if (htmlContent.length > 15 * 1024 * 1024) {
+      throw new Error('حجم مستند الطباعة كبير جداً ويشكل خطراً على ذاكرة التطبيق.');
+    }
+
+    // Sanitize HTML: strip script tags and inline event handlers
+    const sanitizedHtml = htmlContent
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/\s*on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
+      .replace(/javascript\s*:/gi, '');
+
     const printWin = new BrowserWindow({
       show: false,
       width: landscape ? 1400 : 1000,
@@ -335,13 +400,15 @@ app.whenReady().then(async () => {
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
-        sandbox: false,
-        webSecurity: false, // Allows reading local files and inlined data without cross-origin blocks
+        sandbox: true,
+        webSecurity: true,
       },
     });
 
-    // Write the self-contained HTML to a temporary file and load it via an RFC-compliant file URL.
-    // This completely circumvents Windows path issues (spaces, backslashes, drive letters, and Arabic folder names).
+    // Prevent navigation and opening popups in print window
+    printWin.webContents.on('will-navigate', (e) => e.preventDefault());
+    printWin.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+
     let tempHtmlFile = null;
     try {
       const tempDir = app.getPath('temp');
@@ -350,7 +417,7 @@ app.whenReady().then(async () => {
         tempDir,
         `print_doc_${Date.now()}_${uniqueSuffix}.html`
       );
-      await fs.promises.writeFile(tempHtmlFile, htmlContent, 'utf8');
+      await fs.promises.writeFile(tempHtmlFile, sanitizedHtml, 'utf8');
 
       const fileUrl = url.pathToFileURL(tempHtmlFile).href;
       await printWin.loadURL(fileUrl);
@@ -359,6 +426,7 @@ app.whenReady().then(async () => {
       if (tempHtmlFile) {
         fs.promises.unlink(tempHtmlFile).catch(() => {});
       }
+      if (!printWin.isDestroyed()) printWin.destroy();
       throw loadErr;
     }
 

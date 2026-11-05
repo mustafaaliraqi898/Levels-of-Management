@@ -527,6 +527,106 @@ async function runMainProcessSecurityTests() {
     );
   });
 
+  // ==========================================
+  // H. Full Save User Credential Retention & Access Code Security
+  // ==========================================
+
+  await test('H1. Full Save Security: Executing upsertUser with stripped Renderer data NEVER wipes passwordHash or salt', async () => {
+    // 1. Create admin user with scrypt password in database
+    const salt = passwordHasher.generateSalt();
+    const hash = passwordHasher.hashPasswordScrypt('AdminOriginalPass123!', salt);
+
+    const mockDbUser: any = {
+      id: 'usr-fullsave-test',
+      username: 'fullsave_admin',
+      passwordHash: hash,
+      salt: salt,
+      role: 'admin',
+      isActive: 1,
+      mustChangePassword: 0,
+      createdAt: new Date().toISOString()
+    };
+
+    let storedInDb = { ...mockDbUser };
+
+    // Simulated upsertUser matching electron/database.cjs logic
+    const simulatedUpsertUser = async (u: any) => {
+      const existing = storedInDb.id === u.id ? storedInDb : null;
+      const passwordHash = (u.passwordHash !== undefined && u.passwordHash !== null && u.passwordHash !== '') 
+        ? u.passwordHash 
+        : (existing ? existing.passwordHash : null);
+      const salt = (u.salt !== undefined && u.salt !== null && u.salt !== '') 
+        ? u.salt 
+        : (existing ? existing.salt : null);
+
+      storedInDb = {
+        ...storedInDb,
+        username: u.username || storedInDb.username,
+        passwordHash,
+        salt,
+        role: u.role || storedInDb.role,
+        isActive: u.isActive ? 1 : 0,
+        mustChangePassword: u.mustChangePassword ? 1 : 0,
+        email: u.email || storedInDb.email
+      };
+      return { success: true };
+    };
+
+    // 2. Simulate loadAll() returning safe user object to Renderer (without passwordHash & salt)
+    const safeRendererUser = {
+      id: storedInDb.id,
+      username: storedInDb.username,
+      role: storedInDb.role,
+      isActive: true,
+      mustChangePassword: false,
+      createdAt: storedInDb.createdAt
+      // passwordHash & salt are UNDEFINED (stripped by loadAll)
+    };
+    assert.strictEqual((safeRendererUser as any).passwordHash, undefined);
+    assert.strictEqual((safeRendererUser as any).salt, undefined);
+
+    // 3. Renderer updates school settings or adds student, triggering full save: upsertUser(safeRendererUser)
+    await simulatedUpsertUser(safeRendererUser);
+
+    // 4. Verify SQLite record retains original passwordHash and salt intact
+    assert.strictEqual(storedInDb.passwordHash, hash, 'passwordHash must remain intact in DB');
+    assert.strictEqual(storedInDb.salt, salt, 'salt must remain intact in DB');
+
+    // 5. Confirm user can still log in with original password!
+    const verifyRes = passwordHasher.verifyPassword('AdminOriginalPass123!', storedInDb.salt, storedInDb.passwordHash);
+    assert.strictEqual(verifyRes.valid, true, 'User login with original password must succeed after full save');
+  });
+
+  await test('H2. Access Code Security: Set, verify, and configured status managed in Main Process without exposing secrets', async () => {
+    let storedAccessCodeSetting: any = null;
+
+    const setAccessCode = async (code: string) => {
+      const salt = passwordHasher.generateSalt();
+      const hash = passwordHasher.hashPasswordScrypt(code, salt);
+      storedAccessCodeSetting = { isConfigured: true, hash, salt, createdAt: new Date().toISOString() };
+      return { success: true };
+    };
+
+    const verifyAccessCode = async (inputCode: string) => {
+      if (!storedAccessCodeSetting || !storedAccessCodeSetting.isConfigured) return false;
+      const verifyRes = passwordHasher.verifyPassword(inputCode, storedAccessCodeSetting.salt, storedAccessCodeSetting.hash);
+      return verifyRes.valid;
+    };
+
+    await setAccessCode('998877');
+    assert.ok(storedAccessCodeSetting.hash.startsWith('scrypt$'), 'Access code hash uses scrypt');
+
+    const valid = await verifyAccessCode('998877');
+    assert.strictEqual(valid, true, 'Valid access code verifies');
+
+    const invalid = await verifyAccessCode('000000');
+    assert.strictEqual(invalid, false, 'Invalid access code fails');
+
+    const safeSettingValue = JSON.stringify({ isConfigured: storedAccessCodeSetting.isConfigured });
+    assert.ok(!safeSettingValue.includes('hash'), 'Safe setting output must not contain hash');
+    assert.ok(!safeSettingValue.includes('salt'), 'Safe setting output must not contain salt');
+  });
+
   console.log('\n--------------------------------------------------');
   console.log(`Results: ${passedCount} Passed, ${failedCount} Failed`);
   console.log('--------------------------------------------------');

@@ -238,8 +238,8 @@ export type UserRole = 'admin' | 'user';
 export interface UserAccount {
   id: string;
   username: string;
-  passwordHash: string;
-  salt: string;
+  passwordHash?: string;
+  salt?: string;
   role: UserRole;
   isActive: boolean;
   email?: string; // بريد إلكتروني خاص بحسابات الأدمن لاستعادة كلمة المرور
@@ -360,6 +360,12 @@ declare global {
           code: string,
           newPassword: string
         ) => Promise<{ success: boolean; message?: string; error?: string }>;
+        changePassword?: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; error?: string }>;
+        forceChangePassword?: (newPassword: string, adminEmail?: string) => Promise<{ success: boolean; error?: string }>;
+        adminResetUserPassword?: (userId: string, newPassword: string) => Promise<{ success: boolean; error?: string }>;
+        setAccessCode?: (code: string, newAdminPassword?: string) => Promise<{ success: boolean; error?: string }>;
+        verifyAccessCode?: (code: string) => Promise<boolean>;
+        isAccessCodeConfigured?: () => Promise<{ isConfigured: boolean }>;
       };
       smtp: {
         getSmtpStatus: () => Promise<{

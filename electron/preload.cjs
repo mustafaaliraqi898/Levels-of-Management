@@ -15,6 +15,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     changePassword: (currentPassword, newPassword) => ipcRenderer.invoke('auth:changePassword', currentPassword, newPassword),
     forceChangePassword: (newPassword, adminEmail) => ipcRenderer.invoke('auth:forceChangePassword', newPassword, adminEmail),
     adminResetUserPassword: (userId, newPassword) => ipcRenderer.invoke('auth:adminResetUserPassword', userId, newPassword),
+    setAccessCode: (code, newAdminPassword) => ipcRenderer.invoke('auth:setAccessCode', code, newAdminPassword),
+    verifyAccessCode: (code) => ipcRenderer.invoke('auth:verifyAccessCode', code),
+    isAccessCodeConfigured: () => ipcRenderer.invoke('auth:isAccessCodeConfigured'),
   },
   smtp: {
     getSmtpStatus: () => ipcRenderer.invoke('smtp:getSmtpStatus'),

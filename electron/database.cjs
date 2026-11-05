@@ -17,6 +17,7 @@ if (process.versions && process.versions.electron) {
 const fs = require('fs');
 const os = require('os');
 const crypto = require('crypto');
+const sessionManager = require('./session-manager.cjs');
 
 function resolveUserDataPath() {
   if (app && typeof app.getPath === 'function') {
@@ -150,254 +151,249 @@ function hashPasswordNode(password, salt) {
   return passwordHasher.hashPasswordSha256(password, salt);
 }
 
-function initDb() {
-  return new Promise((resolve, reject) => {
-    db.serialize(() => {
-      db.run(`CREATE TABLE IF NOT EXISTS users (
-        id TEXT PRIMARY KEY,
-        username TEXT UNIQUE,
-        passwordHash TEXT,
-        salt TEXT,
-        role TEXT,
-        isActive INTEGER,
-        mustChangePassword INTEGER,
-        createdAt TEXT,
-        email TEXT
-      )`);
-
-      db.all("PRAGMA table_info(users)", (err, rows) => {
-        if (!err && rows && rows.length > 0) {
-          const hasEmail = rows.some(r => r.name === 'email');
-          if (!hasEmail) {
-            db.run("ALTER TABLE users ADD COLUMN email TEXT");
-          }
-        }
-      });
-
-      db.run(`CREATE TABLE IF NOT EXISTS academic_years (
-        id TEXT PRIMARY KEY,
-        name TEXT,
-        isCurrent INTEGER
-      )`);
-
-      db.run(`CREATE TABLE IF NOT EXISTS classes (
-        id TEXT PRIMARY KEY,
-        name TEXT,
-        stage TEXT,
-        "order" INTEGER,
-        academicYearId TEXT,
-        isArchived INTEGER DEFAULT 0
-      )`);
-
-      // Ensure columns exist on existing SQLite databases
-      db.all("PRAGMA table_info(classes)", (err, rows) => {
-        if (!err && rows) {
-          const hasYearId = rows.some(r => r.name === 'academicYearId');
-          if (!hasYearId) {
-            db.run("ALTER TABLE classes ADD COLUMN academicYearId TEXT");
-          }
-          const hasArchived = rows.some(r => r.name === 'isArchived');
-          if (!hasArchived) {
-            db.run("ALTER TABLE classes ADD COLUMN isArchived INTEGER DEFAULT 0");
-          }
-        }
-      });
-
-      db.all("PRAGMA table_info(exemption_settings)", (err, rows) => {
-        if (!err && rows && rows.length > 0) {
-          const hasGenEnabled = rows.some(r => r.name === 'isGeneralExemptionEnabled');
-          if (!hasGenEnabled) {
-            db.run("ALTER TABLE exemption_settings ADD COLUMN isGeneralExemptionEnabled INTEGER DEFAULT 1");
-          }
-          const hasIndivEnabled = rows.some(r => r.name === 'isIndividualExemptionEnabled');
-          if (!hasIndivEnabled) {
-            db.run("ALTER TABLE exemption_settings ADD COLUMN isIndividualExemptionEnabled INTEGER DEFAULT 1");
-          }
-        }
-      });
-
-      db.all("PRAGMA table_info(students)", (err, rows) => {
-        if (!err && rows && rows.length > 0) {
-          const hasNotes = rows.some(r => r.name === 'notes');
-          if (!hasNotes) {
-            db.run("ALTER TABLE students ADD COLUMN notes TEXT");
-          }
-          const hasStatus = rows.some(r => r.name === 'status');
-          if (!hasStatus) {
-            db.run("ALTER TABLE students ADD COLUMN status TEXT DEFAULT 'regular'");
-          }
-        }
-      });
-
-      db.run(`CREATE TABLE IF NOT EXISTS sections (
-        id TEXT PRIMARY KEY,
-        classId TEXT,
-        name TEXT,
-        FOREIGN KEY(classId) REFERENCES classes(id)
-      )`);
-
-      db.run(`CREATE TABLE IF NOT EXISTS subjects (
-        id TEXT PRIMARY KEY,
-        classId TEXT,
-        name TEXT,
-        maxScore REAL,
-        passScore REAL,
-        "order" INTEGER,
-        FOREIGN KEY(classId) REFERENCES classes(id)
-      )`);
-
-      db.run(`CREATE TABLE IF NOT EXISTS students (
-        id TEXT PRIMARY KEY,
-        name TEXT,
-        registrationNumber TEXT,
-        fatherPhone TEXT,
-        seatNumber INTEGER,
-        academicYearId TEXT,
-        classId TEXT,
-        sectionId TEXT,
-        gender TEXT,
-        notes TEXT,
-        status TEXT DEFAULT 'regular',
-        isGeneralExempt INTEGER,
-        individualExemptions TEXT,
-        FOREIGN KEY(academicYearId) REFERENCES academic_years(id),
-        FOREIGN KEY(classId) REFERENCES classes(id),
-        FOREIGN KEY(sectionId) REFERENCES sections(id)
-      )`);
-
-      db.run(`CREATE TABLE IF NOT EXISTS grades (
-        id TEXT PRIMARY KEY,
-        academicYearId TEXT,
-        classId TEXT,
-        sectionId TEXT,
-        subjectId TEXT,
-        studentId TEXT,
-        term1Score REAL,
-        midtermScore REAL,
-        term2Score REAL,
-        termYearlyScore REAL,
-        finalExamScore REAL,
-        finalScore REAL,
-        secondRoundScore REAL,
-        secondRoundFinalScore REAL,
-        secondRoundDate TEXT,
-        lastUpdated TEXT,
-        auditHistory TEXT,
-        isIndividualExempt INTEGER,
-        FOREIGN KEY(academicYearId) REFERENCES academic_years(id),
-        FOREIGN KEY(classId) REFERENCES classes(id),
-        FOREIGN KEY(sectionId) REFERENCES sections(id),
-        FOREIGN KEY(subjectId) REFERENCES subjects(id),
-        FOREIGN KEY(studentId) REFERENCES students(id)
-      )`);
-
-      db.run(`CREATE TABLE IF NOT EXISTS settings (
-        key TEXT PRIMARY KEY,
-        value TEXT
-      )`);
-
-      db.run(`CREATE TABLE IF NOT EXISTS exemption_settings (
-        academicYearId TEXT PRIMARY KEY,
-        generalMinAverage REAL,
-        generalMinSubjectScore REAL,
-        enableGeneralJabr INTEGER,
-        isGeneralExemptionEnabled INTEGER DEFAULT 1,
-        individualMinScore REAL,
-        isIndividualExemptionEnabled INTEGER DEFAULT 1,
-        isConfigured INTEGER,
-        updatedAt TEXT,
-        FOREIGN KEY(academicYearId) REFERENCES academic_years(id)
-      )`);
-
-      db.run(`CREATE TABLE IF NOT EXISTS decision_settings (
-        academicYearId TEXT PRIMARY KEY,
-        maxFailedSubjectsAllowed INTEGER,
-        primaryAssistanceMarks INTEGER,
-        secondRoundAdditionalAssistanceMarks INTEGER,
-        notes TEXT,
-        updatedAt TEXT,
-        FOREIGN KEY(academicYearId) REFERENCES academic_years(id)
-      )`);
-
-      db.run(`CREATE TABLE IF NOT EXISTS decision_grants (
-        id TEXT PRIMARY KEY,
-        academicYearId TEXT,
-        classId TEXT,
-        sectionId TEXT,
-        studentId TEXT,
-        subjectId TEXT,
-        round TEXT,
-        originalScore REAL,
-        appliedMarks REAL,
-        finalScoreAfterDecision REAL,
-        requiredPassScore REAL,
-        grantedAt TEXT,
-        grantedBy TEXT,
-        notes TEXT,
-        FOREIGN KEY(academicYearId) REFERENCES academic_years(id),
-        FOREIGN KEY(classId) REFERENCES classes(id),
-        FOREIGN KEY(sectionId) REFERENCES sections(id),
-        FOREIGN KEY(studentId) REFERENCES students(id),
-        FOREIGN KEY(subjectId) REFERENCES subjects(id)
-      )`);
-
-      db.run(`CREATE TABLE IF NOT EXISTS certificate_templates (
-        id TEXT PRIMARY KEY,
-        config TEXT,
-        imageData TEXT
-      )`);
-
-      db.run(`CREATE TABLE IF NOT EXISTS promotion_logs (
-        id TEXT PRIMARY KEY,
-        date TEXT,
-        sourceYearId TEXT,
-        sourceYearName TEXT,
-        targetYearId TEXT,
-        targetYearName TEXT,
-        promotedCount INTEGER,
-        repeatingCount INTEGER,
-        graduatedCount INTEGER,
-        excludedCount INTEGER,
-        totalProcessedCount INTEGER,
-        executedBy TEXT
-      )`);
-
-      db.get("SELECT count(*) as count FROM users", (err, row) => {
-        if (!err && row && row.count === 0) {
-          console.log('[SECURITY] Database is empty. First-run setup required.');
-        }
-      });
-
-      resolve();
-    });
-  });
-}
-
 function query(sql, params = []) {
   return new Promise((resolve, reject) => {
+    if (!db) return resolve([]);
     db.all(sql, params, (err, rows) => {
       if (err) reject(err);
-      else resolve(rows);
+      else resolve(rows || []);
     });
   });
 }
 
 function get(sql, params = []) {
   return new Promise((resolve, reject) => {
+    if (!db) return resolve(null);
     db.get(sql, params, (err, row) => {
       if (err) reject(err);
-      else resolve(row);
+      else resolve(row || null);
     });
   });
 }
 
 function run(sql, params = []) {
   return new Promise((resolve, reject) => {
+    if (!db) return resolve({ id: 0, changes: 0 });
     db.run(sql, params, function(err) {
       if (err) reject(err);
-      else resolve({ id: this.lastID, changes: this.changes });
+      else resolve({ id: this ? this.lastID : 0, changes: this ? this.changes : 0 });
     });
   });
+}
+
+async function initDb() {
+  if (!db) return;
+
+  // Enforce foreign key constraints in SQLite
+  await run('PRAGMA foreign_keys = ON;');
+
+  // 1. Create Core Tables
+  await run(`CREATE TABLE IF NOT EXISTS users (
+    id TEXT PRIMARY KEY,
+    username TEXT UNIQUE,
+    passwordHash TEXT,
+    salt TEXT,
+    role TEXT,
+    isActive INTEGER,
+    mustChangePassword INTEGER,
+    createdAt TEXT,
+    email TEXT,
+    lastLogin TEXT
+  )`);
+
+  await run(`CREATE TABLE IF NOT EXISTS academic_years (
+    id TEXT PRIMARY KEY,
+    name TEXT,
+    isCurrent INTEGER
+  )`);
+
+  await run(`CREATE TABLE IF NOT EXISTS classes (
+    id TEXT PRIMARY KEY,
+    name TEXT,
+    stage TEXT,
+    "order" INTEGER,
+    academicYearId TEXT,
+    isArchived INTEGER DEFAULT 0
+  )`);
+
+  await run(`CREATE TABLE IF NOT EXISTS sections (
+    id TEXT PRIMARY KEY,
+    classId TEXT,
+    name TEXT,
+    FOREIGN KEY(classId) REFERENCES classes(id)
+  )`);
+
+  await run(`CREATE TABLE IF NOT EXISTS subjects (
+    id TEXT PRIMARY KEY,
+    classId TEXT,
+    name TEXT,
+    maxScore REAL,
+    passScore REAL,
+    "order" INTEGER,
+    FOREIGN KEY(classId) REFERENCES classes(id)
+  )`);
+
+  await run(`CREATE TABLE IF NOT EXISTS students (
+    id TEXT PRIMARY KEY,
+    name TEXT,
+    registrationNumber TEXT,
+    fatherPhone TEXT,
+    seatNumber INTEGER,
+    academicYearId TEXT,
+    classId TEXT,
+    sectionId TEXT,
+    gender TEXT,
+    notes TEXT,
+    status TEXT DEFAULT 'regular',
+    isGeneralExempt INTEGER,
+    individualExemptions TEXT,
+    FOREIGN KEY(academicYearId) REFERENCES academic_years(id),
+    FOREIGN KEY(classId) REFERENCES classes(id),
+    FOREIGN KEY(sectionId) REFERENCES sections(id)
+  )`);
+
+  await run(`CREATE TABLE IF NOT EXISTS grades (
+    id TEXT PRIMARY KEY,
+    academicYearId TEXT,
+    classId TEXT,
+    sectionId TEXT,
+    subjectId TEXT,
+    studentId TEXT,
+    term1Score REAL,
+    midtermScore REAL,
+    term2Score REAL,
+    termYearlyScore REAL,
+    finalExamScore REAL,
+    finalScore REAL,
+    secondRoundScore REAL,
+    secondRoundFinalScore REAL,
+    secondRoundDate TEXT,
+    lastUpdated TEXT,
+    auditHistory TEXT,
+    isIndividualExempt INTEGER,
+    FOREIGN KEY(academicYearId) REFERENCES academic_years(id),
+    FOREIGN KEY(classId) REFERENCES classes(id),
+    FOREIGN KEY(sectionId) REFERENCES sections(id),
+    FOREIGN KEY(subjectId) REFERENCES subjects(id),
+    FOREIGN KEY(studentId) REFERENCES students(id)
+  )`);
+
+  await run(`CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY,
+    value TEXT
+  )`);
+
+  await run(`CREATE TABLE IF NOT EXISTS exemption_settings (
+    academicYearId TEXT PRIMARY KEY,
+    generalMinAverage REAL,
+    generalMinSubjectScore REAL,
+    enableGeneralJabr INTEGER,
+    isGeneralExemptionEnabled INTEGER DEFAULT 1,
+    individualMinScore REAL,
+    isIndividualExemptionEnabled INTEGER DEFAULT 1,
+    isConfigured INTEGER,
+    updatedAt TEXT,
+    FOREIGN KEY(academicYearId) REFERENCES academic_years(id)
+  )`);
+
+  await run(`CREATE TABLE IF NOT EXISTS decision_settings (
+    academicYearId TEXT PRIMARY KEY,
+    maxFailedSubjectsAllowed INTEGER,
+    primaryAssistanceMarks INTEGER,
+    secondRoundAdditionalAssistanceMarks INTEGER,
+    notes TEXT,
+    updatedAt TEXT,
+    FOREIGN KEY(academicYearId) REFERENCES academic_years(id)
+  )`);
+
+  await run(`CREATE TABLE IF NOT EXISTS decision_grants (
+    id TEXT PRIMARY KEY,
+    academicYearId TEXT,
+    classId TEXT,
+    sectionId TEXT,
+    studentId TEXT,
+    subjectId TEXT,
+    round TEXT,
+    originalScore REAL,
+    appliedMarks REAL,
+    finalScoreAfterDecision REAL,
+    requiredPassScore REAL,
+    grantedAt TEXT,
+    grantedBy TEXT,
+    notes TEXT,
+    FOREIGN KEY(academicYearId) REFERENCES academic_years(id),
+    FOREIGN KEY(classId) REFERENCES classes(id),
+    FOREIGN KEY(sectionId) REFERENCES sections(id),
+    FOREIGN KEY(studentId) REFERENCES students(id),
+    FOREIGN KEY(subjectId) REFERENCES subjects(id)
+  )`);
+
+  await run(`CREATE TABLE IF NOT EXISTS certificate_templates (
+    id TEXT PRIMARY KEY,
+    config TEXT,
+    imageData TEXT
+  )`);
+
+  await run(`CREATE TABLE IF NOT EXISTS promotion_logs (
+    id TEXT PRIMARY KEY,
+    date TEXT,
+    sourceYearId TEXT,
+    sourceYearName TEXT,
+    targetYearId TEXT,
+    targetYearName TEXT,
+    promotedCount INTEGER,
+    repeatingCount INTEGER,
+    graduatedCount INTEGER,
+    excludedCount INTEGER,
+    totalProcessedCount INTEGER,
+    executedBy TEXT
+  )`);
+
+  // 2. Idempotent Schema Migrations
+  const userCols = await query("PRAGMA table_info(users)");
+  if (userCols && userCols.length > 0) {
+    if (!userCols.some(r => r.name === 'email')) {
+      await run("ALTER TABLE users ADD COLUMN email TEXT;");
+    }
+    if (!userCols.some(r => r.name === 'lastLogin')) {
+      await run("ALTER TABLE users ADD COLUMN lastLogin TEXT;");
+    }
+  }
+
+  const classCols = await query("PRAGMA table_info(classes)");
+  if (classCols && classCols.length > 0) {
+    if (!classCols.some(r => r.name === 'academicYearId')) {
+      await run("ALTER TABLE classes ADD COLUMN academicYearId TEXT;");
+    }
+    if (!classCols.some(r => r.name === 'isArchived')) {
+      await run("ALTER TABLE classes ADD COLUMN isArchived INTEGER DEFAULT 0;");
+    }
+  }
+
+  const exemptionCols = await query("PRAGMA table_info(exemption_settings)");
+  if (exemptionCols && exemptionCols.length > 0) {
+    if (!exemptionCols.some(r => r.name === 'isGeneralExemptionEnabled')) {
+      await run("ALTER TABLE exemption_settings ADD COLUMN isGeneralExemptionEnabled INTEGER DEFAULT 1;");
+    }
+    if (!exemptionCols.some(r => r.name === 'isIndividualExemptionEnabled')) {
+      await run("ALTER TABLE exemption_settings ADD COLUMN isIndividualExemptionEnabled INTEGER DEFAULT 1;");
+    }
+  }
+
+  const studentCols = await query("PRAGMA table_info(students)");
+  if (studentCols && studentCols.length > 0) {
+    if (!studentCols.some(r => r.name === 'notes')) {
+      await run("ALTER TABLE students ADD COLUMN notes TEXT;");
+    }
+    if (!studentCols.some(r => r.name === 'status')) {
+      await run("ALTER TABLE students ADD COLUMN status TEXT DEFAULT 'regular';");
+    }
+  }
+
+  const row = await get("SELECT count(*) as count FROM users");
+  if (row && row.count === 0) {
+    console.log('[SECURITY] Database is empty. First-run setup required.');
+  }
 }
 
 async function getBackupDir() {
@@ -593,16 +589,167 @@ const dbActions = {
     return run('UPDATE users SET passwordHash = ?, salt = ?, mustChangePassword = 0 WHERE id = ?', [hash, salt, id]);
   },
 
-  deleteEntity: (table, id) => {
+  deleteEntity: async (table, id) => {
     const allowedTables = ['academic_years', 'classes', 'sections', 'subjects', 'students', 'grades', 'users', 'promotion_logs'];
     if (!allowedTables.includes(table)) throw new Error('Unauthorized table deletion');
+
+    if (table === 'users') {
+      const user = await get("SELECT role, isActive FROM users WHERE id = ?", [id]);
+      if (user && user.role === 'admin' && user.isActive === 1) {
+        const activeAdmins = await get("SELECT count(*) as cnt FROM users WHERE role = 'admin' AND isActive = 1 AND id != ?", [id]);
+        if (!activeAdmins || activeAdmins.cnt === 0) {
+          throw new Error('لا يمكن حذف مدير النظام الوحيد النشط في التطبيق.');
+        }
+      }
+      const res = await run("DELETE FROM users WHERE id = ?", [id]);
+      sessionManager.clearSessionsByUserId(id);
+      return res;
+    }
+
+    if (table === 'academic_years') {
+      const year = await get("SELECT isCurrent FROM academic_years WHERE id = ?", [id]);
+      if (year && year.isCurrent === 1) {
+        throw new Error('لا يمكن حذف العام الدراسي الحالي.');
+      }
+      const studentsCount = await get("SELECT count(*) as cnt FROM students WHERE academicYearId = ?", [id]);
+      if (studentsCount && studentsCount.cnt > 0) {
+        throw new Error('لا يمكن حذف العام الدراسي لأنه يحتوي على طلاب مسجلين.');
+      }
+    }
+
+    if (table === 'classes') {
+      const studentsCount = await get("SELECT count(*) as cnt FROM students WHERE classId = ?", [id]);
+      if (studentsCount && studentsCount.cnt > 0) {
+        throw new Error('لا يمكن حذف الصف لأنه مرتبط بسجلات طلاب.');
+      }
+    }
+
+    if (table === 'sections') {
+      const studentsCount = await get("SELECT count(*) as cnt FROM students WHERE sectionId = ?", [id]);
+      if (studentsCount && studentsCount.cnt > 0) {
+        throw new Error('لا يمكن حذف الشعبة لأنها مرتبطة بسجلات طلاب.');
+      }
+    }
+
+    if (table === 'subjects') {
+      const gradesCount = await get("SELECT count(*) as cnt FROM grades WHERE subjectId = ?", [id]);
+      if (gradesCount && gradesCount.cnt > 0) {
+        throw new Error('لا يمكن حذف المادة لأنها مرتبطة بدرجات مسجلة للطلاب.');
+      }
+    }
+
     return run(`DELETE FROM ${table} WHERE id = ?`, [id]);
   },
 
   saveSettings: (key, value) => run('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', [key, JSON.stringify(value)]),
   
-  upsertUser: (u) => run('INSERT OR REPLACE INTO users (id, username, passwordHash, salt, role, isActive, mustChangePassword, createdAt, email) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-    [u.id, u.username, u.passwordHash, u.salt, u.role, u.isActive ? 1 : 0, u.mustChangePassword ? 1 : 0, u.createdAt, u.email || null]),
+  upsertUser: async (u) => {
+    if (!u || !u.id) throw new Error('معرف المستخدم مطلوب');
+    const existing = await get("SELECT passwordHash, salt, role, isActive, createdAt FROM users WHERE id = ?", [u.id]);
+
+    // Protect last active admin from being disabled or demoted
+    if (existing && existing.role === 'admin' && existing.isActive === 1) {
+      const isDisabling = (u.isActive === false || u.isActive === 0);
+      const isChangingRole = (u.role && u.role !== 'admin');
+      if (isDisabling || isChangingRole) {
+        const activeAdmins = await get("SELECT count(*) as cnt FROM users WHERE role = 'admin' AND isActive = 1 AND id != ?", [u.id]);
+        if (!activeAdmins || activeAdmins.cnt === 0) {
+          throw new Error('لا يمكن تعطيل أو تغيير دور مدير النظام الوحيد النشط.');
+        }
+      }
+    }
+
+    const passwordHash = (u.passwordHash !== undefined && u.passwordHash !== null && u.passwordHash !== '') 
+      ? u.passwordHash 
+      : (existing ? existing.passwordHash : null);
+    const salt = (u.salt !== undefined && u.salt !== null && u.salt !== '') 
+      ? u.salt 
+      : (existing ? existing.salt : null);
+    const createdAt = u.createdAt || (existing ? existing.createdAt : new Date().toISOString());
+
+    const res = await run(
+      `INSERT INTO users (id, username, passwordHash, salt, role, isActive, mustChangePassword, createdAt, email)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+       ON CONFLICT(id) DO UPDATE SET
+         username = excluded.username,
+         passwordHash = COALESCE(excluded.passwordHash, users.passwordHash),
+         salt = COALESCE(excluded.salt, users.salt),
+         role = excluded.role,
+         isActive = excluded.isActive,
+         mustChangePassword = excluded.mustChangePassword,
+         createdAt = COALESCE(users.createdAt, excluded.createdAt),
+         email = excluded.email`,
+      [u.id, u.username.trim(), passwordHash, salt, u.role, u.isActive ? 1 : 0, u.mustChangePassword ? 1 : 0, createdAt, u.email || null]
+    );
+
+    // If user was disabled or role changed, clear active sessions
+    if (u.isActive === 0 || u.isActive === false || (existing && existing.role !== u.role)) {
+      sessionManager.clearSessionsByUserId(u.id);
+    }
+
+    return res;
+  },
+
+  setAccessCode: async (code, newAdminPassword) => {
+    if (!code || typeof code !== 'string') {
+      return { success: false, error: 'رمز الدخول مطلوب' };
+    }
+    const cleanCode = code.trim();
+    if (cleanCode.length < 4 || cleanCode.length > 8) {
+      return { success: false, error: 'يجب أن يتكون رمز الدخول من 4 إلى 8 أرقام/أحرف' };
+    }
+
+    const salt = passwordHasher.generateSalt();
+    const hash = passwordHasher.hashPasswordScrypt(cleanCode, salt);
+
+    await run('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', [
+      'security_access_code',
+      JSON.stringify({
+        isConfigured: true,
+        hash,
+        salt,
+        createdAt: new Date().toISOString()
+      })
+    ]);
+
+    if (newAdminPassword && newAdminPassword.length >= 6) {
+      const adminUser = await get("SELECT id FROM users WHERE username = 'admin'");
+      if (adminUser) {
+        await dbActions.updateUserPassword(adminUser.id, newAdminPassword);
+        sessionManager.clearSessionsByUserId(adminUser.id);
+      }
+    }
+
+    return { success: true };
+  },
+
+  verifyAccessCode: async (inputCode) => {
+    if (!inputCode) return false;
+    const clean = inputCode.trim();
+    const row = await get("SELECT value FROM settings WHERE key = 'security_access_code'");
+    if (!row || !row.value) return false;
+
+    try {
+      const sec = JSON.parse(row.value);
+      if (!sec || !sec.isConfigured || !sec.hash || !sec.salt) return false;
+
+      const verifyRes = passwordHasher.verifyPassword(clean, sec.salt, sec.hash);
+      return verifyRes.valid;
+    } catch (e) {
+      return false;
+    }
+  },
+
+  isAccessCodeConfigured: async () => {
+    const row = await get("SELECT value FROM settings WHERE key = 'security_access_code'");
+    if (!row || !row.value) return { isConfigured: false };
+    try {
+      const sec = JSON.parse(row.value);
+      return { isConfigured: !!(sec && sec.isConfigured) };
+    } catch (e) {
+      return { isConfigured: false };
+    }
+  },
 
   upsertYear: (y) => run('INSERT OR REPLACE INTO academic_years (id, name, isCurrent) VALUES (?, ?, ?)', [y.id, y.name, y.isCurrent ? 1 : 0]),
 
@@ -818,9 +965,17 @@ const dbActions = {
       
       sql += `-- Table: ${table}\n`;
       for (const row of rows) {
+        if (table === 'users') {
+          delete row.passwordHash;
+          delete row.salt;
+        }
+        if (table === 'settings' && row.key === 'security_access_code') {
+          row.value = JSON.stringify({ isConfigured: false });
+        }
+
         const columns = Object.keys(row);
         const values = Object.values(row).map(val => {
-          if (val === null) return 'NULL';
+          if (val === null || val === undefined) return 'NULL';
           if (typeof val === 'number') return val;
           return "'" + val.toString().replace(/'/g, "''") + "'";
         });
@@ -834,34 +989,107 @@ const dbActions = {
   },
 
   restoreDb: async (filePath) => {
-    return new Promise((resolve, reject) => {
-      // 1. Create a safety backup of current state
-      createBackup().then(() => {
-        // 2. Close current connection
-        db.close(async (err) => {
-          if (err) {
-            console.error('Error closing database for restore:', err);
-            return reject(err);
-          }
-          
-          try {
-            // 3. Replace file
-            fs.copyFileSync(filePath, dbPath);
-            
-            // 4. Reopen connection
-            const sqlite3 = require('sqlite3').verbose();
-            db = new sqlite3.Database(dbPath);
-            
-            resolve({ success: true, message: 'تمت استعادة قاعدة البيانات بنجاح. قد تحتاج لإعادة تشغيل البرنامج لتنشيط كافة التغييرات.' });
-          } catch (copyErr) {
-            console.error('Error copying database file:', copyErr);
-            // Try to reopen at least
-            const sqlite3 = require('sqlite3').verbose();
-            db = new sqlite3.Database(dbPath);
-            reject(copyErr);
-          }
+    if (!filePath || typeof filePath !== 'string' || !fs.existsSync(filePath)) {
+      return { success: false, error: 'ملف قاعدة البيانات غير موجود أو تعذر الوصول إليه.' };
+    }
+
+    // 1. Check file size > 0
+    let stat;
+    try {
+      stat = fs.statSync(filePath);
+    } catch {
+      return { success: false, error: 'تعذر القراءة من المسار المحدد.' };
+    }
+    if (stat.size === 0) {
+      return { success: false, error: 'ملف قاعدة البيانات فارغ (0 بايت).' };
+    }
+
+    // 2. Check SQLite format 3 header
+    try {
+      const fd = fs.openSync(filePath, 'r');
+      const buffer = Buffer.alloc(16);
+      fs.readSync(fd, buffer, 0, 16, 0);
+      fs.closeSync(fd);
+      if (buffer.toString('utf8', 0, 15) !== 'SQLite format 3') {
+        return { success: false, error: 'الملف المحدد ليس قاعدة بيانات SQLite صالحة (الترويسة غير مطابقة).' };
+      }
+    } catch (e) {
+      return { success: false, error: 'فشل فحص ترويسة ملف قاعدة البيانات.' };
+    }
+
+    // 3. Verify SQLite integrity and required tables using a temporary connection
+    if (sqlite3) {
+      try {
+        await new Promise((res, rej) => {
+          const testDb = new sqlite3.Database(filePath, sqlite3.OPEN_READONLY, (err1) => {
+            if (err1) return rej(new Error(`تعذر فتح الملف للتحقق: ${err1.message}`));
+            testDb.get('PRAGMA integrity_check', (err2, row) => {
+              if (err2 || !row || Object.values(row)[0] !== 'ok') {
+                testDb.close();
+                return rej(new Error('الملف غير صالح أو تالف (فشل فحص PRAGMA integrity_check).'));
+              }
+              testDb.all("SELECT name FROM sqlite_master WHERE type='table'", (err3, tables) => {
+                testDb.close();
+                if (err3) return rej(err3);
+                const tableNames = (tables || []).map(t => t.name);
+                const required = ['users', 'academic_years', 'classes', 'sections', 'subjects', 'students', 'grades'];
+                const missing = required.filter(t => !tableNames.includes(t));
+                if (missing.length > 0) {
+                  return rej(new Error(`الملف يفتقر إلى الجداول الأساسية للتطبيق: ${missing.join(', ')}`));
+                }
+                res(true);
+              });
+            });
+          });
         });
-      }).catch(reject);
+      } catch (valErr) {
+        return { success: false, error: valErr.message || 'فشل التحقق من سلامة قاعدة البيانات المراد استعادتها.' };
+      }
+    }
+
+    // 4. Create temp backup of current active DB
+    const tempBackupPath = `${dbPath}.temp-backup-${Date.now()}`;
+    try {
+      fs.copyFileSync(dbPath, tempBackupPath);
+    } catch (backupErr) {
+      return { success: false, error: `تعذر عمل نسخة مؤقتة لقاعدة البيانات الحالية: ${backupErr.message}` };
+    }
+
+    // 5. Close current connection and copy replacement
+    return new Promise((resolve, reject) => {
+      db.close(async (closeErr) => {
+        if (closeErr) {
+          if (fs.existsSync(tempBackupPath)) fs.unlinkSync(tempBackupPath);
+          return resolve({ success: false, error: 'تعذر إغلاق قاعدة البيانات الحالية للبدء بالاستعادة.' });
+        }
+
+        try {
+          fs.copyFileSync(filePath, dbPath);
+
+          // Reopen DB connection
+          const sqliteAddon = sqlite3 || require('sqlite3').verbose();
+          db = new sqliteAddon.Database(dbPath);
+          await initDb();
+
+          if (fs.existsSync(tempBackupPath)) fs.unlinkSync(tempBackupPath);
+
+          resolve({ success: true, message: 'تمت استعادة قاعدة البيانات وتأكيد سلامة الهيكل بنجاح.' });
+        } catch (restoreErr) {
+          console.error('Restore failed, rolling back to active DB copy:', restoreErr);
+          try {
+            if (fs.existsSync(tempBackupPath)) {
+              fs.copyFileSync(tempBackupPath, dbPath);
+              fs.unlinkSync(tempBackupPath);
+            }
+            const sqliteAddon = sqlite3 || require('sqlite3').verbose();
+            db = new sqliteAddon.Database(dbPath);
+            await initDb();
+          } catch (rollbackErr) {
+            console.error('Fatal rollback error during restore failure:', rollbackErr);
+          }
+          resolve({ success: false, error: `فشلت عملية الاستعادة وتم التراجع عن التغييرات: ${restoreErr.message}` });
+        }
+      });
     });
   }
 };

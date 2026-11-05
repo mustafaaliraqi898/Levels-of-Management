@@ -570,6 +570,23 @@ export class LocalStorageEngine {
     }
 
     try {
+      if (this.isElectron && window.electronAPI?.auth?.setAccessCode) {
+        const elRes = await window.electronAPI.auth.setAccessCode(cleanCode, newAdminPassword);
+        if (!elRes.success) return elRes;
+
+        this.state.settings.isAccessCodeConfigured = true;
+        if (this.state.users) {
+          this.state.users = this.state.users.map((u) => {
+            if (u.username === 'admin') {
+              return { ...u, mustChangePassword: false };
+            }
+            return u;
+          });
+        }
+        this.notify(true);
+        return { success: true };
+      }
+
       const salt = generateSalt();
       const hash = await hashPassword(cleanCode, salt);
 
@@ -609,20 +626,6 @@ export class LocalStorageEngine {
         console.warn(e);
       }
 
-      if (this.isElectron && window.electronAPI?.db) {
-        await window.electronAPI.db.saveSettings('app_settings', this.state.settings);
-        await window.electronAPI.db.saveSettings('security_access_code', {
-          isConfigured: true,
-          hash,
-          salt,
-          createdAt: new Date().toISOString(),
-        });
-        const adminUser = this.state.users?.find((u) => u.username === 'admin');
-        if (adminUser) {
-          await window.electronAPI.db.upsertUser(adminUser);
-        }
-      }
-
       this.notify(true);
       return { success: true };
     } catch (err: any) {
@@ -632,6 +635,9 @@ export class LocalStorageEngine {
   }
 
   public async verifyAccessCode(inputCode: string): Promise<boolean> {
+    if (this.isElectron && window.electronAPI?.auth?.verifyAccessCode) {
+      return await window.electronAPI.auth.verifyAccessCode(inputCode);
+    }
     if (!this.state.settings.accessCodeHash || !this.state.settings.accessCodeSalt) {
       return false;
     }
@@ -1594,36 +1600,163 @@ export class LocalStorageEngine {
   }
 
   public exportJSON() { 
+    const { settings, users, ...restState } = this.state;
+    
+    const safeSettings = { ...settings };
+    delete safeSettings.accessCodeHash;
+    delete safeSettings.accessCodeSalt;
+
+    const safeUsers = (users || []).map(u => {
+      const { passwordHash, salt, ...safeUser } = u as any;
+      return safeUser;
+    });
+
     return JSON.stringify({ 
-      ...this.state, 
+      ...restState, 
+      settings: safeSettings,
+      users: safeUsers,
       lastBackupDate: new Date().toISOString(),
       exportType: 'school_grades_backup_v3'
     }, null, 2); 
   }
 
-  public async importJSON(json: string) { 
+  public async importJSON(json: string): Promise<{ success: boolean; message: string }> { 
     try { 
-      const parsed = JSON.parse(json);
-      // Basic validation
-      if (!parsed.academicYears || !parsed.classes || !parsed.students) {
-        return { success: false, message: 'ملف غير صالح أو بيانات ناقصة' };
+      if (!json || typeof json !== 'string') {
+        return { success: false, message: 'محتوى الملف غير صالح' };
       }
 
-      // Safety backup if in electron
+      const parsed = JSON.parse(json);
+      
+      // Structure Validation
+      if (!parsed || typeof parsed !== 'object') {
+        return { success: false, message: 'تنسيق الملف ليس كائن JSON صالح' };
+      }
+
+      if (!Array.isArray(parsed.academicYears) || !Array.isArray(parsed.classes) || !Array.isArray(parsed.students)) {
+        return { success: false, message: 'ملف النسخة الاحتياطية غير صالح أو يفتقر إلى السجلات الأساسية (الأعوام، الصفوف، الطلاب)' };
+      }
+
+      // Validate Academic Years
+      const ayMap = new Set(parsed.academicYears.map((y: any) => y.id));
+      if (ayMap.size !== parsed.academicYears.length) {
+        return { success: false, message: 'الملف يحتوي على معرّفات مكررة للأعوام الدراسية' };
+      }
+
+      // Validate Classes
+      const classMap = new Set();
+      for (const c of parsed.classes) {
+        if (!c.id || !c.name) return { success: false, message: 'بيانات بعض الصفوف الدراسية غير مكتملة' };
+        if (classMap.has(c.id)) return { success: false, message: `معرف الصف المكرر: ${c.id}` };
+        classMap.add(c.id);
+        if (c.academicYearId && !ayMap.has(c.academicYearId)) {
+          return { success: false, message: `الصف "${c.name}" يرتبط بعام دراسي غير موجود بالملف` };
+        }
+      }
+
+      // Validate Sections & Subjects
+      const sectionMap = new Set();
+      if (Array.isArray(parsed.sections)) {
+        for (const s of parsed.sections) {
+          if (!s.id) return { success: false, message: 'بيانات الشعب تحتوي على معرّف مفقود' };
+          if (sectionMap.has(s.id)) return { success: false, message: `معرف الشعبة مكرر: ${s.id}` };
+          sectionMap.add(s.id);
+        }
+      }
+
+      const subjectMap = new Set();
+      if (Array.isArray(parsed.subjects)) {
+        for (const sub of parsed.subjects) {
+          if (!sub.id) return { success: false, message: 'بيانات المواد تحتوي على معرّف مفقود' };
+          if (subjectMap.has(sub.id)) return { success: false, message: `معرف المادة مكرر: ${sub.id}` };
+          subjectMap.add(sub.id);
+        }
+      }
+
+      // Validate Students
+      const studentMap = new Set();
+      for (const st of parsed.students) {
+        if (!st.id || !st.name) return { success: false, message: 'بيانات بعض الطلاب غير مكتملة (الاسم أو المعرّف مفقود)' };
+        if (studentMap.has(st.id)) return { success: false, message: `معرف الطالب مكرر: ${st.id}` };
+        studentMap.add(st.id);
+        if (st.academicYearId && !ayMap.has(st.academicYearId)) {
+          return { success: false, message: `الطالب "${st.name}" يرتبط بعام دراسي غير موجود` };
+        }
+      }
+
+      // Validate Grades Numerical Bounds
+      const gradesArray = Array.isArray(parsed.grades) ? parsed.grades : Object.values(parsed.grades || {});
+      for (const g of gradesArray as any[]) {
+        if (!g.id) continue;
+        const numFields = ['term1Score', 'midtermScore', 'term2Score', 'termYearlyScore', 'finalExamScore', 'finalScore', 'secondRoundScore', 'secondRoundFinalScore'];
+        for (const f of numFields) {
+          const val = g[f];
+          if (val !== null && val !== undefined) {
+            if (typeof val !== 'number' || !Number.isFinite(val) || val < 0 || val > 100) {
+              return { success: false, message: `الدرجة المدخلة غير صالحة في السجل ${g.id} (الحقل: ${f}, القيمة: ${val})` };
+            }
+          }
+        }
+      }
+
+      // Safety backup in Electron environment before applying changes
       if (this.isElectron) {
         await this.createManualBackup();
       }
 
+      const prevState = { ...this.state };
+
+      // Preserve active user accounts and existing security secrets
+      const currentUsers = this.state.users || [];
+      const importedUsers = Array.isArray(parsed.users) ? parsed.users : [];
+      
+      const mergedUsers = [...currentUsers];
+      for (const impUser of importedUsers) {
+        if (!impUser.id) continue;
+        const existingIdx = mergedUsers.findIndex(u => u.id === impUser.id);
+        if (existingIdx >= 0) {
+          mergedUsers[existingIdx] = {
+            ...mergedUsers[existingIdx],
+            username: impUser.username || mergedUsers[existingIdx].username,
+            email: impUser.email !== undefined ? impUser.email : mergedUsers[existingIdx].email,
+            mustChangePassword: !!impUser.mustChangePassword
+          };
+        } else {
+          mergedUsers.push({
+            id: impUser.id,
+            username: impUser.username || 'imported_user',
+            role: impUser.role === 'admin' ? 'admin' : 'user',
+            isActive: impUser.isActive !== false,
+            mustChangePassword: true,
+            createdAt: impUser.createdAt || new Date().toISOString(),
+            email: impUser.email || undefined
+          });
+        }
+      }
+
       this.state = {
         ...parsed,
-        version: parsed.version || '1.0.0',
+        users: mergedUsers,
+        settings: {
+          ...this.state.settings,
+          ...(parsed.settings || {}),
+          isAccessCodeConfigured: this.state.settings.isAccessCodeConfigured,
+          accessCodeHash: this.state.settings.accessCodeHash,
+          accessCodeSalt: this.state.settings.accessCodeSalt,
+        },
+        version: parsed.version || this.state.version || '1.0.0',
         lastBackupDate: new Date().toISOString()
       }; 
 
-      this.notify(true); // This will persist to SQLite if in electron
-      return { success: true, message: 'تم استيراد البيانات بنجاح وتحديث النظام.' }; 
-    } catch(e) { 
-      return { success: false, message: 'خطأ في معالجة الملف.' }; 
+      try {
+        await this.notify(true); // Persist cleanly to SQLite
+        return { success: true, message: 'تم استيراد البيانات وتحديث النظام بنجاح دون المساس بحسابات وأسرار المستخدمين.' }; 
+      } catch (persistErr: any) {
+        this.state = prevState;
+        return { success: false, message: `فشلت عملية حفظ البيانات المستوردة: ${persistErr.message || 'خطأ في قاعدة البيانات'}` };
+      }
+    } catch(e: any) { 
+      return { success: false, message: `خطأ في تحليل ومعالجة ملف النسخة الاحتياطية: ${e.message || 'ملف غير صالح'}` }; 
     } 
   }
 

@@ -145,7 +145,7 @@ class AuthService {
       };
     }
 
-    const isValid = await verifyPassword(passwordInput, user.salt, user.passwordHash);
+    const isValid = await verifyPassword(passwordInput, user.salt || '', user.passwordHash || '');
     if (!isValid) {
       return { success: false, error: 'اسم المستخدم أو كلمة المرور غير صحيحة' };
     }
@@ -539,8 +539,8 @@ class AuthService {
 
       const isCurrentValid = await verifyPassword(
         updates.currentPassword,
-        user.salt,
-        user.passwordHash
+        user.salt || '',
+        user.passwordHash || ''
       );
       if (!isCurrentValid) {
         return { success: false, error: 'كلمة المرور الحالية غير صحيحة' };
