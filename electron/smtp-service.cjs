@@ -231,15 +231,17 @@ async function sendPasswordResetEmail(toEmail, username, code) {
       connectionTimeout: 12000,
     });
 
+    const safeUsername = String(username || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
     const mailOptions = {
       from: `"نظام إدارة الدرجات المدرسية" <${config.user}>`,
       to: toEmail,
-      subject: `رمز تحقق استعادة كلمة المرور - (${code})`,
+      subject: 'رمز إعادة تعيين كلمة المرور - نظام إدارة الدرجات المدرسية',
       html: `
         <div dir="rtl" style="font-family: Arial, sans-serif; background-color: #0f172a; color: #f8fafc; padding: 24px; border-radius: 16px; max-width: 500px; margin: 0 auto;">
           <h2 style="color: #10b981; margin-top: 0; text-align: center;">نظام إدارة الدرجات المدرسية</h2>
           <hr style="border: none; border-top: 1px solid #334155; margin: 16px 0;" />
-          <p style="font-size: 14px; line-height: 1.6;">مرحباً <strong>${username}</strong>،</p>
+          <p style="font-size: 14px; line-height: 1.6;">مرحباً <strong>${safeUsername}</strong>،</p>
           <p style="font-size: 14px; line-height: 1.6;">تم استلام طلب لإعادة تعيين كلمة المرور لحسابك. رمز التحقق الخاص بك هو:</p>
           <div style="text-align: center; margin: 24px 0;">
             <span style="font-family: monospace; font-size: 32px; font-weight: bold; letter-spacing: 6px; color: #34d399; background-color: #1e293b; padding: 12px 24px; border-radius: 12px; border: 1px solid #059669; display: inline-block;">

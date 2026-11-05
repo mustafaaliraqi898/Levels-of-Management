@@ -1770,13 +1770,7 @@ export class LocalStorageEngine {
   public async restoreDbFromFile() {
     if (!this.isElectron) return { success: false, message: 'متاح فقط في نسخة ويندوز' };
     
-    const filePath = await window.electronAPI!.dialog.openFile([
-      { name: 'SQLite Database', extensions: ['db', 'sqlite', 'sqlite3'] }
-    ]);
-    
-    if (!filePath) return { success: false, message: 'تم إلغاء العملية' };
-    
-    const res = await window.electronAPI!.db.restoreDb(filePath);
+    const res = await window.electronAPI!.db.restoreDb();
     if (res.success) {
       await this.loadFromSqlite();
       this.notify(false);

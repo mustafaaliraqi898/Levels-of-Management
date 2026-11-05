@@ -48,7 +48,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     createBackup: () => ipcRenderer.invoke('db:createBackup'),
     getBackupsInfo: () => ipcRenderer.invoke('db:getBackupsInfo'),
     exportSql: () => ipcRenderer.invoke('db:exportSql'),
-    restoreDb: (path) => ipcRenderer.invoke('db:restoreDb', path),
+    restoreDb: () => ipcRenderer.invoke('db:restoreDb'),
   },
   dialog: {
     openDirectory: () => ipcRenderer.invoke('dialog:openDirectory'),

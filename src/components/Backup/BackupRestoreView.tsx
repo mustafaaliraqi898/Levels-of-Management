@@ -88,10 +88,11 @@ export const BackupRestoreView: React.FC = () => {
     try {
       const res = await db.restoreDbFromFile();
       if (res.success) {
-        setStatusMessage({ text: res.message, type: 'success' });
+        setStatusMessage({ text: res.message || 'تمت استعادة قاعدة البيانات بنجاح.', type: 'success' });
       } else {
-        if (res.message !== 'تم إلغاء العملية') {
-          setStatusMessage({ text: res.message, type: 'error' });
+        const errorMsg = res.message || res.error || 'حدث خطأ أثناء استعادة قاعدة البيانات';
+        if (errorMsg !== 'تم إلغاء العملية' && !errorMsg.includes('تم إلغاء')) {
+          setStatusMessage({ text: errorMsg, type: 'error' });
         }
       }
     } catch (e) {

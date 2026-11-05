@@ -434,18 +434,62 @@ async function createBackup() {
     db.run(`VACUUM INTO ?`, [backupPath], async (err) => {
       if (err) {
         console.error('Backup failed:', err);
-        reject(err);
-      } else {
-        console.log('Backup created at:', backupPath);
-        try {
-          await cleanupOldBackups(backupsDir);
-          // Save last backup timestamp in settings
-          await run('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', ['last_auto_backup', JSON.stringify(new Date().toISOString())]);
-          resolve({ success: true, path: backupPath });
-        } catch (cleanupErr) {
-          console.warn('Cleanup failed but backup succeeded:', cleanupErr);
-          resolve({ success: true, path: backupPath });
+        return resolve({ success: false, error: `فشل إنشاء النسخة الاحتياطية: ${err.message}` });
+      }
+
+      // Perform Post-Backup Integrity & Schema Verification
+      try {
+        const stat = fs.statSync(backupPath);
+        if (stat.size === 0) {
+          if (fs.existsSync(backupPath)) fs.unlinkSync(backupPath);
+          return resolve({ success: false, error: 'حجم النسخة الاحتياطية المُنشأة 0 بايت.' });
         }
+
+        // Verify SQLite Header
+        const fd = fs.openSync(backupPath, 'r');
+        const buf = Buffer.alloc(16);
+        fs.readSync(fd, buf, 0, 16, 0);
+        fs.closeSync(fd);
+        if (buf.toString('utf8', 0, 15) !== 'SQLite format 3') {
+          if (fs.existsSync(backupPath)) fs.unlinkSync(backupPath);
+          return resolve({ success: false, error: 'النسخة الاحتياطية ليست قاعدة بيانات SQLite صالحة.' });
+        }
+
+        // Open read-only and verify PRAGMA integrity_check and required tables
+        const sqliteAddon = sqlite3 || require('sqlite3').verbose();
+        await new Promise((resVal, rejVal) => {
+          const testDb = new sqliteAddon.Database(backupPath, sqliteAddon.OPEN_READONLY, (err1) => {
+            if (err1) return rejVal(new Error(`تعذر فتح النسخة للتحقق: ${err1.message}`));
+            testDb.get('PRAGMA integrity_check', (err2, row) => {
+              if (err2 || !row || Object.values(row)[0] !== 'ok') {
+                testDb.close();
+                return rejVal(new Error('فشل فحص PRAGMA integrity_check للنسخة الاحتياطية.'));
+              }
+              testDb.all("SELECT name FROM sqlite_master WHERE type='table'", (err3, tables) => {
+                testDb.close();
+                if (err3) return rejVal(err3);
+                const tableNames = (tables || []).map(t => t.name);
+                const required = ['users', 'academic_years', 'classes', 'sections', 'subjects', 'students', 'grades'];
+                const missing = required.filter(t => !tableNames.includes(t));
+                if (missing.length > 0) {
+                  return rejVal(new Error(`النسخة الاحتياطية تفتقر للجداول الأساسية: ${missing.join(', ')}`));
+                }
+                resVal(true);
+              });
+            });
+          });
+        });
+
+        // Verification succeeded! Safe to clean up old backups and save timestamp
+        await cleanupOldBackups(backupsDir);
+        await run('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', ['last_auto_backup', JSON.stringify(new Date().toISOString())]);
+        resolve({ success: true, path: backupPath });
+      } catch (valErr) {
+        console.error('Backup verification failed:', valErr.message);
+        if (fs.existsSync(backupPath)) {
+          try { fs.unlinkSync(backupPath); } catch {}
+        }
+        resolve({ success: false, error: `فشل التحقق من سلامة النسخة الاحتياطية: ${valErr.message}` });
       }
     });
   });
@@ -463,6 +507,55 @@ async function cleanupOldBackups(backupsDir) {
       fs.unlinkSync(path.join(backupsDir, file.name));
     }
   }
+}
+
+// Access Code Rate Limiting State & Helpers
+const ACCESS_CODE_MAX_ATTEMPTS = 5;
+const ACCESS_CODE_LOCKOUT_MS = 5 * 60 * 1000;
+
+let accessCodeRateLimitState = {
+  failedAttempts: 0,
+  lockoutUntil: 0,
+};
+
+function getAccessCodeRateLimitStatus() {
+  const now = Date.now();
+  if (accessCodeRateLimitState.lockoutUntil > now) {
+    const remainingMs = accessCodeRateLimitState.lockoutUntil - now;
+    const remainingSec = Math.ceil(remainingMs / 1000);
+    const minutes = Math.floor(remainingSec / 60);
+    const seconds = remainingSec % 60;
+    const timeStr = minutes > 0 ? `${minutes} دقيقة و ${seconds} ثانية` : `${seconds} ثانية`;
+    return {
+      allowed: false,
+      error: `تم قفل محاولات رمز الدخول مؤقتاً بسبب تكرار المحاولات الخاطئة. يرجى الانتظار (${timeStr}) قبل المحاولة مجدداً.`,
+      isLockedOut: true,
+      remainingSec
+    };
+  }
+
+  if (accessCodeRateLimitState.lockoutUntil > 0 && accessCodeRateLimitState.lockoutUntil <= now) {
+    accessCodeRateLimitState.failedAttempts = 0;
+    accessCodeRateLimitState.lockoutUntil = 0;
+  }
+
+  return { allowed: true };
+}
+
+function recordAccessCodeAttempt(success) {
+  if (success) {
+    accessCodeRateLimitState.failedAttempts = 0;
+    accessCodeRateLimitState.lockoutUntil = 0;
+  } else {
+    accessCodeRateLimitState.failedAttempts++;
+    if (accessCodeRateLimitState.failedAttempts >= ACCESS_CODE_MAX_ATTEMPTS) {
+      accessCodeRateLimitState.lockoutUntil = Date.now() + ACCESS_CODE_LOCKOUT_MS;
+    }
+  }
+}
+
+function _resetAccessCodeRateLimitState() {
+  accessCodeRateLimitState = { failedAttempts: 0, lockoutUntil: 0 };
 }
 
 // Domain-specific methods for safety
@@ -689,7 +782,6 @@ const dbActions = {
 
     return res;
   },
-
   setAccessCode: async (code, newAdminPassword) => {
     if (!code || typeof code !== 'string') {
       return { success: false, error: 'رمز الدخول مطلوب' };
@@ -724,19 +816,55 @@ const dbActions = {
   },
 
   verifyAccessCode: async (inputCode) => {
-    if (!inputCode) return false;
+    const rateCheck = getAccessCodeRateLimitStatus();
+    if (!rateCheck.allowed) {
+      return { success: false, error: rateCheck.error, isLockedOut: true, remainingAttempts: 0 };
+    }
+
+    if (!inputCode || typeof inputCode !== 'string') {
+      recordAccessCodeAttempt(false);
+      const postStatus = getAccessCodeRateLimitStatus();
+      if (!postStatus.allowed) return { success: false, error: postStatus.error, isLockedOut: true, remainingAttempts: 0 };
+      const rem = Math.max(0, ACCESS_CODE_MAX_ATTEMPTS - accessCodeRateLimitState.failedAttempts);
+      return { success: false, error: `رمز الدخول غير صالح. المحاولات المتبقية: ${rem}`, remainingAttempts: rem };
+    }
+
     const clean = inputCode.trim();
     const row = await get("SELECT value FROM settings WHERE key = 'security_access_code'");
-    if (!row || !row.value) return false;
+    if (!row || !row.value) {
+      recordAccessCodeAttempt(false);
+      const postStatus = getAccessCodeRateLimitStatus();
+      if (!postStatus.allowed) return { success: false, error: postStatus.error, isLockedOut: true, remainingAttempts: 0 };
+      const rem = Math.max(0, ACCESS_CODE_MAX_ATTEMPTS - accessCodeRateLimitState.failedAttempts);
+      return { success: false, error: 'رمز الدخول غير مهيأ بعد.', remainingAttempts: rem };
+    }
 
     try {
       const sec = JSON.parse(row.value);
-      if (!sec || !sec.isConfigured || !sec.hash || !sec.salt) return false;
+      if (!sec || !sec.isConfigured || !sec.hash || !sec.salt) {
+        recordAccessCodeAttempt(false);
+        const postStatus = getAccessCodeRateLimitStatus();
+        if (!postStatus.allowed) return { success: false, error: postStatus.error, isLockedOut: true, remainingAttempts: 0 };
+        const rem = Math.max(0, ACCESS_CODE_MAX_ATTEMPTS - accessCodeRateLimitState.failedAttempts);
+        return { success: false, error: 'رمز الدخول غير مهيأ بعد.', remainingAttempts: rem };
+      }
 
       const verifyRes = passwordHasher.verifyPassword(clean, sec.salt, sec.hash);
-      return verifyRes.valid;
+      if (verifyRes.valid) {
+        recordAccessCodeAttempt(true);
+        return { success: true, remainingAttempts: ACCESS_CODE_MAX_ATTEMPTS };
+      } else {
+        recordAccessCodeAttempt(false);
+        const postStatus = getAccessCodeRateLimitStatus();
+        if (!postStatus.allowed) {
+          return { success: false, error: postStatus.error, isLockedOut: true, remainingAttempts: 0 };
+        }
+        const rem = Math.max(0, ACCESS_CODE_MAX_ATTEMPTS - accessCodeRateLimitState.failedAttempts);
+        return { success: false, error: `رمز الدخول غير صحيح. المحاولات المتبقية: ${rem}`, remainingAttempts: rem };
+      }
     } catch (e) {
-      return false;
+      recordAccessCodeAttempt(false);
+      return { success: false, error: 'حدث خطأ أثناء معالجة رمز الدخول.' };
     }
   },
 
@@ -993,6 +1121,10 @@ const dbActions = {
       return { success: false, error: 'ملف قاعدة البيانات غير موجود أو تعذر الوصول إليه.' };
     }
 
+    if (dbPath && path.resolve(filePath) === path.resolve(dbPath)) {
+      return { success: false, error: 'لا يمكن استعادة ملف قاعدة البيانات النشطة نفسها.' };
+    }
+
     // 1. Check file size > 0
     let stat;
     try {
@@ -1100,4 +1232,5 @@ module.exports = {
   get,
   run,
   query,
+  _resetAccessCodeRateLimitState,
 };

@@ -364,7 +364,7 @@ declare global {
         forceChangePassword?: (newPassword: string, adminEmail?: string) => Promise<{ success: boolean; error?: string }>;
         adminResetUserPassword?: (userId: string, newPassword: string) => Promise<{ success: boolean; error?: string }>;
         setAccessCode?: (code: string, newAdminPassword?: string) => Promise<{ success: boolean; error?: string }>;
-        verifyAccessCode?: (code: string) => Promise<boolean>;
+        verifyAccessCode?: (code: string) => Promise<any>;
         isAccessCodeConfigured?: () => Promise<{ isConfigured: boolean }>;
       };
       smtp: {
@@ -413,7 +413,7 @@ declare global {
         createBackup: () => Promise<any>;
         getBackupsInfo: () => Promise<any>;
         exportSql: () => Promise<string>;
-        restoreDb: (filePath: string) => Promise<{ success: boolean; message: string }>;
+        restoreDb: () => Promise<{ success: boolean; message?: string; error?: string }>;
       };
       dialog: {
         openDirectory: () => Promise<string | null>;

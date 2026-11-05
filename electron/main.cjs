@@ -275,23 +275,21 @@ app.whenReady().then(async () => {
     return db.exportSql();
   });
   
-  ipcMain.handle('db:restoreDb', async (event, passedPath) => { 
+  ipcMain.handle('db:restoreDb', async (event) => { 
     requireAdminRole(event); 
-    let targetPath = passedPath;
 
-    if (!targetPath || typeof targetPath !== 'string') {
-      const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
-        title: 'اختر ملف قاعدة البيانات للاستعادة (.db)',
-        filters: [{ name: 'SQLite Database', extensions: ['db', 'sqlite', 'sqlite3'] }],
-        properties: ['openFile']
-      });
-      if (canceled || !filePaths || filePaths.length === 0) {
-        return { success: false, error: 'تم إلغاء عملية اختيار ملف الاستعادة.' };
-      }
-      targetPath = filePaths[0];
+    const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
+      title: 'اختر ملف قاعدة البيانات للاستعادة (.db)',
+      filters: [{ name: 'SQLite Database', extensions: ['db', 'sqlite', 'sqlite3'] }],
+      properties: ['openFile']
+    });
+
+    if (canceled || !filePaths || filePaths.length === 0) {
+      return { success: false, error: 'تم إلغاء عملية اختيار ملف الاستعادة.' };
     }
 
-    return await db.restoreDb(targetPath); 
+    const selectedPath = filePaths[0];
+    return await db.restoreDb(selectedPath); 
   });
 
   ipcMain.handle('dialog:openDirectory', async (event) => {
@@ -387,11 +385,16 @@ app.whenReady().then(async () => {
       throw new Error('حجم مستند الطباعة كبير جداً ويشكل خطراً على ذاكرة التطبيق.');
     }
 
-    // Sanitize HTML: strip script tags and inline event handlers
+    // Enhanced Sanitize HTML: strip dangerous tags (script, iframe, object, embed, applet, base), inline handlers, and javascript: / vbscript: / data:text/html URIs while preserving CSS, fonts, RTL, tables, and images
     const sanitizedHtml = htmlContent
       .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      .replace(/\s*on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
-      .replace(/javascript\s*:/gi, '');
+      .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+      .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
+      .replace(/<embed\b[^>]*>/gi, '')
+      .replace(/<applet\b[^>]*>/gi, '')
+      .replace(/<base\b[^>]*>/gi, '')
+      .replace(/\s*on[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
+      .replace(/(href|src|action)\s*=\s*["']?\s*(?:javascript|vbscript|data:text\/html):/gi, '$1="about:blank"');
 
     const printWin = new BrowserWindow({
       show: false,

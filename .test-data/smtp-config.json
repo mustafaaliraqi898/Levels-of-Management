@@ -3,6 +3,6 @@
   "port": 587,
   "secure": false,
   "user": "test.admin@gmail.com",
-  "updatedAt": "2026-11-05T16:33:47.466Z",
+  "updatedAt": "2026-11-05T16:49:22.998Z",
   "encryptedPass": "61626364206566676820696a6b6c206d6e6f70"
 }
