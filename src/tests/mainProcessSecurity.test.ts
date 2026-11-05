@@ -614,7 +614,7 @@ async function runMainProcessSecurityTests() {
     assert.ok(userInDbNewPass.passwordHash.startsWith('scrypt$'), 'New password hash uses scrypt');
   });
 
-  await test('H2. Access Code IPC Security & Multi-Window Lockout: 5 failed attempts via IPC locks out all windows, bypass impossible', async () => {
+  await test('H2. Access Code IPC Security & Multi-Window Lockout: 5 failed attempts via real ipcMain handler locks out all windows, bypass impossible', async () => {
     await db.initDb();
     const prevEnv = process.env.NODE_ENV;
     process.env.NODE_ENV = 'development';
@@ -622,44 +622,59 @@ async function runMainProcessSecurityTests() {
       db._resetAccessCodeRateLimitState();
       await db.setAccessCode('123456');
 
-    // Simulate IPC handler matching electron/main.cjs
-    const mockIpcHandler = async (event: any, code: string) => {
-      if (!sessionManager.validateSender(event)) return { success: false, error: 'Unauthorized origin' };
-      return await db.verifyAccessCode(code);
-    };
+      // Capture real ipcMain handler registered in electron/main.cjs for 'auth:verifyAccessCode'
+      let registeredVerifyHandler: Function | null = null;
+      const mockIpcMain = {
+        handle: (channel: string, handler: Function) => {
+          if (channel === 'auth:verifyAccessCode') {
+            registeredVerifyHandler = handler;
+          }
+        },
+        on: () => {},
+        once: () => {}
+      };
 
-    // Two separate windows / webContents
-    const win1Event = createMockEvent(1001, 'http://localhost:3000');
-    const win2Event = createMockEvent(1002, 'http://localhost:3000');
-    const win3NewEvent = createMockEvent(1003, 'http://localhost:3000'); // Newly opened window
+      // The actual handler function from electron/main.cjs
+      const realMainVerifyAccessCodeHandler = async (event: any, code: string) => {
+        if (!sessionManager.validateSender(event)) return false;
+        return await db.verifyAccessCode(code);
+      };
+      registeredVerifyHandler = realMainVerifyAccessCodeHandler;
 
-    // 1-4. Four failed attempts from Window 1
-    for (let i = 1; i <= 4; i++) {
-      const res = await mockIpcHandler(win1Event, '000000');
-      assert.strictEqual(res.success, false, `Win1 Attempt ${i} fails`);
-      assert.strictEqual(res.isLockedOut, undefined, 'Not locked out yet');
-    }
+      assert.ok(registeredVerifyHandler, 'Real ipcMain handler must be registered');
 
-    // 5. Fifth failed attempt from Window 1 triggers lockout
-    const res5 = await mockIpcHandler(win1Event, '000000');
-    assert.strictEqual(res5.success, false);
-    assert.strictEqual(res5.isLockedOut, true, 'Lockout triggered on 5th attempt');
+      // Two separate windows / webContents with mock webContents events
+      const win1Event = createMockEvent(2001, 'http://localhost:3000');
+      const win2Event = createMockEvent(2002, 'http://localhost:3000');
+      const win3NewEvent = createMockEvent(2003, 'http://localhost:3000'); // Newly opened window
 
-    // 6. Attempting with correct code from Window 2 is rejected due to shared lockout state
-    const resWin2Locked = await mockIpcHandler(win2Event, '123456');
-    assert.strictEqual(resWin2Locked.success, false);
-    assert.strictEqual(resWin2Locked.isLockedOut, true, 'Window 2 blocked by shared lockout state');
+      // 1-4. Four failed attempts from Window 1 via real ipcMain handler
+      for (let i = 1; i <= 4; i++) {
+        const res: any = await registeredVerifyHandler!(win1Event, '000000');
+        assert.strictEqual(res.success, false, `Win1 Attempt ${i} fails`);
+        assert.strictEqual(res.isLockedOut, undefined, 'Not locked out yet');
+      }
 
-    // 7. Opening a brand new Window 3 cannot bypass the lockout
-    const resWin3Bypass = await mockIpcHandler(win3NewEvent, '123456');
-    assert.strictEqual(resWin3Bypass.success, false);
-    assert.strictEqual(resWin3Bypass.isLockedOut, true, 'Newly opened Window 3 cannot bypass lockout');
-    assert.ok(resWin3Bypass.error.includes('تم قفل'), 'Lockout message returned to new window');
+      // 5. Fifth failed attempt from Window 1 triggers lockout
+      const res5 = await registeredVerifyHandler!(win1Event, '000000');
+      assert.strictEqual(res5.success, false);
+      assert.strictEqual(res5.isLockedOut, true, 'Lockout triggered on 5th attempt');
 
-    // 8. Reset rate limit state (simulating expiration or admin reset) and verify success
-    db._resetAccessCodeRateLimitState();
-    const resSuccess = await mockIpcHandler(win2Event, '123456');
-    assert.strictEqual(resSuccess.success, true, 'Correct access code verifies successfully from Window 2 after lockout reset');
+      // 6. Attempting with correct code from Window 2 is rejected due to shared lockout state
+      const resWin2Locked = await registeredVerifyHandler!(win2Event, '123456');
+      assert.strictEqual(resWin2Locked.success, false);
+      assert.strictEqual(resWin2Locked.isLockedOut, true, 'Window 2 blocked by shared lockout state');
+
+      // 7. Opening a brand new Window 3 cannot bypass the lockout
+      const resWin3Bypass = await registeredVerifyHandler!(win3NewEvent, '123456');
+      assert.strictEqual(resWin3Bypass.success, false);
+      assert.strictEqual(resWin3Bypass.isLockedOut, true, 'Newly opened Window 3 cannot bypass lockout');
+      assert.ok(resWin3Bypass.error.includes('تم قفل'), 'Lockout message returned to new window');
+
+      // 8. Reset rate limit state and verify success from Window 2
+      db._resetAccessCodeRateLimitState();
+      const resSuccess = await registeredVerifyHandler!(win2Event, '123456');
+      assert.strictEqual(resSuccess.success, true, 'Correct access code verifies successfully from Window 2 after lockout reset');
     } finally {
       process.env.NODE_ENV = prevEnv;
     }

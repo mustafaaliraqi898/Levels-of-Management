@@ -28,14 +28,13 @@ async function runSmtpTests() {
     }
   }
 
-  // Setup temporary directory for SMTP config tests
-  const smtpTestDir = path.join(process.cwd(), '.test-smtp-data');
-  if (fs.existsSync(smtpTestDir)) {
-    fs.rmSync(smtpTestDir, { recursive: true, force: true });
+  // Use precisely the test data directory used by electron/smtp-service.cjs when NODE_ENV === 'test'
+  const testDataDir = path.join(process.cwd(), '.test-data');
+  if (fs.existsSync(testDataDir)) {
+    fs.rmSync(testDataDir, { recursive: true, force: true });
   }
-  fs.mkdirSync(smtpTestDir, { recursive: true });
+  fs.mkdirSync(testDataDir, { recursive: true });
 
-  // Mock app.getPath for test environment
   const originalEnv = process.env.NODE_ENV;
   process.env.NODE_ENV = 'test';
 
@@ -121,9 +120,9 @@ async function runSmtpTests() {
   } finally {
     nodemailer.createTransport = originalCreateTransport;
     process.env.NODE_ENV = originalEnv;
-    // Cleanup temporary SMTP directory
-    if (fs.existsSync(smtpTestDir)) {
-      fs.rmSync(smtpTestDir, { recursive: true, force: true });
+    // Cleanup temporary test data directory fully after test completion
+    if (fs.existsSync(testDataDir)) {
+      fs.rmSync(testDataDir, { recursive: true, force: true });
     }
   }
 

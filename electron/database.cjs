@@ -185,7 +185,7 @@ function run(sql, params = []) {
 async function initDb() {
   if (!db) return;
 
-  if (global.__simulateInitDbFailureForRestore) {
+  if (process.env.NODE_ENV === 'test' && global.__simulateInitDbFailureForRestore) {
     global.__simulateInitDbFailureForRestore = false;
     throw new Error('Simulated initDb failure after file replacement');
   }
