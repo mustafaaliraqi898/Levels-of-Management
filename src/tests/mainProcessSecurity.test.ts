@@ -622,25 +622,24 @@ async function runMainProcessSecurityTests() {
       db._resetAccessCodeRateLimitState();
       await db.setAccessCode('123456');
 
-      // Capture real ipcMain handler registered in electron/main.cjs for 'auth:verifyAccessCode'
+      // Capture real ipcMain handler registered by ipc-handlers.cjs
       let registeredVerifyHandler: Function | null = null;
       const mockIpcMain = {
         handle: (channel: string, handler: Function) => {
           if (channel === 'auth:verifyAccessCode') {
             registeredVerifyHandler = handler;
           }
-        },
-        on: () => {},
-        once: () => {}
+        }
       };
 
-      // The actual handler function from electron/main.cjs
-      const realMainVerifyAccessCodeHandler = async (event: any, code: string) => {
-        if (!sessionManager.validateSender(event)) return false;
-        return await db.verifyAccessCode(code);
+      // Minimal dependencies required for 'auth:verifyAccessCode'
+      const { registerIpcHandlers } = require('../../electron/ipc-handlers.cjs');
+      const dependencies = {
+        validateSender: sessionManager.validateSender,
+        db: db
       };
-      registeredVerifyHandler = realMainVerifyAccessCodeHandler;
 
+      registerIpcHandlers(mockIpcMain as any, dependencies as any);
       assert.ok(registeredVerifyHandler, 'Real ipcMain handler must be registered');
 
       // Two separate windows / webContents with mock webContents events
