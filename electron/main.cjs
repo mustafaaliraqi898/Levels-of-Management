@@ -8,7 +8,29 @@ const resetService = require('./reset-service.cjs');
 const fs = require('fs');
 const sessionManager = require('./session-manager.cjs');
 
+const { JSDOM } = require('jsdom');
+const createDOMPurify = require('dompurify');
+
 let mainWindow = null;
+
+const windowDom = new JSDOM('');
+const DOMPurify = createDOMPurify(windowDom.window);
+
+// Domain-specific DOMPurify configuration for school reports
+const printPurifyConfig = {
+  ALLOWED_TAGS: [
+    'div', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'hr',
+    'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td',
+    'ul', 'ol', 'li', 'b', 'strong', 'i', 'em', 'u', 's', 'small',
+    'img', 'style', 'link', 'canvas'
+  ],
+  ALLOWED_ATTR: [
+    'style', 'class', 'id', 'dir', 'lang', 'width', 'height', 'src', 'alt', 'cellpadding', 'cellspacing', 'border', 'colspan', 'rowspan', 'rel', 'href', 'type'
+  ],
+  FORBID_TAGS: ['form', 'iframe', 'object', 'embed', 'script', 'applet', 'base'],
+  FORBID_ATTR: ['onerror', 'onclick', 'onload', 'onmouseover', 'onfocus', 'onblur'],
+  FORCE_BODY: true
+};
 
 async function handleInitDb() {
   try {
@@ -385,16 +407,8 @@ app.whenReady().then(async () => {
       throw new Error('حجم مستند الطباعة كبير جداً ويشكل خطراً على ذاكرة التطبيق.');
     }
 
-    // Enhanced Sanitize HTML: strip dangerous tags (script, iframe, object, embed, applet, base), inline handlers, and javascript: / vbscript: / data:text/html URIs while preserving CSS, fonts, RTL, tables, and images
-    const sanitizedHtml = htmlContent
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
-      .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
-      .replace(/<embed\b[^>]*>/gi, '')
-      .replace(/<applet\b[^>]*>/gi, '')
-      .replace(/<base\b[^>]*>/gi, '')
-      .replace(/\s*on[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
-      .replace(/(href|src|action)\s*=\s*["']?\s*(?:javascript|vbscript|data:text\/html):/gi, '$1="about:blank"');
+    // Robust HTML sanitization using DOMPurify
+    const sanitizedHtml = DOMPurify.sanitize(htmlContent, printPurifyConfig);
 
     const printWin = new BrowserWindow({
       show: false,

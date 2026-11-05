@@ -1226,6 +1226,24 @@ const dbActions = {
   }
 };
 
+function _closeDb() {
+  return new Promise((resolve) => {
+    if (db) {
+      db.close(() => {
+        db = null;
+        resolve(true);
+      });
+    } else {
+      resolve(true);
+    }
+  });
+}
+
+function _reopenDb() {
+  const sqliteAddon = sqlite3 || require('sqlite3').verbose();
+  db = new sqliteAddon.Database(dbPath);
+}
+
 module.exports = {
   initDb,
   ...dbActions,
@@ -1233,4 +1251,7 @@ module.exports = {
   run,
   query,
   _resetAccessCodeRateLimitState,
+  _closeDb,
+  _reopenDb,
+  _getDbPath: () => dbPath,
 };

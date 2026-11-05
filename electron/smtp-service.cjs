@@ -191,9 +191,13 @@ async function testSmtpConnection(testConfig) {
       host: config.host,
       port: config.port,
       secure: config.secure,
+      requireTLS: !config.secure, // Ensure STARTTLS is used if not using explicit TLS
       auth: {
         user: config.user,
         pass: config.pass,
+      },
+      tls: {
+        rejectUnauthorized: true, // Strictly enforce certificate verification
       },
       connectionTimeout: 10000,
     });
@@ -224,9 +228,13 @@ async function sendPasswordResetEmail(toEmail, username, code) {
       host: config.host,
       port: config.port,
       secure: config.secure,
+      requireTLS: !config.secure,
       auth: {
         user: config.user,
         pass: config.pass,
+      },
+      tls: {
+        rejectUnauthorized: true,
       },
       connectionTimeout: 12000,
     });
