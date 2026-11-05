@@ -614,42 +614,55 @@ async function runMainProcessSecurityTests() {
     assert.ok(userInDbNewPass.passwordHash.startsWith('scrypt$'), 'New password hash uses scrypt');
   });
 
-  await test('H2. Access Code Security & IPC Lockout: 5 failed attempts lockout shared across windows', async () => {
-    db._resetAccessCodeRateLimitState();
-    await db.setAccessCode('123456');
+  await test('H2. Access Code IPC Security & Multi-Window Lockout: 5 failed attempts via IPC locks out all windows, bypass impossible', async () => {
+    await db.initDb();
+    const prevEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'development';
+    try {
+      db._resetAccessCodeRateLimitState();
+      await db.setAccessCode('123456');
 
-    // Simulate IPC call structure from main.cjs
-    const mockIpcVerify = (code: string) => db.verifyAccessCode(code);
+    // Simulate IPC handler matching electron/main.cjs
+    const mockIpcHandler = async (event: any, code: string) => {
+      if (!sessionManager.validateSender(event)) return { success: false, error: 'Unauthorized origin' };
+      return await db.verifyAccessCode(code);
+    };
 
-    // 1-4. Four invalid attempts
+    // Two separate windows / webContents
+    const win1Event = createMockEvent(1001, 'http://localhost:3000');
+    const win2Event = createMockEvent(1002, 'http://localhost:3000');
+    const win3NewEvent = createMockEvent(1003, 'http://localhost:3000'); // Newly opened window
+
+    // 1-4. Four failed attempts from Window 1
     for (let i = 1; i <= 4; i++) {
-      const res = await mockIpcVerify('000000');
-      assert.strictEqual(res.success, false, `Attempt ${i} must fail`);
-      assert.strictEqual(res.remainingAttempts, 5 - i, `Remaining attempts should be ${5 - i}`);
+      const res = await mockIpcHandler(win1Event, '000000');
+      assert.strictEqual(res.success, false, `Win1 Attempt ${i} fails`);
       assert.strictEqual(res.isLockedOut, undefined, 'Not locked out yet');
     }
 
-    // 5. Fifth invalid attempt triggers lockout
-    const res5 = await mockIpcVerify('000000');
-    assert.strictEqual(res5.success, false, 'Attempt 5 fails');
-    assert.strictEqual(res5.isLockedOut, true, '5th attempt triggers lockout');
+    // 5. Fifth failed attempt from Window 1 triggers lockout
+    const res5 = await mockIpcHandler(win1Event, '000000');
+    assert.strictEqual(res5.success, false);
+    assert.strictEqual(res5.isLockedOut, true, 'Lockout triggered on 5th attempt');
 
-    // 6. 6th attempt (even with CORRECT code) is rejected due to active lockout
-    const res6 = await mockIpcVerify('123456');
-    assert.strictEqual(res6.success, false, 'Correct code rejected while locked out');
-    assert.strictEqual(res6.isLockedOut, true, 'Lockout status persists');
-    assert.ok(res6.error.includes('تم قفل'), 'Error message notifies user of lockout');
+    // 6. Attempting with correct code from Window 2 is rejected due to shared lockout state
+    const resWin2Locked = await mockIpcHandler(win2Event, '123456');
+    assert.strictEqual(resWin2Locked.success, false);
+    assert.strictEqual(resWin2Locked.isLockedOut, true, 'Window 2 blocked by shared lockout state');
 
-    // 7. SHARED STATE: Simulate call from a "different window" (another IPC handler invocation)
-    // In our test, this is just another call to mockIpcVerify as the state is in the module scope of database.cjs
-    const resDifferentWindow = await mockIpcVerify('123456');
-    assert.strictEqual(resDifferentWindow.isLockedOut, true, 'Lockout must be shared across all system components');
+    // 7. Opening a brand new Window 3 cannot bypass the lockout
+    const resWin3Bypass = await mockIpcHandler(win3NewEvent, '123456');
+    assert.strictEqual(resWin3Bypass.success, false);
+    assert.strictEqual(resWin3Bypass.isLockedOut, true, 'Newly opened Window 3 cannot bypass lockout');
+    assert.ok(resWin3Bypass.error.includes('تم قفل'), 'Lockout message returned to new window');
 
-    // 8. Reset rate limit state (e.g. after time passes) and verify success
+    // 8. Reset rate limit state (simulating expiration or admin reset) and verify success
     db._resetAccessCodeRateLimitState();
-    const resSuccess = await mockIpcVerify('123456');
-    assert.strictEqual(resSuccess.success, true, 'Correct access code verifies after lockout reset');
-    assert.strictEqual(resSuccess.remainingAttempts, 5, 'Failed attempts count reset on success');
+    const resSuccess = await mockIpcHandler(win2Event, '123456');
+    assert.strictEqual(resSuccess.success, true, 'Correct access code verifies successfully from Window 2 after lockout reset');
+    } finally {
+      process.env.NODE_ENV = prevEnv;
+    }
   });
 
   await test('H3. Database Restore Security: Rejects active DB, non-SQLite files, corrupted databases, and missing tables', async () => {

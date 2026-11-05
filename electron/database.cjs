@@ -185,6 +185,11 @@ function run(sql, params = []) {
 async function initDb() {
   if (!db) return;
 
+  if (global.__simulateInitDbFailureForRestore) {
+    global.__simulateInitDbFailureForRestore = false;
+    throw new Error('Simulated initDb failure after file replacement');
+  }
+
   // Enforce foreign key constraints in SQLite
   await run('PRAGMA foreign_keys = ON;');
 

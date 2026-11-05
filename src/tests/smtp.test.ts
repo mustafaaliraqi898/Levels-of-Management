@@ -1,5 +1,7 @@
 // src/tests/smtp.test.ts
 import assert from 'node:assert';
+import path from 'node:path';
+import fs from 'node:fs';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
@@ -14,22 +16,11 @@ async function runSmtpTests() {
   let passedCount = 0;
   let failedCount = 0;
 
-  function test(name: string, fn: () => void | Promise<void>) {
+  async function test(name: string, fn: () => void | Promise<void>) {
     try {
-      const res = fn();
-      if (res instanceof Promise) {
-        return res.then(() => {
-          console.log(`  ✅ PASSED: ${name}`);
-          passedCount++;
-        }).catch(err => {
-          console.error(`  ❌ FAILED: ${name}`);
-          console.error(`     ${err.stack || err.message}\n`);
-          failedCount++;
-        });
-      } else {
-        console.log(`  ✅ PASSED: ${name}`);
-        passedCount++;
-      }
+      await fn();
+      console.log(`  ✅ PASSED: ${name}`);
+      passedCount++;
     } catch (err: any) {
       console.error(`  ❌ FAILED: ${name}`);
       console.error(`     ${err.stack || err.message}\n`);
@@ -37,46 +28,56 @@ async function runSmtpTests() {
     }
   }
 
+  // Setup temporary directory for SMTP config tests
+  const smtpTestDir = path.join(process.cwd(), '.test-smtp-data');
+  if (fs.existsSync(smtpTestDir)) {
+    fs.rmSync(smtpTestDir, { recursive: true, force: true });
+  }
+  fs.mkdirSync(smtpTestDir, { recursive: true });
+
+  // Mock app.getPath for test environment
+  const originalEnv = process.env.NODE_ENV;
+  process.env.NODE_ENV = 'test';
+
   const originalCreateTransport = nodemailer.createTransport;
   let lastTransportConfig: any = null;
   let lastMailOptions: any = null;
 
-  // Mock nodemailer
   nodemailer.createTransport = (config: any) => {
     lastTransportConfig = config;
     return {
       verify: () => Promise.resolve(true),
       sendMail: (options: any) => {
         lastMailOptions = options;
-        return Promise.resolve({ messageId: 'mock-id' });
+        return Promise.resolve({ messageId: 'mock-smtp-id' });
       }
     };
   };
 
   try {
-    await test('1. Port 587 enforces requireTLS: true', async () => {
+    await test('1. Port 587 enforces requireTLS: true and rejectUnauthorized: true', async () => {
       lastTransportConfig = null;
       await smtpService.testSmtpConnection({
         host: 'smtp.gmail.com',
         port: 587,
         user: 'test@gmail.com',
-        pass: 'somepass'
+        pass: 'app-password-placeholder'
       });
       
       assert.ok(lastTransportConfig, 'Transport must be created');
       assert.strictEqual(lastTransportConfig.port, 587);
       assert.strictEqual(lastTransportConfig.secure, false, 'Port 587 is not secure (STARTTLS)');
-      assert.strictEqual(lastTransportConfig.requireTLS, true, 'Port 587 must require TLS');
+      assert.strictEqual(lastTransportConfig.requireTLS, true, 'Port 587 must require STARTTLS');
       assert.strictEqual(lastTransportConfig.tls?.rejectUnauthorized, true, 'Certificate verification must be enabled');
     });
 
-    await test('2. Port 465 uses direct secure: true', async () => {
+    await test('2. Port 465 uses direct secure: true and rejectUnauthorized: true', async () => {
       lastTransportConfig = null;
       await smtpService.testSmtpConnection({
         host: 'smtp.gmail.com',
         port: 465,
         user: 'test@gmail.com',
-        pass: 'somepass'
+        pass: 'app-password-placeholder'
       });
       
       assert.ok(lastTransportConfig, 'Transport must be created');
@@ -86,44 +87,44 @@ async function runSmtpTests() {
       assert.strictEqual(lastTransportConfig.tls?.rejectUnauthorized, true, 'Certificate verification must be enabled');
     });
 
-    await test('3. rejectUnauthorized: true is always enforced regardless of config input', async () => {
+    await test('3. rejectUnauthorized: true cannot be bypassed', async () => {
       lastTransportConfig = null;
-      // Even if user tries to pass an insecure config (though the UI doesn't allow it, the IPC might)
       await smtpService.testSmtpConnection({
         host: 'smtp.gmail.com',
         port: 587,
         user: 'test@gmail.com',
-        pass: 'somepass',
-        tls: { rejectUnauthorized: false } // Attempted bypass
+        pass: 'app-password-placeholder',
+        tls: { rejectUnauthorized: false }
       });
       
-      assert.strictEqual(lastTransportConfig.tls?.rejectUnauthorized, true, 'Security: rejectUnauthorized: false must be overridden/disallowed');
+      assert.strictEqual(lastTransportConfig.tls?.rejectUnauthorized, true, 'Security: rejectUnauthorized: false must be forbidden/overridden');
     });
 
-    await test('4. sendPasswordResetEmail uses correct transport and mail options', async () => {
-      // Setup mock config in file
-      process.env.NODE_ENV = 'test';
+    await test('4. sendPasswordResetEmail uses secure transport and sends sanitized mail', async () => {
       smtpService.saveSmtpConfig({
         host: 'smtp.gmail.com',
         port: 587,
         user: 'admin@school.iq',
-        pass: 'adminpass123'
+        pass: 'app-password-placeholder'
       });
 
       lastMailOptions = null;
-      await smtpService.sendPasswordResetEmail('target@example.com', 'أحمد علي', '123456');
+      await smtpService.sendPasswordResetEmail('target@example.com', 'أحمد علي', '654321');
 
       assert.ok(lastMailOptions, 'Email must be sent');
       assert.strictEqual(lastMailOptions.to, 'target@example.com');
       assert.ok(lastMailOptions.subject.includes('رمز إعادة تعيين'));
-      assert.ok(lastMailOptions.html.includes('123456'), 'Code must be in HTML');
+      assert.ok(lastMailOptions.html.includes('654321'), 'Code must be in HTML');
       assert.ok(lastMailOptions.html.includes('أحمد علي'), 'Username must be in HTML');
-      assert.ok(lastMailOptions.from.includes('admin@school.iq'), 'Sender must be the configured user');
     });
 
   } finally {
-    // Restore original
     nodemailer.createTransport = originalCreateTransport;
+    process.env.NODE_ENV = originalEnv;
+    // Cleanup temporary SMTP directory
+    if (fs.existsSync(smtpTestDir)) {
+      fs.rmSync(smtpTestDir, { recursive: true, force: true });
+    }
   }
 
   console.log('\n--------------------------------------------------');

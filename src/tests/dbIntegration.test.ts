@@ -215,7 +215,7 @@ async function runDbIntegrationTests() {
     fs.unlinkSync(externalDbPath);
   });
 
-  await test('7. restoreDb: Real Rollback on Step 5 Failure (Simulated Copy Error)', async () => {
+  await test('7. restoreDb: Real Rollback on Post-Replacement Failure (initDb error after file copy)', async () => {
     // 1. Setup original DB with unique persistent data
     const originalRecordId = `usr-rollback-target-${Date.now()}`;
     await db.run('INSERT INTO users (id, username, role, isActive) VALUES (?, ?, ?, ?)', 
@@ -224,7 +224,7 @@ async function runDbIntegrationTests() {
     const checkOriginal = await db.get('SELECT username FROM users WHERE id = ?', [originalRecordId]);
     assert.strictEqual(checkOriginal.username, 'Original Persistent User');
 
-    // 2. Prepare a valid Trap DB that passes Step 3
+    // 2. Prepare a valid Trap DB that passes Step 3 (integrity & required tables)
     const trapDbPath = path.join(testDataDir, 'trap_rollback.db');
     const sqlite3 = require('sqlite3').verbose();
     
@@ -242,25 +242,14 @@ async function runDbIntegrationTests() {
       });
     });
 
-    // 3. Mock fs.copyFileSync to fail ONLY when copying the Trap DB to the active DB path
-    const activeDbPath = db._getDbPath();
-    const originalCopyFileSync = fs.copyFileSync;
-    let failTriggered = false;
-
+    // 3. Set simulation flag so initDb fails AFTER the active DB file has been replaced
     // @ts-ignore
-    fs.copyFileSync = (src: string, dest: string) => {
-      if (path.resolve(src) === path.resolve(trapDbPath) && path.resolve(dest) === path.resolve(activeDbPath)) {
-        failTriggered = true;
-        throw new Error('Simulated replacement failure for rollback testing');
-      }
-      return originalCopyFileSync(src, dest);
-    };
+    global.__simulateInitDbFailureForRestore = true;
 
     try {
       const res = await db.restoreDb(trapDbPath);
       
-      assert.strictEqual(failTriggered, true, 'Mock failure should have been triggered');
-      assert.strictEqual(res.success, false, 'Restore must fail due to simulated error');
+      assert.strictEqual(res.success, false, 'Restore must fail due to post-replacement initDb failure');
       assert.ok(res.error && res.error.includes('فشلت عملية الاستعادة وتم التراجع'), 'Error message must indicate rollback');
 
       // 4. VERIFY ROLLBACK: The original data must be back in place
@@ -272,8 +261,8 @@ async function runDbIntegrationTests() {
       const probe = await db.query('SELECT 1 as val');
       assert.strictEqual(probe[0].val, 1, 'Database connection must be reopened and functional');
     } finally {
-      // Always restore original function
-      fs.copyFileSync = originalCopyFileSync;
+      // @ts-ignore
+      global.__simulateInitDbFailureForRestore = false;
       if (fs.existsSync(trapDbPath)) fs.unlinkSync(trapDbPath);
     }
   });
