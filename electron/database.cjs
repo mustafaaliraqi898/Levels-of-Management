@@ -2,7 +2,8 @@ let sqlite3 = null;
 try {
   sqlite3 = require('sqlite3').verbose();
 } catch (e) {
-  console.warn('SQLite3 native addon omitted in container execution environment:', e.message);
+  // In production, we MUST have sqlite3. In dev/test, we also want it for these security features.
+  console.error('CRITICAL: SQLite3 native addon missing!', e.message);
 }
 
 const path = require('path');
@@ -1150,33 +1151,35 @@ const dbActions = {
     }
 
     // 3. Verify SQLite integrity and required tables using a temporary connection
-    if (sqlite3) {
-      try {
-        await new Promise((res, rej) => {
-          const testDb = new sqlite3.Database(filePath, sqlite3.OPEN_READONLY, (err1) => {
-            if (err1) return rej(new Error(`تعذر فتح الملف للتحقق: ${err1.message}`));
-            testDb.get('PRAGMA integrity_check', (err2, row) => {
-              if (err2 || !row || Object.values(row)[0] !== 'ok') {
-                testDb.close();
-                return rej(new Error('الملف غير صالح أو تالف (فشل فحص PRAGMA integrity_check).'));
+    if (!sqlite3) {
+      return { success: false, error: 'تعذر إجراء فحص الأمان لملف قاعدة البيانات: محرك SQLite الملحق غير متاح.' };
+    }
+
+    try {
+      await new Promise((res, rej) => {
+        const testDb = new sqlite3.Database(filePath, sqlite3.OPEN_READONLY, (err1) => {
+          if (err1) return rej(new Error(`تعذر فتح الملف للتحقق: ${err1.message}`));
+          testDb.get('PRAGMA integrity_check', (err2, row) => {
+            if (err2 || !row || Object.values(row)[0] !== 'ok') {
+              testDb.close();
+              return rej(new Error('الملف غير صالح أو تالف (فشل فحص PRAGMA integrity_check).'));
+            }
+            testDb.all("SELECT name FROM sqlite_master WHERE type='table'", (err3, tables) => {
+              testDb.close();
+              if (err3) return rej(err3);
+              const tableNames = (tables || []).map(t => t.name);
+              const required = ['users', 'academic_years', 'classes', 'sections', 'subjects', 'students', 'grades'];
+              const missing = required.filter(t => !tableNames.includes(t));
+              if (missing.length > 0) {
+                return rej(new Error(`الملف يفتقر إلى الجداول الأساسية للتطبيق: ${missing.join(', ')}`));
               }
-              testDb.all("SELECT name FROM sqlite_master WHERE type='table'", (err3, tables) => {
-                testDb.close();
-                if (err3) return rej(err3);
-                const tableNames = (tables || []).map(t => t.name);
-                const required = ['users', 'academic_years', 'classes', 'sections', 'subjects', 'students', 'grades'];
-                const missing = required.filter(t => !tableNames.includes(t));
-                if (missing.length > 0) {
-                  return rej(new Error(`الملف يفتقر إلى الجداول الأساسية للتطبيق: ${missing.join(', ')}`));
-                }
-                res(true);
-              });
+              res(true);
             });
           });
         });
-      } catch (valErr) {
-        return { success: false, error: valErr.message || 'فشل التحقق من سلامة قاعدة البيانات المراد استعادتها.' };
-      }
+      });
+    } catch (valErr) {
+      return { success: false, error: valErr.message || 'فشل التحقق من سلامة قاعدة البيانات المراد استعادتها.' };
     }
 
     // 4. Create temp backup of current active DB

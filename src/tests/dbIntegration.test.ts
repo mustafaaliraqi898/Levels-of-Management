@@ -215,59 +215,99 @@ async function runDbIntegrationTests() {
     fs.unlinkSync(externalDbPath);
   });
 
-  await test('7. restoreDb: Rollback on Missing Tables', async () => {
-    // 1. Save original student name
-    const userId = `usr-orig-${Date.now()}`;
-    await db.run('INSERT INTO users (id, username) VALUES (?, ?)', [userId, 'Original User']);
+  await test('7. restoreDb: Real Rollback on Step 5 Failure (Simulated Copy Error)', async () => {
+    // 1. Setup original DB with unique persistent data
+    const originalRecordId = `usr-rollback-target-${Date.now()}`;
+    await db.run('INSERT INTO users (id, username, role, isActive) VALUES (?, ?, ?, ?)', 
+      [originalRecordId, 'Original Persistent User', 'admin', 1]);
+    
+    const checkOriginal = await db.get('SELECT username FROM users WHERE id = ?', [originalRecordId]);
+    assert.strictEqual(checkOriginal.username, 'Original Persistent User');
 
-    // 2. Create an invalid DB (missing grades table)
-    const invalidDbPath = path.join(testDataDir, 'missing_tables.db');
+    // 2. Prepare a valid Trap DB that passes Step 3
+    const trapDbPath = path.join(testDataDir, 'trap_rollback.db');
     const sqlite3 = require('sqlite3').verbose();
+    
     await new Promise((resolve, reject) => {
-      const ext = new sqlite3.Database(invalidDbPath);
-      ext.serialize(() => {
-        ext.run('CREATE TABLE users (id TEXT PRIMARY KEY, username TEXT)');
-        ext.close((err: any) => err ? reject(err) : resolve(null));
+      const trap = new sqlite3.Database(trapDbPath);
+      trap.serialize(() => {
+        trap.run('CREATE TABLE users (id TEXT PRIMARY KEY, username TEXT, passwordHash TEXT, salt TEXT, role TEXT, isActive INTEGER, mustChangePassword INTEGER, createdAt TEXT, email TEXT, lastLogin TEXT)');
+        trap.run('CREATE TABLE academic_years (id TEXT PRIMARY KEY)');
+        trap.run('CREATE TABLE classes (id TEXT PRIMARY KEY)');
+        trap.run('CREATE TABLE sections (id TEXT PRIMARY KEY)');
+        trap.run('CREATE TABLE subjects (id TEXT PRIMARY KEY)');
+        trap.run('CREATE TABLE students (id TEXT PRIMARY KEY)');
+        trap.run('CREATE TABLE grades (id TEXT PRIMARY KEY)');
+        trap.close((err: any) => err ? reject(err) : resolve(null));
       });
     });
 
-    // 3. Attempt restore
-    const res = await db.restoreDb(invalidDbPath);
-    assert.strictEqual(res.success, false);
-    assert.ok(res.error.includes('يفتقر إلى الجداول'));
+    // 3. Mock fs.copyFileSync to fail ONLY when copying the Trap DB to the active DB path
+    const activeDbPath = db._getDbPath();
+    const originalCopyFileSync = fs.copyFileSync;
+    let failTriggered = false;
 
-    // 4. Verify original data still exists (Rollback success)
-    const original = await db.get('SELECT username FROM users WHERE id = ?', [userId]);
-    assert.ok(original);
-    assert.strictEqual(original.username, 'Original User');
+    // @ts-ignore
+    fs.copyFileSync = (src: string, dest: string) => {
+      if (path.resolve(src) === path.resolve(trapDbPath) && path.resolve(dest) === path.resolve(activeDbPath)) {
+        failTriggered = true;
+        throw new Error('Simulated replacement failure for rollback testing');
+      }
+      return originalCopyFileSync(src, dest);
+    };
 
-    fs.unlinkSync(invalidDbPath);
+    try {
+      const res = await db.restoreDb(trapDbPath);
+      
+      assert.strictEqual(failTriggered, true, 'Mock failure should have been triggered');
+      assert.strictEqual(res.success, false, 'Restore must fail due to simulated error');
+      assert.ok(res.error && res.error.includes('فشلت عملية الاستعادة وتم التراجع'), 'Error message must indicate rollback');
+
+      // 4. VERIFY ROLLBACK: The original data must be back in place
+      const restored = await db.get('SELECT username FROM users WHERE id = ?', [originalRecordId]);
+      assert.ok(restored, 'Original record must be restored after failure');
+      assert.strictEqual(restored.username, 'Original Persistent User', 'Data integrity preserved by rollback');
+
+      // 5. VERIFY CONNECTION: Database must be open and functional after rollback
+      const probe = await db.query('SELECT 1 as val');
+      assert.strictEqual(probe[0].val, 1, 'Database connection must be reopened and functional');
+    } finally {
+      // Always restore original function
+      fs.copyFileSync = originalCopyFileSync;
+      if (fs.existsSync(trapDbPath)) fs.unlinkSync(trapDbPath);
+    }
   });
 
   await test('8. restoreDb: Reject Corrupted SQLite File (Integrity Failure)', async () => {
-    // 1. Create a valid DB then corrupt it
     const corruptDbPath = path.join(testDataDir, 'corrupt.db');
     const sqlite3 = require('sqlite3').verbose();
+    
+    // 1. Create a valid DB
     await new Promise((resolve, reject) => {
       const ext = new sqlite3.Database(corruptDbPath);
       ext.serialize(() => {
         ext.run('CREATE TABLE users (id TEXT PRIMARY KEY, username TEXT)');
+        ext.run('CREATE TABLE academic_years (id TEXT PRIMARY KEY)');
+        ext.run('CREATE TABLE classes (id TEXT PRIMARY KEY)');
+        ext.run('CREATE TABLE sections (id TEXT PRIMARY KEY)');
+        ext.run('CREATE TABLE subjects (id TEXT PRIMARY KEY)');
+        ext.run('CREATE TABLE students (id TEXT PRIMARY KEY)');
         ext.run('CREATE TABLE grades (id TEXT PRIMARY KEY)');
         ext.close((err: any) => err ? reject(err) : resolve(null));
       });
     });
 
-    // Overwrite some bytes to corrupt it
+    // 2. Corrupt the file after header (offset 100) to fail integrity_check but pass header check
     const fd = fs.openSync(corruptDbPath, 'r+');
-    fs.writeSync(fd, Buffer.from('CORRUPT_BYTES'), 0, 13, 100);
+    fs.writeSync(fd, Buffer.alloc(100, 0xFF), 0, 100, 100);
     fs.closeSync(fd);
 
-    // 2. Attempt restore
+    // 3. Attempt restore
     const res = await db.restoreDb(corruptDbPath);
-    assert.strictEqual(res.success, false);
-    assert.ok(res.error.includes('تالف') || res.error.includes('integrity_check'));
+    assert.strictEqual(res.success, false, 'Corrupted file must be rejected by integrity check');
+    assert.ok(res.error.includes('تالف') || res.error.includes('integrity_check'), 'Error must mention corruption or integrity');
 
-    fs.unlinkSync(corruptDbPath);
+    if (fs.existsSync(corruptDbPath)) fs.unlinkSync(corruptDbPath);
   });
 
   console.log('\n--------------------------------------------------');

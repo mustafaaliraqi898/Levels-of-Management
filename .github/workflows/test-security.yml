@@ -26,5 +26,9 @@ jobs:
         run: npm run test:status
       - name: Run Password Recovery Tests
         run: npx tsx src/tests/recovery.test.ts
+      - name: Run Integration Tests
+        run: npm run test:integration
       - name: Run TypeScript & ESLint Verification
         run: npm run lint
+      - name: Full Test Suite
+        run: npm run test:all

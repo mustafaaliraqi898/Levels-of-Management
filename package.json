@@ -17,7 +17,8 @@
     "test:security": "npm run test:security:frontend && npm run test:security:main",
     "test:integration": "NODE_ENV=test tsx src/tests/dbIntegration.test.ts",
     "test:recovery": "NODE_ENV=test tsx src/tests/recovery.test.ts",
-    "test:all": "npm run test:security && npm run test:promotion && npm run test:print && npm run test:status && npm run test:recovery && npm run test:integration",
+    "test:smtp": "NODE_ENV=test tsx src/tests/smtp.test.ts",
+    "test:all": "npm run test:security && npm run test:promotion && npm run test:print && npm run test:status && npm run test:recovery && npm run test:integration && npm run test:smtp",
     "electron:dev": "NODE_ENV=development electron electron/main.cjs",
     "electron:build": "vite build && electron-builder"
   },

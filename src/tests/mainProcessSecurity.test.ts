@@ -576,12 +576,7 @@ async function runMainProcessSecurityTests() {
 
     const userInDbBefore = await db.get('SELECT * FROM users WHERE id = ?', [userId]);
 
-    if (!userInDbBefore) {
-      console.log('     ℹ️ SQLite native C++ addon omitted in container (GLIBC version constraint).');
-      console.log('     ℹ️ Verified ON CONFLICT(id) DO UPDATE SET passwordHash = COALESCE(...) in electron/database.cjs.');
-      return;
-    }
-
+    assert.ok(userInDbBefore, 'User must exist in SQLite database');
     assert.strictEqual(userInDbBefore.passwordHash, hash, 'Initial scrypt hash saved in SQLite');
     assert.strictEqual(userInDbBefore.salt, salt, 'Initial salt saved in SQLite');
 
@@ -619,48 +614,42 @@ async function runMainProcessSecurityTests() {
     assert.ok(userInDbNewPass.passwordHash.startsWith('scrypt$'), 'New password hash uses scrypt');
   });
 
-  await test('H2. Access Code Security & Rate Limiting: 5 failed attempts lockout, system-wide tracking, reset upon success', async () => {
+  await test('H2. Access Code Security & IPC Lockout: 5 failed attempts lockout shared across windows', async () => {
     db._resetAccessCodeRateLimitState();
-
-    // Set up access code '123456'
     await db.setAccessCode('123456');
+
+    // Simulate IPC call structure from main.cjs
+    const mockIpcVerify = (code: string) => db.verifyAccessCode(code);
 
     // 1-4. Four invalid attempts
     for (let i = 1; i <= 4; i++) {
-      const res = await db.verifyAccessCode('000000');
+      const res = await mockIpcVerify('000000');
       assert.strictEqual(res.success, false, `Attempt ${i} must fail`);
       assert.strictEqual(res.remainingAttempts, 5 - i, `Remaining attempts should be ${5 - i}`);
       assert.strictEqual(res.isLockedOut, undefined, 'Not locked out yet');
     }
 
     // 5. Fifth invalid attempt triggers lockout
-    const res5 = await db.verifyAccessCode('000000');
+    const res5 = await mockIpcVerify('000000');
     assert.strictEqual(res5.success, false, 'Attempt 5 fails');
     assert.strictEqual(res5.isLockedOut, true, '5th attempt triggers lockout');
 
     // 6. 6th attempt (even with CORRECT code) is rejected due to active lockout
-    const res6 = await db.verifyAccessCode('123456');
+    const res6 = await mockIpcVerify('123456');
     assert.strictEqual(res6.success, false, 'Correct code rejected while locked out');
     assert.strictEqual(res6.isLockedOut, true, 'Lockout status persists');
     assert.ok(res6.error.includes('تم قفل'), 'Error message notifies user of lockout');
 
-    // 7. System-wide tracking: calls from "different windows" (independent calls) share state
-    db._resetAccessCodeRateLimitState();
-    await db.verifyAccessCode('000000'); // Fail 1
-    await db.verifyAccessCode('000000'); // Fail 2
-    await db.verifyAccessCode('000000'); // Fail 3
-    const resInter = await db.verifyAccessCode('000000'); // Fail 4
-    assert.strictEqual(resInter.remainingAttempts, 1, 'Rate limit shared across multiple calls');
+    // 7. SHARED STATE: Simulate call from a "different window" (another IPC handler invocation)
+    // In our test, this is just another call to mockIpcVerify as the state is in the module scope of database.cjs
+    const resDifferentWindow = await mockIpcVerify('123456');
+    assert.strictEqual(resDifferentWindow.isLockedOut, true, 'Lockout must be shared across all system components');
 
-    // 8. Reset rate limit state and verify correct code succeeds when DB holds code or in test fallback
+    // 8. Reset rate limit state (e.g. after time passes) and verify success
     db._resetAccessCodeRateLimitState();
-    const isDbLoaded = await db.get("SELECT value FROM settings WHERE key = 'security_access_code'");
-    if (isDbLoaded) {
-      const resSuccess = await db.verifyAccessCode('123456');
-      assert.strictEqual(resSuccess.success, true, 'Correct access code verifies after rate limit reset');
-    } else {
-      console.log('     ℹ️ SQLite native C++ addon omitted in container. Rate limit state machine verified.');
-    }
+    const resSuccess = await mockIpcVerify('123456');
+    assert.strictEqual(resSuccess.success, true, 'Correct access code verifies after lockout reset');
+    assert.strictEqual(resSuccess.remainingAttempts, 5, 'Failed attempts count reset on success');
   });
 
   await test('H3. Database Restore Security: Rejects active DB, non-SQLite files, corrupted databases, and missing tables', async () => {

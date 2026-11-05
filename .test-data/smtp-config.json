@@ -1,0 +1,8 @@
+{
+  "host": "smtp.gmail.com",
+  "port": 587,
+  "secure": false,
+  "user": "admin@school.iq",
+  "updatedAt": "2026-11-05T17:20:43.385Z",
+  "encryptedPass": "61646d696e70617373313233"
+}
