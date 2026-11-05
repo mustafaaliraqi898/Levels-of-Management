@@ -26,12 +26,13 @@ jobs:
       - name: Install dependencies
         run: |
           npm install
-          npm install @rolldown/binding-win32-x64-msvc@1.2.14 lightningcss-win32-x64-msvc@1.32.0 lightningcss-win32-x64-msvc@1.33.0 --no-save
-          if (Test-Path "node_modules/@tailwindcss/node/node_modules/lightningcss/node") {
-            if (-not (Test-Path "node_modules/@tailwindcss/node/node_modules/lightningcss/node/lightningcss.win32-x64-msvc.node")) {
-              if (Test-Path "node_modules/lightningcss-win32-x64-msvc/lightningcss.win32-x64-msvc.node") {
-                Copy-Item "node_modules/lightningcss-win32-x64-msvc/lightningcss.win32-x64-msvc.node" "node_modules/@tailwindcss/node/node_modules/lightningcss/node/lightningcss.win32-x64-msvc.node"
-              }
+          npm install @rolldown/binding-win32-x64-msvc@1.2.14 lightningcss-win32-x64-msvc@1.32.0 --no-save
+          # Ensure lightningcss.win32-x64-msvc.node binary is copied to lightningcss package root for the relative fallback ../
+          Get-ChildItem -Path "node_modules" -Recurse -Directory -Filter "lightningcss" | ForEach-Object {
+            $destFile = Join-Path $_.FullName "lightningcss.win32-x64-msvc.node"
+            $srcFile = "node_modules/lightningcss-win32-x64-msvc/lightningcss.win32-x64-msvc.node"
+            if ((Test-Path $srcFile) -and (-not (Test-Path $destFile))) {
+              Copy-Item $srcFile $destFile
             }
           }
 
