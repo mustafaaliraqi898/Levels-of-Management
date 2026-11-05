@@ -623,7 +623,7 @@ async function runMainProcessSecurityTests() {
       await db.setAccessCode('123456');
 
       // Capture real ipcMain handler registered by ipc-handlers.cjs
-      let registeredVerifyHandler: Function | null = null;
+      let registeredVerifyHandler: any = null;
       const mockIpcMain = {
         handle: (channel: string, handler: Function) => {
           if (channel === 'auth:verifyAccessCode') {
