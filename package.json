@@ -53,7 +53,8 @@
     "typescript": "^7.0.2"
   },
   "optionalDependencies": {
-    "@rolldown/binding-win32-x64-msvc": "1.2.14"
+    "@rolldown/binding-win32-x64-msvc": "1.2.14",
+    "lightningcss-win32-x64-msvc": "1.32.0"
   },
   "build": {
     "appId": "com.school.grades",
