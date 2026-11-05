@@ -49,7 +49,9 @@ function createWindow() {
   Menu.setApplicationMenu(null);
 
   mainWindow.on('closed', () => {
-    sessionManager.clearSession(mainWindow.webContents.id);
+    if (mainWindow && mainWindow.webContents) {
+      sessionManager.handleWindowClosed(mainWindow.webContents.id);
+    }
     mainWindow = null;
   });
 }

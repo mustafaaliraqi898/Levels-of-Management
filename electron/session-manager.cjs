@@ -1,38 +1,78 @@
 // electron/session-manager.cjs
 const crypto = require('crypto');
 
+const path = require('path');
+const url = require('url');
+
 // Map to store active sessions per webContents ID (session isolation)
 const activeSessions = new Map(); // webContents.id -> session
 
-function validateSender(event) {
-  const frame = event.senderFrame;
-  if (!frame) return false;
-  const urlString = frame.url;
+// Computed canonical production file path: <project_root>/dist/index.html
+const EXPECTED_PROD_PATH = path.resolve(__dirname, '../dist/index.html');
+
+function validateSender(event, customExpectedProdPath) {
+  if (!event || !event.senderFrame) return false;
+  const urlString = event.senderFrame.url;
+  if (!urlString || typeof urlString !== 'string') return false;
 
   try {
     const parsedUrl = new URL(urlString);
 
-    if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+    // Reject any query strings or URL hashes to prevent tampering or sub-resource trickery
+    if (parsedUrl.search && parsedUrl.search !== '') {
+      return false;
+    }
+    if (parsedUrl.hash && parsedUrl.hash !== '') {
+      return false;
+    }
+
+    if (process.env.NODE_ENV === 'development') {
       // Strictly allow only local dev server
       return (
         parsedUrl.protocol === 'http:' &&
         parsedUrl.hostname === 'localhost' &&
         parsedUrl.port === '3000' &&
         !parsedUrl.username &&
-        !parsedUrl.password
+        !parsedUrl.password &&
+        (parsedUrl.pathname === '/' || parsedUrl.pathname === '/index.html')
       );
     }
 
-    // In production, strictly allow only the app's local index file
-    return (
-      parsedUrl.protocol === 'file:' &&
-      (parsedUrl.pathname.endsWith('/dist/index.html') || parsedUrl.pathname.endsWith('/index.html')) &&
-      !parsedUrl.host &&
-      !parsedUrl.username &&
-      !parsedUrl.password
-    );
+    // In production (and test environments checking production URLs)
+    if (parsedUrl.protocol !== 'file:') {
+      return false;
+    }
+
+    // Reject remote file URLs with host (e.g. file://evil-host/share) or credentials
+    if (parsedUrl.host || parsedUrl.username || parsedUrl.password) {
+      return false;
+    }
+
+    // Convert file: URL to actual filesystem path to normalize drive letters and slashes across Windows and POSIX
+    let filePath;
+    try {
+      filePath = url.fileURLToPath(parsedUrl.href);
+    } catch {
+      return false;
+    }
+
+    // Normalize paths (case-insensitive on Windows)
+    const targetExpected = customExpectedProdPath ? path.resolve(customExpectedProdPath) : EXPECTED_PROD_PATH;
+    const normalizedFilePath = path.normalize(filePath);
+    const normalizedExpected = path.normalize(targetExpected);
+
+    if (process.platform === 'win32') {
+      return normalizedFilePath.toLowerCase() === normalizedExpected.toLowerCase();
+    }
+    return normalizedFilePath === normalizedExpected;
   } catch (e) {
     return false;
+  }
+}
+
+function handleWindowClosed(webContentsId) {
+  if (webContentsId !== undefined && webContentsId !== null) {
+    activeSessions.delete(webContentsId);
   }
 }
 
@@ -77,7 +117,9 @@ function requireAdminRole(event) {
 
 module.exports = {
   activeSessions,
+  EXPECTED_PROD_PATH,
   validateSender,
+  handleWindowClosed,
   getSession,
   createSession,
   clearSession,
