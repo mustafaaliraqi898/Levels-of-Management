@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const db = require('./database.cjs');
 const smtpService = require('./smtp-service.cjs');
+const passwordHasher = require('./password-hasher.cjs');
 
 // In-memory store for active password reset tokens
 // Key: username (lowercase, trimmed)
@@ -183,8 +184,8 @@ async function verifyResetCodeAndChangePassword(usernameInput, codeInput, newPas
     return { success: false, error: 'حساب المستخدم غير موجود.' };
   }
 
-  const newSalt = generateSaltNode(16);
-  const newHash = hashPasswordNode(newPassword, newSalt);
+  const newSalt = passwordHasher.generateSalt();
+  const newHash = passwordHasher.hashPasswordScrypt(newPassword, newSalt);
 
   await db.run(
     "UPDATE users SET passwordHash = ?, salt = ?, mustChangePassword = 0 WHERE id = ?",
@@ -196,6 +197,7 @@ async function verifyResetCodeAndChangePassword(usernameInput, codeInput, newPas
 
   return {
     success: true,
+    userId: user.id,
     message: 'تم إعادة تعيين كلمة المرور بنجاح! يمكنك الآن تسجيل الدخول باستخدام كلمة المرور الجديدة.',
   };
 }

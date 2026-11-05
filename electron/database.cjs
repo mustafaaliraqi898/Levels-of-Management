@@ -6,7 +6,14 @@ try {
 }
 
 const path = require('path');
-const { app } = require('electron');
+let app = null;
+if (process.versions && process.versions.electron) {
+  try {
+    app = require('electron').app;
+  } catch {
+    // Fallback
+  }
+}
 const fs = require('fs');
 const os = require('os');
 const crypto = require('crypto');
@@ -137,8 +144,10 @@ function getDatabasePath() {
 const dbPath = getDatabasePath();
 let db = sqlite3 ? new sqlite3.Database(dbPath) : null;
 
+const passwordHasher = require('./password-hasher.cjs');
+
 function hashPasswordNode(password, salt) {
-  return crypto.createHash('sha256').update(`${password}:${salt}`).digest('hex');
+  return passwordHasher.hashPasswordSha256(password, salt);
 }
 
 function initDb() {
@@ -491,9 +500,22 @@ const dbActions = {
     if (!user) return { success: false, error: 'اسم المستخدم أو كلمة المرور غير صحيحة' };
     if (!user.isActive) return { success: false, error: 'هذا الحساب معطل حالياً من قبل الإدارة.' };
 
-    const calculatedHash = hashPasswordNode(password, user.salt);
-    if (calculatedHash !== user.passwordHash) {
+    const verifyRes = passwordHasher.verifyPassword(password, user.salt, user.passwordHash);
+    if (!verifyRes.valid) {
       return { success: false, error: 'اسم المستخدم أو كلمة المرور غير صحيحة' };
+    }
+
+    // Transparently upgrade legacy SHA-256 hash to scrypt upon successful login
+    if (verifyRes.needsMigration) {
+      try {
+        const newSalt = passwordHasher.generateSalt();
+        const newHash = passwordHasher.hashPasswordScrypt(password, newSalt);
+        await run("UPDATE users SET passwordHash = ?, salt = ? WHERE id = ?", [newHash, newSalt, user.id]);
+        user.passwordHash = newHash;
+        user.salt = newSalt;
+      } catch (migrationErr) {
+        console.error('Failed to migrate password hash to scrypt:', migrationErr);
+      }
     }
 
     // Return safe user object
@@ -516,8 +538,8 @@ const dbActions = {
 
             try {
               const id = `usr-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`;
-              const salt = crypto.randomBytes(16).toString('hex');
-              const hash = hashPasswordNode(password, salt);
+              const salt = passwordHasher.generateSalt();
+              const hash = passwordHasher.hashPasswordScrypt(password, salt);
               
               db.run('INSERT INTO users (id, username, passwordHash, salt, role, isActive, mustChangePassword, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
                 [id, username.trim(), hash, salt, 'admin', 1, 0, new Date().toISOString()],
@@ -566,8 +588,8 @@ const dbActions = {
   },
 
   updateUserPassword: async (id, newPassword) => {
-    const salt = crypto.randomBytes(16).toString('hex');
-    const hash = hashPasswordNode(newPassword, salt);
+    const salt = passwordHasher.generateSalt();
+    const hash = passwordHasher.hashPasswordScrypt(newPassword, salt);
     return run('UPDATE users SET passwordHash = ?, salt = ?, mustChangePassword = 0 WHERE id = ?', [hash, salt, id]);
   },
 

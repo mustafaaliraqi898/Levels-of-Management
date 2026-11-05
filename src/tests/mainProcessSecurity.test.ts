@@ -21,7 +21,9 @@ import { createRequire } from 'module';
  */
 
 const require = createRequire(import.meta.url);
+const fs = require('fs');
 const sessionManager = require('../../electron/session-manager.cjs');
+const passwordHasher = require('../../electron/password-hasher.cjs');
 
 async function runMainProcessSecurityTests() {
   console.log('--------------------------------------------------');
@@ -359,6 +361,170 @@ async function runMainProcessSecurityTests() {
     } finally {
       process.env.NODE_ENV = prevEnv;
     }
+  });
+
+  // ==========================================
+  // E. Password Hashing & Migration Security (scrypt & legacy SHA-256)
+  // ==========================================
+
+  await test('E1. Password Hasher: Produces scrypt$ prefixed hash resistant to brute-force', () => {
+    const salt = passwordHasher.generateSalt();
+    const hash = passwordHasher.hashPasswordScrypt('SuperSecretPass123', salt);
+    assert.ok(hash.startsWith('scrypt$'), 'Hash must start with scrypt$ prefix');
+    assert.strictEqual(hash.length, 7 + 128, 'scrypt$ prefix (7) + 64 bytes in hex (128) = 135 chars');
+  });
+
+  await test('E2. Password Hasher: Validates correct password and rejects incorrect password with scrypt', () => {
+    const salt = passwordHasher.generateSalt();
+    const hash = passwordHasher.hashPasswordScrypt('CorrectPassword!@#', salt);
+
+    const validRes = passwordHasher.verifyPassword('CorrectPassword!@#', salt, hash);
+    assert.strictEqual(validRes.valid, true, 'Valid password must be verified');
+    assert.strictEqual(validRes.needsMigration, false, 'scrypt hash does not need migration');
+
+    const invalidRes = passwordHasher.verifyPassword('WrongPassword', salt, hash);
+    assert.strictEqual(invalidRes.valid, false, 'Wrong password must fail verification');
+    assert.strictEqual(invalidRes.needsMigration, false, 'Invalid password must not trigger migration');
+  });
+
+  await test('E3. Password Hasher: Supports legacy SHA-256 hash and flags needsMigration: true', () => {
+    const salt = 'a1b2c3d4e5f67890';
+    const legacyHash = passwordHasher.hashPasswordSha256('LegacyAdmin2025', salt);
+    assert.strictEqual(legacyHash.length, 64, 'SHA-256 hex length must be 64 characters');
+
+    // Verification must succeed AND indicate migration is required
+    const result = passwordHasher.verifyPassword('LegacyAdmin2025', salt, legacyHash);
+    assert.strictEqual(result.valid, true, 'Legacy SHA-256 password must verify seamlessly');
+    assert.strictEqual(result.needsMigration, true, 'Legacy SHA-256 must flag needsMigration: true');
+
+    // Wrong password with legacy hash must still fail
+    const wrongResult = passwordHasher.verifyPassword('WrongLegacyPass', salt, legacyHash);
+    assert.strictEqual(wrongResult.valid, false, 'Wrong password on legacy hash must fail');
+    assert.strictEqual(wrongResult.needsMigration, false, 'Failed verification must never migrate');
+  });
+
+  await test('E4. Database Migration: verifyCredentials migrates legacy SHA-256 to scrypt without lockout', async () => {
+    const salt = 'legacy-salt-999';
+    const legacySha256 = passwordHasher.hashPasswordSha256('AdminPass2026', salt);
+
+    // Mock DB user storage
+    const mockUser: any = {
+      id: 'usr-migration-test',
+      username: 'migrating_admin',
+      passwordHash: legacySha256,
+      salt: salt,
+      role: 'admin',
+      isActive: 1,
+      mustChangePassword: 0
+    };
+
+    let updatedHash = '';
+    let updatedSalt = '';
+
+    // Simulated verifyCredentials implementation matching electron/database.cjs
+    const simulatedVerifyCredentials = async (usernameInput: string, passwordInput: string) => {
+      if (usernameInput !== mockUser.username) return { success: false, error: 'User not found' };
+      const verifyRes = passwordHasher.verifyPassword(passwordInput, mockUser.salt, mockUser.passwordHash);
+      if (!verifyRes.valid) return { success: false, error: 'Invalid password' };
+
+      if (verifyRes.needsMigration) {
+        const newSalt = passwordHasher.generateSalt();
+        const newHash = passwordHasher.hashPasswordScrypt(passwordInput, newSalt);
+        // Emulate DB update: UPDATE users SET passwordHash = ?, salt = ? WHERE id = ?
+        mockUser.passwordHash = newHash;
+        mockUser.salt = newSalt;
+        updatedHash = newHash;
+        updatedSalt = newSalt;
+      }
+
+      const { passwordHash: _, salt: __, ...safeUser } = mockUser;
+      return { success: true, user: safeUser };
+    };
+
+    // 1st login: User logs in with original legacy SHA-256 password
+    const login1 = await simulatedVerifyCredentials('migrating_admin', 'AdminPass2026');
+    assert.strictEqual(login1.success, true, 'First login with legacy SHA-256 must succeed');
+    assert.ok(mockUser.passwordHash.startsWith('scrypt$'), 'User passwordHash in DB must now be scrypt');
+    assert.strictEqual(mockUser.passwordHash, updatedHash);
+    assert.strictEqual(mockUser.salt, updatedSalt);
+
+    // 2nd login: User logs in again, verified directly via scrypt without needing migration
+    const checkAfter = passwordHasher.verifyPassword('AdminPass2026', mockUser.salt, mockUser.passwordHash);
+    assert.strictEqual(checkAfter.valid, true, 'Subsequent login verifies via scrypt');
+    assert.strictEqual(checkAfter.needsMigration, false, 'No further migration needed');
+  });
+
+  // ==========================================
+  // F. Multi-Session Invalidation Tests (clearSessionsByUserId)
+  // ==========================================
+
+  await test('F1. Multi-Session: Changing or resetting password revokes ALL windows of that user ID', () => {
+    sessionManager.activeSessions.clear();
+
+    const userA = { id: 'usr-alice-123', username: 'alice', role: 'admin' };
+    const userB = { id: 'usr-bob-456', username: 'bob', role: 'user' };
+
+    // Alice opens two separate windows (e.g. main window and reports window)
+    const aliceWin1 = 601;
+    const aliceWin2 = 602;
+    sessionManager.createSession(aliceWin1, userA);
+    sessionManager.createSession(aliceWin2, userA);
+
+    // Bob opens one window
+    const bobWin = 603;
+    sessionManager.createSession(bobWin, userB);
+
+    assert.strictEqual(sessionManager.activeSessions.size, 3, 'Total 3 active sessions across windows');
+    assert.ok(sessionManager.getSession(aliceWin1), 'Alice Win1 active');
+    assert.ok(sessionManager.getSession(aliceWin2), 'Alice Win2 active');
+    assert.ok(sessionManager.getSession(bobWin), 'Bob Win active');
+
+    // Alice resets / changes password -> triggers clearSessionsByUserId(userA.id)
+    const cleared = sessionManager.clearSessionsByUserId(userA.id);
+    assert.strictEqual(cleared, 2, 'Must clear exactly 2 windows belonging to Alice');
+
+    // Alice\'s windows are completely revoked
+    assert.strictEqual(sessionManager.getSession(aliceWin1), undefined, 'Alice Win1 session revoked');
+    assert.strictEqual(sessionManager.getSession(aliceWin2), undefined, 'Alice Win2 session revoked');
+
+    // Bob\'s window remains valid and unaffected
+    assert.ok(sessionManager.getSession(bobWin), 'Bob session remains untouched');
+    assert.strictEqual(sessionManager.getSession(bobWin)?.user.id, userB.id);
+
+    // Subsequent IPC calls from Alice\'s revoked windows are rejected
+    const prevEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'development';
+    try {
+      const eventAlice1 = createMockEvent(aliceWin1, 'http://localhost:3000');
+      assert.throws(
+        () => sessionManager.requireAuth(eventAlice1),
+        /يجب تسجيل الدخول/,
+        'Alice Win1 must be rejected on subsequent operation'
+      );
+
+      const eventBob = createMockEvent(bobWin, 'http://localhost:3000');
+      const bobSession = sessionManager.requireAuth(eventBob);
+      assert.strictEqual(bobSession.user.username, 'bob', 'Bob can still execute authenticated operations');
+    } finally {
+      process.env.NODE_ENV = prevEnv;
+    }
+  });
+
+  // ==========================================
+  // G. SMTP Security & Strict TLS Certificate Verification
+  // ==========================================
+
+  await test('G1. SMTP Security: rejectUnauthorized: false is strictly disallowed in smtp-service.cjs', () => {
+    const smtpServicePath = path.resolve(process.cwd(), 'electron/smtp-service.cjs');
+    const sourceCode = fs.readFileSync(smtpServicePath, 'utf8');
+
+    // Verify rejectUnauthorized: false does NOT exist anywhere in smtp-service.cjs
+    const hasInsecureTls = /rejectUnauthorized\s*:\s*false/.test(sourceCode);
+    assert.strictEqual(
+      hasInsecureTls,
+      false,
+      'SECURITY: smtp-service.cjs must never disable TLS certificate verification (rejectUnauthorized: false is forbidden)'
+    );
   });
 
   console.log('\n--------------------------------------------------');

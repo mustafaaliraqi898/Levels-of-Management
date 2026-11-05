@@ -1,7 +1,16 @@
 const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
-const { app, safeStorage } = require('electron');
+let electron = null;
+if (process.versions && process.versions.electron) {
+  try {
+    electron = require('electron');
+  } catch {
+    // Fallback
+  }
+}
+const app = electron ? electron.app : null;
+const safeStorage = electron ? electron.safeStorage : null;
 
 const os = require('os');
 
@@ -186,9 +195,6 @@ async function testSmtpConnection(testConfig) {
         user: config.user,
         pass: config.pass,
       },
-      tls: {
-        rejectUnauthorized: false,
-      },
       connectionTimeout: 10000,
     });
 
@@ -221,9 +227,6 @@ async function sendPasswordResetEmail(toEmail, username, code) {
       auth: {
         user: config.user,
         pass: config.pass,
-      },
-      tls: {
-        rejectUnauthorized: false,
       },
       connectionTimeout: 12000,
     });

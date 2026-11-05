@@ -78,6 +78,7 @@ async function runRecoveryTests() {
   // Load services
   const resetService = require('../../electron/reset-service.cjs');
   const smtpService = require('../../electron/smtp-service.cjs');
+  const passwordHasher = require('../../electron/password-hasher.cjs');
 
   // 1. Check code generation length and format
   const testCode = resetService.generateSecure6DigitCode();
@@ -154,10 +155,11 @@ async function runRecoveryTests() {
   const reuseRes = await resetService.verifyResetCodeAndChangePassword(username, activeCode, 'AnotherPass123!');
   assert(reuseRes.success === false, 'إبطال الرمز فور استخدامه ومنع إعادة الاستخدام مرة أخرى (Single-Use)');
 
-  // 10. Verify updated password hash in SQLite
+  // 10. Verify updated password hash in SQLite uses scrypt
   const updatedUser = await mockDb.get("SELECT * FROM users WHERE LOWER(username) = ?", [username]);
-  const newHashCalc = resetService.hashPasswordNode('NewPass123!', updatedUser.salt);
-  assert(updatedUser.passwordHash === newHashCalc, 'تحديث كلمة المرور المشفرة مع الملح في قاعدة البيانات بنجاح');
+  assert(updatedUser.passwordHash.startsWith('scrypt$'), 'تشفير كلمة المرور الجديدة باستخدام خوارزمية scrypt بطيئة وآمنة');
+  const verifyRes = passwordHasher.verifyPassword('NewPass123!', updatedUser.salt, updatedUser.passwordHash);
+  assert(verifyRes.valid === true, 'التحقق من صحة كلمة المرور المحدثة بنجاح عبر scrypt');
 
   // Restore original SMTP method
   smtpService.sendPasswordResetEmail = originalSendEmail;

@@ -96,6 +96,18 @@ function clearSession(webContentsId) {
   return true;
 }
 
+function clearSessionsByUserId(userId) {
+  if (!userId) return 0;
+  let clearedCount = 0;
+  for (const [webContentsId, session] of activeSessions.entries()) {
+    if (session && session.user && session.user.id === userId) {
+      activeSessions.delete(webContentsId);
+      clearedCount++;
+    }
+  }
+  return clearedCount;
+}
+
 function requireAuth(event) {
   if (!validateSender(event)) {
     throw new Error('Unauthorized sender origin');
@@ -123,6 +135,7 @@ module.exports = {
   getSession,
   createSession,
   clearSession,
+  clearSessionsByUserId,
   requireAuth,
   requireAdminRole
 };

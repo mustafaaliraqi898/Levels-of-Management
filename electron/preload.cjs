@@ -12,6 +12,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     clearSession: () => ipcRenderer.invoke('auth:clearSession'),
     requestPasswordResetCode: (username) => ipcRenderer.invoke('auth:requestPasswordResetCode', username),
     verifyResetCodeAndChangePassword: (username, code, newPassword) => ipcRenderer.invoke('auth:verifyResetCodeAndChangePassword', username, code, newPassword),
+    changePassword: (currentPassword, newPassword) => ipcRenderer.invoke('auth:changePassword', currentPassword, newPassword),
+    forceChangePassword: (newPassword, adminEmail) => ipcRenderer.invoke('auth:forceChangePassword', newPassword, adminEmail),
+    adminResetUserPassword: (userId, newPassword) => ipcRenderer.invoke('auth:adminResetUserPassword', userId, newPassword),
   },
   smtp: {
     getSmtpStatus: () => ipcRenderer.invoke('smtp:getSmtpStatus'),
@@ -23,6 +26,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     loadAll: () => ipcRenderer.invoke('db:loadAll'),
     saveSettings: (key, value) => ipcRenderer.invoke('db:saveSettings', key, value),
     upsertUser: (user) => ipcRenderer.invoke('db:upsertUser', user),
+    updateUserPassword: (id, newPassword) => ipcRenderer.invoke('db:updateUserPassword', id, newPassword),
     upsertYear: (year) => ipcRenderer.invoke('db:upsertYear', year),
     upsertClass: (cls) => ipcRenderer.invoke('db:upsertClass', cls),
     upsertSection: (sec) => ipcRenderer.invoke('db:upsertSection', sec),

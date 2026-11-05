@@ -302,6 +302,15 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
 
     setIsLoading(true);
     try {
+      if (typeof window !== 'undefined' && (window as any).electronAPI?.auth?.adminResetUserPassword) {
+        const elRes = await (window as any).electronAPI.auth.adminResetUserPassword(selectedUser.id, resetPassword);
+        if (!elRes.success) {
+          showNotice('error', elRes.error || 'تعذر إعادة تعيين كلمة المرور');
+          setIsLoading(false);
+          return;
+        }
+      }
+
       const salt = generateSalt();
       const passwordHash = await hashPassword(resetPassword, salt);
       const res = db.updateUser(selectedUser.id, {

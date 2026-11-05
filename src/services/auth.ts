@@ -338,6 +338,11 @@ class AuthService {
     updates.salt = newSalt;
     updates.mustChangePassword = false;
 
+    if (typeof window !== 'undefined' && (window as any).electronAPI?.auth?.forceChangePassword) {
+      const elRes = await (window as any).electronAPI.auth.forceChangePassword(newPassword, updates.email);
+      if (!elRes.success) return elRes;
+    }
+
     db.updateUser(userId, updates);
 
     // Update local session
@@ -550,6 +555,11 @@ class AuthService {
       dataToUpdate.passwordHash = newHash;
       dataToUpdate.salt = newSalt;
       dataToUpdate.mustChangePassword = false;
+
+      if (typeof window !== 'undefined' && (window as any).electronAPI?.auth?.changePassword) {
+        const elRes = await (window as any).electronAPI.auth.changePassword(updates.currentPassword, updates.newPassword);
+        if (!elRes.success) return elRes;
+      }
     }
 
     db.updateUser(userId, dataToUpdate);

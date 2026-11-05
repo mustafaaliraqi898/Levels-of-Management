@@ -123,8 +123,62 @@ app.whenReady().then(async () => {
   ipcMain.handle('auth:verifyResetCodeAndChangePassword', async (event, username, code, newPassword) => {
     if (!validateSender(event)) return { success: false, error: 'Unauthorized' };
     const res = await resetService.verifyResetCodeAndChangePassword(username, code, newPassword);
-    if (res.success) sessionManager.clearSession(event.sender.id); // Invalidate current session if password changed
+    if (res.success && res.userId) {
+      sessionManager.clearSessionsByUserId(res.userId);
+    } else if (res.success) {
+      sessionManager.clearSession(event.sender.id);
+    }
     return res;
+  });
+
+  ipcMain.handle('auth:changePassword', async (event, currentPassword, newPassword) => {
+    const session = requireAuth(event);
+    const verifyRes = await db.verifyCredentials(session.user.username, currentPassword);
+    if (!verifyRes.success) {
+      return { success: false, error: 'كلمة المرور الحالية غير صحيحة' };
+    }
+    if (!newPassword || newPassword.length < 6) {
+      return { success: false, error: 'يجب ألا تقل كلمة المرور الجديدة عن 6 خانات/أحرف.' };
+    }
+    await db.updateUserPassword(session.user.id, newPassword);
+    sessionManager.clearSessionsByUserId(session.user.id);
+    return { success: true };
+  });
+
+  ipcMain.handle('auth:forceChangePassword', async (event, newPassword, adminEmail) => {
+    const session = requireAuth(event);
+    if (!newPassword || newPassword.length < 6) {
+      return { success: false, error: 'يجب ألا تقل كلمة المرور الجديدة عن 6 خانات/أحرف.' };
+    }
+    if (session.user.role === 'admin' && adminEmail) {
+      await db.updateUser(session.user.id, { email: adminEmail });
+    }
+    await db.updateUserPassword(session.user.id, newPassword);
+    sessionManager.clearSessionsByUserId(session.user.id);
+    return { success: true };
+  });
+
+  ipcMain.handle('auth:adminResetUserPassword', async (event, userId, newPassword) => {
+    requireAdminRole(event);
+    if (!newPassword || newPassword.length < 6) {
+      return { success: false, error: 'يجب ألا تقل كلمة المرور الجديدة عن 6 خانات/أحرف.' };
+    }
+    await db.updateUserPassword(userId, newPassword);
+    sessionManager.clearSessionsByUserId(userId);
+    return { success: true };
+  });
+
+  ipcMain.handle('db:updateUserPassword', async (event, id, newPassword) => {
+    const session = requireAuth(event);
+    if (session.user.role !== 'admin' && session.user.id !== id) {
+      throw new Error('Unauthorized');
+    }
+    if (!newPassword || newPassword.length < 6) {
+      return { success: false, error: 'يجب ألا تقل كلمة المرور الجديدة عن 6 خانات/أحرف.' };
+    }
+    await db.updateUserPassword(id, newPassword);
+    sessionManager.clearSessionsByUserId(id);
+    return { success: true };
   });
 
   ipcMain.handle('smtp:getSmtpStatus', (event) => {
