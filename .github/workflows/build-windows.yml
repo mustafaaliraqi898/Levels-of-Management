@@ -24,7 +24,9 @@ jobs:
           node-version: 22
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          npm install
+          npm install @rolldown/binding-win32-x64-msvc@1.2.14 --no-save
 
       - name: Build Windows installer
         run: npm run electron:build -- --config.directories.output=release --publish never

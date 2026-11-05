@@ -52,6 +52,9 @@
     "tsx": "^4.21.0",
     "typescript": "^7.0.2"
   },
+  "optionalDependencies": {
+    "@rolldown/binding-win32-x64-msvc": "1.2.14"
+  },
   "build": {
     "appId": "com.school.grades",
     "productName": "نظام إدارة الدرجات المدرسية",
