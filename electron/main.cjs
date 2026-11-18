@@ -90,10 +90,9 @@ function createWindow() {
   // Remove standard English menu for a clean custom dark native feel
   Menu.setApplicationMenu(null);
 
+  const webContentsId = mainWindow.webContents.id;
   mainWindow.on('closed', () => {
-    if (mainWindow && mainWindow.webContents) {
-      sessionManager.handleWindowClosed(mainWindow.webContents.id);
-    }
+    sessionManager.handleWindowClosed(webContentsId);
     mainWindow = null;
   });
 }
