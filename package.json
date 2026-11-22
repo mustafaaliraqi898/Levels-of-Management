@@ -19,8 +19,8 @@
     "test:recovery": "NODE_ENV=test tsx src/tests/recovery.test.ts",
     "test:smtp": "NODE_ENV=test tsx src/tests/smtp.test.ts",
     "test:all": "npm run test:security && npm run test:promotion && npm run test:print && npm run test:status && npm run test:recovery && npm run test:integration && npm run test:smtp",
-    "electron:dev": "NODE_ENV=development electron electron/main.cjs",
-    "electron:build": "vite build && electron-builder"
+    "electron:dev": "node scripts/generate-icon.mjs && NODE_ENV=development electron electron/main.cjs",
+    "electron:build": "node scripts/generate-icon.mjs && vite build && electron-builder"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
@@ -58,7 +58,9 @@
     "esbuild": "^0.28.0",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.21.0",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "sharp": "^0.34.5",
+    "png-to-ico": "^2.1.8"
   },
   "optionalDependencies": {
     "@rolldown/binding-win32-x64-msvc": "1.2.14",
@@ -70,7 +72,8 @@
     "files": [
       "dist/**/*",
       "electron/**/*",
-      "package.json"
+      "package.json",
+      "public/**/*"
     ],
     "win": {
       "target": "nsis",
