@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#27b9ff"/><stop offset=".55" stop-color="#0878e8"/><stop offset="1" stop-color="#063b9a"/></linearGradient>
+    <linearGradient id="navy" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#123f83"/><stop offset="1" stop-color="#071d46"/></linearGradient>
+    <linearGradient id="page" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#dcecff"/></linearGradient>
+    <linearGradient id="green" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#8cfb42"/><stop offset="1" stop-color="#13b83a"/></linearGradient>
+    <linearGradient id="orange" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffd84c"/><stop offset="1" stop-color="#ff8a16"/></linearGradient>
+    <filter id="shadow" x="-25%" y="-25%" width="150%" height="160%"><feGaussianBlur in="SourceAlpha" stdDeviation="8"/><feOffset dy="9"/><feComponentTransfer><feFuncA type="linear" slope=".25"/></feComponentTransfer><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <path d="M65 360 C52 220 165 110 304 116 C388 119 443 169 456 235" fill="none" stroke="url(#blue)" stroke-width="23" stroke-linecap="round"/>
+  <path d="M72 355 C112 242 197 190 296 184" fill="none" stroke="#72d7ff" stroke-width="6" stroke-linecap="round" opacity=".9"/>
+  <g filter="url(#shadow)">
+    <rect x="145" y="278" width="65" height="126" rx="15" fill="url(#blue)"/>
+    <rect x="224" y="231" width="65" height="173" rx="15" fill="url(#green)"/>
+    <rect x="303" y="174" width="65" height="230" rx="15" fill="url(#orange)"/>
+    <path d="M73 365 Q150 334 255 379 Q360 334 439 365 L425 427 Q340 401 255 446 Q170 401 87 427 Z" fill="#0753b7" stroke="#28aaff" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M85 365 Q165 340 255 385 L255 433 Q169 389 93 413 Z" fill="url(#page)" stroke="#d5e9ff" stroke-width="4"/>
+    <path d="M425 365 Q345 340 255 385 L255 433 Q341 389 417 413 Z" fill="url(#page)" stroke="#d5e9ff" stroke-width="4"/>
+    <path d="M112 382 Q171 370 222 394 M398 382 Q339 370 288 394" fill="none" stroke="#8bb8ec" stroke-width="7" stroke-linecap="round"/>
+    <path d="M255 385 V433" stroke="#8bb8ec" stroke-width="5"/>
+    <path d="M143 126 L255 70 L369 126 L255 183 Z" fill="url(#blue)" stroke="#8bdcff" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M171 143 V190 Q255 239 339 190 V143 L255 185 Z" fill="url(#navy)"/>
+    <path d="M348 118 L377 133 V194" fill="none" stroke="#ffc629" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M365 194 Q377 184 389 194 L383 231 Q377 242 371 231 Z" fill="#ffc629"/>
+    <circle cx="377" cy="191" r="10" fill="#ffe36a" stroke="#e9a900" stroke-width="4"/>
+  </g>
+</svg>
