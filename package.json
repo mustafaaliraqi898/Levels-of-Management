@@ -72,7 +72,8 @@
     "files": [
       "dist/**/*",
       "electron/**/*",
-      "package.json"
+      "package.json",
+      "public/**/*"
     ],
     "win": {
       "target": "nsis",
