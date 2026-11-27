@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Subject, SchoolClass, AcademicYear } from '../../types';
 import { db } from '../../services/storage';
 import { filterClassesByAcademicYear } from '../../utils/academicYearUtils';
@@ -12,15 +12,12 @@ import {
   Trash2,
   Edit3,
   AlertTriangle,
-  ArrowUpDown,
-  Sparkles,
-  Info,
-  X,
   GraduationCap,
   Layers,
   ListChecks,
   Search,
   ArrowLeft,
+  X,
 } from 'lucide-react';
 
 interface SubjectsManagementProps {
@@ -53,11 +50,6 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
     }
   }, [availableClasses, selectedClassId]);
 
-  const subjectNameInputRef = useRef<HTMLInputElement>(null);
-  const [newName, setNewName] = useState('');
-  const [newMaxScore, setNewMaxScore] = useState(100);
-  const [newPassScore, setNewPassScore] = useState(50);
-
   // Drag and Drop States
   const [draggedSubjectId, setDraggedSubjectId] = useState<string | null>(null);
   const [dragOverSubjectId, setDragOverSubjectId] = useState<string | null>(null);
@@ -86,7 +78,6 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
   const [customSubjectName, setCustomSubjectName] = useState('');
   const [subjectSearch, setSubjectSearch] = useState('');
   const [bulkGrades, setBulkGrades] = useState<Record<string, { maxScore: number; passScore: number }>>({});
-  const [catalogLoaded, setCatalogLoaded] = useState(false);
 
   useEffect(() => {
     try {
@@ -98,7 +89,6 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
         }
       }
     } catch { /* keep built-in catalog */ }
-    setCatalogLoaded(true);
   }, []);
 
   const openAddSubjectsPage = () => {
@@ -131,7 +121,7 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
 
   const availableCatalogSubjects = catalogSubjects.filter((name) =>
     name.toLocaleLowerCase().includes(subjectSearch.trim().toLocaleLowerCase()) &&
-    !classSubjects.some((subject) => subject.name.trim().toLocaleLowerCase() === name.trim().toLocaleLowerCase())
+    !subjects.some((subject) => subject.classId === selectedClassId && subject.name.trim().toLocaleLowerCase() === name.trim().toLocaleLowerCase())
   );
 
   const proceedToGradeSetup = () => {
@@ -181,7 +171,161 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
       const timer = setTimeout(() => {
         setSaveSuccessNotification(null);
       }, 3000);
-      return (
+      return () => clearTimeout(timer);
+    }
+  }, [saveSuccessNotification]);
+
+  // Current subjects for the selected class, strictly sorted by order
+  const classSubjects = useMemo(() => {
+    return subjects
+      .filter((s) => s.classId === selectedClassId)
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  }, [subjects, selectedClassId]);
+
+  const activeClass = classes.find((c) => c.id === selectedClassId);
+
+  // Drag & Drop Handlers
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, subjectId: string) => {
+    setDraggedSubjectId(subjectId);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', subjectId);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>, targetSubjectId: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+
+    if (!draggedSubjectId || draggedSubjectId === targetSubjectId) {
+      return;
+    }
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clientY = e.clientY;
+    const midpoint = rect.top + rect.height / 2;
+
+    const newPos: 'before' | 'after' = clientY < midpoint ? 'before' : 'after';
+
+    if (dragOverSubjectId !== targetSubjectId || dropPosition !== newPos) {
+      setDragOverSubjectId(targetSubjectId);
+      setDropPosition(newPos);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    // Only clear if leaving the card itself (not entering a child)
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setDragOverSubjectId(null);
+      setDropPosition(null);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>, targetSubjectId: string) => {
+    e.preventDefault();
+
+    if (!draggedSubjectId || draggedSubjectId === targetSubjectId) {
+      setDraggedSubjectId(null);
+      setDragOverSubjectId(null);
+      setDropPosition(null);
+      return;
+    }
+
+    const currentIds = classSubjects.map((s) => s.id);
+    const fromIndex = currentIds.indexOf(draggedSubjectId);
+    const toTargetIndex = currentIds.indexOf(targetSubjectId);
+
+    if (fromIndex === -1 || toTargetIndex === -1) {
+      setDraggedSubjectId(null);
+      setDragOverSubjectId(null);
+      setDropPosition(null);
+      return;
+    }
+
+    const newIds = [...currentIds];
+    const [movedId] = newIds.splice(fromIndex, 1);
+
+    // Calculate insertion index based on before / after
+    let insertIndex = newIds.indexOf(targetSubjectId);
+    if (dropPosition === 'after') {
+      insertIndex += 1;
+    }
+
+    newIds.splice(insertIndex, 0, movedId);
+
+    // Save immediately and centrally
+    db.reorderSubjects(selectedClassId, newIds);
+
+    const movedSubject = classSubjects.find((s) => s.id === movedId);
+    setSaveSuccessNotification(`تم تغيير ترتيب «${movedSubject?.name || 'المادة'}» وحفظه في النظام تلقائياً.`);
+
+    setDraggedSubjectId(null);
+    setDragOverSubjectId(null);
+    setDropPosition(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedSubjectId(null);
+    setDragOverSubjectId(null);
+    setDropPosition(null);
+  };
+
+  // Quick Move Up / Down Buttons (Ideal for mobile touch & keyboard accessibility)
+  const handleMove = (subjectId: string, direction: 'up' | 'down') => {
+    const currentIds = classSubjects.map((s) => s.id);
+    const index = currentIds.indexOf(subjectId);
+    if (index === -1) return;
+
+    if (direction === 'up' && index > 0) {
+      const newIds = [...currentIds];
+      const temp = newIds[index - 1];
+      newIds[index - 1] = newIds[index];
+      newIds[index] = temp;
+      db.reorderSubjects(selectedClassId, newIds);
+      const sub = classSubjects.find((s) => s.id === subjectId);
+      setSaveSuccessNotification(`تم تقديم مادة «${sub?.name}» وحفظ الترتيب تلقائياً.`);
+    } else if (direction === 'down' && index < currentIds.length - 1) {
+      const newIds = [...currentIds];
+      const temp = newIds[index + 1];
+      newIds[index + 1] = newIds[index];
+      newIds[index] = temp;
+      db.reorderSubjects(selectedClassId, newIds);
+      const sub = classSubjects.find((s) => s.id === subjectId);
+      setSaveSuccessNotification(`تم تأخير مادة «${sub?.name}» وحفظ الترتيب تلقائياً.`);
+    }
+  };
+
+  // Open Edit Modal
+  const startEditing = (sub: Subject) => {
+    setEditingSubject(sub);
+    setEditName(sub.name);
+    setEditMaxScore(sub.maxScore);
+    setEditPassScore(sub.passScore);
+  };
+
+  const handleSaveEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingSubject || !editName.trim()) return;
+
+    db.updateSubject({
+      ...editingSubject,
+      name: editName.trim(),
+      maxScore: editMaxScore,
+      passScore: editPassScore,
+    });
+
+    setSaveSuccessNotification(`تم تحديث بيانات مادة «${editName.trim()}» بنجاح.`);
+    setEditingSubject(null);
+  };
+
+  // Delete Subject
+  const confirmDelete = () => {
+    if (!deletingSubject) return;
+    const name = deletingSubject.name;
+    db.deleteSubject(deletingSubject.id);
+    setSaveSuccessNotification(`تم حذف مادة «${name}» وتحديث تسلسل المواد تلقائياً.`);
+    setDeletingSubject(null);
+  };
+
+  return (
     <div className="flex flex-col gap-5 pb-10" dir="rtl">
       {saveSuccessNotification && (
         <div role="status" className="fixed top-5 left-5 z-[70] flex items-center gap-2 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-[#1C2939] px-4 py-3 text-xs font-bold text-emerald-700 dark:text-emerald-400 shadow-lg">
