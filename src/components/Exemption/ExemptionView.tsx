@@ -14,7 +14,6 @@ import { db, buildGradeKey } from '../../services/storage';
 import { filterClassesByAcademicYear } from '../../utils/academicYearUtils';
 import {
   evaluateStudentExemption,
-  ROUNDING_RULE_LABELS,
 } from '../../services/calculations';
 import {
   Award,
@@ -38,9 +37,7 @@ import {
   Database,
   ChevronDown,
   ChevronUp,
-  Download,
   FileText,
-  Eye,
 } from 'lucide-react';
 import { ReportHeader } from '../Common/ReportHeader';
 import { ExportCertificatesPdfModal } from './ExportCertificatesPdfModal';
@@ -434,8 +431,6 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
   }, [evaluatedResults, eligibleIndividualStudents]);
 
   const activeYearObj = academicYears.find((y) => y.id === selectedYearId);
-  const activeClassObj = classes.find((c) => c.id === selectedClassId);
-  const activeSectionObj = sections.find((s) => s.id === selectedSectionId);
 
   // Print Action
   const [seedSyncFeedback, setSeedSyncFeedback] = useState<string | null>(null);
@@ -456,6 +451,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
   };
 
   const [showPrintPreview, setShowPrintPreview] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   const handlePrint = () => {
     setShowPrintPreview(true);
@@ -484,6 +480,20 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
         <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
           <button
             type="button"
+            onClick={() => setIsSettingsModalOpen(true)}
+            className="px-4 py-2.5 rounded-xl bg-[#EDF3FF] hover:bg-[#DFE9FF] dark:bg-[#203657] dark:hover:bg-[#29466F] text-[#3156C9] dark:text-[#A9C3FF] border border-[#C9D8FF] dark:border-[#365681] font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+            title="فتح إعدادات شروط الإعفاء للعام الدراسي المحدد"
+          >
+            <Sliders className="w-4 h-4" />
+            <span>إعدادات شروط الإعفاء</span>
+          </button>
+          {!savedSettings.isConfigured && (
+            <span className="px-2.5 py-2 rounded-lg bg-[#FFF5E5] dark:bg-[#3A3021] border border-[#F0D7A5] dark:border-[#76572D] text-[#A66A12] dark:text-[#F2CA7A] text-[10px] font-bold">
+              الشروط غير معتمدة
+            </span>
+          )}
+          <button
+            type="button"
             onClick={handlePrint}
             className="px-4 py-2.5 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
             title="معاينة وطباعة كشف نتائج الإعفاء الحالي"
@@ -503,30 +513,26 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
         </div>
       </div>
 
-      {/* 2. Notification Banner if Exemption Settings not yet saved/configured for this year */}
-      {!savedSettings.isConfigured && (
-        <div className="bg-[#D69B42]/10 border border-[#D69B42]/35 rounded-2xl p-4 sm:p-5 flex items-start gap-3.5 shadow-sm">
-          <AlertCircle className="w-6 h-6 text-[#B45309] dark:text-[#D69B42] shrink-0 mt-0.5" />
-          <div className="flex-1 text-xs sm:text-sm">
-            <h4 className="font-bold text-[#B45309] dark:text-[#D69B42] text-sm sm:text-base">
-              تنبيه: شروط الإعفاء للعام الدراسي ({activeYearObj?.name || 'المحدد'}) لم تُعتمد وتُحفظ بعد
-            </h4>
-            <p className="text-[#475569] dark:text-[#A8B5C7] mt-1 leading-relaxed">
-              يُرجى مراجعة إعدادات شروط الإعفاء المقترحة أدناه والضغط على زر{' '}
-              <strong className="text-[#B45309] dark:text-[#D69B42] underline font-bold">«حفظ الشروط»</strong> لاعتماد النتائج الرسمية
-              والتأكد من تطبيقها على طلاب هذا العام الدراسي.
-            </p>
-          </div>
-        </div>
-      )}
+      {isSettingsModalOpen && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/55 p-3 sm:p-6"
+          role="presentation"
+          onClick={() => setIsSettingsModalOpen(false)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="exemption-settings-title"
+            className="w-full max-w-5xl max-h-[92vh] overflow-y-auto rounded-2xl shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
 
-      {/* 3. Settings Section: "إعدادات شروط الإعفاء" */}
       <div className="bg-white dark:bg-[#172235] border border-[#DCE5F2] dark:border-[#2B3B52] rounded-2xl overflow-hidden shadow-sm">
         <div className="px-4 py-3 bg-[#F5F8FD] dark:bg-[#1B2A40] border-b border-[#DCE5F2] dark:border-[#2B3B52] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <Sliders className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" />
             <h2 className="font-bold text-base sm:text-lg text-[#1E293B] dark:text-[#E2E8F0]">
-              إعدادات شروط الإعفاء للعام الدراسي:
+              <span id="exemption-settings-title">إعدادات شروط الإعفاء للعام الدراسي:</span>
               <span className="text-[#3156C9] dark:text-[#60A5FA] font-extrabold mr-2">
                 {activeYearObj?.name || selectedYearId}
               </span>
@@ -556,6 +562,13 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
             >
               <Save className="w-4 h-4" />
               حفظ الشروط
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsSettingsModalOpen(false)}
+              className="px-3 py-2 rounded-xl bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#3B4D66] text-[#475569] dark:text-[#C5D1E2] text-xs font-bold hover:bg-[#F1F5F9] dark:hover:bg-[#31435C] transition-colors cursor-pointer"
+            >
+              إغلاق
             </button>
           </div>
         </div>
@@ -752,6 +765,9 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
         </div>
       </div>
 
+          </div>
+        </div>
+      )}
       {/* 4. Filter Toolbar: Year, Class, Section, and Quick Search */}
       <div className="bg-white dark:bg-[#172235] border border-[#DCE5F2] dark:border-[#2B3B52] rounded-2xl p-3 sm:p-4 shadow-sm space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -887,10 +903,10 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
 
           <div className="bg-[#F8FAFC] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl p-3 flex items-center justify-between">
             <div>
-              <p className="text-[11px] text-[#64748B] dark:text-[#8493A8]">حالات غير مكتملة</p>
-              <p className="text-lg font-black font-mono tabular-nums text-[#475569] dark:text-[#A8B5C7]">{stats.generalIncomplete}</p>
+              <p className="text-[11px] text-[#64748B] dark:text-[#8493A8]">غير المشمولين</p>
+              <p className="text-lg font-black font-mono tabular-nums text-[#475569] dark:text-[#A8B5C7]">{stats.generalNotEligible}</p>
             </div>
-            <Clock className="w-6 h-6 text-[#64748B] dark:text-[#8493A8]" />
+            <XCircle className="w-6 h-6 text-[#64748B] dark:text-[#8493A8]" />
           </div>
         </div>
       </div>
@@ -945,21 +961,13 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
       {/* 7. SECTION A: RESULTS OF GENERAL EXEMPTION (نتائج الإعفاء العام) */}
       {activeTab === 'general' && (
         <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl overflow-hidden shadow-sm">
-          <div className="p-4 sm:p-5 bg-[#F8FAFC] dark:bg-[#202E40] border-b border-[#DCE3ED] dark:border-[#2D3B4D] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="px-4 py-3.5 bg-[#F5F8FD] dark:bg-[#1B2A40] border-b border-[#DCE5F2] dark:border-[#2B3B52] flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
             <div>
               <h3 className="font-bold text-[#1E293B] dark:text-[#E2E8F0] text-base sm:text-lg flex items-center gap-2">
-                <Award className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" />
+                <Award className="w-5 h-5 text-[#15966B] dark:text-[#54D6A6]" />
                 قائمة المستحقين للإعفاء العام
-                <span className="text-xs text-[#64748B] dark:text-[#8493A8] font-normal">
-                  ({activeClassObj?.name} - شعبة {activeSectionObj?.name})
-                </span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#E8F7F0] dark:bg-[#174A3A] text-[#087E59] dark:text-[#54D6A6] border border-[#BFE8D7] dark:border-[#326B58]">{stats.generalExempt} طالب</span>
               </h3>
-              <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-0.5">
-                المعدل المطلوب: {savedSettings.generalMinAverage}% | أقل درجة مسموحة: {savedSettings.generalMinSubjectScore} | جبر المعدل:{' '}
-                {savedSettings.enableGeneralJabr
-                  ? `مفعّل (${ROUNDING_RULE_LABELS[settings.roundingRule]?.title || 'تقريب'})`
-                  : 'معطّل (معدل دقيق)'}
-              </p>
             </div>
 
             {/* Actions: Export PDF & Toggle Near-Eligible */}
@@ -1288,14 +1296,12 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
             </div>
           )}
 
-          <div className="p-4 sm:p-5 bg-[#F8FAFC] dark:bg-[#202E40] border-b border-[#DCE3ED] dark:border-[#2D3B4D] flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+          <div className="px-4 py-3.5 bg-[#F5F8FD] dark:bg-[#1B2A40] border-b border-[#DCE5F2] dark:border-[#2B3B52] flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
             <div>
               <h3 className="font-bold text-[#1E293B] dark:text-[#E2E8F0] text-base sm:text-lg flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" />
+                <CheckCircle2 className="w-5 h-5 text-[#3156C9] dark:text-[#83A5FF]" />
                 قائمة المستحقين للإعفاء الفردي في المواد
-                <span className="text-xs text-[#64748B] dark:text-[#8493A8] font-normal">
-                  ({activeClassObj?.name} - شعبة {activeSectionObj?.name})
-                </span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#EAF0FF] dark:bg-[#203D67] text-[#3156B8] dark:text-[#A9C3FF] border border-[#C9D9FA] dark:border-[#365681]">{stats.individualExemptCount} طالب</span>
               </h3>
             </div>
 
