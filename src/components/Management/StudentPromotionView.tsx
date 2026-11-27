@@ -1262,6 +1262,7 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
                 </span>
               </button>
             </div>
+          </div>
 
           {/* Live Section Balancer Counters */}
           <div className="flex flex-col gap-2 pt-1">
