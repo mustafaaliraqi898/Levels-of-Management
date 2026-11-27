@@ -20,7 +20,6 @@ import { CertificateTemplateView } from './components/CertificateTemplate/Certif
 import { StudentPromotionView } from './components/Management/StudentPromotionView';
 import { LoginView } from './components/Auth/LoginView';
 import { SetupWizard } from './components/Auth/SetupWizard';
-import { CreateAccessCodeView } from './components/Auth/CreateAccessCodeView';
 import { ForceChangePasswordModal } from './components/Auth/ForceChangePasswordModal';
 import { AccountSettingsModal } from './components/Auth/AccountSettingsModal';
 
@@ -186,26 +185,6 @@ export default function App() {
     return (
       <LoginView
         onLoginSuccess={handleLoginSuccess}
-        theme={theme}
-        onToggleTheme={handleToggleTheme}
-      />
-    );
-  }
-
-  // 2. If authenticated, but Access Code has NOT been configured yet, show CreateAccessCodeView once
-  if (!db.isAccessCodeConfigured()) {
-    return (
-      <CreateAccessCodeView
-        username={authSession.user.username}
-        onComplete={() => {
-          const curr = db.getState();
-          setDbState({ ...curr });
-          const refreshed = authService.getCurrentSession();
-          if (refreshed) {
-            setAuthSession({ ...refreshed, user: { ...refreshed.user, mustChangePassword: false } });
-          }
-          setActiveTab('dashboard');
-        }}
         theme={theme}
         onToggleTheme={handleToggleTheme}
       />
