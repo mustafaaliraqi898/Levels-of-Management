@@ -355,32 +355,40 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
       </div>
 
       {/* Summary Statistics */}
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
-        {[
-          { label: 'الطلاب المستحقون', value: eligibleStudentsList.length, icon: Users, tone: 'blue' },
-          { label: 'المواد المستحقة', value: eligibleSubjectCount, icon: BookOpen, tone: 'violet' },
-          { label: 'القرارات الممنوحة', value: grantedDecisionCount, icon: CheckCircle2, tone: 'green' },
-          { label: 'الرصيد المتبقي', value: totalRemainingMarks, suffix: 'درجة', icon: Sparkles, tone: 'amber' },
-        ].map((item) => {
-          const tones: Record<string, string> = {
-            blue: 'bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-blue-100 dark:border-blue-900',
-            violet: 'bg-violet-50 dark:bg-violet-950/30 text-violet-700 dark:text-violet-300 border-violet-100 dark:border-violet-900',
-            green: 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border-emerald-100 dark:border-emerald-900',
-            amber: 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300 border-amber-100 dark:border-amber-900',
-          };
-          const Icon = item.icon;
-          return (
-            <div key={item.label} className={`rounded-2xl border p-4 ${tones[item.tone]}`}>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-bold">{item.label}</span>
-                <Icon className="w-5 h-5 opacity-80" />
+      <div className="rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white/90 dark:bg-[#1C2939] p-3 shadow-sm">
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
+          {[
+            { label: 'الطلاب المستحقون', value: eligibleStudentsList.length, icon: Users, tone: 'blue' },
+            { label: 'المواد المستحقة', value: eligibleSubjectCount, icon: BookOpen, tone: 'amber' },
+            { label: 'القرارات الممنوحة', value: grantedDecisionCount, icon: CheckCircle2, tone: 'green' },
+            { label: 'الرصيد المتبقي', value: totalRemainingMarks, suffix: 'درجة', icon: Sparkles, tone: 'violet' },
+          ].map((item) => {
+            const tones: Record<string, string> = {
+              blue: 'border-blue-200 dark:border-blue-900/70 bg-gradient-to-br from-blue-50 to-blue-100/80 dark:from-blue-950/55 dark:to-blue-900/25 text-blue-800 dark:text-blue-300',
+              amber: 'border-amber-200 dark:border-amber-900/70 bg-gradient-to-br from-amber-50 to-orange-100/70 dark:from-amber-950/50 dark:to-orange-950/25 text-amber-800 dark:text-amber-300',
+              green: 'border-emerald-200 dark:border-emerald-900/70 bg-gradient-to-br from-emerald-50 to-green-100/80 dark:from-emerald-950/55 dark:to-green-900/25 text-emerald-800 dark:text-emerald-300',
+              violet: 'border-violet-200 dark:border-violet-900/70 bg-gradient-to-br from-violet-50 to-purple-100/80 dark:from-violet-950/55 dark:to-purple-900/25 text-violet-800 dark:text-violet-300',
+            };
+            const iconTones: Record<string, string> = {
+              blue: 'text-blue-600 dark:text-blue-400',
+              amber: 'text-amber-600 dark:text-amber-400',
+              green: 'text-emerald-600 dark:text-emerald-400',
+              violet: 'text-violet-600 dark:text-violet-400',
+            };
+            const Icon = item.icon;
+            return (
+              <div key={item.label} className={`min-h-[112px] rounded-2xl border p-4 flex flex-col justify-between shadow-sm ${tones[item.tone]}`}>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-extrabold">{item.label}</span>
+                  <Icon className={`w-8 h-8 shrink-0 ${iconTones[item.tone]}`} strokeWidth={2.1} />
+                </div>
+                <div className="text-3xl font-black font-mono tabular-nums leading-none">
+                  {item.value}{item.suffix ? <span className="mr-1.5 text-sm font-bold">{item.suffix}</span> : null}
+                </div>
               </div>
-              <div className="mt-2 text-2xl font-black font-mono tabular-nums">
-                {item.value}{item.suffix ? <span className="mr-1 text-xs font-bold">{item.suffix}</span> : null}
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
       {/* Feedback Banner */}
