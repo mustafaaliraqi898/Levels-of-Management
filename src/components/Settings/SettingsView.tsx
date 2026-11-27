@@ -219,9 +219,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             <Settings className="w-6 h-6 text-[#3156C9] dark:text-[#60A5FA]" />
             {activeSection === 'home' ? 'إعدادات النظام' : ({ school: 'بيانات المدرسة والهوية', grades: 'إعدادات الدرجات والتقريب', ministerial: 'الضوابط الوزارية والإكمال', users: 'إدارة المستخدمين والصلاحيات', security: 'الأمان ورمز الدخول', email: 'البريد الإلكتروني والاستعادة' } as const)[activeSection]}
           </h1>
-          <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-1">
-            {activeSection === 'home' ? 'اختر القسم الذي تريد ضبط إعداداته' : 'إدارة إعدادات هذا القسم وحفظ التغييرات'}
-          </p>
           {activeSection !== 'home' && (
             <button type="button" onClick={() => setActiveSection('home')} className="px-4 py-2 rounded-xl bg-[#EDF1F7] dark:bg-[#26364B] hover:bg-[#E2E8F0] dark:hover:bg-[#2D3B4D] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[#3156C9] dark:text-[#60A5FA] text-xs font-bold flex items-center gap-2 shrink-0">
               <ArrowRight className="w-4 h-4" /> العودة إلى الإعدادات
@@ -366,9 +363,6 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     دقة طباعة عالية A4
                   </span>
                 </div>
-                <p className="text-xs text-[#475569] dark:text-[#A8B5C7] leading-relaxed">
-                  هذا الشعار يظهر في ترويسة التقارير الرسمية، كشوف النتائج، وشيتات الإعفاء. يتم الحفاظ على أبعاده الهندسية ونقاء الألوان والشفافية بدون أي تشويه.
-                </p>
 
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mt-2">
                   <button
@@ -410,9 +404,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <h4 className="font-bold text-sm text-[#1E293B] dark:text-[#E2E8F0] mb-1">
                 رفع شعار المدرسة للمطبوعات والتقارير الرسمية
               </h4>
-              <p className="text-xs text-[#64748B] dark:text-[#8493A8] max-w-md leading-relaxed mb-4">
-                يدعم صيغ PNG (مع شفافية)، JPG، JPEG، وWebP. يقوم النظام بتحسين أبعاد الشعار وضغطه تلقائياً لضمان أعلى جودة طباعة على ورق A4 بدون إبطاء التطبيق.
-              </p>
+              
 
               <button
                 type="button"
@@ -428,9 +420,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 <span>اختيار صورة من الجهاز</span>
               </button>
 
-              <span className="text-[11px] text-[#64748B] dark:text-[#8493A8] mt-3">
-                ملاحظة: في حال عدم رفع أي شعار، تظهر جميع التقارير والمطبوعات بشكل طبيعي وأنيق بدون مساحات فارغة.
-              </span>
+              
             </div>
           )}
         </div>
@@ -442,9 +432,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <Sparkles className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" />
               <h3 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0]">شعار المدرسة بالخط الكوفي</h3>
             </div>
-            <span className="text-xs text-[#64748B] dark:text-[#8493A8] font-medium">
-              شعار هندسي بالخط الكوفي مخصص للشهادات، وثائق التقدير، والمناسبات المدرسية الخاصة
-            </span>
+            
           </div>
 
           <input
@@ -493,9 +481,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     مستقل عن الشعار الرسمي العام
                   </span>
                 </div>
-                <p className="text-xs text-[#475569] dark:text-[#A8B5C7] leading-relaxed">
-                  هذا الشعار مخصص للشهادات والنماذج التكريمية التي تتطلب مظهراً هندسياً بالخط الكوفي. يبقى محفوظاً بشكل دائم ومستقل تماماً، ويمكن تغييره أو حذفه في أي وقت دون التأثير على الشعار الرسمي للمدرسة.
-                </p>
+                
 
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mt-2">
                   <button
@@ -537,9 +523,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <h4 className="font-bold text-sm text-[#1E293B] dark:text-[#E2E8F0] mb-1">
                 رفع شعار المدرسة بالخط الكوفي
               </h4>
-              <p className="text-xs text-[#64748B] dark:text-[#8493A8] max-w-md leading-relaxed mb-4">
-                يدعم صيغ PNG (مع شفافية)، JPG، JPEG، وWebP. يُعالج الشعار تلقائياً ليناسب النماذج والشهادات التكريمية بدقة هندسية عالية دون إثقال التطبيق.
-              </p>
+              
 
               <button
                 type="button"
@@ -555,9 +539,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 <span>اختيار صورة الشعار الكوفي من الجهاز</span>
               </button>
 
-              <span className="text-[11px] text-[#64748B] dark:text-[#8493A8] mt-3">
-                ملاحظة: هذا الحقل مستقل تماماً عن شعار المدرسة الرسمي؛ يمكنك استخدام الشعارين معاً أو كلاً على حدة.
-              </span>
+              
             </div>
           )}
         </div>
@@ -572,9 +554,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               قاعدة تقريب الكسور وحساب المعدلات
             </h3>
           </div>
-          <p className="text-xs text-[#64748B] dark:text-[#8493A8] mb-5 leading-relaxed">
-            يتم تطبيق هذه القاعدة مباشرة على حساب <strong>درجة السعي السنوي</strong> (مجموع الفصول الثلاثة ÷ 3) وحساب <strong>الدرجة النهائية</strong> (السعي + الامتحان النهائي ÷ 2).
-          </p>
+          
 
           <div className="flex flex-col gap-3">
             {roundingRules.map((rule) => {
@@ -626,9 +606,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <h4 className="font-bold text-sm text-[#1E293B] dark:text-[#E2E8F0]">
                 طلب تأكيد صريح قبل تعديل أي درجة سابقة
               </h4>
-              <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-1">
-                عند النقر لتعديل درجات الفصول السابقة، تظهر نافذة تأكيد تحذر من تأثير التعديل على السعي والنهائي.
-              </p>
+              
             </div>
 
             <input
@@ -678,9 +656,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     </span>
                   )}
                 </h3>
-                <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-1">
-                  رمز أمان خاص بالنظام لحماية سرية البيانات والسجلات المدرسية ومصادقة العمليات الحساسة.
-                </p>
+                
               </div>
             </div>
 
@@ -713,7 +689,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 </div>
                 <div>
                   <h4 className="font-bold text-sm text-[#1E293B] dark:text-[#E2E8F0]">تحديث رمز الدخول للنظام</h4>
-                  <p className="text-[11px] text-[#64748B] dark:text-[#8493A8]">يُحفظ مشفراً في قاعدة SQLite بشكل دائم</p>
+                  
                 </div>
               </div>
               <button
