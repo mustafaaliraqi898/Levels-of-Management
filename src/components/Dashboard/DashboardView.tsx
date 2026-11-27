@@ -1,9 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   AcademicYear,
   SchoolClass,
   Section,
-  Subject,
   Student,
   GradeRecord,
   AppSettings,
@@ -23,24 +22,23 @@ import {
   BookOpen,
   CheckCircle2,
   AlertCircle,
-  TrendingUp,
   FileSpreadsheet,
   ArrowLeft,
   ShieldCheck,
   HardDrive,
   ChevronDown,
   ChevronUp,
-  Check,
   Clock,
-  FolderOpen,
-  Sparkles,
+  GraduationCap,
+  PieChart,
+  BarChart3,
 } from 'lucide-react';
 
 interface DashboardViewProps {
   academicYears: AcademicYear[];
   classes: SchoolClass[];
   sections: Section[];
-  subjects: Subject[];
+  subjects: import('../../types').Subject[];
   students: Student[];
   grades: Record<string, GradeRecord>;
   settings: AppSettings;
@@ -55,6 +53,103 @@ const STAGE_LABELS: Record<GradeStage, string> = {
   second_round: 'الدور الثاني (الإكمال)',
 };
 
+type DonutChartProps = {
+  title: string;
+  subtitle: string;
+  value: number;
+  total: number;
+  primaryLabel: string;
+  secondaryLabel: string;
+  primaryColor: string;
+  secondaryColor: string;
+  icon: React.ReactNode;
+  valueLabel?: string;
+};
+
+const DonutChart: React.FC<DonutChartProps> = ({
+  title,
+  subtitle,
+  value,
+  total,
+  primaryLabel,
+  secondaryLabel,
+  primaryColor,
+  secondaryColor,
+  icon,
+  valueLabel,
+}) => {
+  const safeTotal = Math.max(0, total);
+  const safeValue = Math.min(Math.max(0, value), safeTotal);
+  const percentage = safeTotal > 0 ? Math.round((safeValue / safeTotal) * 100) : 0;
+  const remainder = Math.max(0, safeTotal - safeValue);
+  const circumference = 2 * Math.PI * 47;
+  const dashLength = circumference * (percentage / 100);
+
+  return (
+    <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900">
+      <div className="mb-3 flex items-start justify-between gap-2">
+        <div>
+          <h3 className="text-sm font-black text-slate-900 dark:text-slate-100">{title}</h3>
+          <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">{subtitle}</p>
+        </div>
+        <span className="rounded-xl bg-slate-100 p-2 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+          {icon}
+        </span>
+      </div>
+
+      <div className="flex flex-col items-center gap-3">
+        <div className="relative h-36 w-36 shrink-0 sm:h-40 sm:w-40">
+          <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90" role="img" aria-label={`نسبة ${title}: ${percentage}%`}>
+            <circle cx="60" cy="60" r="47" fill="none" stroke="currentColor" className="text-slate-200 dark:text-slate-700" strokeWidth="12" />
+            {safeTotal > 0 && (
+              <circle
+                cx="60"
+                cy="60"
+                r="47"
+                fill="none"
+                stroke={primaryColor}
+                strokeWidth="12"
+                strokeLinecap="round"
+                strokeDasharray={`${dashLength} ${circumference}`}
+              />
+            )}
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <strong className="font-mono text-2xl font-black text-slate-900 dark:text-slate-100">{valueLabel ?? `${percentage}%`}</strong>
+            <span className="mt-0.5 text-[10px] font-semibold text-slate-500 dark:text-slate-400">{primaryLabel}</span>
+          </div>
+        </div>
+
+        <div className="grid w-full grid-cols-2 gap-2">
+          <div className="rounded-xl bg-slate-50 px-2.5 py-2 dark:bg-slate-800/80">
+            <div className="mb-1 flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400">
+              <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: primaryColor }} />
+              <span>{primaryLabel}</span>
+            </div>
+            <div className="text-base font-black text-slate-900 dark:text-slate-100" dir="ltr">
+              {safeValue.toLocaleString('en-US')}
+              <span className="mr-1 text-[10px] font-medium text-slate-400">({percentage}%)</span>
+            </div>
+          </div>
+          <div className="rounded-xl bg-slate-50 px-2.5 py-2 dark:bg-slate-800/80">
+            <div className="mb-1 flex items-center gap-1.5 text-[10px] text-slate-500 dark:text-slate-400">
+              <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: secondaryColor }} />
+              <span>{secondaryLabel}</span>
+            </div>
+            <div className="text-base font-black text-slate-900 dark:text-slate-100" dir="ltr">
+              {remainder.toLocaleString('en-US')}
+              <span className="mr-1 text-[10px] font-medium text-slate-400">({100 - percentage}%)</span>
+            </div>
+          </div>
+        </div>
+        {safeTotal === 0 && (
+          <p className="text-center text-[11px] text-slate-500 dark:text-slate-400">لا توجد بيانات كافية لعرض المخطط حالياً.</p>
+        )}
+      </div>
+    </section>
+  );
+};
+
 export const DashboardView: React.FC<DashboardViewProps> = ({
   academicYears,
   classes,
@@ -65,81 +160,57 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   settings,
   onNavigate,
 }) => {
-  const currentYear = academicYears.find((y) => y.isCurrent) || academicYears[0];
+  const currentYear = academicYears.find((year) => year.isCurrent) || academicYears[0];
   const defaultYearId = currentYear?.id || '';
 
-  // Filter classes, sections, and students strictly for active academic year
-  const activeClasses = useMemo(() => {
-    return filterClassesByAcademicYear(classes, currentYear?.id, defaultYearId);
-  }, [classes, currentYear?.id, defaultYearId]);
+  const activeClasses = useMemo(
+    () => filterClassesByAcademicYear(classes, currentYear?.id, defaultYearId),
+    [classes, currentYear?.id, defaultYearId]
+  );
+  const activeClassIdSet = useMemo(() => new Set(activeClasses.map((item) => item.id)), [activeClasses]);
+  const activeSections = useMemo(
+    () => filterSectionsByClassIds(sections, activeClassIdSet),
+    [sections, activeClassIdSet]
+  );
+  const activeStudents = useMemo(
+    () => filterStudentsByAcademicYear(students, currentYear?.id),
+    [students, currentYear?.id]
+  );
 
-  const activeClassIdSet = useMemo(() => new Set(activeClasses.map((c) => c.id)), [activeClasses]);
-
-  const activeSections = useMemo(() => {
-    return filterSectionsByClassIds(sections, activeClassIdSet);
-  }, [sections, activeClassIdSet]);
-
-  const activeStudents = useMemo(() => {
-    return filterStudentsByAcademicYear(students, currentYear?.id);
-  }, [students, currentYear?.id]);
-
-  // Selected stage for completion monitoring (default: term1)
   const [selectedStage, setSelectedStage] = useState<GradeStage>('term1');
-
-  // Track expanded classes (Set of classId)
   const [expandedClassIds, setExpandedClassIds] = useState<Set<string>>(() => {
-    // Expand the first class by default for immediate visual feedback
     const firstClass = [...activeClasses].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))[0];
     return new Set(firstClass ? [firstClass.id] : []);
   });
-
-  // Track expanded sections (Set of `${classId}_${sectionId}`)
-  const [expandedSectionKeys, setExpandedSectionKeys] = useState<Set<string>>(() => {
-    // Expand the first section of the first class by default
-    const sortedCls = [...activeClasses].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-    if (sortedCls.length > 0) {
-      const firstSec = activeSections.filter((s) => s.classId === sortedCls[0].id)[0];
-      if (firstSec) {
-        return new Set([`${sortedCls[0].id}_${firstSec.id}`]);
-      }
-    }
-    return new Set();
-  });
+  const [expandedSectionKeys, setExpandedSectionKeys] = useState<Set<string>>(new Set());
 
   const toggleClass = (classId: string) => {
-    setExpandedClassIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(classId)) {
-        next.delete(classId);
-      } else {
-        next.add(classId);
-      }
+    setExpandedClassIds((previous) => {
+      const next = new Set(previous);
+      if (next.has(classId)) next.delete(classId);
+      else next.add(classId);
       return next;
     });
   };
 
   const toggleSection = (classId: string, sectionId: string) => {
     const key = `${classId}_${sectionId}`;
-    setExpandedSectionKeys((prev) => {
-      const next = new Set(prev);
-      if (next.has(key)) {
-        next.delete(key);
-      } else {
-        next.add(key);
-      }
+    setExpandedSectionKeys((previous) => {
+      const next = new Set(previous);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
       return next;
     });
   };
 
   const expandAll = () => {
-    setExpandedClassIds(new Set(activeClasses.map((c) => c.id)));
-    const allSecKeys = new Set<string>();
-    activeClasses.forEach((c) => {
-      activeSections
-        .filter((s) => s.classId === c.id)
-        .forEach((s) => allSecKeys.add(`${c.id}_${s.id}`));
+    setExpandedClassIds(new Set(activeClasses.map((item) => item.id)));
+    const keys = new Set<string>();
+    activeClasses.forEach((item) => {
+      activeSections.filter((section) => section.classId === item.id)
+        .forEach((section) => keys.add(`${item.id}_${section.id}`));
     });
-    setExpandedSectionKeys(allSecKeys);
+    setExpandedSectionKeys(keys);
   };
 
   const collapseAll = () => {
@@ -147,70 +218,51 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     setExpandedSectionKeys(new Set());
   };
 
-  // Comprehensive Hierarchical Completion Stats: Classes -> Sections -> Subjects
+  // Keep the existing grade-completion rules: a subject is complete only when
+  // every student in its section has a grade entered for the selected stage.
   const hierarchyStats = useMemo(() => {
-    // 1. Sort active classes strictly according to the approved academic order
     const sortedClasses = [...activeClasses].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-
     let totalSectionSubjectPairs = 0;
     let completedSectionSubjectPairs = 0;
     let totalGradeSlotsExpected = 0;
     let totalGradeSlotsEntered = 0;
 
     const classStats = sortedClasses.map((schoolClass) => {
-      // 2. Sections in this class (preserving registered order)
-      const realSections = activeSections.filter((s) => s.classId === schoolClass.id);
-      const classSections = realSections.length > 0 
-        ? realSections 
+      const realSections = activeSections.filter((section) => section.classId === schoolClass.id);
+      const classSections = realSections.length > 0
+        ? realSections
         : [{ id: '', name: 'بدون شعبة', classId: schoolClass.id } as Section];
-
-      // 3. Subjects in this class strictly ordered by order field
       const classSubjects = subjects
-        .filter((sub) => sub.classId === schoolClass.id)
+        .filter((subject) => subject.classId === schoolClass.id)
         .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-
-      // Students in this class for the active academic year
-      const classStudents = activeStudents.filter(
-        (s) => s.classId === schoolClass.id
-      );
+      const classStudents = activeStudents.filter((student) => student.classId === schoolClass.id);
 
       let classExpectedSlots = 0;
       let classEnteredSlots = 0;
       let classCompletedSubjectsCount = 0;
-      let classTotalSubjectsCount = 0;
 
       const sectionDetails = classSections.map((section) => {
-        // Students strictly belonging to this section
-        const sectionStudents = classStudents.filter((s) => s.sectionId === section.id);
+        const sectionStudents = classStudents.filter((student) => student.sectionId === section.id);
         const studentsCount = sectionStudents.length;
-
         let sectionCompletedSubjects = 0;
         let sectionEnteredSlots = 0;
         const sectionExpectedSlots = studentsCount * classSubjects.length;
 
-        const subjectDetails = classSubjects.map((sub) => {
+        const subjectDetails = classSubjects.map((subject) => {
           totalSectionSubjectPairs++;
-          classTotalSubjectsCount++;
-
           let enteredCount = 0;
-          sectionStudents.forEach((stu) => {
-            const key = buildGradeKey(
-              currentYear?.id || '',
-              schoolClass.id,
-              section.id,
-              sub.id,
-              stu.id
-            );
-            const rec = grades[key];
-            if (rec) {
-              if (selectedStage === 'term1' && rec.term1Score !== null) enteredCount++;
-              else if (selectedStage === 'midterm' && rec.midtermScore !== null) enteredCount++;
-              else if (selectedStage === 'term2' && rec.term2Score !== null) enteredCount++;
-              else if (selectedStage === 'final' && rec.finalExamScore !== null) enteredCount++;
+
+          sectionStudents.forEach((student) => {
+            const key = buildGradeKey(currentYear?.id || '', schoolClass.id, section.id, subject.id, student.id);
+            const record = grades[key];
+            if (record) {
+              if (selectedStage === 'term1' && record.term1Score !== null) enteredCount++;
+              else if (selectedStage === 'midterm' && record.midtermScore !== null) enteredCount++;
+              else if (selectedStage === 'term2' && record.term2Score !== null) enteredCount++;
+              else if (selectedStage === 'final' && record.finalExamScore !== null) enteredCount++;
             }
           });
 
-          // A subject is complete ONLY if there are students and ALL students have their grades entered
           const isComplete = studentsCount > 0 && enteredCount === studentsCount;
           if (isComplete) {
             sectionCompletedSubjects++;
@@ -218,48 +270,30 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             classCompletedSubjectsCount++;
           }
           sectionEnteredSlots += enteredCount;
-
           const percent = studentsCount > 0 ? Math.round((enteredCount / studentsCount) * 100) : 0;
+          const status = studentsCount === 0
+            ? 'لا يوجد طلاب'
+            : isComplete
+              ? 'مكتمل'
+              : enteredCount > 0
+                ? 'قيد الإنجاز'
+                : 'غير مكتمل';
 
-          let status: 'مكتمل' | 'قيد الإنجاز' | 'غير مكتمل' | 'لا يوجد طلاب';
-          if (studentsCount === 0) {
-            status = 'لا يوجد طلاب';
-          } else if (isComplete) {
-            status = 'مكتمل';
-          } else if (enteredCount > 0) {
-            status = 'قيد الإنجاز';
-          } else {
-            status = 'غير مكتمل';
-          }
-
-          return {
-            subject: sub,
-            studentsCount,
-            enteredCount,
-            isComplete,
-            percent,
-            status,
-          };
+          return { subject, studentsCount, enteredCount, isComplete, percent, status };
         });
 
         classExpectedSlots += sectionExpectedSlots;
         classEnteredSlots += sectionEnteredSlots;
-
-        const sectionPercent =
-          sectionExpectedSlots > 0
-            ? Math.round((sectionEnteredSlots / sectionExpectedSlots) * 100)
-            : 0;
-
-        let sectionStatus: 'مكتمل' | 'قيد الإنجاز' | 'غير مكتمل' | 'لا توجد بيانات';
-        if (studentsCount === 0 || classSubjects.length === 0) {
-          sectionStatus = 'لا توجد بيانات';
-        } else if (sectionEnteredSlots === sectionExpectedSlots) {
-          sectionStatus = 'مكتمل';
-        } else if (sectionEnteredSlots > 0) {
-          sectionStatus = 'قيد الإنجاز';
-        } else {
-          sectionStatus = 'غير مكتمل';
-        }
+        const sectionPercent = sectionExpectedSlots > 0
+          ? Math.round((sectionEnteredSlots / sectionExpectedSlots) * 100)
+          : 0;
+        const sectionStatus = studentsCount === 0 || classSubjects.length === 0
+          ? 'لا توجد بيانات'
+          : sectionEnteredSlots === sectionExpectedSlots
+            ? 'مكتمل'
+            : sectionEnteredSlots > 0
+              ? 'قيد الإنجاز'
+              : 'غير مكتمل';
 
         return {
           section,
@@ -276,22 +310,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       totalGradeSlotsExpected += classExpectedSlots;
       totalGradeSlotsEntered += classEnteredSlots;
-
-      const classPercent =
-        classExpectedSlots > 0
-          ? Math.round((classEnteredSlots / classExpectedSlots) * 100)
-          : 0;
-
-      let classStatus: 'مكتمل' | 'قيد الإنجاز' | 'غير مكتمل' | 'لا توجد بيانات';
-      if (classExpectedSlots === 0) {
-        classStatus = 'لا توجد بيانات';
-      } else if (classEnteredSlots === classExpectedSlots) {
-        classStatus = 'مكتمل';
-      } else if (classEnteredSlots > 0) {
-        classStatus = 'قيد الإنجاز';
-      } else {
-        classStatus = 'غير مكتمل';
-      }
+      const classPercent = classExpectedSlots > 0
+        ? Math.round((classEnteredSlots / classExpectedSlots) * 100)
+        : 0;
+      const classStatus = classExpectedSlots === 0
+        ? 'لا توجد بيانات'
+        : classEnteredSlots === classExpectedSlots
+          ? 'مكتمل'
+          : classEnteredSlots > 0
+            ? 'قيد الإنجاز'
+            : 'غير مكتمل';
 
       return {
         schoolClass,
@@ -307,599 +335,348 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       };
     });
 
-    const pendingSectionSubjectPairs = Math.max(
-      0,
-      totalSectionSubjectPairs - completedSectionSubjectPairs
-    );
-    const overallPercent =
-      totalGradeSlotsExpected > 0
-        ? Math.round((totalGradeSlotsEntered / totalGradeSlotsExpected) * 100)
-        : 0;
-
     return {
       classes: classStats,
       totalSectionSubjectPairs,
       completedCount: completedSectionSubjectPairs,
-      pendingCount: pendingSectionSubjectPairs,
-      overallPercent,
+      pendingCount: Math.max(0, totalSectionSubjectPairs - completedSectionSubjectPairs),
+      totalGradeSlotsExpected,
+      totalGradeSlotsEntered,
+      overallPercent: totalGradeSlotsExpected > 0
+        ? Math.round((totalGradeSlotsEntered / totalGradeSlotsExpected) * 100)
+        : 0,
     };
   }, [activeClasses, activeSections, subjects, activeStudents, grades, currentYear, selectedStage]);
 
+  const totalGradeSlotsMissing = Math.max(
+    0,
+    hierarchyStats.totalGradeSlotsExpected - hierarchyStats.totalGradeSlotsEntered
+  );
+
+  const statCards = [
+    {
+      label: 'العام الدراسي',
+      value: currentYear?.name || 'غير محدد',
+      detail: 'العام الحالي',
+      icon: <Calendar className="h-5 w-5" />,
+      color: 'from-teal-600 to-cyan-700',
+      action: 'years' as ActiveTab,
+      compact: true,
+    },
+    {
+      label: 'الصفوف الدراسية',
+      value: activeClasses.length,
+      detail: 'صفوف مسجلة',
+      icon: <Layers className="h-5 w-5" />,
+      color: 'from-violet-600 to-indigo-700',
+      action: 'classes' as ActiveTab,
+    },
+    {
+      label: 'الشعب الدراسية',
+      value: activeSections.length,
+      detail: 'شعب مسجلة',
+      icon: <GraduationCap className="h-5 w-5" />,
+      color: 'from-amber-500 to-orange-600',
+      action: 'classes' as ActiveTab,
+    },
+    {
+      label: 'إجمالي الطلاب',
+      value: activeStudents.length,
+      detail: 'طالب مسجل',
+      icon: <Users className="h-5 w-5" />,
+      color: 'from-sky-600 to-blue-700',
+      action: 'students' as ActiveTab,
+    },
+    {
+      label: 'المواد المكتملة',
+      value: hierarchyStats.completedCount,
+      detail: 'مواد مكتملة حسب الشعب',
+      icon: <BookOpen className="h-5 w-5" />,
+      color: 'from-emerald-600 to-green-700',
+      action: 'grade_entry' as ActiveTab,
+    },
+    {
+      label: 'درجات ناقصة',
+      value: totalGradeSlotsMissing,
+      detail: 'خانات تحتاج استكمال',
+      icon: <AlertCircle className="h-5 w-5" />,
+      color: 'from-pink-600 to-rose-700',
+      action: 'grade_entry' as ActiveTab,
+    },
+  ];
+
   return (
-    <div className="flex flex-col gap-6 pb-12">
-      {/* Welcome Banner */}
-      <div className="bg-white dark:bg-gradient-to-r dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950/40 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <span className="px-3 py-1 text-xs font-bold rounded-full bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30 flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4" />
-              نظام إدارة الدرجات المدرسية الداخلي
+    <div className="flex min-w-0 flex-col gap-5 pb-10">
+      {/* Dashboard heading and filters */}
+      <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:flex-row lg:items-center lg:justify-between">
+        <div className="min-w-0">
+          <div className="mb-1 flex items-center gap-2">
+            <span className="rounded-xl bg-emerald-50 p-2 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400">
+              <BarChart3 className="h-5 w-5" />
             </span>
-            <span className="text-slate-500 dark:text-slate-400 text-xs flex items-center gap-1 font-mono">
-              <HardDrive className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-              يعمل 100% بدون اتصال بالإنترنت
-            </span>
+            <h1 className="text-xl font-black text-slate-900 dark:text-slate-100 sm:text-2xl">لوحة التحكم والإحصائيات العامة</h1>
           </div>
-          <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-slate-100">
-            {settings.schoolName}
-          </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            العام الدراسي النشط: <span className="text-slate-900 dark:text-slate-100 font-bold">{currentYear?.name || 'غير محدد'}</span> — مدير المدرسة: <span className="text-slate-700 dark:text-slate-200 font-medium">{settings.directorName}</span>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            {settings.schoolName} · متابعة العام الدراسي وحالة رصد الدرجات
           </p>
+          <div className="mt-2 flex flex-wrap items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400">
+            <span className="inline-flex items-center gap-1"><ShieldCheck className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" /> نظام مدرسي محلي</span>
+            <span className="inline-flex items-center gap-1"><HardDrive className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" /> يعمل دون اتصال بالإنترنت</span>
+            {settings.directorName && <span>مدير المدرسة: {settings.directorName}</span>}
+          </div>
         </div>
 
-        <button
-          type="button"
-          onClick={() => onNavigate('grade_entry')}
-          className="px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 font-black text-sm flex items-center justify-center gap-2.5 shadow-sm transition-all transform hover:-translate-y-0.5 cursor-pointer"
-        >
-          <FileSpreadsheet className="w-5 h-5" />
-          <span>بدء رصد الدرجات الآن</span>
-          <ArrowLeft className="w-4 h-4" />
-        </button>
-      </div>
-
-      {/* Main KPI Stat Cards (Clickable) */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
-        {/* Academic Years */}
-        <div
-          onClick={() => onNavigate('years')}
-          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-500/50 p-4 rounded-xl flex flex-col justify-between cursor-pointer transition-all hover:bg-slate-50 dark:hover:bg-slate-800/80 shadow-xs group"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">العام الحالي</span>
-            <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform" />
-          </div>
-          <div className="text-lg font-black text-slate-900 dark:text-slate-100 font-mono">
-            {currentYear?.name || '2026–2027'}
-          </div>
-          <span className="text-[11px] text-blue-700 dark:text-blue-400 font-semibold mt-1 flex items-center gap-1">
-            إدارة الأعوام ←
-          </span>
-        </div>
-
-        {/* Classes */}
-        <div
-          onClick={() => onNavigate('classes')}
-          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-teal-300 dark:hover:border-teal-500/50 p-4 rounded-xl flex flex-col justify-between cursor-pointer transition-all hover:bg-slate-50 dark:hover:bg-slate-800/80 shadow-xs group"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">عدد الصفوف</span>
-            <Layers className="w-4 h-4 text-teal-700 dark:text-teal-400 group-hover:scale-110 transition-transform" />
-          </div>
-          <div className="text-2xl font-black text-slate-900 dark:text-slate-100 font-mono">
-            {activeClasses.length}
-          </div>
-          <span className="text-[11px] text-teal-700 dark:text-teal-400 font-semibold mt-1 flex items-center gap-1">
-            إدارة الصفوف ←
-          </span>
-        </div>
-
-        {/* Sections */}
-        <div
-          onClick={() => onNavigate('classes')}
-          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-amber-300 dark:hover:border-amber-500/50 p-4 rounded-xl flex flex-col justify-between cursor-pointer transition-all hover:bg-slate-50 dark:hover:bg-slate-800/80 shadow-xs group"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">عدد الشعب</span>
-            <Layers className="w-4 h-4 text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform" />
-          </div>
-          <div className="text-2xl font-black text-slate-900 dark:text-slate-100 font-mono">
-            {activeSections.length}
-          </div>
-          <span className="text-[11px] text-amber-700 dark:text-amber-400 font-semibold mt-1 flex items-center gap-1">
-            عرض الشعب ←
-          </span>
-        </div>
-
-        {/* Students */}
-        <div
-          onClick={() => onNavigate('students')}
-          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-500/50 p-4 rounded-xl flex flex-col justify-between cursor-pointer transition-all hover:bg-slate-50 dark:hover:bg-slate-800/80 shadow-xs group"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400">عدد الطلاب</span>
-            <Users className="w-4 h-4 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform" />
-          </div>
-          <div className="text-2xl font-black text-slate-900 dark:text-slate-100 font-mono">
-            {activeStudents.length}
-          </div>
-          <span className="text-[11px] text-indigo-700 dark:text-indigo-400 font-semibold mt-1 flex items-center gap-1">
-            سجل الطلاب ←
-          </span>
-        </div>
-
-        {/* Completed Subjects */}
-        <div
-          onClick={() => onNavigate('grade_entry')}
-          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-emerald-300 dark:hover:border-emerald-500/50 p-4 rounded-xl flex flex-col justify-between cursor-pointer transition-all hover:bg-emerald-50/40 dark:hover:bg-slate-800/80 shadow-xs group"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">مواد مكتملة</span>
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform" />
-          </div>
-          <div className="text-2xl font-black text-emerald-700 dark:text-emerald-400 font-mono">
-            {hierarchyStats.completedCount}
-          </div>
-          <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold mt-1 flex items-center gap-1">
-            مكتملة الرصد
-          </span>
-        </div>
-
-        {/* Pending Subjects */}
-        <div
-          onClick={() => onNavigate('grade_entry')}
-          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-rose-300 dark:hover:border-rose-500/50 p-4 rounded-xl flex flex-col justify-between cursor-pointer transition-all hover:bg-rose-50/40 dark:hover:bg-slate-800/80 shadow-xs group"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-rose-700 dark:text-rose-400">درجات ناقصة</span>
-            <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 group-hover:scale-110 transition-transform" />
-          </div>
-          <div className="text-2xl font-black text-rose-700 dark:text-rose-400 font-mono">
-            {hierarchyStats.pendingCount}
-          </div>
-          <span className="text-[11px] text-rose-700 dark:text-rose-400 font-semibold mt-1 flex items-center gap-1">
-            تحتاج استكمال ←
-          </span>
+        <div className="flex flex-wrap items-center gap-2">
+          <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+            <Calendar className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+            <span>العام الدراسي</span>
+            <span className="font-mono">{currentYear?.name || 'غير محدد'}</span>
+          </label>
+          <button
+            type="button"
+            onClick={() => onNavigate('grade_entry')}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-black text-white shadow-sm transition-colors hover:bg-emerald-700 dark:bg-emerald-400 dark:text-slate-950 dark:hover:bg-emerald-300"
+          >
+            <FileSpreadsheet className="h-4 w-4" />
+            بدء رصد الدرجات
+            <ArrowLeft className="h-3.5 w-3.5" />
+          </button>
         </div>
       </div>
 
-      {/* Organized Section: Grade Entry Completion Status (Hierarchical: Classes -> Sections -> Subjects) */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm flex flex-col gap-5">
-        {/* Section Header with Stage Tabs & Quick Actions */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
-          <div>
+      {/* Six colorful KPI cards inspired by the Absence dashboard */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
+        {statCards.map((card) => (
+          <button
+            key={card.label}
+            type="button"
+            onClick={() => onNavigate(card.action)}
+            className={`group relative flex min-h-[116px] min-w-0 flex-col justify-between overflow-hidden rounded-2xl bg-gradient-to-br ${card.color} p-3.5 text-right text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 dark:focus:ring-offset-slate-950`}
+          >
+            <span className="absolute -bottom-7 -left-5 h-20 w-20 rounded-full bg-white/10 transition-transform duration-300 group-hover:scale-125" />
+            <div className="relative flex items-center justify-between gap-2">
+              <span className="text-[11px] font-bold text-white/90">{card.label}</span>
+              <span className="rounded-lg bg-white/15 p-1.5 text-white">{card.icon}</span>
+            </div>
+            <div className={`relative font-black tracking-tight ${card.compact ? 'text-base sm:text-lg' : 'text-2xl sm:text-3xl'}`} dir="auto">
+              {typeof card.value === 'number' ? card.value.toLocaleString('en-US') : card.value}
+            </div>
+            <span className="relative text-[10px] font-semibold text-white/85">{card.detail}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Main analytics area: class completion and two donut charts */}
+      <div className="grid min-w-0 grid-cols-1 gap-4 2xl:grid-cols-12">
+        <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 2xl:col-span-6">
+          <div className="mb-4 flex flex-col gap-3 border-b border-slate-200 pb-3 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
-              <span className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400">
-                <TrendingUp className="w-5 h-5" />
-              </span>
+              <span className="rounded-xl bg-emerald-50 p-2 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400"><Layers className="h-5 w-5" /></span>
               <div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <span>حالة اكتمال رصد المواد الدراسية</span>
-                  <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-500/30">
-                    {STAGE_LABELS[selectedStage]}
-                  </span>
-                </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  تسلسل هرمي منظم: انقر على بطاقة الصف لعرض شعبه، وانقر على الشعبة لعرض موادها بدقة
-                </p>
+                <h2 className="text-sm font-black text-slate-900 dark:text-slate-100">متابعة اكتمال رصد الدرجات حسب الصفوف</h2>
+                <p className="mt-0.5 text-[10px] text-slate-500 dark:text-slate-400">اختر الفصل الدراسي لمتابعة الإنجاز</p>
               </div>
             </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2.5">
-            {/* Stage Selector Pills */}
-            <div className="flex flex-wrap items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
-              {(Object.keys(STAGE_LABELS) as GradeStage[]).map((stageKey) => (
-                <button
-                  key={stageKey}
-                  type="button"
-                  onClick={() => setSelectedStage(stageKey)}
-                  className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
-                    selectedStage === stageKey
-                      ? 'bg-emerald-600 text-white dark:bg-emerald-400 dark:text-slate-950 shadow-xs font-black'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-700/60'
-                  }`}
-                >
-                  {STAGE_LABELS[stageKey]}
-                </button>
-              ))}
+            <div className="flex flex-wrap items-center gap-1.5">
+              <button type="button" onClick={expandAll} className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-[10px] font-bold text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">توسيع الكل</button>
+              <button type="button" onClick={collapseAll} className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-[10px] font-bold text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">طي الكل</button>
             </div>
+          </div>
 
-            {/* Expand / Collapse All Helpers */}
-            <div className="flex items-center gap-1.5">
+          <div className="mb-4 flex flex-wrap items-center gap-1.5">
+            {(Object.keys(STAGE_LABELS) as GradeStage[]).map((stage) => (
               <button
+                key={stage}
                 type="button"
-                onClick={expandAll}
-                className="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
-                title="توسيع كافة الصفوف والشعب"
+                onClick={() => setSelectedStage(stage)}
+                className={`rounded-lg px-3 py-1.5 text-[10px] font-bold transition-colors ${selectedStage === stage ? 'bg-emerald-600 text-white shadow-sm dark:bg-emerald-400 dark:text-slate-950' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
               >
-                توسيع الكل
+                {STAGE_LABELS[stage]}
               </button>
-              <button
-                type="button"
-                onClick={collapseAll}
-                className="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
-                title="طي كافة الصفوف والشعب"
-              >
-                طي الكل
-              </button>
+            ))}
+            <span className="mr-auto rounded-lg bg-slate-50 px-2.5 py-1.5 text-[10px] font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+              {hierarchyStats.overallPercent}% إجمالي الإنجاز
+            </span>
+          </div>
+
+          {hierarchyStats.classes.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-slate-300 py-12 text-center text-xs text-slate-500 dark:border-slate-700 dark:text-slate-400">
+              لا توجد صفوف دراسية مسجلة في العام الدراسي الحالي.
             </div>
+          ) : (
+            <div className="flex flex-col gap-2.5">
+              {hierarchyStats.classes.map((classItem, index) => {
+                const isExpanded = expandedClassIds.has(classItem.schoolClass.id);
+                const accent = ['bg-emerald-600 dark:bg-emerald-400', 'bg-blue-600 dark:bg-blue-400', 'bg-violet-600 dark:bg-violet-400', 'bg-teal-600 dark:bg-teal-400'][index % 4];
+                const statusTone = classItem.status === 'مكتمل'
+                  ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400'
+                  : classItem.status === 'قيد الإنجاز'
+                    ? 'bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400'
+                    : classItem.status === 'غير مكتمل'
+                      ? 'bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-400'
+                      : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400';
 
-            {/* Quick Link to Grade Entry */}
-            <button
-              type="button"
-              onClick={() => onNavigate('grade_entry')}
-              className="px-3.5 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 dark:bg-teal-500/15 dark:hover:bg-teal-500/25 text-teal-800 dark:text-teal-300 text-xs font-bold border border-teal-200 dark:border-teal-500/30 flex items-center gap-1.5 transition-all cursor-pointer mr-auto lg:mr-0"
-            >
-              <span>فتح شاشة الرصد</span>
-              <ArrowLeft className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </div>
+                return (
+                  <div key={classItem.schoolClass.id} className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50/70 dark:border-slate-700 dark:bg-slate-950/40">
+                    <button
+                      type="button"
+                      onClick={() => toggleClass(classItem.schoolClass.id)}
+                      aria-expanded={isExpanded}
+                      className="flex w-full flex-col gap-3 p-3 text-right transition-colors hover:bg-slate-100 dark:hover:bg-slate-800/70 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                      <div className="flex min-w-0 items-center gap-2.5">
+                        <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white shadow-sm ${accent}`}><GraduationCap className="h-5 w-5" /></span>
+                        <span className="min-w-0">
+                          <span className="flex flex-wrap items-center gap-2">
+                            <span className="text-sm font-black text-slate-900 dark:text-slate-100">{classItem.schoolClass.name}</span>
+                            <span className="rounded-full bg-teal-50 px-2 py-0.5 text-[9px] font-bold text-teal-700 dark:bg-teal-500/15 dark:text-teal-300">{classItem.schoolClass.stage}</span>
+                          </span>
+                          <span className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-slate-500 dark:text-slate-400">
+                            <span className="inline-flex items-center gap-1"><Layers className="h-3 w-3 text-amber-500" />{classItem.totalSections} شعبة</span>
+                            <span className="inline-flex items-center gap-1"><Users className="h-3 w-3 text-sky-500" />{classItem.totalStudents} طالب</span>
+                            <span className="inline-flex items-center gap-1"><BookOpen className="h-3 w-3 text-violet-500" />{classItem.totalSubjects} مادة</span>
+                          </span>
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 sm:min-w-[190px]">
+                        <div className="min-w-0 flex-1">
+                          <div className="mb-1 flex items-center justify-between text-[10px]">
+                            <span className={`font-black ${classItem.percent === 100 ? 'text-emerald-600 dark:text-emerald-400' : classItem.percent > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-slate-500'}`}>{classItem.percent}%</span>
+                            <span className="text-slate-500 dark:text-slate-400">اكتمال الرصد</span>
+                          </div>
+                          <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                            <div className={`h-full rounded-full transition-all ${classItem.percent === 100 ? 'bg-emerald-500' : classItem.percent > 0 ? 'bg-amber-500' : 'bg-slate-400'}`} style={{ width: `${classItem.percent}%` }} />
+                          </div>
+                        </div>
+                        <span className={`hidden rounded-full px-2.5 py-1 text-[9px] font-bold sm:inline-flex ${statusTone}`}>{classItem.status}</span>
+                        {isExpanded ? <ChevronUp className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" /> : <ChevronDown className="h-4 w-4 shrink-0 text-slate-400" />}
+                      </div>
+                    </button>
 
-        {/* Classes List (Strict sequence according to official curriculum order) */}
-        {hierarchyStats.classes.length === 0 ? (
-          <div className="py-12 text-center text-slate-500 dark:text-slate-400 text-sm">
-            لا توجد صفوف دراسية مسجلة حالياً في النظام.
-          </div>
-        ) : (
-          <div className="flex flex-col gap-4">
-            {hierarchyStats.classes.map((clsItem) => {
-              const isClassExpanded = expandedClassIds.has(clsItem.schoolClass.id);
-
-              return (
-                <div
-                  key={clsItem.schoolClass.id}
-                  className="bg-slate-50/70 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs transition-all"
-                >
-                  {/* 1. Class Header Card (Clickable to Expand / Collapse) */}
-                  <div
-                    onClick={() => toggleClass(clsItem.schoolClass.id)}
-                    className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:bg-slate-100/70 dark:hover:bg-slate-900/60 transition-colors select-none"
-                  >
-                    {/* Class Info */}
-                    <div className="flex items-center gap-3">
-                      <button
-                        type="button"
-                        className="w-8 h-8 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors shrink-0"
-                        aria-label={isClassExpanded ? 'طي الصف' : 'توسيع الصف'}
-                      >
-                        {isClassExpanded ? (
-                          <ChevronUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    {isExpanded && (
+                      <div className="border-t border-slate-200 p-3 dark:border-slate-700">
+                        {classItem.sections.length === 0 ? (
+                          <p className="py-4 text-center text-xs text-slate-500 dark:text-slate-400">لا توجد شعب مسجلة لهذا الصف.</p>
                         ) : (
-                          <ChevronDown className="w-4 h-4 text-slate-400" />
-                        )}
-                      </button>
-
-                      <div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h4 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-100">
-                            {clsItem.schoolClass.name}
-                          </h4>
-                          <span className="text-[11px] px-2.5 py-0.5 rounded-full font-bold bg-teal-50 dark:bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-500/30">
-                            {clsItem.schoolClass.stage}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mt-1">
-                          <span className="flex items-center gap-1 font-mono">
-                            <Layers className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                            <span>{clsItem.totalSections} شعب</span>
-                          </span>
-                          <span>•</span>
-                          <span className="flex items-center gap-1 font-mono">
-                            <Users className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-                            <span>{clsItem.totalStudents} طالباً</span>
-                          </span>
-                          <span>•</span>
-                          <span className="flex items-center gap-1 font-mono">
-                            <BookOpen className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-                            <span>{clsItem.totalSubjects} مواد</span>
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Progress & Status Pill */}
-                    <div className="flex items-center gap-4 self-end md:self-center">
-                      <div className="flex flex-col items-end gap-1.5">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-slate-500 dark:text-slate-400">نسبة اكتمال الصف:</span>
-                          <span
-                            className={`font-mono font-black text-sm ${
-                              clsItem.percent === 100
+                          <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
+                            {classItem.sections.map((sectionItem) => {
+                              const sectionKey = `${classItem.schoolClass.id}_${sectionItem.section.id}`;
+                              const sectionExpanded = expandedSectionKeys.has(sectionKey);
+                              const sectionTone = sectionItem.status === 'مكتمل'
                                 ? 'text-emerald-700 dark:text-emerald-400'
-                                : clsItem.percent > 0
-                                ? 'text-amber-700 dark:text-amber-400'
-                                : 'text-slate-500 dark:text-slate-400'
-                            }`}
-                          >
-                            {clsItem.percent}%
-                          </span>
-                        </div>
-                        {/* Mini visual progress bar for class */}
-                        <div className="w-28 sm:w-36 h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden border border-slate-300 dark:border-slate-700">
-                          <div
-                            className={`h-full transition-all duration-300 rounded-full ${
-                              clsItem.percent === 100
-                                ? 'bg-emerald-600 dark:bg-emerald-400'
-                                : clsItem.percent > 0
-                                ? 'bg-amber-500 dark:bg-amber-400'
-                                : 'bg-slate-400 dark:bg-slate-700'
-                            }`}
-                            style={{ width: `${clsItem.percent}%` }}
-                          />
-                        </div>
-                      </div>
+                                : sectionItem.status === 'قيد الإنجاز'
+                                  ? 'text-amber-700 dark:text-amber-400'
+                                  : sectionItem.status === 'غير مكتمل'
+                                    ? 'text-rose-700 dark:text-rose-400'
+                                    : 'text-slate-500 dark:text-slate-400';
 
-                      {/* Class Status Badge */}
-                      <span
-                        className={`text-xs font-bold px-3 py-1 rounded-full border shrink-0 flex items-center gap-1.5 ${
-                          clsItem.status === 'مكتمل'
-                            ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30'
-                            : clsItem.status === 'قيد الإنجاز'
-                            ? 'bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30'
-                            : clsItem.status === 'غير مكتمل'
-                            ? 'bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-500/30'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700'
-                        }`}
-                      >
-                        {clsItem.status === 'مكتمل' && (
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                        )}
-                        {clsItem.status === 'قيد الإنجاز' && (
-                          <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                        )}
-                        {clsItem.status === 'غير مكتمل' && (
-                          <AlertCircle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
-                        )}
-                        <span>{clsItem.status}</span>
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* 2. Sections Container inside Opened Class */}
-                  {isClassExpanded && (
-                    <div className="border-t border-slate-200 dark:border-slate-800 p-4 sm:p-5 bg-white dark:bg-slate-900/40 flex flex-col gap-4">
-                      {clsItem.sections.length === 0 ? (
-                        <div className="p-6 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400">
-                          لا توجد شعب مسجلة لهذا الصف حالياً.
-                        </div>
-                      ) : (
-                        <div className="flex flex-col gap-3.5">
-                          {clsItem.sections.map((secItem) => {
-                            const sectionKey = `${clsItem.schoolClass.id}_${secItem.section.id}`;
-                            const isSectionExpanded = expandedSectionKeys.has(sectionKey);
-
-                            return (
-                              <div
-                                key={secItem.section.id}
-                                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-all"
-                              >
-                                {/* Section Card Header (Clickable to toggle its subjects) */}
-                                <div
-                                  onClick={() =>
-                                    toggleSection(clsItem.schoolClass.id, secItem.section.id)
-                                  }
-                                  className="p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors select-none"
-                                >
-                                  {/* Section Identity & Count */}
-                                  <div className="flex items-center gap-3">
-                                    <div
-                                      className={`w-7 h-7 rounded-lg flex items-center justify-center border text-xs font-bold transition-colors shrink-0 ${
-                                        isSectionExpanded
-                                          ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30'
-                                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700'
-                                      }`}
-                                    >
-                                      {secItem.section.name}
-                                    </div>
-
-                                    <div>
-                                      <div className="flex items-center gap-2">
-                                        <h5 className="font-bold text-sm text-slate-900 dark:text-slate-100">
-                                          الشعبة {secItem.section.name}
-                                        </h5>
-                                        <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
-                                          ({secItem.studentsCount} طالباً)
-                                        </span>
-                                      </div>
-                                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                                        المواد المكتملة:{' '}
-                                        <strong className="text-slate-900 dark:text-slate-200 font-mono">
-                                          {secItem.completedSubjectsCount}
-                                        </strong>{' '}
-                                        من{' '}
-                                        <span className="font-mono">{secItem.totalSubjects}</span> مواد
-                                      </p>
-                                    </div>
-                                  </div>
-
-                                  {/* Progress bar & Percent & Status */}
-                                  <div className="flex items-center gap-3 self-end lg:self-center">
-                                    <div className="flex flex-col items-end gap-1">
-                                      <div className="flex items-center gap-2 text-xs">
-                                        <span className="text-slate-500 dark:text-slate-400">اكتمال الشعبة:</span>
-                                        <span
-                                          className={`font-mono font-bold ${
-                                            secItem.percent === 100
-                                              ? 'text-emerald-700 dark:text-emerald-400'
-                                              : secItem.percent > 0
-                                              ? 'text-amber-700 dark:text-amber-400'
-                                              : 'text-slate-500 dark:text-slate-400'
-                                          }`}
-                                        >
-                                          {secItem.percent}%
-                                        </span>
-                                      </div>
-
-                                      {/* Visual progress bar */}
-                                      <div className="w-24 sm:w-32 h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden border border-slate-300 dark:border-slate-700">
-                                        <div
-                                          className={`h-full transition-all duration-300 rounded-full ${
-                                            secItem.percent === 100
-                                              ? 'bg-emerald-600 dark:bg-emerald-400'
-                                              : secItem.percent > 0
-                                              ? 'bg-amber-500 dark:bg-amber-400'
-                                              : 'bg-slate-400 dark:bg-slate-700'
-                                          }`}
-                                          style={{ width: `${secItem.percent}%` }}
-                                        />
-                                      </div>
-                                    </div>
-
-                                    {/* Section Status Badge */}
-                                    <span
-                                      className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border shrink-0 flex items-center gap-1 ${
-                                        secItem.status === 'مكتمل'
-                                          ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30'
-                                          : secItem.status === 'قيد الإنجاز'
-                                          ? 'bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30'
-                                          : secItem.status === 'غير مكتمل'
-                                          ? 'bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-500/30'
-                                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700'
-                                      }`}
-                                    >
-                                      {secItem.status === 'مكتمل' && (
-                                        <Check className="w-3 h-3 stroke-[3]" />
-                                      )}
-                                      {secItem.status === 'قيد الإنجاز' && (
-                                        <Clock className="w-3 h-3" />
-                                      )}
-                                      {secItem.status === 'غير مكتمل' && (
-                                        <AlertCircle className="w-3 h-3" />
-                                      )}
-                                      <span>{secItem.status}</span>
+                              return (
+                                <div key={sectionItem.section.id || 'no-section'} className="min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+                                  <button
+                                    type="button"
+                                    onClick={() => toggleSection(classItem.schoolClass.id, sectionItem.section.id)}
+                                    aria-expanded={sectionExpanded}
+                                    className="flex w-full items-center gap-2.5 p-3 text-right transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/70"
+                                  >
+                                    <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-black ${sectionExpanded ? 'bg-emerald-600 text-white dark:bg-emerald-400 dark:text-slate-950' : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200'}`}>{sectionItem.section.name}</span>
+                                    <span className="min-w-0 flex-1">
+                                      <span className="block text-xs font-black text-slate-900 dark:text-slate-100">الشعبة {sectionItem.section.name}</span>
+                                      <span className="mt-1 block text-[10px] text-slate-500 dark:text-slate-400">{sectionItem.studentsCount} طالب · {sectionItem.completedSubjectsCount} من {sectionItem.totalSubjects} مواد مكتملة</span>
                                     </span>
+                                    <span className={`text-xs font-black ${sectionTone}`}>{sectionItem.percent}%</span>
+                                    {sectionExpanded ? <ChevronUp className="h-4 w-4 text-emerald-600" /> : <ChevronDown className="h-4 w-4 text-slate-400" />}
+                                  </button>
 
-                                    {/* Toggle Chevron */}
-                                    <button
-                                      type="button"
-                                      className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 flex items-center gap-1 p-1"
-                                      aria-label={isSectionExpanded ? 'إخفاء المواد' : 'عرض المواد'}
-                                    >
-                                      {isSectionExpanded ? (
-                                        <ChevronUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                                  {sectionExpanded && (
+                                    <div className="border-t border-slate-200 dark:border-slate-700">
+                                      {sectionItem.subjects.length === 0 ? (
+                                        <p className="p-4 text-center text-[10px] text-slate-500 dark:text-slate-400">لا توجد مواد مضافة لهذا الصف.</p>
                                       ) : (
-                                        <ChevronDown className="w-4 h-4 text-slate-400" />
+                                        <div className="overflow-x-auto">
+                                          <table className="w-full min-w-[330px] text-right text-[10px]">
+                                            <thead className="bg-slate-50 text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                                              <tr>
+                                                <th className="px-3 py-2 font-bold">المادة</th>
+                                                <th className="px-2 py-2 text-center font-bold">الرصد</th>
+                                                <th className="px-3 py-2 text-left font-bold">الإنجاز</th>
+                                              </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                              {sectionItem.subjects.map((subjectItem) => (
+                                                <tr
+                                                  key={subjectItem.subject.id}
+                                                  onClick={() => onNavigate('grade_entry')}
+                                                  className="cursor-pointer transition-colors hover:bg-emerald-50/70 dark:hover:bg-emerald-500/10"
+                                                  title="الانتقال إلى شاشة رصد الدرجات"
+                                                >
+                                                  <td className="px-3 py-2 font-bold text-slate-800 dark:text-slate-200">{subjectItem.subject.name}</td>
+                                                  <td className="px-2 py-2 text-center">
+                                                    <span className={`inline-flex rounded-full px-2 py-0.5 font-bold ${subjectItem.isComplete ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400' : subjectItem.enteredCount > 0 ? 'bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400' : 'bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-400'}`}>
+                                                      {subjectItem.isComplete ? 'مكتمل' : subjectItem.enteredCount > 0 ? 'قيد الرصد' : 'غير مكتمل'}
+                                                    </span>
+                                                  </td>
+                                                  <td className="px-3 py-2">
+                                                    <div className="flex items-center justify-end gap-2">
+                                                      <span className="font-mono font-bold text-slate-600 dark:text-slate-300" dir="ltr">{subjectItem.percent}%</span>
+                                                      <span className="h-1.5 w-16 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                                                        <span className={`block h-full rounded-full ${subjectItem.isComplete ? 'bg-emerald-500' : subjectItem.enteredCount > 0 ? 'bg-amber-500' : 'bg-rose-500'}`} style={{ width: `${subjectItem.percent}%` }} />
+                                                      </span>
+                                                    </div>
+                                                  </td>
+                                                </tr>
+                                              ))}
+                                            </tbody>
+                                          </table>
+                                        </div>
                                       )}
-                                    </button>
-                                  </div>
-                                </div>
-
-                                {/* 3. Subjects Grid inside Opened Section */}
-                                {isSectionExpanded && (
-                                  <div className="bg-slate-50 dark:bg-slate-950/60 border-t border-slate-200 dark:border-slate-800 p-4">
-                                    <div className="flex items-center justify-between mb-3 text-xs text-slate-500 dark:text-slate-400">
-                                      <span className="flex items-center gap-1.5 font-medium">
-                                        <BookOpen className="w-3.5 h-3.5 text-teal-700 dark:text-teal-400" />
-                                        <span>مواد الشعبة ({secItem.subjects.length} مادة مرتبة بالتسلسل المعتمد)</span>
-                                      </span>
                                       <button
                                         type="button"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          onNavigate('grade_entry');
-                                        }}
-                                        className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 flex items-center gap-1 cursor-pointer"
+                                        onClick={() => onNavigate('grade_entry')}
+                                        className="flex w-full items-center justify-center gap-1.5 border-t border-slate-100 px-3 py-2 text-[10px] font-bold text-emerald-700 transition-colors hover:bg-emerald-50 dark:border-slate-800 dark:text-emerald-400 dark:hover:bg-emerald-500/10"
                                       >
-                                        <span>رصد درجات الشعبة</span>
-                                        <ArrowLeft className="w-3 h-3" />
+                                        رصد درجات الشعبة <ArrowLeft className="h-3 w-3" />
                                       </button>
                                     </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
 
-                                    {secItem.subjects.length === 0 ? (
-                                      <div className="py-6 text-center text-slate-500 dark:text-slate-400 text-xs">
-                                        لا توجد مواد دراسية مضافة لهذا الصف.
-                                      </div>
-                                    ) : (
-                                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                                        {secItem.subjects.map((subItem) => {
-                                          return (
-                                            <div
-                                              key={subItem.subject.id}
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                onNavigate('grade_entry');
-                                              }}
-                                              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-emerald-400 dark:hover:border-emerald-500/50 p-3 rounded-xl flex flex-col justify-between gap-2.5 transition-all hover:bg-emerald-50/30 dark:hover:bg-slate-800/80 cursor-pointer group shadow-xs"
-                                              title="انقر للانتقال المباشر لرصد هذه المادة"
-                                            >
-                                              <div className="flex items-start justify-between gap-2">
-                                                <div>
-                                                  <h6 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-slate-200 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
-                                                    {subItem.subject.name}
-                                                  </h6>
-                                                  <span className="text-[10px] text-slate-500 font-mono">
-                                                    تسلسل المادة: #{subItem.subject.order}
-                                                  </span>
-                                                </div>
-
-                                                <span
-                                                  className={`text-[10px] font-bold px-2 py-0.5 rounded border shrink-0 ${
-                                                    subItem.isComplete
-                                                      ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30'
-                                                      : subItem.enteredCount > 0
-                                                      ? 'bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30'
-                                                      : 'bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-500/30'
-                                                  }`}
-                                                >
-                                                  {subItem.isComplete ? 'مكتمل' : 'غير مكتمل'}
-                                                </span>
-                                              </div>
-
-                                              <div>
-                                                <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 mb-1 font-mono">
-                                                  <span>
-                                                    {subItem.enteredCount} من {subItem.studentsCount} طالباً
-                                                  </span>
-                                                  <span
-                                                    className={`font-bold ${
-                                                      subItem.isComplete
-                                                        ? 'text-emerald-700 dark:text-emerald-400'
-                                                        : subItem.enteredCount > 0
-                                                        ? 'text-amber-700 dark:text-amber-400'
-                                                        : 'text-slate-500 dark:text-slate-400'
-                                                    }`}
-                                                  >
-                                                    {subItem.percent}%
-                                                  </span>
-                                                </div>
-
-                                                {/* Micro Progress Bar */}
-                                                <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700">
-                                                  <div
-                                                    className={`h-full transition-all duration-300 rounded-full ${
-                                                      subItem.isComplete
-                                                        ? 'bg-emerald-600 dark:bg-emerald-400'
-                                                        : subItem.enteredCount > 0
-                                                        ? 'bg-amber-500 dark:bg-amber-400'
-                                                        : 'bg-rose-500/60'
-                                                    }`}
-                                                    style={{ width: `${subItem.percent}%` }}
-                                                  />
-                                                </div>
-                                              </div>
-                                            </div>
-                                          );
-                                        })}
-                                      </div>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 2xl:col-span-6 2xl:grid-cols-2">
+          <DonutChart
+            title="حالة رصد الدرجات"
+            subtitle={`حسب ${STAGE_LABELS[selectedStage]}`}
+            value={hierarchyStats.totalGradeSlotsEntered}
+            total={hierarchyStats.totalGradeSlotsExpected}
+            primaryLabel="درجات مرصودة"
+            secondaryLabel="درجات ناقصة"
+            primaryColor="#0DCA9A"
+            secondaryColor="#E91E63"
+            icon={<CheckCircle2 className="h-5 w-5" />}
+          />
+          <DonutChart
+            title="حالة المواد الدراسية"
+            subtitle="على مستوى الصفوف والشعب"
+            value={hierarchyStats.completedCount}
+            total={hierarchyStats.totalSectionSubjectPairs}
+            primaryLabel="مواد مكتملة"
+            secondaryLabel="مواد غير مكتملة"
+            primaryColor="#2387F5"
+            secondaryColor="#F59E0B"
+            icon={<PieChart className="h-5 w-5" />}
+            valueLabel={`${hierarchyStats.completedCount}/${hierarchyStats.totalSectionSubjectPairs}`}
+          />
+        </div>
       </div>
     </div>
   );
