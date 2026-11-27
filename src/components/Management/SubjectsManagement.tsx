@@ -337,7 +337,7 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
 
       {!isAddPageOpen ? (
         <>
-          <section className="rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] p-5 sm:p-6 shadow-sm">
+          <section className="rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] p-5 sm:p-6 shadow-sm app-card-surface">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <div className="inline-flex items-center gap-2 rounded-full border border-[#3156C9]/20 bg-[#3156C9]/8 dark:bg-[#2785F5]/12 px-3 py-1 text-[11px] font-bold text-[#3156C9] dark:text-[#60A5FA] mb-2">
@@ -381,7 +381,7 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-[230px_minmax(0,1fr)] gap-4 items-start">
-            <aside className="rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] p-4 shadow-sm">
+            <aside className="rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] p-4 shadow-sm app-card-surface">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="font-black text-sm text-[#1E293B] dark:text-[#E2E8F0]">الصفوف الدراسية</h2>
                 <Layers className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA]" />
@@ -402,7 +402,7 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
               </div>
             </aside>
 
-            <section className="rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] p-4 sm:p-5 shadow-sm min-w-0">
+            <section className="rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] p-4 sm:p-5 shadow-sm min-w-0 app-card-surface">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
                 <div>
                   <h2 className="text-base font-black text-[#1E293B] dark:text-[#E2E8F0]">مواد الصف: {activeClass?.name || '—'}</h2>
@@ -472,7 +472,7 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
           </div>
         </>
       ) : (
-        <section className="max-w-5xl w-full mx-auto rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] shadow-sm overflow-hidden">
+        <section className="max-w-5xl w-full mx-auto rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] shadow-sm overflow-hidden app-card-surface">
           <div className="p-5 sm:p-6 border-b border-[#DCE3ED] dark:border-[#2D3B4D] flex items-start justify-between gap-3">
             <div>
               <button type="button" onClick={() => { setIsAddPageOpen(false); setAddStep(1); }} className="text-xs font-bold text-[#64748B] dark:text-[#A8B5C7] hover:text-[#3156C9] mb-3 inline-flex items-center gap-1 cursor-pointer disabled:cursor-not-allowed"><ArrowLeft className="w-4 h-4" /> العودة لإدارة المواد</button>
