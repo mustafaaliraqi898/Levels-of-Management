@@ -19,6 +19,10 @@ import {
   Archive,
   Copy,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  GraduationCap,
+  Settings2,
   CheckSquare,
   Square,
 } from 'lucide-react';
@@ -133,6 +137,40 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
   const filteredClasses = useMemo(() => {
     return filterClassesByAcademicYear(classes, selectedYearId, currentYear?.id);
   }, [classes, selectedYearId, currentYear?.id]);
+
+  const [selectedClassId, setSelectedClassId] = useState<string>('');
+  const classTabsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (filteredClasses.length === 0) {
+      setSelectedClassId('');
+      return;
+    }
+    if (!filteredClasses.some((cls) => cls.id === selectedClassId)) {
+      setSelectedClassId(filteredClasses[0].id);
+    }
+  }, [filteredClasses, selectedClassId]);
+
+  const selectedClass = useMemo(
+    () => filteredClasses.find((cls) => cls.id === selectedClassId) || null,
+    [filteredClasses, selectedClassId]
+  );
+  const selectedClassSections = useMemo(
+    () => selectedClass ? sections.filter((section) => section.classId === selectedClass.id) : [],
+    [sections, selectedClass]
+  );
+  const selectedClassStudents = useMemo(
+    () => selectedClass ? students.filter((student) => student.classId === selectedClass.id) : [],
+    [students, selectedClass]
+  );
+  const selectedClassSubjects = useMemo(
+    () => selectedClass ? subjects.filter((subject) => subject.classId === selectedClass.id) : [],
+    [subjects, selectedClass]
+  );
+
+  const scrollClassTabs = (direction: 'left' | 'right') => {
+    classTabsRef.current?.scrollBy({ left: direction === 'left' ? -320 : 320, behavior: 'smooth' });
+  };
 
   const visibleClassIds = useMemo(() => new Set(filteredClasses.map((cls) => cls.id)), [filteredClasses]);
   const visibleSectionCount = useMemo(
@@ -493,7 +531,6 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
         </div>
       )}
 
-      {/* Header - same structure as Subjects Management */}
       <section className="rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] p-5 sm:p-6 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -503,7 +540,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
             <h1 className="text-xl sm:text-2xl font-black text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2">
               <Layers className="w-6 h-6 text-[#3156C9] dark:text-[#60A5FA]" /> إدارة الصفوف والشُعب
             </h1>
-            <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-1">إدارة الصفوف الدراسية والشعب التابعة لها ومتابعة أعداد الطلاب والمواد.</p>
+            <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-1">اختر الصف الدراسي لعرض الشُعب التابعة له وإحصائياته وإدارته.</p>
           </div>
           <button type="button" onClick={() => {
             setNewClassName('');
@@ -519,13 +556,12 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
         </div>
       </section>
 
-      {/* Four compact statistic cards matching Subjects Management */}
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
         {[
           { label: 'إجمالي الصفوف', value: filteredClasses.length, icon: Layers, tone: 'blue' },
           { label: 'إجمالي الشُعب', value: visibleSectionCount, icon: FolderPlus, tone: 'violet' },
           { label: 'إجمالي الطلاب', value: visibleStudentCount, icon: Users, tone: 'green' },
-          { label: 'إجمالي المواد', value: subjects.filter((s) => visibleClassIds.has(s.classId)).length, icon: BookOpen, tone: 'amber' },
+          { label: 'إجمالي المواد', value: subjects.filter((subject) => visibleClassIds.has(subject.classId)).length, icon: BookOpen, tone: 'amber' },
         ].map((item) => {
           const tones: Record<string, string> = {
             blue: 'bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-blue-100 dark:border-blue-900',
@@ -541,202 +577,131 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
         })}
       </div>
 
-      {/* Academic year and copy controls */}
       <section className="rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] p-3.5 sm:p-4 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="relative">
-            <select value={selectedYearId} onChange={(e) => setSelectedYearId(e.target.value)} aria-label="العام الدراسي"
-              className="h-10 min-w-[210px] px-3 pl-9 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#3B4D66] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] font-bold focus:border-[#3976DB] focus:outline-none appearance-none cursor-pointer">
-              {academicYears.map((y) => <option key={y.id} value={y.id}>العام الدراسي {y.name} {y.isCurrent ? '(الحالي)' : ''}</option>)}
-            </select>
-            <ChevronDown className="w-4 h-4 text-[#64748B] dark:text-[#A8B5C7] absolute left-3 top-3 pointer-events-none" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+          <h2 className="text-sm font-black text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2"><GraduationCap className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" /> الصفوف الدراسية</h2>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative">
+              <select value={selectedYearId} onChange={(e) => setSelectedYearId(e.target.value)} aria-label="العام الدراسي"
+                className="h-10 min-w-[210px] px-3 pl-9 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#3B4D66] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] font-bold focus:border-[#3976DB] focus:outline-none appearance-none cursor-pointer">
+                {academicYears.map((year) => <option key={year.id} value={year.id}>العام الدراسي {year.name} {year.isCurrent ? '(الحالي)' : ''}</option>)}
+              </select>
+              <ChevronDown className="w-4 h-4 text-[#64748B] dark:text-[#A8B5C7] absolute left-3 top-3 pointer-events-none" />
+            </div>
+            <button type="button" onClick={() => setIsCopyModalOpen(true)}
+              className="h-10 px-4 rounded-xl bg-[#F1F5FB] hover:bg-[#E5EDF8] dark:bg-[#26364B] dark:hover:bg-[#30435C] border border-[#D8E2F0] dark:border-[#3B4D66] text-[#263B5A] dark:text-[#D8E4F4] font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors">
+              <Copy className="w-4 h-4 text-[#3156C9] dark:text-[#8DB5FF]" /> نسخ صفوف من عام سابق
+            </button>
           </div>
-          <button type="button" onClick={() => setIsCopyModalOpen(true)}
-            className="h-10 px-4 rounded-xl bg-[#F1F5FB] hover:bg-[#E5EDF8] dark:bg-[#26364B] dark:hover:bg-[#30435C] border border-[#D8E2F0] dark:border-[#3B4D66] text-[#263B5A] dark:text-[#D8E4F4] font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors">
-            <Copy className="w-4 h-4 text-[#3156C9] dark:text-[#8DB5FF]" /> نسخ صفوف من عام سابق
-          </button>
+        </div>
+        <div className="flex items-center gap-2">
+          <button type="button" onClick={() => scrollClassTabs('right')} disabled={filteredClasses.length < 2} aria-label="تمرير الصفوف إلى اليمين"
+            className="w-9 h-9 shrink-0 rounded-lg border border-[#DCE3ED] dark:border-[#3B4D66] bg-[#F8FAFC] dark:bg-[#26364B] text-[#475569] dark:text-[#A8B5C7] hover:text-[#3156C9] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center"><ChevronRight className="w-4 h-4" /></button>
+          <div ref={classTabsRef} className="flex-1 min-w-0 overflow-x-auto flex items-center gap-2.5 py-1 scroll-smooth [scrollbar-width:thin] [scrollbar-color:#B8C7E2_transparent]">
+            {filteredClasses.map((cls) => {
+              const isActive = selectedClassId === cls.id;
+              const count = sections.filter((section) => section.classId === cls.id).length;
+              return <button key={cls.id} type="button" onClick={() => setSelectedClassId(cls.id)}
+                aria-pressed={isActive}
+                className={`shrink-0 min-w-[170px] h-12 px-4 rounded-xl border flex items-center justify-between gap-3 transition-all ${isActive ? 'bg-[#3156C9] border-[#3156C9] text-white shadow-[0_4px_12px_rgba(49,86,201,0.2)]' : 'bg-[#F8FAFC] dark:bg-[#26364B] border-[#DCE3ED] dark:border-[#3B4D66] text-[#334155] dark:text-[#C1D0E3] hover:border-[#9DB7F5] dark:hover:border-[#5278BA]'}`}>
+                <span className="text-xs font-black whitespace-nowrap">{cls.name}</span>
+                <span className={`text-[10px] font-bold rounded-full px-2 py-1 ${isActive ? 'bg-white/20 text-white' : 'bg-[#E8EEF8] dark:bg-[#1C2939] text-[#64748B] dark:text-[#A8B5C7]'}`}>{count} شُعب</span>
+              </button>;
+            })}
+            {filteredClasses.length === 0 && <p className="text-xs text-[#64748B] dark:text-[#8493A8] py-3 px-2">لا توجد صفوف مسجلة في هذا العام الدراسي.</p>}
+          </div>
+          <button type="button" onClick={() => scrollClassTabs('left')} disabled={filteredClasses.length < 2} aria-label="تمرير الصفوف إلى اليسار"
+            className="w-9 h-9 shrink-0 rounded-lg border border-[#DCE3ED] dark:border-[#3B4D66] bg-[#F8FAFC] dark:bg-[#26364B] text-[#475569] dark:text-[#A8B5C7] hover:text-[#3156C9] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center"><ChevronLeft className="w-4 h-4" /></button>
         </div>
       </section>
 
-      {/* Same two-column composition: class summary on the right, full table on the left */}
-      <div className="grid grid-cols-1 lg:grid-cols-[230px_minmax(0,1fr)] gap-4 items-start">
-        <aside className="rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] p-4 shadow-sm">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-black text-sm text-[#1E293B] dark:text-[#E2E8F0]">الصفوف الدراسية</h2>
-            <Layers className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA]" />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            {filteredClasses.map((cls) => {
-              const sectionCount = sections.filter((s) => s.classId === cls.id).length;
-              const studentCount = students.filter((s) => s.classId === cls.id).length;
-              return <div key={cls.id} className="w-full rounded-xl px-3 py-3 text-right flex items-center justify-between gap-2 border border-transparent hover:bg-[#F4F7FC] dark:hover:bg-[#26364B]">
-                <span className="text-xs font-bold text-[#475569] dark:text-[#A8B5C7]">{cls.name}</span>
-                <span className="text-[10px] rounded-full px-2 py-0.5 font-bold bg-[#EDF1F7] dark:bg-[#26364B] text-[#475569] dark:text-[#A8B5C7]">{sectionCount} شُعب</span>
-              </div>;
-            })}
-            {filteredClasses.length === 0 && <p className="text-xs text-slate-500 py-4 text-center">لا توجد صفوف لهذا العام الدراسي.</p>}
-          </div>
-        </aside>
-              <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-4 sm:p-5 shadow-sm dark:shadow-lg flex flex-col gap-4">
-        <div className="flex items-center justify-between gap-3 pb-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
-          <h3 className="text-sm font-black text-[#263B5A] dark:text-[#E2E8F0]">الصفوف والشُعب المسجلة</h3>
-          <span className="text-[11px] px-3 py-1.5 rounded-lg bg-[#EEF3FF] dark:bg-[#263B63] border border-[#D5E0FF] dark:border-[#3B4D78] text-[#3156C9] dark:text-[#A9C3FF] font-bold tabular-nums">
-            {filteredClasses.length} صفوف
-          </span>
-        </div>
-
-        {filteredClasses.length === 0 ? (
-          <div className="text-center py-16 text-[#64748B] dark:text-[#8493A8] text-sm flex flex-col items-center justify-center gap-3">
-            <div className="p-4 rounded-2xl bg-[#F8FAFC] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[#64748B] dark:text-[#8493A8]">
-              <Layers className="w-8 h-8" />
+      {selectedClass ? (
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-4 items-start">
+          <section className="min-w-0 rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] p-4 sm:p-5 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
+              <div>
+                <h3 className="text-sm font-black text-[#263B5A] dark:text-[#E2E8F0]">الصفوف والشُعب المسجلة: {selectedClass.name}</h3>
+                <p className="text-[11px] text-[#64748B] dark:text-[#8493A8] mt-1">{selectedClassSections.length} شعبة تابعة لهذا الصف</p>
+              </div>
+              <button type="button" onClick={() => { setManagingClass(selectedClass); setNewSectionNameInput(''); setManageSectionError(null); }}
+                className="h-9 px-3 rounded-lg bg-[#3156C9]/10 hover:bg-[#3156C9]/15 dark:bg-[#2785F5]/15 dark:hover:bg-[#2785F5]/25 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/25 dark:border-[#2785F5]/30 font-bold text-xs flex items-center gap-1.5 transition-colors">
+                <Plus className="w-4 h-4" /> إضافة شعبة جديدة
+              </button>
             </div>
-            <p>لا توجد صفوف دراسية مسجلة في هذا العام الدراسي.</p>
-            <button
-              type="button"
-              onClick={() => {
-                setNewClassName('');
-                setNewClassStage('إعدادي');
-                setManualStageSelected(false);
-                setSelectedPresetSections({});
-                setManualSectionsInput('');
-                setAddClassError(null);
-                setIsAddClassModalOpen(true);
-              }}
-              className="px-4 py-2 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              <span>إضافة صف دراسي جديد الآن</span>
-            </button>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-right border-collapse">
-              <thead>
-                <tr className="border-b border-[#D5E0F0] dark:border-[#3B4D66] text-xs font-black text-[#334B6D] dark:text-[#C1D0E3] bg-[#EAF0FC] dark:bg-[#26364B]">
-                  <th className="py-3 px-4 rounded-r-xl">اسم الصف الدراسي</th>
-                  <th className="py-3 px-4">المرحلة الدراسية</th>
-                  <th className="py-3 px-4">الشعب التابعة</th>
-                  <th className="py-3 px-4 text-center">الإحصائيات</th>
-                  <th className="py-3 px-4 text-center rounded-l-xl">الإجراءات</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#DCE3ED] dark:divide-[#2D3B4D] text-xs">
-                {filteredClasses.map((cls) => {
-                  const classSections = sections.filter((s) => s.classId === cls.id);
-                  const classStudents = students.filter((s) => s.classId === cls.id);
-                  const classSubjects = subjects.filter((s) => s.classId === cls.id);
 
-                  return (
-                    <tr
-                      key={cls.id}
-                      className={`hover:bg-[#F8FAFC] dark:hover:bg-[#202E40] transition-colors ${cls.isArchived ? 'opacity-75 bg-[#F8FAFC] dark:bg-[#111C2A]/40' : ''}`}
-                    >
-                      {/* Class Name */}
-                      <td className="py-4 px-4 font-black text-[#1E293B] dark:text-[#E2E8F0] text-sm">
-                        <div className="flex items-center gap-2">
-                          <span>{cls.name}</span>
-                          {cls.isArchived && (
-                            <span className="text-[10px] px-2 py-0.5 rounded font-bold bg-[#D69B42]/10 dark:bg-[#D69B42]/15 text-[#B45309] dark:text-[#D69B42] border border-[#D69B42]/30 flex items-center gap-1">
-                              <Archive className="w-3 h-3" />
-                              مؤرشف
-                            </span>
-                          )}
-                        </div>
-                      </td>
-
-                      {/* Stage */}
-                      <td className="py-4 px-4">
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-[#3156C9]/8 dark:bg-[#2785F5]/12 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/25 dark:border-[#2785F5]/25">
-                          {cls.stage}
-                        </span>
-                      </td>
-
-                      {/* Sections */}
-                      <td className="py-4 px-4">
-                        {classSections.length > 0 ? (
-                          <div className="flex flex-wrap gap-1.5 max-w-xs">
-                            {classSections.map((sec) => (
-                              <span
-                                key={sec.id}
-                                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#EDF1F7] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] font-mono text-xs"
-                              >
-                                <span>شعبة {sec.name}</span>
-                              </span>
-                            ))}
+            {selectedClassSections.length === 0 ? (
+              <div className="text-center py-12 text-[#64748B] dark:text-[#8493A8] text-xs">
+                <FolderPlus className="w-9 h-9 mx-auto mb-3 opacity-60" />
+                لا توجد شعب لهذا الصف حالياً. يمكنك إضافة أول شعبة من الزر أعلاه.
+              </div>
+            ) : (
+              <div className="overflow-x-auto mt-4">
+                <table className="w-full min-w-[650px] text-right border-collapse">
+                  <thead><tr className="bg-[#EAF0FC] dark:bg-[#26364B] text-xs font-black text-[#334B6D] dark:text-[#C1D0E3] border-b border-[#D5E0F0] dark:border-[#3B4D66]">
+                    <th className="py-3 px-4 w-14 text-center rounded-tr-xl">ت</th>
+                    <th className="py-3 px-4">اسم الشعبة</th>
+                    <th className="py-3 px-4 text-center">عدد الطلاب</th>
+                    <th className="py-3 px-4 text-center rounded-tl-xl">الإجراءات</th>
+                  </tr></thead>
+                  <tbody className="divide-y divide-[#DCE3ED] dark:divide-[#2D3B4D] text-xs">
+                    {selectedClassSections.map((section, index) => {
+                      const count = students.filter((student) => student.sectionId === section.id).length;
+                      return <tr key={section.id} className="hover:bg-[#F8FAFC] dark:hover:bg-[#202E40] transition-colors">
+                        <td className="py-3.5 px-4 text-center font-mono text-[#64748B] dark:text-[#8493A8]">{index + 1}</td>
+                        <td className="py-3.5 px-4 font-black text-sm text-[#1E293B] dark:text-[#E2E8F0]">شعبة {section.name}</td>
+                        <td className="py-3.5 px-4 text-center"><span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900 px-3 py-1 text-emerald-700 dark:text-emerald-300 font-bold tabular-nums"><Users className="w-3.5 h-3.5" />{count}</span></td>
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center justify-center gap-1.5">
+                            <button type="button" onClick={() => { setManagingClass(selectedClass); setNewSectionNameInput(''); setManageSectionError(null); }} className="h-8 px-2.5 rounded-lg bg-[#3156C9]/10 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/20 font-bold text-[11px] inline-flex items-center gap-1"><FolderPlus className="w-3.5 h-3.5" /> إدارة الشعبة</button>
+                            <button type="button" onClick={() => openEditSectionModal(section)} title="تعديل الشعبة" className="p-2 rounded-lg bg-[#EDF1F7] dark:bg-[#26364B] text-[#475569] dark:text-[#A8B5C7] hover:text-[#3156C9]"><Edit3 className="w-4 h-4" /></button>
+                            <button type="button" onClick={() => openDeleteSectionModal(section)} title="حذف الشعبة" className="p-2 rounded-lg bg-[#EDF1F7] dark:bg-[#26364B] text-[#475569] dark:text-[#A8B5C7] hover:text-[#C83D4B]"><Trash2 className="w-4 h-4" /></button>
                           </div>
-                        ) : (
-                          <span className="text-[#64748B] dark:text-[#8493A8] italic">بدون شعب</span>
-                        )}
-                      </td>
+                        </td>
+                      </tr>;
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
 
-                      {/* Stats */}
-                      <td className="py-4 px-4 text-center">
-                        <div className="flex items-center justify-center gap-3 text-[#475569] dark:text-[#A8B5C7] font-medium">
-                          <span className="flex items-center gap-1" title="عدد الطلاب">
-                            <Users className="w-3.5 h-3.5 text-[#3156C9] dark:text-[#60A5FA]" />
-                            <span className="font-mono tabular-nums">{classStudents.length}</span>
-                          </span>
-                          <span className="flex items-center gap-1" title="عدد المواد">
-                            <BookOpen className="w-3.5 h-3.5 text-[#059669] dark:text-[#10B981]" />
-                            <span className="font-mono tabular-nums">{classSubjects.length}</span>
-                          </span>
-                          <span className="flex items-center gap-1" title="عدد الشعب">
-                            <FolderPlus className="w-3.5 h-3.5 text-[#B45309] dark:text-[#D69B42]" />
-                            <span className="font-mono tabular-nums">{classSections.length}</span>
-                          </span>
-                        </div>
-                      </td>
-
-                      {/* Actions */}
-                      <td className="py-4 px-4 text-center">
-                        <div className="flex items-center justify-center gap-1.5">
-                          {/* Manage Sections */}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setManagingClass(cls);
-                              setNewSectionNameInput('');
-                              setManageSectionError(null);
-                            }}
-                            className="px-2.5 py-1.5 rounded-lg bg-[#3156C9]/10 hover:bg-[#3156C9]/15 dark:bg-[#2785F5]/15 dark:hover:bg-[#2785F5]/25 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/25 dark:border-[#2785F5]/30 font-bold flex items-center gap-1 transition-colors cursor-pointer"
-                            title="إدارة الشعب التابعة لهذا الصف"
-                          >
-                            <FolderPlus className="w-3.5 h-3.5" />
-                            <span>إدارة الشعب</span>
-                          </button>
-
-                          {/* Edit Class */}
-                          <button
-                            type="button"
-                            onClick={() => openEditClassModal(cls)}
-                            className="p-1.5 rounded-lg bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#475569] dark:text-[#A8B5C7] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] transition-colors cursor-pointer"
-                            title="تعديل بيانات الصف"
-                          >
-                            <Edit3 className="w-4 h-4" />
-                          </button>
-
-                          {/* Delete / Archive Class */}
-                          <button
-                            type="button"
-                            onClick={() => openDeleteClassModal(cls)}
-                            className="p-1.5 rounded-lg bg-[#EDF1F7] hover:bg-[#E35D6A]/15 dark:bg-[#26364B] dark:hover:bg-[#E35D6A]/20 text-[#475569] dark:text-[#A8B5C7] hover:text-[#C83D4B] dark:hover:text-[#E35D6A] transition-colors cursor-pointer"
-                            title="حذف أو أرشفة الصف"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-
-      </div>
+          <aside className="rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-black text-[#1E293B] dark:text-[#E2E8F0]">معلومات الصف</h3>
+              <Layers className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" />
+            </div>
+            <div className="rounded-xl bg-[#EEF3FF] dark:bg-[#263B63]/60 border border-[#D5E0FF] dark:border-[#3B4D78] p-4 text-center">
+              <GraduationCap className="w-8 h-8 mx-auto mb-2 text-[#3156C9] dark:text-[#8DB5FF]" />
+              <h4 className="text-base font-black text-[#1E293B] dark:text-[#E2E8F0]">{selectedClass.name}</h4>
+              <span className="inline-flex mt-2 px-3 py-1 rounded-full bg-white dark:bg-[#1C2939] text-[#3156C9] dark:text-[#8DB5FF] text-[11px] font-bold">{selectedClass.stage}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 mt-3">
+              <div className="rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900 p-3 text-center">
+                <Users className="w-4 h-4 mx-auto text-emerald-600 dark:text-emerald-400" />
+                <div className="text-xl font-black text-emerald-700 dark:text-emerald-300 tabular-nums mt-1">{selectedClassStudents.length}</div>
+                <div className="text-[10px] text-emerald-700 dark:text-emerald-300 font-bold">عدد الطلاب</div>
+              </div>
+              <div className="rounded-xl bg-violet-50 dark:bg-violet-950/30 border border-violet-100 dark:border-violet-900 p-3 text-center">
+                <FolderPlus className="w-4 h-4 mx-auto text-violet-600 dark:text-violet-400" />
+                <div className="text-xl font-black text-violet-700 dark:text-violet-300 tabular-nums mt-1">{selectedClassSections.length}</div>
+                <div className="text-[10px] text-violet-700 dark:text-violet-300 font-bold">عدد الشعب</div>
+              </div>
+              <div className="col-span-2 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900 p-3 flex items-center justify-between">
+                <span className="text-[11px] font-bold text-amber-700 dark:text-amber-300 flex items-center gap-1.5"><BookOpen className="w-4 h-4" /> المواد الدراسية</span>
+                <strong className="text-lg font-black text-amber-700 dark:text-amber-300 tabular-nums">{selectedClassSubjects.length}</strong>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2 mt-4 pt-3 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
+              <button type="button" onClick={() => openEditClassModal(selectedClass)} className="h-9 rounded-lg bg-[#3156C9]/10 hover:bg-[#3156C9]/15 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/20 font-bold text-xs flex items-center justify-center gap-2"><Edit3 className="w-4 h-4" /> تعديل بيانات الصف</button>
+              <button type="button" onClick={() => openDeleteClassModal(selectedClass)} className="h-9 rounded-lg bg-[#EDF1F7] hover:bg-red-50 dark:bg-[#26364B] dark:hover:bg-red-950/30 text-[#475569] dark:text-[#A8B5C7] hover:text-red-600 border border-[#DCE3ED] dark:border-[#2D3B4D] font-bold text-xs flex items-center justify-center gap-2"><Settings2 className="w-4 h-4" /> أرشفة أو حذف الصف</button>
+            </div>
+          </aside>
+        </div>
+      ) : (
+        <section className="rounded-2xl border border-dashed border-[#CBD5E1] dark:border-[#3B4D66] bg-white dark:bg-[#1C2939] p-12 text-center text-sm text-[#64748B] dark:text-[#8493A8]">
+          <Layers className="w-10 h-10 mx-auto mb-3 opacity-50" />لا توجد صفوف دراسية لعرضها في العام المحدد.
+        </section>
+      )}
       {/* Add Class Modal */}
       {isAddClassModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/75 backdrop-blur-sm animate-in fade-in duration-150">
