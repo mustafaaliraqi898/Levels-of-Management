@@ -603,7 +603,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
               const count = sections.filter((section) => section.classId === cls.id).length;
               return <button key={cls.id} type="button" onClick={() => setSelectedClassId(cls.id)}
                 aria-pressed={isActive}
-                className={`shrink-0 min-w-[170px] h-12 px-4 rounded-xl border flex items-center justify-between gap-3 transition-all ${isActive ? 'bg-[#3156C9] border-[#3156C9] text-white shadow-[0_4px_12px_rgba(49,86,201,0.2)]' : 'bg-[#F8FAFC] dark:bg-[#26364B] border-[#DCE3ED] dark:border-[#3B4D66] text-[#334155] dark:text-[#C1D0E3] hover:border-[#9DB7F5] dark:hover:border-[#5278BA]'}`} className="cursor-pointer disabled:cursor-not-allowed">
+                className={`shrink-0 min-w-[170px] h-12 px-4 rounded-xl border flex items-center justify-between gap-3 transition-all ${isActive ? 'bg-[#3156C9] border-[#3156C9] text-white shadow-[0_4px_12px_rgba(49,86,201,0.2)]' : 'bg-[#F8FAFC] dark:bg-[#26364B] border-[#DCE3ED] dark:border-[#3B4D66] text-[#334155] dark:text-[#C1D0E3] hover:border-[#9DB7F5] dark:hover:border-[#5278BA]' } cursor-pointer disabled:cursor-not-allowed}`>
                 <span className="text-xs font-black whitespace-nowrap">{cls.name}</span>
                 <span className={`text-[10px] font-bold rounded-full px-2 py-1 ${isActive ? 'bg-white/20 text-white' : 'bg-[#E8EEF8] dark:bg-[#1C2939] text-[#64748B] dark:text-[#A8B5C7]'}`}>{count} شُعب</span>
               </button>;
