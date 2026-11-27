@@ -619,7 +619,8 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
 
       {/* Header Banner & Main Actions */}
       <div className="relative overflow-hidden bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-5 sm:p-6 rounded-[22px] shadow-sm dark:shadow-xl flex flex-col xl:flex-row xl:items-center justify-between gap-5 before:absolute before:inset-y-0 before:right-0 before:w-1 before:bg-[#3156C9] dark:before:bg-[#3979E6]">
-        <div>
+        <div aria-hidden="true" className="pointer-events-none absolute -left-16 -top-24 h-64 w-64 rounded-full bg-[#3156C9]/[0.08] dark:bg-[#3979E6]/[0.16] blur-[1px]" />
+        <div className="relative z-10">
           <div className="flex flex-wrap items-center gap-2.5 mb-1.5">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#3156C9]/8 dark:bg-[#2785F5]/12 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/25 dark:border-[#2785F5]/25">
               <Sparkles className="w-3.5 h-3.5" />
@@ -637,7 +638,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="relative z-10 flex flex-wrap items-center gap-2">
           {/* Student Promotion Button */}
           {onNavigateToPromotion && (
             <button
@@ -705,9 +706,10 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-3.5 sm:p-4 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-xs">
+      <div className="relative overflow-hidden bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-3.5 sm:p-4 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-xs">
+        <div aria-hidden="true" className="pointer-events-none absolute -left-12 -top-16 h-44 w-44 rounded-full bg-[#3156C9]/[0.055] dark:bg-[#3979E6]/[0.12]" />
         {/* Dropdowns */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="relative z-10 flex flex-wrap items-center gap-2.5">
           {/* Academic Year */}
           <div className="relative">
             <select
@@ -786,7 +788,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
         </div>
 
         {/* Search input */}
-        <div className="relative w-full md:w-72 lg:w-80 shrink-0">
+        <div className="relative z-10 w-full md:w-72 lg:w-80 shrink-0">
           <input
             type="text"
             value={searchQuery}
@@ -808,7 +810,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
       </div>
 
       {/* Students Data Table */}
-      <div className="overflow-x-auto rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] shadow-sm dark:shadow-xl">
+      <div className="relative overflow-x-auto rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] shadow-sm dark:shadow-xl" style={{ backgroundImage: 'radial-gradient(circle at 4% 0%, rgba(49,86,201,0.055), transparent 22%)' }}>
         <table className="w-full border-collapse text-right text-xs">
           <thead>
             <tr className="bg-[#EDF1F7] dark:bg-[#26364B] border-b border-[#DCE3ED] dark:border-[#2D3B4D] text-[#475569] dark:text-[#A8B5C7] font-bold">
