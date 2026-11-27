@@ -327,130 +327,148 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-6 pb-16" dir="rtl">
+    <div className="flex flex-col gap-5 pb-10" dir="rtl">
       {saveSuccessNotification && (
-        <div className="fixed bottom-6 left-6 z-50 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 border text-sm font-bold animate-in fade-in slide-in-from-bottom duration-200 bg-[#059669] dark:bg-[#10B981] text-white dark:text-[#0B1420] border-[#10B981]/50">
-          <Check className="w-5 h-5 shrink-0" />
-          <span>{saveSuccessNotification}</span>
-          <button type="button" onClick={() => setSaveSuccessNotification(null)} className="p-1 hover:bg-black/20 rounded cursor-pointer mr-2"><X className="w-4 h-4" /></button>
+        <div role="status" className="fixed top-5 left-5 z-[70] flex items-center gap-2 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-[#1C2939] px-4 py-3 text-xs font-bold text-emerald-700 dark:text-emerald-400 shadow-lg">
+          <Check className="w-4 h-4 shrink-0" />{saveSuccessNotification}
+          <button type="button" onClick={() => setSaveSuccessNotification(null)} className="mr-2 text-slate-400 hover:text-slate-700"><X className="w-4 h-4" /></button>
         </div>
       )}
 
       {!isAddPageOpen ? (
         <>
-          {/* نفس شريط العنوان والإحصائيات في إدارة الصفوف والشعب */}
-          <section className="relative overflow-hidden rounded-[22px] border border-[#BFD2FF] dark:border-[#31517E] bg-gradient-to-l from-[#2455D6] via-[#3269E8] to-[#4C83F2] p-4 sm:p-5 shadow-[0_10px_28px_rgba(37,84,190,0.16)]">
-            <div aria-hidden="true" className="pointer-events-none absolute -left-12 -top-16 h-56 w-56 rounded-full bg-white/10 blur-2xl" />
-            <div aria-hidden="true" className="pointer-events-none absolute left-[38%] -bottom-24 h-52 w-52 rounded-full bg-[#9CC0FF]/20 blur-3xl" />
-            <div className="relative flex flex-col xl:flex-row xl:items-center justify-between gap-5">
-              <div className="flex items-center gap-3 shrink-0 text-white">
-                <span className="w-12 h-12 rounded-2xl bg-white/15 border border-white/25 flex items-center justify-center shadow-inner">
-                  <BookOpen className="w-7 h-7" />
-                </span>
-                <h1 className="text-xl sm:text-2xl font-black tracking-tight">إدارة المواد الدراسية</h1>
+          <section className="rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] p-5 sm:p-6 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#3156C9]/20 bg-[#3156C9]/8 dark:bg-[#2785F5]/12 px-3 py-1 text-[11px] font-bold text-[#3156C9] dark:text-[#60A5FA] mb-2">
+                  <BookOpen className="w-3.5 h-3.5" /> إدارة المناهج والمواد
+                </div>
+                <h1 className="text-xl sm:text-2xl font-black text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2">
+                  <BookOpen className="w-6 h-6 text-[#3156C9] dark:text-[#60A5FA]" /> إدارة المواد الدراسية
+                </h1>
+                <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-1">إدارة المواد المقررة لكل صف وتحديد درجاتها وترتيبها.</p>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 w-full xl:max-w-[760px]">
-                <div className="min-h-[78px] rounded-2xl border border-white/70 bg-white/95 dark:bg-[#1C2939]/95 p-3 flex items-center justify-between gap-3 shadow-sm">
-                  <div><p className="text-[11px] font-bold text-[#526174] dark:text-[#A8B5C7]">إجمالي المواد</p><p className="mt-1 text-2xl font-black tabular-nums text-[#185B9D] dark:text-[#A8D5FF]">{subjects.length}</p></div>
-                  <span className="w-11 h-11 rounded-xl bg-[#E4EEFF] dark:bg-[#24476B] text-[#2563EB] dark:text-[#8FC8FF] flex items-center justify-center"><BookOpen className="w-6 h-6" /></span>
-                </div>
-                <div className="min-h-[78px] rounded-2xl border border-white/70 bg-white/95 dark:bg-[#1C2939]/95 p-3 flex items-center justify-between gap-3 shadow-sm">
-                  <div><p className="text-[11px] font-bold text-[#526174] dark:text-[#A8B5C7]">الصفوف التي لديها مواد</p><p className="mt-1 text-2xl font-black tabular-nums text-[#087E59] dark:text-[#70E0B7]">{availableClasses.filter((cl) => subjects.some((s) => s.classId === cl.id)).length}</p></div>
-                  <span className="w-11 h-11 rounded-xl bg-[#DDF5EA] dark:bg-[#205344] text-[#087E59] dark:text-[#70E0B7] flex items-center justify-center"><Layers className="w-6 h-6" /></span>
-                </div>
-                <div className="min-h-[78px] rounded-2xl border border-white/70 bg-white/95 dark:bg-[#1C2939]/95 p-3 flex items-center justify-between gap-3 shadow-sm">
-                  <div><p className="text-[11px] font-bold text-[#526174] dark:text-[#A8B5C7]">مواد الصف المحدد</p><p className="mt-1 text-2xl font-black tabular-nums text-[#7045B5] dark:text-[#C5A9FF]">{classSubjects.length}</p></div>
-                  <span className="w-11 h-11 rounded-xl bg-[#EEE7FF] dark:bg-[#49366D] text-[#7045B5] dark:text-[#C5A9FF] flex items-center justify-center"><ListChecks className="w-6 h-6" /></span>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* شريط اختيار العام والصف وإضافة المواد بنفس أسلوب إدارة الصفوف */}
-          <section className="rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] p-3.5 sm:p-4 shadow-sm">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-              <div className="flex flex-wrap items-center gap-2.5">
-                {academicYears && academicYears.length > 0 && (
-                  <div className="relative">
-                    <select value={selectedYearId} onChange={(e) => setSelectedYearId(e.target.value)} aria-label="العام الدراسي"
-                      className="h-11 min-w-[210px] px-3 pl-9 text-xs bg-[#F5F8FD] dark:bg-[#26364B] border border-[#D5E0F0] dark:border-[#3B4D66] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] font-bold focus:border-[#3976DB] focus:ring-2 focus:ring-[#3976DB]/15 focus:outline-none appearance-none cursor-pointer">
-                      {academicYears.map((y) => <option key={y.id} value={y.id}>العام الدراسي {y.name} {y.isCurrent ? '(الحالي)' : ''}</option>)}
-                    </select>
-                    <ChevronDown className="w-4 h-4 text-[#64748B] dark:text-[#A8B5C7] absolute left-3 top-3.5 pointer-events-none" />
-                  </div>
-                )}
-                <div className="relative">
-                  <select value={selectedClassId} onChange={(e) => setSelectedClassId(e.target.value)} aria-label="الصف الدراسي"
-                    className="h-11 min-w-[210px] px-3 pl-9 text-xs bg-[#F5F8FD] dark:bg-[#26364B] border border-[#D5E0F0] dark:border-[#3B4D66] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] font-bold focus:border-[#3976DB] focus:ring-2 focus:ring-[#3976DB]/15 focus:outline-none appearance-none cursor-pointer">
-                    {availableClasses.map((cl) => <option key={cl.id} value={cl.id}>{cl.name} ({cl.stage})</option>)}
-                    {availableClasses.length === 0 && <option value="">لا توجد صفوف</option>}
-                  </select>
-                  <ChevronDown className="w-4 h-4 text-[#64748B] dark:text-[#A8B5C7] absolute left-3 top-3.5 pointer-events-none" />
-                </div>
-              </div>
-              <button type="button" onClick={openAddSubjectsPage}
-                className="h-11 px-5 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3979E6] dark:hover:bg-[#4B8CF0] text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-all shadow-[0_5px_14px_rgba(49,86,201,0.2)] hover:-translate-y-0.5">
-                <Plus className="w-4 h-4" /><span>إضافة مواد دراسية جديدة</span>
+              <button type="button" onClick={openAddSubjectsPage} className="h-11 px-5 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] text-white text-sm font-bold inline-flex items-center justify-center gap-2 shadow-sm transition-colors">
+                <Plus className="w-4 h-4" /> إضافة مواد دراسية
               </button>
             </div>
           </section>
 
-          {/* جدول المواد بنفس بطاقة وجدول إدارة الصفوف والشعب */}
-          <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-4 sm:p-5 shadow-sm dark:shadow-lg flex flex-col gap-4">
-            <div className="flex items-center justify-between gap-3 pb-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
-              <h3 className="text-sm font-black text-[#263B5A] dark:text-[#E2E8F0]">المواد الدراسية المسجلة</h3>
-              <span className="text-[11px] px-3 py-1.5 rounded-lg bg-[#EEF3FF] dark:bg-[#263B63] border border-[#D5E0FF] dark:border-[#3B4D78] text-[#3156C9] dark:text-[#A9C3FF] font-bold tabular-nums">{classSubjects.length} مادة</span>
-            </div>
-            {classSubjects.length === 0 ? (
-              <div className="text-center py-16 text-[#64748B] dark:text-[#8493A8] text-sm flex flex-col items-center justify-center gap-3">
-                <div className="p-4 rounded-2xl bg-[#F8FAFC] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[#64748B] dark:text-[#8493A8]"><BookOpen className="w-8 h-8" /></div>
-                <p>لا توجد مواد دراسية مسجلة لهذا الصف.</p>
-                <button type="button" onClick={openAddSubjectsPage} className="px-4 py-2 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors"><Plus className="w-4 h-4" /><span>إضافة مواد دراسية الآن</span></button>
+          <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
+            {[
+              { label: 'إجمالي المواد', value: subjects.length, icon: BookOpen, tone: 'blue' },
+              { label: 'الصفوف الدراسية', value: availableClasses.length, icon: GraduationCap, tone: 'violet' },
+              { label: 'صفوف لديها مواد', value: availableClasses.filter((cl) => subjects.some((s) => s.classId === cl.id)).length, icon: Layers, tone: 'green' },
+              { label: 'مواد الصف المحدد', value: classSubjects.length, icon: ListChecks, tone: 'amber' },
+            ].map((item) => {
+              const tones: Record<string, string> = {
+                blue: 'bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-blue-100 dark:border-blue-900',
+                violet: 'bg-violet-50 dark:bg-violet-950/30 text-violet-700 dark:text-violet-300 border-violet-100 dark:border-violet-900',
+                green: 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border-emerald-100 dark:border-emerald-900',
+                amber: 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300 border-amber-100 dark:border-amber-900',
+              };
+              const Icon = item.icon;
+              return (
+                <div key={item.label} className={`rounded-2xl border p-4 ${tones[item.tone]}`}>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-bold opacity-85">{item.label}</span>
+                    <Icon className="w-5 h-5 opacity-80" />
+                  </div>
+                  <div className="text-2xl font-black font-mono tabular-nums mt-2">{item.value}</div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-[230px_minmax(0,1fr)] gap-4 items-start">
+            <aside className="rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] p-4 shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="font-black text-sm text-[#1E293B] dark:text-[#E2E8F0]">الصفوف الدراسية</h2>
+                <Layers className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA]" />
               </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-right border-collapse min-w-[680px]">
-                  <thead>
-                    <tr className="border-b border-[#D5E0F0] dark:border-[#3B4D66] text-xs font-black text-[#334B6D] dark:text-[#C1D0E3] bg-[#EAF0FC] dark:bg-[#26364B]">
-                      <th className="py-3 px-4 rounded-r-xl w-16 text-center">ت</th>
-                      <th className="py-3 px-4">اسم المادة الدراسية</th>
-                      <th className="py-3 px-4 text-center">النهاية العظمى</th>
-                      <th className="py-3 px-4 text-center">درجة النجاح</th>
-                      <th className="py-3 px-4 text-center rounded-l-xl">الإجراءات</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#DCE3ED] dark:divide-[#2D3B4D] text-xs">
-                    {classSubjects.map((sub, idx) => {
-                      const isBeingDragged = draggedSubjectId === sub.id;
-                      const isOverThis = dragOverSubjectId === sub.id;
-                      return (
-                        <tr key={sub.id} draggable
-                          onDragStart={(e) => handleDragStart(e as any, sub.id)}
-                          onDragOver={(e) => handleDragOver(e as any, sub.id)}
-                          onDragLeave={handleDragLeave as any}
-                          onDrop={(e) => handleDrop(e as any, sub.id)}
-                          onDragEnd={handleDragEnd}
-                          className={`transition-colors ${isBeingDragged ? 'opacity-40' : isOverThis ? 'bg-[#EEF3FF] dark:bg-[#263B63]/50' : 'hover:bg-[#F8FAFC] dark:hover:bg-[#202E40]'}`}>
-                          <td className="py-4 px-4 text-center font-mono tabular-nums text-[#64748B] dark:text-[#8493A8]">{idx + 1}</td>
-                          <td className="py-4 px-4 font-black text-[#1E293B] dark:text-[#E2E8F0] text-sm"><span className="inline-flex items-center gap-2"><GripVertical className="w-4 h-4 text-[#94A3B8] cursor-grab" />{sub.name}</span></td>
-                          <td className="py-4 px-4 text-center"><span className="inline-flex min-w-14 justify-center px-2.5 py-1 rounded-md text-xs font-bold bg-[#3156C9]/8 dark:bg-[#2785F5]/12 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/25 dark:border-[#2785F5]/25 font-mono tabular-nums">{sub.maxScore}</span></td>
-                          <td className="py-4 px-4 text-center"><span className="inline-flex min-w-14 justify-center px-2.5 py-1 rounded-md text-xs font-bold bg-[#DDF5EA] dark:bg-[#205344] text-[#087E59] dark:text-[#70E0B7] border border-[#087E59]/15 font-mono tabular-nums">{sub.passScore}</span></td>
-                          <td className="py-4 px-4 text-center">
-                            <div className="flex items-center justify-center gap-1.5">
-                              <button type="button" onClick={() => handleMove(sub.id, 'up')} disabled={idx === 0} className="p-1.5 rounded-lg bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#475569] dark:text-[#A8B5C7] disabled:opacity-30" title="تحريك لأعلى"><ChevronUp className="w-4 h-4" /></button>
-                              <button type="button" onClick={() => handleMove(sub.id, 'down')} disabled={idx === classSubjects.length - 1} className="p-1.5 rounded-lg bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#475569] dark:text-[#A8B5C7] disabled:opacity-30" title="تحريك لأسفل"><ChevronDown className="w-4 h-4" /></button>
-                              <button type="button" onClick={() => startEditing(sub)} className="p-1.5 rounded-lg bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#475569] dark:text-[#A8B5C7] hover:text-[#3156C9] dark:hover:text-[#60A5FA]" title="تعديل المادة"><Edit3 className="w-4 h-4" /></button>
-                              <button type="button" onClick={() => setDeletingSubject(sub)} className="p-1.5 rounded-lg bg-[#EDF1F7] hover:bg-[#E35D6A]/15 dark:bg-[#26364B] dark:hover:bg-[#E35D6A]/20 text-[#475569] dark:text-[#A8B5C7] hover:text-[#C83D4B] dark:hover:text-[#E35D6A]" title="حذف المادة"><Trash2 className="w-4 h-4" /></button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-                <p className="text-[11px] text-[#64748B] dark:text-[#8493A8] mt-3">اسحب المادة لإعادة ترتيبها أو استخدم أزرار التحريك. يتم حفظ الترتيب تلقائياً.</p>
+              <div className="flex flex-col gap-1.5">
+                {availableClasses.map((cl) => {
+                  const count = subjects.filter((s) => s.classId === cl.id).length;
+                  const active = selectedClassId === cl.id;
+                  return (
+                    <button key={cl.id} type="button" onClick={() => setSelectedClassId(cl.id)}
+                      className={`w-full rounded-xl px-3 py-3 text-right flex items-center justify-between gap-2 transition-colors ${active ? 'bg-[#3156C9]/10 dark:bg-[#2785F5]/15 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/20 dark:border-[#2785F5]/25' : 'text-[#475569] dark:text-[#A8B5C7] hover:bg-[#F4F7FC] dark:hover:bg-[#26364B] border border-transparent'}`}>
+                      <span className="text-xs font-bold">{cl.name}</span>
+                      <span className={`text-[10px] rounded-full px-2 py-0.5 font-bold ${active ? 'bg-white/80 dark:bg-[#1C2939]' : 'bg-[#EDF1F7] dark:bg-[#26364B]'}`}>{count}</span>
+                    </button>
+                  );
+                })}
+                {availableClasses.length === 0 && <p className="text-xs text-slate-500 py-4 text-center">لا توجد صفوف لهذا العام الدراسي.</p>}
               </div>
-            )}
+            </aside>
+
+            <section className="rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] p-4 sm:p-5 shadow-sm min-w-0">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
+                <div>
+                  <h2 className="text-base font-black text-[#1E293B] dark:text-[#E2E8F0]">مواد الصف: {activeClass?.name || '—'}</h2>
+                  <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-1">{classSubjects.length} مادة دراسية</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  {academicYears && academicYears.length > 1 && (
+                    <select value={selectedYearId} onChange={(e) => setSelectedYearId(e.target.value)} className="h-9 rounded-lg border border-[#DCE3ED] dark:border-[#2D3B4D] bg-[#F8FAFC] dark:bg-[#26364B] px-3 text-xs font-bold text-[#1E293B] dark:text-[#E2E8F0]">
+                      {academicYears.map((y) => <option key={y.id} value={y.id}>{y.name} {y.isCurrent ? '(الحالي)' : ''}</option>)}
+                    </select>
+                  )}
+                  <button type="button" onClick={openAddSubjectsPage} className="h-9 px-3 rounded-lg bg-[#EEF3FF] dark:bg-[#263B63] text-[#3156C9] dark:text-[#8DB5FF] text-xs font-bold inline-flex items-center gap-1.5 hover:bg-[#E2EAFF] dark:hover:bg-[#304A78]">
+                    <Plus className="w-3.5 h-3.5" /> إضافة مواد
+                  </button>
+                </div>
+              </div>
+
+              {classSubjects.length === 0 ? (
+                <div className="py-14 text-center">
+                  <BookOpen className="w-10 h-10 mx-auto text-[#94A3B8] mb-3" />
+                  <h3 className="font-bold text-sm text-[#1E293B] dark:text-[#E2E8F0]">لا توجد مواد لهذا الصف</h3>
+                  <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-1 mb-4">ابدأ بإضافة المواد المقررة للصف.</p>
+                  <button type="button" onClick={openAddSubjectsPage} className="h-9 px-4 rounded-lg bg-[#3156C9] text-white text-xs font-bold"><Plus className="inline w-4 h-4 ml-1" /> إضافة مواد دراسية</button>
+                </div>
+              ) : (
+                <div className="overflow-x-auto mt-4">
+                  <table className="w-full min-w-[680px] text-right text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-[#EDF1F7] dark:bg-[#26364B] text-[#475569] dark:text-[#A8B5C7]">
+                        <th className="p-3 w-12 text-center rounded-tr-lg">ت</th>
+                        <th className="p-3">اسم المادة</th>
+                        <th className="p-3 w-32 text-center">النهاية العظمى</th>
+                        <th className="p-3 w-32 text-center">درجة النجاح</th>
+                        <th className="p-3 w-40 text-center rounded-tl-lg">الإجراءات</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#DCE3ED] dark:divide-[#2D3B4D]">
+                      {classSubjects.map((sub, idx) => {
+                        const isBeingDragged = draggedSubjectId === sub.id;
+                        const isOverThis = dragOverSubjectId === sub.id;
+                        return (
+                          <tr key={sub.id} draggable onDragStart={(e) => handleDragStart(e as any, sub.id)} onDragOver={(e) => handleDragOver(e as any, sub.id)} onDragLeave={handleDragLeave as any} onDrop={(e) => handleDrop(e as any, sub.id)} onDragEnd={handleDragEnd}
+                            className={`group h-14 transition-colors ${isBeingDragged ? 'opacity-40' : isOverThis ? 'bg-blue-50 dark:bg-blue-950/30' : 'hover:bg-[#F8FAFC] dark:hover:bg-[#202E40]'}`}>
+                            <td className="p-3 text-center font-mono text-[#64748B] dark:text-[#8493A8] border-l border-[#DCE3ED] dark:border-[#2D3B4D]">
+                              <span className="inline-flex items-center gap-1"><GripVertical className="w-3.5 h-3.5 text-slate-400 cursor-grab" />{idx + 1}</span>
+                            </td>
+                            <td className="p-3 font-bold text-[#1E293B] dark:text-[#E2E8F0]">{sub.name}</td>
+                            <td className="p-3 text-center"><span className="inline-flex min-w-14 justify-center rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 px-3 py-1 font-mono font-bold">{sub.maxScore}</span></td>
+                            <td className="p-3 text-center"><span className="inline-flex min-w-14 justify-center rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 px-3 py-1 font-mono font-bold">{sub.passScore}</span></td>
+                            <td className="p-2">
+                              <div className="flex items-center justify-center gap-1">
+                                <button type="button" onClick={() => handleMove(sub.id, 'up')} disabled={idx === 0} title="تحريك لأعلى" className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-[#26364B] disabled:opacity-25"><ChevronUp className="w-4 h-4" /></button>
+                                <button type="button" onClick={() => handleMove(sub.id, 'down')} disabled={idx === classSubjects.length - 1} title="تحريك لأسفل" className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-[#26364B] disabled:opacity-25"><ChevronDown className="w-4 h-4" /></button>
+                                <button type="button" onClick={() => startEditing(sub)} title="تعديل" className="p-2 rounded-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40"><Edit3 className="w-4 h-4" /></button>
+                                <button type="button" onClick={() => setDeletingSubject(sub)} title="حذف" className="p-2 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"><Trash2 className="w-4 h-4" /></button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                  <p className="text-[11px] text-[#64748B] dark:text-[#8493A8] mt-3">يمكن سحب المادة من مقبض الترتيب أو استخدام الأسهم. يتم حفظ الترتيب تلقائياً.</p>
+                </div>
+              )}
+            </section>
           </div>
         </>
       ) : (
@@ -463,6 +481,7 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
             </div>
             <button type="button" onClick={() => setIsAddPageOpen(false)} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-[#26364B] text-slate-500"><X className="w-5 h-5" /></button>
           </div>
+
           <div className="px-5 sm:px-6 pt-5">
             <div className="flex items-center justify-center gap-2 max-w-xl mx-auto">
               {[{n:1,label:'اختيار المواد'},{n:2,label:'تحديد الدرجات'}].map((step) => (
@@ -475,6 +494,7 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
               ))}
             </div>
           </div>
+
           <div className="p-5 sm:p-6">
             {addStep === 1 ? (
               <div className="flex flex-col gap-5">
@@ -521,7 +541,7 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
                 <div><h2 className="font-black text-sm text-[#1E293B] dark:text-[#E2E8F0]">تحديد درجات المواد</h2><p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-1">يمكنك تخصيص النهاية العظمى ودرجة النجاح لكل مادة قبل اعتمادها.</p></div>
                 <div className="overflow-x-auto rounded-xl border border-[#DCE3ED] dark:border-[#2D3B4D]">
                   <table className="w-full min-w-[560px] text-xs text-right">
-                    <thead className="bg-[#EAF0FC] dark:bg-[#26364B] text-[#334B6D] dark:text-[#C1D0E3]"><tr><th className="p-3">اسم المادة</th><th className="p-3 w-40">النهاية العظمى</th><th className="p-3 w-40">درجة النجاح</th></tr></thead>
+                    <thead className="bg-[#EDF1F7] dark:bg-[#26364B] text-[#475569] dark:text-[#A8B5C7]"><tr><th className="p-3">اسم المادة</th><th className="p-3 w-40">النهاية العظمى</th><th className="p-3 w-40">درجة النجاح</th></tr></thead>
                     <tbody className="divide-y divide-[#DCE3ED] dark:divide-[#2D3B4D]">
                       {selectedNewSubjects.map((name) => {
                         const grade = bulkGrades[name] || { maxScore: 100, passScore: 50 };
@@ -542,6 +562,7 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
           </div>
         </section>
       )}
+
       {/* Edit Subject Modal */}
       {editingSubject && (
         <div className="fixed inset-0 bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 z-50">
