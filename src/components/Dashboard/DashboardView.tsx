@@ -390,11 +390,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       value: hierarchyStats.completedCount,
       detail: 'مواد مكتملة حسب الشعب',
       icon: <BookOpen className="h-5 w-5" />,
-      surfaceTone: 'border-[#DDD6FE] bg-gradient-to-br from-white via-[#F8F6FF] to-[#EEE9FF] dark:border-[#514078] dark:from-[#241F36] dark:via-[#29233F] dark:to-[#211B34]',
-      iconTone: 'bg-[#EDE7FF] text-[#7C3AED] dark:bg-[#49366D] dark:text-[#C4A5FF]',
-      valueTone: 'text-[#5B21B6] dark:text-[#D8C4FF]',
-      accentTone: 'bg-[#8B5CF6]',
-      glowTone: 'bg-[#A78BFA]/20 dark:bg-[#8B5CF6]/15',
+      surfaceTone: 'border-[#F4DFC2] bg-gradient-to-br from-white via-[#FFFAF2] to-[#FFF0D9] dark:border-[#70512D] dark:from-[#302719] dark:via-[#362B1C] dark:to-[#2B2319]',
+      iconTone: 'bg-[#FFF0D6] text-[#C77A13] dark:bg-[#65451F] dark:text-[#FFD08A]',
+      valueTone: 'text-[#9A570B] dark:text-[#FFE0AD]',
+      accentTone: 'bg-[#E99A32]',
+      glowTone: 'bg-[#F6B94F]/25 dark:bg-[#E99A32]/20',
       action: 'grade_entry' as ActiveTab,
     },
     {
@@ -402,17 +402,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       value: totalGradeSlotsMissing,
       detail: 'خانات تحتاج استكمال',
       icon: <AlertCircle className="h-5 w-5" />,
-      surfaceTone: totalGradeSlotsMissing > 0
-        ? 'border-[#F4D6D9] bg-gradient-to-br from-white via-[#FFF8F8] to-[#FCEAEC] dark:border-[#69404A] dark:from-[#302127] dark:via-[#35232B] dark:to-[#2B1D25]'
-        : 'border-[#CFE2F5] bg-gradient-to-br from-white via-[#F5FAFF] to-[#E8F3FF] dark:border-[#315477] dark:from-[#192A3D] dark:via-[#1B3048] dark:to-[#17283D]',
-      iconTone: totalGradeSlotsMissing > 0
-        ? 'bg-[#FCE7E9] text-[#D14352] dark:bg-[#65313D] dark:text-[#FDA4AF]'
-        : 'bg-[#DCEEFF] text-[#2474C8] dark:bg-[#24476B] dark:text-[#8FC8FF]',
-      valueTone: totalGradeSlotsMissing > 0
-        ? 'text-[#B42332] dark:text-[#FDA4AF]'
-        : 'text-[#185B9D] dark:text-[#A8D5FF]',
-      accentTone: totalGradeSlotsMissing > 0 ? 'bg-[#E35D6A]' : 'bg-[#3B91E8]',
-      glowTone: totalGradeSlotsMissing > 0 ? 'bg-[#FB7185]/20 dark:bg-[#E35D6A]/15' : 'bg-[#60A5FA]/20 dark:bg-[#3B91E8]/15',
+      surfaceTone: 'border-[#F4D6DF] bg-gradient-to-br from-white via-[#FFF7FA] to-[#FCE8F0] dark:border-[#704054] dark:from-[#30202A] dark:via-[#38232F] dark:to-[#2D1D27]',
+      iconTone: 'bg-[#FCE5ED] text-[#D13F70] dark:bg-[#653047] dark:text-[#FFA5C2]',
+      valueTone: totalGradeSlotsMissing > 0 ? 'text-[#B42352] dark:text-[#FFA5C2]' : 'text-[#A83A66] dark:text-[#FFC0D4]',
+      accentTone: 'bg-[#E35D8A]',
+      glowTone: 'bg-[#FB8DB4]/25 dark:bg-[#E35D8A]/20',
       action: 'grade_entry' as ActiveTab,
     },
   ];
@@ -428,7 +422,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             onClick={() => onNavigate(card.action)}
             className={`group relative flex min-h-[126px] min-w-0 flex-col justify-between overflow-hidden rounded-[18px] border p-4 text-right shadow-[0_5px_18px_rgba(30,55,90,0.06)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_10px_26px_rgba(30,55,90,0.12)] focus:outline-none focus:ring-2 focus:ring-[#2785F5]/40 dark:shadow-[0_8px_22px_rgba(0,0,0,0.20)] dark:hover:shadow-[0_12px_28px_rgba(0,0,0,0.30)] cursor-pointer ${card.surfaceTone}`}
           >
-            <span aria-hidden="true" className={`pointer-events-none absolute -bottom-10 left-[-18px] h-28 w-28 rounded-full blur-2xl ${card.glowTone}`} />
+            <span aria-hidden="true" className={`pointer-events-none absolute -bottom-12 left-[-24px] h-28 w-28 rounded-full blur-2xl opacity-55 transition-all duration-500 ease-out group-hover:scale-[2.15] group-hover:translate-x-8 group-hover:-translate-y-7 group-hover:opacity-100 ${card.glowTone}`} />
+            <span aria-hidden="true" className={`pointer-events-none absolute -bottom-16 left-8 h-20 w-20 rounded-full blur-xl opacity-0 transition-all duration-700 ease-out group-hover:scale-[2.2] group-hover:-translate-y-10 group-hover:opacity-60 ${card.glowTone}`} />
             <span aria-hidden="true" className={`absolute right-0 top-4 bottom-4 w-1 rounded-l-full ${card.accentTone}`} />
             <div className="relative z-10 flex items-center justify-between gap-2">
               <span className="text-[11px] font-bold text-[#526174] dark:text-[#B6C4D6]">{card.label}</span>
