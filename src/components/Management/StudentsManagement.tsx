@@ -618,7 +618,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
       )}
 
       {/* Header Banner & Main Actions */}
-      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-5 rounded-2xl shadow-sm dark:shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="relative overflow-hidden bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-5 sm:p-6 rounded-[22px] shadow-sm dark:shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 before:absolute before:inset-y-0 before:right-0 before:w-1 before:bg-[#3156C9] dark:before:bg-[#3979E6]">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#3156C9]/8 dark:bg-[#2785F5]/12 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/25 dark:border-[#2785F5]/25">
@@ -629,13 +629,11 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
               إجمالي الطلاب المسجلين: <strong className="text-[#059669] dark:text-[#10B981] font-mono tabular-nums">{students.length}</strong>
             </span>
           </div>
-          <h1 className="text-2xl font-black text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-black text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2">
             <Users className="w-6 h-6 text-[#3156C9] dark:text-[#60A5FA]" />
             إدارة وسجل الطلاب
           </h1>
-          <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-1">
-            إضافة وتعديل بيانات الطلاب، رقم القيد، هاتف الأب، نقل الطلاب بين الشعب، واستيراد القوائم عبر Excel.
-          </p>
+
         </div>
 
         {/* Action Buttons */}
@@ -955,20 +953,19 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
           MODAL 1: ADD NEW STUDENT
           ========================================================================= */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-black/75 backdrop-blur-sm p-4 animate-in fade-in duration-150">
           <div
-            className="w-full max-w-lg bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[16px] shadow-2xl p-6 text-[#1E293B] dark:text-[#E2E8F0] flex flex-col gap-5"
+            className="w-full max-w-xl max-h-[92vh] overflow-y-auto bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[22px] shadow-2xl p-5 sm:p-7 text-[#1E293B] dark:text-[#E2E8F0] flex flex-col gap-5"
             role="dialog"
             aria-modal="true"
           >
             <div className="flex items-center justify-between border-b border-[#DCE3ED] dark:border-[#2D3B4D] pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="p-2.5 rounded-xl bg-[#3156C9]/8 dark:bg-[#2785F5]/12 border border-[#3156C9]/25 dark:border-[#2785F5]/25 text-[#3156C9] dark:text-[#60A5FA]">
+                <div className="p-2.5 w-11 h-11 rounded-xl bg-[#E8EFFF] dark:bg-[#263B63] border border-[#D3DFFF] dark:border-[#3B4D78] text-[#3156C9] dark:text-[#8DB5FF] flex items-center justify-center">
                   <Plus className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-[#1E293B] dark:text-[#E2E8F0]">إضافة طالب جديد</h3>
-                  <p className="text-xs text-[#64748B] dark:text-[#8493A8]">تسجيل طالب جديد وربطه بالصف والشعبة ورقم القيد</p>
+                  <h3 className="text-lg font-black text-[#1E293B] dark:text-[#E2E8F0]">إضافة طالب جديد</h3>
                 </div>
               </div>
               <button
@@ -998,7 +995,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                   value={addName}
                   onChange={(e) => setAddName(e.target.value)}
                   placeholder="مثال: حسين علي عبد الزهرة الخفاجي"
-                  className="w-full h-10 px-3 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] placeholder:text-[#64748B] dark:placeholder:text-[#8493A8] focus:border-[#2785F5] focus:outline-hidden"
+                  className="w-full h-11 px-3 text-sm bg-[#F6F8FC] dark:bg-[#26364B] border border-[#D5E0F0] dark:border-[#3B4D66] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] placeholder:text-[#64748B] dark:placeholder:text-[#8493A8] focus:border-[#2785F5] focus:outline-hidden"
                   required
                   autoFocus
                 />
@@ -1016,7 +1013,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                     value={addRegNumber}
                     onChange={(e) => setAddRegNumber(e.target.value)}
                     placeholder="مثال: 1045"
-                    className="w-full h-10 px-3 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] placeholder:text-[#64748B] dark:placeholder:text-[#8493A8] font-mono focus:border-[#2785F5] focus:outline-hidden"
+                    className="w-full h-11 px-3 text-sm bg-[#F6F8FC] dark:bg-[#26364B] border border-[#D5E0F0] dark:border-[#3B4D66] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] placeholder:text-[#64748B] dark:placeholder:text-[#8493A8] font-mono focus:border-[#2785F5] focus:outline-hidden"
                   />
                   <span className="text-[10px] text-[#64748B] dark:text-[#8493A8] mt-1 block">
                     يجب أن يكون رقم القيد فريداً وغير مكرر
@@ -1033,21 +1030,21 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                     value={addFatherPhone}
                     onChange={(e) => setAddFatherPhone(e.target.value)}
                     placeholder="07701234567"
-                    className="w-full h-10 px-3 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] placeholder:text-[#64748B] dark:placeholder:text-[#8493A8] font-mono focus:border-[#2785F5] focus:outline-hidden"
+                    className="w-full h-11 px-3 text-sm bg-[#F6F8FC] dark:bg-[#26364B] border border-[#D5E0F0] dark:border-[#3B4D66] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] placeholder:text-[#64748B] dark:placeholder:text-[#8493A8] font-mono focus:border-[#2785F5] focus:outline-hidden"
                     dir="ltr"
                   />
                 </div>
               </div>
 
               {/* Academic Organization: Class & Section */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-[#F8FAFC] dark:bg-[#202E40] p-3.5 rounded-xl border border-[#DCE3ED] dark:border-[#2D3B4D]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-[#F6F8FC] dark:bg-[#202E40] p-4 rounded-2xl border border-[#DCE3ED] dark:border-[#33465F]">
                 <div>
                   <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1.5">الصف الدراسي</label>
                   <div className="relative">
                     <select
                       value={addClassId}
                       onChange={(e) => setAddClassId(e.target.value)}
-                      className="w-full h-9 px-3 pr-3 pl-8 text-xs bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] font-bold appearance-none cursor-pointer focus:border-[#2785F5] focus:outline-hidden"
+                      className="w-full h-9 px-3 pr-3 pl-8 text-xs bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] font-bold appearance-none cursor-pointer focus:border-[#3976DB] focus:ring-2 focus:ring-[#3976DB]/15 focus:outline-none transition"
                     >
                       {availableClasses.map((c) => (
                         <option key={c.id} value={c.id}>
@@ -1068,7 +1065,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                       value={addSectionId}
                       disabled={addAvailableSections.length === 0}
                       onChange={(e) => setAddSectionId(e.target.value)}
-                      className={`w-full h-9 px-3 pr-3 pl-8 text-xs bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] font-bold appearance-none cursor-pointer focus:border-[#2785F5] focus:outline-hidden ${
+                      className={`w-full h-9 px-3 pr-3 pl-8 text-xs bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] font-bold appearance-none cursor-pointer focus:border-[#3976DB] focus:ring-2 focus:ring-[#3976DB]/15 focus:outline-none transition ${
                         addAvailableSections.length === 0 ? 'opacity-60 cursor-not-allowed bg-[#EDF1F7] dark:bg-[#1C2939]' : ''
                       }`}
                     >
@@ -1089,15 +1086,6 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                     </select>
                     <ChevronDown className="w-4 h-4 text-[#64748B] dark:text-[#8493A8] absolute left-2 top-2.5 pointer-events-none" />
                   </div>
-                  {addAvailableSections.length === 0 ? (
-                    <span className="text-[10px] text-[#059669] dark:text-[#10B981] mt-1 block">
-                      ✓ صف بدون شُعب: سيُسجّل الطالب في الصف مباشرة
-                    </span>
-                  ) : addAvailableSections.length === 1 ? (
-                    <span className="text-[10px] text-[#64748B] dark:text-[#8493A8] mt-1 block">
-                      ✓ تم اختيار الشعبة الوحيدة تلقائياً
-                    </span>
-                  ) : null}
                 </div>
               </div>
 
@@ -1111,7 +1099,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                   <select
                     value={addStatus}
                     onChange={(e) => setAddStatus(e.target.value as StudentStatus)}
-                    className="w-full h-10 px-3 pr-3 pl-8 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] font-bold appearance-none cursor-pointer focus:border-[#2785F5] focus:outline-hidden"
+                    className="w-full h-10 px-3 pr-3 pl-8 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] font-bold appearance-none cursor-pointer focus:border-[#3976DB] focus:ring-2 focus:ring-[#3976DB]/15 focus:outline-none transition"
                   >
                     <option value="regular">منتظم</option>
                     <option value="affiliated">انتساب</option>
@@ -1121,7 +1109,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
               </div>
 
               {/* Modal Buttons */}
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#DCE3ED] dark:border-[#2D3B4D] mt-2">
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#DCE3ED] dark:border-[#2D3B4D] mt-1">
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
@@ -1146,7 +1134,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
           MODAL 2: EDIT STUDENT INFORMATION
           ========================================================================= */}
       {editingStudent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-black/75 backdrop-blur-sm p-4 animate-in fade-in duration-150">
           <div
             className="w-full max-w-lg bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[16px] shadow-2xl p-6 text-[#1E293B] dark:text-[#E2E8F0] flex flex-col gap-5"
             role="dialog"
@@ -1154,12 +1142,11 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
           >
             <div className="flex items-center justify-between border-b border-[#DCE3ED] dark:border-[#2D3B4D] pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="p-2.5 rounded-xl bg-[#3156C9]/8 dark:bg-[#2785F5]/12 border border-[#3156C9]/25 dark:border-[#2785F5]/25 text-[#3156C9] dark:text-[#60A5FA]">
+                <div className="p-2.5 w-11 h-11 rounded-xl bg-[#E8EFFF] dark:bg-[#263B63] border border-[#D3DFFF] dark:border-[#3B4D78] text-[#3156C9] dark:text-[#8DB5FF] flex items-center justify-center">
                   <Edit className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-[#1E293B] dark:text-[#E2E8F0]">تعديل معلومات الطالب</h3>
-                  <p className="text-xs text-[#64748B] dark:text-[#8493A8]">تعديل بيانات السجل مع الحفاظ على درجات الطالب</p>
+                  <h3 className="text-lg font-black text-[#1E293B] dark:text-[#E2E8F0]">تعديل معلومات الطالب</h3>
                 </div>
               </div>
               <button
@@ -1188,7 +1175,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="w-full h-10 px-3 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] focus:border-[#2785F5] focus:outline-hidden"
+                  className="w-full h-11 px-3 text-sm bg-[#F6F8FC] dark:bg-[#26364B] border border-[#D5E0F0] dark:border-[#3B4D66] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] focus:border-[#2785F5] focus:outline-hidden"
                   required
                 />
               </div>
@@ -1204,7 +1191,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                     type="text"
                     value={editRegNumber}
                     onChange={(e) => setEditRegNumber(e.target.value)}
-                    className="w-full h-10 px-3 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] font-mono focus:border-[#2785F5] focus:outline-hidden"
+                    className="w-full h-11 px-3 text-sm bg-[#F6F8FC] dark:bg-[#26364B] border border-[#D5E0F0] dark:border-[#3B4D66] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] font-mono focus:border-[#2785F5] focus:outline-hidden"
                   />
                 </div>
 
@@ -1217,21 +1204,21 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                     type="text"
                     value={editFatherPhone}
                     onChange={(e) => setEditFatherPhone(e.target.value)}
-                    className="w-full h-10 px-3 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] font-mono focus:border-[#2785F5] focus:outline-hidden"
+                    className="w-full h-11 px-3 text-sm bg-[#F6F8FC] dark:bg-[#26364B] border border-[#D5E0F0] dark:border-[#3B4D66] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] font-mono focus:border-[#2785F5] focus:outline-hidden"
                     dir="ltr"
                   />
                 </div>
               </div>
 
               {/* Class & Section */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-[#F8FAFC] dark:bg-[#202E40] p-3.5 rounded-xl border border-[#DCE3ED] dark:border-[#2D3B4D]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-[#F6F8FC] dark:bg-[#202E40] p-4 rounded-2xl border border-[#DCE3ED] dark:border-[#33465F]">
                 <div>
                   <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1.5">الصف الدراسي</label>
                   <div className="relative">
                     <select
                       value={editClassId}
                       onChange={(e) => setEditClassId(e.target.value)}
-                      className="w-full h-9 px-3 pr-3 pl-8 text-xs bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] font-bold appearance-none cursor-pointer focus:border-[#2785F5] focus:outline-hidden"
+                      className="w-full h-9 px-3 pr-3 pl-8 text-xs bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] font-bold appearance-none cursor-pointer focus:border-[#3976DB] focus:ring-2 focus:ring-[#3976DB]/15 focus:outline-none transition"
                     >
                       {classes.map((c) => (
                         <option key={c.id} value={c.id}>
@@ -1252,7 +1239,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                       value={editSectionId}
                       disabled={editAvailableSections.length === 0}
                       onChange={(e) => setEditSectionId(e.target.value)}
-                      className={`w-full h-9 px-3 pr-3 pl-8 text-xs bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] font-bold appearance-none cursor-pointer focus:border-[#2785F5] focus:outline-hidden ${
+                      className={`w-full h-9 px-3 pr-3 pl-8 text-xs bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] font-bold appearance-none cursor-pointer focus:border-[#3976DB] focus:ring-2 focus:ring-[#3976DB]/15 focus:outline-none transition ${
                         editAvailableSections.length === 0 ? 'opacity-60 cursor-not-allowed bg-[#EDF1F7] dark:bg-[#1C2939]' : ''
                       }`}
                     >
@@ -1273,15 +1260,6 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                     </select>
                     <ChevronDown className="w-4 h-4 text-[#64748B] dark:text-[#8493A8] absolute left-2 top-2.5 pointer-events-none" />
                   </div>
-                  {editAvailableSections.length === 0 ? (
-                    <span className="text-[10px] text-[#059669] dark:text-[#10B981] mt-1 block">
-                      ✓ صف بدون شُعب: الطالب مسجل في الصف مباشرة
-                    </span>
-                  ) : editAvailableSections.length === 1 ? (
-                    <span className="text-[10px] text-[#64748B] dark:text-[#8493A8] mt-1 block">
-                      ✓ تم اختيار الشعبة الوحيدة تلقائياً
-                    </span>
-                  ) : null}
                 </div>
               </div>
 
@@ -1295,7 +1273,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                   <select
                     value={editStatus}
                     onChange={(e) => setEditStatus(e.target.value as StudentStatus)}
-                    className="w-full h-10 px-3 pr-3 pl-8 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] font-bold appearance-none cursor-pointer focus:border-[#2785F5] focus:outline-hidden"
+                    className="w-full h-10 px-3 pr-3 pl-8 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] font-bold appearance-none cursor-pointer focus:border-[#3976DB] focus:ring-2 focus:ring-[#3976DB]/15 focus:outline-none transition"
                   >
                     <option value="regular">منتظم</option>
                     <option value="affiliated">انتساب</option>
@@ -1310,7 +1288,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
               </div>
 
               {/* Modal Buttons */}
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#DCE3ED] dark:border-[#2D3B4D] mt-2">
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#DCE3ED] dark:border-[#2D3B4D] mt-1">
                 <button
                   type="button"
                   onClick={() => setEditingStudent(null)}
@@ -1335,7 +1313,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
           MODAL 3: TRANSFER STUDENT ("نقل الطالب بين الشعب")
           ========================================================================= */}
       {transferringStudent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-black/75 backdrop-blur-sm p-4 animate-in fade-in duration-150">
           <div
             className="w-full max-w-lg bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[16px] shadow-2xl p-6 text-[#1E293B] dark:text-[#E2E8F0] flex flex-col gap-5"
             role="dialog"
@@ -1343,12 +1321,11 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
           >
             <div className="flex items-center justify-between border-b border-[#DCE3ED] dark:border-[#2D3B4D] pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="p-2.5 rounded-xl bg-[#D69B42]/10 dark:bg-[#D69B42]/15 border border-[#D69B42]/30 text-[#B45309] dark:text-[#D69B42]">
+                <div className="p-2.5 w-11 h-11 rounded-xl bg-[#FFF3DF] dark:bg-[#49371F] border border-[#F2D6A7] dark:border-[#76552B] text-[#B7791F] dark:text-[#F0B85A] flex items-center justify-center">
                   <ArrowRightLeft className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-[#1E293B] dark:text-[#E2E8F0]">نقل الطالب بين الشعب</h3>
-                  <p className="text-xs text-[#64748B] dark:text-[#8493A8]">نقل الطالب لشعبة أو صف آخر مع الحفاظ الكامل على درجاته</p>
+                  <h3 className="text-lg font-black text-[#1E293B] dark:text-[#E2E8F0]">نقل الطالب بين الصفوف والشُعب</h3>
                 </div>
               </div>
               <button
@@ -1389,7 +1366,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                   <select
                     value={transferTargetClassId}
                     onChange={(e) => setTransferTargetClassId(e.target.value)}
-                    className="w-full h-9 px-3 pr-3 pl-8 text-xs bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] font-bold appearance-none cursor-pointer focus:border-[#2785F5] focus:outline-hidden"
+                    className="w-full h-9 px-3 pr-3 pl-8 text-xs bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] font-bold appearance-none cursor-pointer focus:border-[#3976DB] focus:ring-2 focus:ring-[#3976DB]/15 focus:outline-none transition"
                   >
                     {classes.map((c) => (
                       <option key={c.id} value={c.id}>
@@ -1410,7 +1387,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                     value={transferTargetSectionId}
                     disabled={transferAvailableSections.length === 0}
                     onChange={(e) => setTransferTargetSectionId(e.target.value)}
-                    className={`w-full h-9 px-3 pr-3 pl-8 text-xs bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] font-bold appearance-none cursor-pointer focus:border-[#2785F5] focus:outline-hidden ${
+                    className={`w-full h-9 px-3 pr-3 pl-8 text-xs bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] font-bold appearance-none cursor-pointer focus:border-[#3976DB] focus:ring-2 focus:ring-[#3976DB]/15 focus:outline-none transition ${
                       transferAvailableSections.length === 0 ? 'opacity-60 cursor-not-allowed bg-[#EDF1F7] dark:bg-[#1C2939]' : ''
                     }`}
                   >
@@ -1498,7 +1475,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
           MODAL 4: IMPORT STUDENTS FROM EXCEL ("استيراد الطلاب من Excel")
           ========================================================================= */}
       {isImportModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-black/75 backdrop-blur-sm p-4 animate-in fade-in duration-150">
           <div
             className="w-full max-w-2xl bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[16px] shadow-2xl p-6 text-[#1E293B] dark:text-[#E2E8F0] flex flex-col gap-5 max-h-[90vh] overflow-y-auto"
             role="dialog"
@@ -1507,7 +1484,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-[#DCE3ED] dark:border-[#2D3B4D] pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="p-2.5 rounded-xl bg-[#3156C9]/8 dark:bg-[#2785F5]/12 border border-[#3156C9]/25 dark:border-[#2785F5]/25 text-[#3156C9] dark:text-[#60A5FA]">
+                <div className="p-2.5 w-11 h-11 rounded-xl bg-[#E8EFFF] dark:bg-[#263B63] border border-[#D3DFFF] dark:border-[#3B4D78] text-[#3156C9] dark:text-[#8DB5FF] flex items-center justify-center">
                   <FileSpreadsheet className="w-5 h-5" />
                 </div>
                 <div>
@@ -1538,7 +1515,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                   <select
                     value={importYearId}
                     onChange={(e) => setImportYearId(e.target.value)}
-                    className="w-full h-9 px-2.5 pr-2.5 pl-7 text-xs bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] font-bold appearance-none cursor-pointer focus:border-[#2785F5] focus:outline-hidden"
+                    className="w-full h-9 px-2.5 pr-2.5 pl-7 text-xs bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] font-bold appearance-none cursor-pointer focus:border-[#3976DB] focus:ring-2 focus:ring-[#3976DB]/15 focus:outline-none transition"
                   >
                     {academicYears.map((y) => <option key={y.id} value={y.id}>{y.name}</option>)}
                   </select>
@@ -1730,7 +1707,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
           MODAL 5: DELETE STUDENT CONFIRMATION
           ========================================================================= */}
       {deletingStudent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-black/75 backdrop-blur-sm p-4 animate-in fade-in duration-150">
           <div
             className="w-full max-w-md bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[16px] shadow-2xl p-6 text-[#1E293B] dark:text-[#E2E8F0] flex flex-col gap-5"
             role="dialog"
