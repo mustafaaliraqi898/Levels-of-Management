@@ -20,7 +20,6 @@ import {
   Sliders,
   CheckCircle2,
   XCircle,
-  Clock,
   Save,
   Search,
   Filter,
@@ -1256,46 +1255,6 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
       {/* 8. SECTION B: RESULTS OF INDIVIDUAL EXEMPTION (نتائج الإعفاء الفردي) */}
       {activeTab === 'individual' && (
         <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl overflow-hidden shadow-sm space-y-0">
-          {/* Activation Notice Banner if Individual Exemption is Disabled */}
-          {!savedSettings.isIndividualExemptionEnabled && (
-            <div className="bg-[#E35D6A]/10 border-b border-[#E35D6A]/30 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <AlertCircle className="w-6 h-6 text-[#C83D4B] dark:text-[#E35D6A] shrink-0" />
-                <div>
-                  <h4 className="font-bold text-[#C83D4B] dark:text-[#E35D6A] text-sm sm:text-base">
-                    نظام الإعفاء الفردي معطّل حالياً للعام الدراسي ({activeYearObj?.name || selectedYearId})
-                  </h4>
-                  <p className="text-[#475569] dark:text-[#A8B5C7] text-xs mt-0.5 leading-relaxed">
-                    تم إيقاف تطبيق الإعفاء الفردي في المواد بقرار إداري. لن يُعتمد أي طالب كمعفى فردياً حتى يتم تفعيل الخيار مجدداً.
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleToggleIndividualExemption(true)}
-                className="px-4 py-2 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white font-bold text-xs sm:text-sm flex items-center gap-2 cursor-pointer shadow-sm transition-all shrink-0 active:scale-95"
-              >
-                <CheckCircle2 className="w-4 h-4" />
-                تفعيل الإعفاء الفردي الآن
-              </button>
-            </div>
-          )}
-
-          {/* Active Status Info Bar when Individual Exemption is Enabled */}
-          {savedSettings.isIndividualExemptionEnabled && (
-            <div className="bg-[#2785F5]/10 border-b border-[#2785F5]/25 px-5 py-2.5 text-xs text-[#3156C9] dark:text-[#60A5FA] flex items-center justify-between flex-wrap gap-2">
-              <div className="flex items-center gap-2 font-medium">
-                <CheckCircle2 className="w-4 h-4 shrink-0" />
-                <span>
-                  نظام الإعفاء الفردي <strong>مفعّل للعام الدراسي ({activeYearObj?.name || selectedYearId})</strong> • شرط الاستحقاق: بلوغ درجة السعي السنوي <strong>{savedSettings.individualMinScore} فأعلى</strong> لكل مادة بصورة مستقلة.
-                </span>
-              </div>
-              <span className="text-[11px] font-bold bg-[#2785F5]/15 px-2.5 py-0.5 rounded-full border border-[#2785F5]/30 font-mono tabular-nums">
-                {stats.individualExemptCount} طالب مستحق في الشعبة
-              </span>
-            </div>
-          )}
-
           <div className="px-4 py-3.5 bg-[#F5F8FD] dark:bg-[#1B2A40] border-b border-[#DCE5F2] dark:border-[#2B3B52] flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
             <div>
               <h3 className="font-bold text-[#1E293B] dark:text-[#E2E8F0] text-base sm:text-lg flex items-center gap-2">
