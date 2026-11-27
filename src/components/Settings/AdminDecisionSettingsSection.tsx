@@ -82,7 +82,7 @@ export const AdminDecisionSettingsSection: React.FC<AdminDecisionSettingsSection
   const selectedYear = academicYears.find((y) => y.id === selectedYearId);
 
   return (
-    <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[14px] p-6 shadow-xs">
+    <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[14px] p-6 shadow-xs app-card-surface">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-[10px] bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border border-[#3156C9]/25 dark:border-[#2785F5]/30 text-[#3156C9] dark:text-[#60A5FA] flex items-center justify-center shrink-0">
