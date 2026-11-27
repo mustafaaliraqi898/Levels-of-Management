@@ -557,21 +557,21 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm select-none"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/70 dark:bg-slate-950/80 backdrop-blur-sm select-none"
       dir="rtl"
     >
-      <div className="w-full max-w-2xl bg-slate-900 border border-slate-750 rounded-2xl shadow-2xl overflow-hidden text-white flex flex-col max-h-[92vh]">
+      <div className="w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden text-slate-900 dark:text-slate-100 flex flex-col max-h-[92vh]">
         {/* Modal Header */}
-        <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+        <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-900">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#60CDFF]/15 border border-[#60CDFF]/30 flex items-center justify-center text-[#60CDFF] font-black shadow-sm">
-              <Award className="w-5 h-5 text-[#60CDFF]" />
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-400/15 border border-emerald-200 dark:border-emerald-400/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-black shadow-xs">
+              <Award className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
+              <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 تصدير شهادات التقدير والإعفاء المدرسي
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 إنشاء ملفات PDF أو صور عالية الدقة (PNG) متضمنة بيانات الطالب والدرجات والنتيجة
               </p>
             </div>
@@ -581,7 +581,7 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
             <button
               type="button"
               onClick={onClose}
-              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white cursor-pointer transition-colors"
+              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 cursor-pointer transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -591,18 +591,18 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
         {/* Modal Body */}
         <div className="p-5 overflow-y-auto space-y-5 flex-1">
           {/* Summary Banner */}
-          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+          <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
             <div className="space-y-0.5">
-              <span className="text-xs text-[#60CDFF] font-bold block">
+              <span className="text-xs text-teal-700 dark:text-teal-400 font-bold block">
                 بيانات التصدير الأكاديمية:
               </span>
-              <span className="text-xs text-slate-300">
+              <span className="text-xs text-slate-600 dark:text-slate-300">
                 {classNameStr} • {sectionNameStr ? `شعبة ${sectionNameStr}` : 'بدون شعبة'} • العام: {academicYearName}
               </span>
             </div>
             <div className="text-left">
-              <span className="text-[11px] text-slate-400 block">الشهادات المحددة</span>
-              <span className="text-lg font-black font-mono text-[#60CDFF]">
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 block">الشهادات المحددة</span>
+              <span className="text-lg font-black font-mono text-emerald-700 dark:text-emerald-400">
                 {selectedStudents.length} / {eligibleStudents.length}
               </span>
             </div>
@@ -610,50 +610,50 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
 
           {/* Error Notice */}
           {errorMessage && (
-            <div className="p-3.5 rounded-xl bg-rose-950/80 border border-rose-500/60 text-rose-200 text-xs font-bold flex items-center gap-2.5">
-              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+            <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-200 text-xs font-bold flex items-center gap-2.5">
+              <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
               <span>{errorMessage}</span>
             </div>
           )}
 
           {/* Success Notice */}
           {successMessage && (
-            <div className="p-3.5 rounded-xl bg-emerald-950/80 border border-emerald-500/60 text-emerald-200 text-xs font-bold flex items-center gap-2.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-200 text-xs font-bold flex items-center gap-2.5">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <span>{successMessage}</span>
             </div>
           )}
 
           {/* Generation Progress Display */}
           {isGenerating && (
-            <div className="p-4 rounded-xl bg-slate-950 border border-indigo-500/40 space-y-3">
+            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-teal-200 dark:border-teal-500/40 space-y-3">
               <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2 text-indigo-300 font-bold">
-                  <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />
+                <div className="flex items-center gap-2 text-teal-700 dark:text-teal-300 font-bold">
+                  <Loader2 className="w-4 h-4 animate-spin text-teal-600 dark:text-teal-400" />
                   <span>
                     جاري تجهيز وتصيير الشهادة ({progressIndex} من {selectedStudents.length}):
                   </span>
                 </div>
-                <span className="font-mono text-indigo-400 font-bold">
+                <span className="font-mono text-teal-700 dark:text-teal-400 font-bold">
                   {Math.round((progressIndex / selectedStudents.length) * 100)}%
                 </span>
               </div>
 
-              <div className="text-xs text-white font-bold pr-6">
+              <div className="text-xs text-slate-900 dark:text-slate-100 font-bold pr-6">
                 «{currentStudentName}»
               </div>
 
               {/* Progress Track */}
-              <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+              <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-indigo-500 to-emerald-400 transition-all duration-200 rounded-full"
+                  className="h-full bg-emerald-600 dark:bg-emerald-400 transition-all duration-200 rounded-full"
                   style={{
                     width: `${(progressIndex / selectedStudents.length) * 100}%`,
                   }}
                 />
               </div>
 
-              <span className="text-[11px] text-slate-400 block text-center">
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 block text-center">
                 {exportMode === 'pdf'
                   ? 'يتم دمج الشهادات في ملف PDF واحد عالي الدقة بحجم A4 أفقي...'
                   : 'يتم استخراج صور الشهادات بدقة فائقة وحفظها...'}
@@ -663,7 +663,7 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
 
           {/* File Name Input Field */}
           <div>
-            <label className="block text-xs font-bold text-slate-300 mb-1.5">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
               اسم الملف الأساسي المراد تصديره:
             </label>
             <div className="relative">
@@ -672,12 +672,12 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
                 disabled={isGenerating}
                 value={baseFileName}
                 onChange={(e) => setBaseFileName(e.target.value)}
-                className="w-full h-10 px-3 pr-9 text-xs bg-slate-950 border border-slate-700 rounded-xl text-slate-100 focus:border-amber-500 focus:outline-hidden font-mono"
+                className="w-full h-10 px-3 pr-9 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden font-mono"
                 placeholder="اسم_الملف"
               />
-              <FileText className="w-4 h-4 text-slate-500 absolute right-3 top-3 pointer-events-none" />
+              <FileText className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute right-3 top-3 pointer-events-none" />
             </div>
-            <span className="text-[11px] text-slate-400 mt-1 block">
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">
               سيُضاف الامتداد (.pdf أو .zip) تلقائياً بحسب نوع التصدير المختار.
             </span>
           </div>
@@ -685,8 +685,8 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
           {/* Student Selector List */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-bold text-slate-300 flex items-center gap-2">
-                <Users className="w-3.5 h-3.5 text-amber-400" />
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                <Users className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                 <span>اختر الطلاب المراد إنشاء شهادات لهم:</span>
               </label>
 
@@ -694,7 +694,7 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
                 type="button"
                 disabled={isGenerating}
                 onClick={toggleSelectAll}
-                className="text-[11px] text-amber-400 hover:text-amber-300 font-bold underline cursor-pointer disabled:opacity-50"
+                className="text-[11px] text-emerald-700 dark:text-emerald-400 hover:underline font-bold cursor-pointer disabled:opacity-50"
               >
                 {selectedIds.length === eligibleStudents.length
                   ? 'إلغاء تحديد الكل'
@@ -702,9 +702,9 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
               </button>
             </div>
 
-            <div className="max-h-52 overflow-y-auto rounded-xl border border-slate-800 bg-slate-950/70 divide-y divide-slate-800/60">
+            <div className="max-h-52 overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60 divide-y divide-slate-200 dark:divide-slate-800">
               {eligibleStudents.length === 0 ? (
-                <div className="p-4 text-center text-xs text-slate-500">
+                <div className="p-4 text-center text-xs text-slate-500 dark:text-slate-400">
                   لا يوجد طلاب مسجلون في هذا الصف والشعبة حالياً.
                 </div>
               ) : (
@@ -716,8 +716,8 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
                       key={student.id}
                       className={`p-3 flex items-center justify-between cursor-pointer transition-colors ${
                         isChecked
-                          ? 'bg-amber-500/10 hover:bg-amber-500/15'
-                          : 'hover:bg-slate-800/40 opacity-70'
+                          ? 'bg-emerald-50/80 dark:bg-emerald-500/10 hover:bg-emerald-100/70 dark:hover:bg-emerald-500/15'
+                          : 'hover:bg-slate-100 dark:hover:bg-slate-800/50 opacity-75'
                       }`}
                     >
                       <div className="flex items-center gap-3">
@@ -726,24 +726,24 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
                           disabled={isGenerating}
                           checked={isChecked}
                           onChange={() => toggleStudent(student.id)}
-                          className="w-4 h-4 rounded-sm border-slate-700 bg-slate-900 text-amber-500 focus:ring-0 cursor-pointer"
+                          className="w-4 h-4 rounded-sm border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 focus:ring-0 cursor-pointer accent-emerald-600 dark:accent-emerald-400"
                         />
                         <div>
                           <div className="flex items-center gap-1.5">
-                            <span className="text-xs font-bold text-white block">
+                            <span className="text-xs font-bold text-slate-900 dark:text-slate-100 block">
                               {idx + 1}. {student.name}
                             </span>
                             <StudentStatusBadge status={student.status} />
                           </div>
                           {student.registrationNumber && (
-                            <span className="text-[11px] text-slate-400 font-mono">
+                            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
                               رقم القيد: {student.registrationNumber}
                             </span>
                           )}
                         </div>
                       </div>
 
-                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">
+                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 font-bold border border-emerald-200 dark:border-emerald-500/30">
                         {student.isGeneralExempt ? 'معفى عام' : 'مستحق للشهادة'}
                       </span>
                     </label>
@@ -755,14 +755,14 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
         </div>
 
         {/* Modal Footer Actions: Dual Export Options */}
-        <div className="p-4 sm:p-5 border-t border-slate-800 bg-slate-950 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="text-xs text-slate-400">
+        <div className="p-4 sm:p-5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="text-xs text-slate-500 dark:text-slate-400">
             {selectedStudents.length > 0 ? (
               <span>
-                المحدد: <strong className="text-white font-bold">{selectedStudents.length}</strong> طالب.
+                المحدد: <strong className="text-slate-900 dark:text-slate-100 font-bold">{selectedStudents.length}</strong> طالب.
               </span>
             ) : (
-              <span className="text-rose-400 font-bold">لم يتم تحديد أي طالب.</span>
+              <span className="text-rose-600 dark:text-rose-400 font-bold">لم يتم تحديد أي طالب.</span>
             )}
           </div>
 
@@ -771,7 +771,7 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
               type="button"
               disabled={isGenerating}
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-300 text-xs font-bold cursor-pointer disabled:opacity-50"
+              className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-bold cursor-pointer disabled:opacity-50"
             >
               إلغاء
             </button>
@@ -781,17 +781,17 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
               type="button"
               disabled={isGenerating || selectedStudents.length === 0}
               onClick={handleExportImages}
-              className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 text-xs font-bold flex items-center gap-2 cursor-pointer transition-all shadow-md disabled:opacity-50"
+              className="px-4 py-2.5 rounded-xl bg-teal-50 hover:bg-teal-100 dark:bg-teal-500/15 dark:hover:bg-teal-500/25 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-500/30 text-xs font-bold flex items-center gap-2 cursor-pointer transition-all disabled:opacity-50"
               title="تصدير شهادات الطلبة كملفات صور PNG عالية الدقة (في ملف ZIP إذا كانوا متعددين)"
             >
               {isGenerating && exportMode === 'images' ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />
+                  <Loader2 className="w-4 h-4 animate-spin text-teal-700 dark:text-teal-400" />
                   <span>جاري تصدير الصور...</span>
                 </>
               ) : (
                 <>
-                  <ImageIcon className="w-4 h-4 text-cyan-400" />
+                  <ImageIcon className="w-4 h-4 text-teal-700 dark:text-teal-400" />
                   <span>تصدير كصور (PNG)</span>
                 </>
               )}
@@ -802,7 +802,7 @@ export const ExportCertificatesPdfModal: React.FC<ExportCertificatesPdfModalProp
               type="button"
               disabled={isGenerating || selectedStudents.length === 0}
               onClick={handleExportPdf}
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-emerald-600/20 disabled:opacity-50"
+              className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-sm disabled:opacity-50"
               title="تصدير الشهادات في ملف PDF موحد بحجم A4 أفقي"
             >
               {isGenerating && exportMode === 'pdf' ? (

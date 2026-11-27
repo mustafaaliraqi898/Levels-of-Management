@@ -286,28 +286,28 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
   return (
     <div className="flex flex-col gap-5 pb-12">
       {isReadOnly && (
-        <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs sm:text-sm font-bold flex items-center gap-2.5 no-print shadow-md">
-          <Info className="w-5 h-5 text-amber-400 shrink-0" />
+        <div className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs sm:text-sm font-bold flex items-center gap-2.5 no-print shadow-sm">
+          <Info className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
           <span>وضع المعاينة للقراءة فقط (Read-Only) — يمكنك تصفح الدرجات والإحصائيات وتصدير التقارير بدون إمكانية إدخال أو تعديل الدرجات.</span>
         </div>
       )}
 
       {/* Top Banner & Title */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-slate-900 via-slate-900 to-slate-850 p-5 rounded-2xl border border-slate-800 shadow-xl">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30">
               <Sparkles className="w-3.5 h-3.5" />
               الواجهة الرئيسية للرصد السريع
             </span>
-            <span className="text-slate-400 text-xs">
+            <span className="text-slate-500 dark:text-slate-400 text-xs">
               حفظ لحظي مباشر في قاعدة البيانات
             </span>
           </div>
-          <h1 className="text-2xl font-black text-white tracking-tight">
+          <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
             إدخال وتدقيق درجات الطلاب
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             نظام رصد تفاعلي يشبه Excel مع دعم الانتقال بـ Enter والأسهم، وحساب السعي والدرجة النهائية آلياً.
           </p>
         </div>
@@ -316,17 +316,17 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
           <button
             type="button"
             onClick={handleExportCSV}
-            className="px-3.5 py-2 text-xs font-bold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-2 cursor-pointer transition-colors"
+            className="px-3.5 py-2 text-xs font-bold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center gap-2 cursor-pointer transition-colors"
             title="تصدير جدول الدرجات الحالي إلى ملف CSV / Excel"
           >
-            <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
+            <FileSpreadsheet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             <span>تصدير Excel/CSV</span>
           </button>
           {onNavigateToReports && (
             <button
               type="button"
               onClick={onNavigateToReports}
-              className="px-3.5 py-2 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20 flex items-center gap-2 cursor-pointer transition-colors"
+              className="px-3.5 py-2 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 shadow-sm flex items-center gap-2 cursor-pointer transition-colors"
             >
               <Printer className="w-4 h-4" />
               <span>طباعة الشيت الرسمي</span>
@@ -336,8 +336,8 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
       </div>
 
       {/* Sequential Filter Selectors */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-lg">
-        <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-sm">
+        <div className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
           <span>التسلسل المنطقي لتحديد سجل الدرجات المطلوب</span>
           <span className="text-slate-500 font-normal">(1. العام ← 2. الصف ← 3. الشعبة ← 4. المرحلة ← 5. المادة)</span>
         </div>
@@ -345,15 +345,15 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           {/* 1. Academic Year */}
           <div>
-            <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-blue-400" />
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               <span>1. العام الدراسي</span>
             </label>
             <div className="relative">
               <select
                 value={selectedYearId}
                 onChange={(e) => setSelectedYearId(e.target.value)}
-                className="w-full h-10 px-3 pr-3 pl-8 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-100 font-bold focus:border-emerald-500 focus:outline-hidden appearance-none cursor-pointer"
+                className="w-full h-10 px-3 pr-3 pl-8 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-bold focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden appearance-none cursor-pointer"
               >
                 {academicYears.map((y) => (
                   <option key={y.id} value={y.id}>
@@ -367,15 +367,15 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
 
           {/* 2. School Class */}
           <div>
-            <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center gap-1.5">
-              <Layers className="w-3.5 h-3.5 text-teal-400" />
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1.5">
+              <Layers className="w-3.5 h-3.5 text-teal-700 dark:text-teal-400" />
               <span>2. الصف الدراسي</span>
             </label>
             <div className="relative">
               <select
                 value={selectedClassId}
                 onChange={(e) => setSelectedClassId(e.target.value)}
-                className="w-full h-10 px-3 pr-3 pl-8 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-100 font-bold focus:border-emerald-500 focus:outline-hidden appearance-none cursor-pointer"
+                className="w-full h-10 px-3 pr-3 pl-8 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-bold focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden appearance-none cursor-pointer"
               >
                 {availableClasses.length === 0 ? (
                   <option value="">(لا توجد صفوف مسجلة لهذا العام)</option>
@@ -393,15 +393,15 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
 
           {/* 3. Section */}
           <div>
-            <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center gap-1.5">
-              <ArrowRight className="w-3.5 h-3.5 text-amber-400" />
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1.5">
+              <ArrowRight className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
               <span>3. الشعبة</span>
             </label>
             <div className="relative">
               <select
                 value={selectedSectionId}
                 onChange={(e) => setSelectedSectionId(e.target.value)}
-                className="w-full h-10 px-3 pr-3 pl-8 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-100 font-bold focus:border-emerald-500 focus:outline-hidden appearance-none cursor-pointer"
+                className="w-full h-10 px-3 pr-3 pl-8 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-bold focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden appearance-none cursor-pointer"
               >
                 {displayedSections.length === 0 ? (
                   <option value="">لا توجد شعب لهذا الصف</option>
@@ -419,15 +419,15 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
 
           {/* 5. Subject */}
           <div>
-            <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center gap-1.5">
-              <BookOpen className="w-3.5 h-3.5 text-purple-400" />
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1.5">
+              <BookOpen className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               <span>5. المادة الدراسية</span>
             </label>
             <div className="relative">
               <select
                 value={selectedSubjectId}
                 onChange={(e) => setSelectedSubjectId(e.target.value)}
-                className="w-full h-10 px-3 pr-3 pl-8 text-sm bg-slate-950 border border-slate-700 rounded-lg text-slate-100 font-bold focus:border-emerald-500 focus:outline-hidden appearance-none cursor-pointer"
+                className="w-full h-10 px-3 pr-3 pl-8 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-bold focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden appearance-none cursor-pointer"
               >
                 {availableSubjects.map((sub) => (
                   <option key={sub.id} value={sub.id}>
@@ -448,33 +448,33 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
       />
 
       {/* Status & Completeness Indicator Bar */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Status Indicator Pill */}
         <div className="flex items-center gap-3">
           <div
             className={`w-3.5 h-3.5 rounded-full shrink-0 animate-pulse ${
               completionStats.isComplete
-                ? 'bg-emerald-500 shadow-md shadow-emerald-500/50'
-                : 'bg-red-500 shadow-md shadow-red-500/50'
+                ? 'bg-emerald-500 shadow-md shadow-emerald-500/40'
+                : 'bg-rose-500 shadow-md shadow-rose-500/40'
             }`}
           />
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-white">
+              <span className="text-sm font-bold text-slate-900 dark:text-slate-100">
                 حالة الرصد: {completionStats.isComplete ? 'مكتمل بالكامل' : 'توجد درجات ناقصة'}
               </span>
               <span
                 className={`text-xs px-2 py-0.5 rounded-md font-bold ${
                   completionStats.isComplete
-                    ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
-                    : 'bg-red-950 text-red-300 border border-red-800'
+                    ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30'
+                    : 'bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30'
                 }`}
               >
                 {completionStats.percentage}%
               </span>
             </div>
-            <p className="text-xs text-slate-400 mt-0.5 font-medium">
-              الدرجات المدخلة: <span className="text-emerald-400 font-bold font-mono">{completionStats.entered}</span> من أصل <span className="text-white font-bold font-mono">{completionStats.total}</span> طالباً ({completionStats.missing} غير مدخلة).
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
+              الدرجات المدخلة: <span className="text-emerald-700 dark:text-emerald-400 font-bold font-mono">{completionStats.entered}</span> من أصل <span className="text-slate-900 dark:text-slate-100 font-bold font-mono">{completionStats.total}</span> طالباً ({completionStats.missing} غير مدخلة).
             </p>
           </div>
         </div>
@@ -487,14 +487,14 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="بحث سريع عن طالب بالاسم..."
-              className="w-full h-10 pr-9 pl-4 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-200 placeholder:text-slate-500 focus:border-emerald-500 focus:outline-hidden"
+              className="w-full h-10 pr-9 pl-4 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
             />
             <Search className="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="text-xs text-slate-400 hover:text-white absolute left-3 top-3 cursor-pointer"
+                className="text-xs text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white absolute left-3 top-3 cursor-pointer"
               >
                 إلغاء
               </button>
@@ -505,17 +505,17 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
 
       {/* Red Cell Clarification & Keyboard Shortcuts Tip */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="bg-red-950/20 border border-red-900/40 rounded-xl p-3 flex items-center gap-3 text-xs text-red-300">
-          <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+        <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/25 rounded-xl p-3 flex items-center gap-3 text-xs text-rose-800 dark:text-rose-300">
+          <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
           <span>
             <strong>تنبيه الخانات الحمراء:</strong> الخانة الحمراء تعني أن الدرجة لم تُدخل بعد، ولا تُعتبر صفراً ولا تدخل في حساب السعي أو النهائي حتى يتم رصدها.
           </span>
         </div>
 
-        <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-3 flex items-center gap-3 text-xs text-slate-300">
-          <Info className="w-4 h-4 text-emerald-400 shrink-0" />
+        <div className="bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-xl p-3 flex items-center gap-3 text-xs text-slate-700 dark:text-slate-300">
+          <Info className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
           <span>
-            <strong>طريقة الإدخال السريع:</strong> اضغط <kbd className="px-1.5 py-0.5 bg-slate-800 rounded text-emerald-300 font-mono border border-slate-700">Enter</kbd> للحفظ والانتقال إلى الطالب التالي، أو <kbd className="px-1.5 py-0.5 bg-slate-800 rounded text-emerald-300 font-mono border border-slate-700">Tab</kbd> للانتقال أفقياً إلى حقل الدرجة التالي؛ و<kbd className="px-1.5 py-0.5 bg-slate-800 rounded text-emerald-300 font-mono border border-slate-700">Shift + Tab</kbd> للرجوع للحقل السابق.
+            <strong>طريقة الإدخال السريع:</strong> اضغط <kbd className="px-1.5 py-0.5 bg-white dark:bg-slate-800 rounded text-emerald-700 dark:text-emerald-300 font-mono border border-slate-300 dark:border-slate-700">Enter</kbd> للحفظ والانتقال إلى الطالب التالي، أو <kbd className="px-1.5 py-0.5 bg-white dark:bg-slate-800 rounded text-emerald-700 dark:text-emerald-300 font-mono border border-slate-300 dark:border-slate-700">Tab</kbd> للانتقال أفقياً إلى حقل الدرجة التالي؛ و<kbd className="px-1.5 py-0.5 bg-white dark:bg-slate-800 rounded text-emerald-700 dark:text-emerald-300 font-mono border border-slate-300 dark:border-slate-700">Shift + Tab</kbd> للرجوع للحقل السابق.
           </span>
         </div>
       </div>

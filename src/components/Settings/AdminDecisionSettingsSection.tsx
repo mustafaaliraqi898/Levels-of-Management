@@ -82,33 +82,33 @@ export const AdminDecisionSettingsSection: React.FC<AdminDecisionSettingsSection
   const selectedYear = academicYears.find((y) => y.id === selectedYearId);
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm dark:shadow-lg">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#60CDFF]/15 border border-[#60CDFF]/30 text-[#60CDFF] flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-500/15 border border-teal-200 dark:border-teal-500/30 text-teal-700 dark:text-teal-400 flex items-center justify-center shrink-0">
             <Award className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-white">
+            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
               إعدادات الإدارة — المساعدة الوزارية وضوابط الرسوب والإكمال
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               تحديد حد الرسوب ودرجات المساعدة المعتمدة لكل عام دراسي بشكل مستقل لحماية السجلات التاريخية
             </p>
           </div>
         </div>
 
         {/* Academic Year Selector */}
-        <div className="flex items-center gap-2 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 shrink-0">
-          <Calendar className="w-4 h-4 text-slate-400" />
-          <span className="text-xs font-bold text-slate-300">العام الدراسي:</span>
+        <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 shrink-0">
+          <Calendar className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+          <span className="text-xs font-bold text-slate-700 dark:text-slate-300">العام الدراسي:</span>
           <select
             value={selectedYearId}
             onChange={(e) => handleYearChange(e.target.value)}
-            className="bg-transparent text-xs font-bold text-[#60CDFF] focus:outline-hidden cursor-pointer"
+            className="bg-transparent text-xs font-bold text-teal-700 dark:text-teal-300 focus:outline-hidden cursor-pointer"
           >
             {academicYears.map((year) => (
-              <option key={year.id} value={year.id} className="bg-slate-900 text-slate-100">
+              <option key={year.id} value={year.id} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                 {year.name} {year.isCurrent ? '(الحالي)' : ''}
               </option>
             ))}
@@ -117,15 +117,15 @@ export const AdminDecisionSettingsSection: React.FC<AdminDecisionSettingsSection
       </div>
 
       {saveSuccess && (
-        <div className="mb-5 p-3 rounded-xl bg-emerald-950/70 border border-emerald-500/50 text-emerald-300 text-xs font-bold flex items-center gap-2 animate-in fade-in">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+        <div className="mb-5 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs font-bold flex items-center gap-2 animate-in fade-in">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
           <span>{saveSuccess}</span>
         </div>
       )}
 
       {errorMessage && (
-        <div className="mb-5 p-3 rounded-xl bg-rose-950/70 border border-rose-500/50 text-rose-300 text-xs font-bold flex items-center gap-2 animate-in fade-in">
-          <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+        <div className="mb-5 p-3 rounded-xl bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 text-rose-800 dark:text-rose-300 text-xs font-bold flex items-center gap-2 animate-in fade-in">
+          <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
           <span>{errorMessage}</span>
         </div>
       )}
@@ -133,12 +133,12 @@ export const AdminDecisionSettingsSection: React.FC<AdminDecisionSettingsSection
       <form onSubmit={handleSave} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {/* 1. Max Failed Subjects */}
-          <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+          <div className="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-between">
             <div>
-              <label className="block text-xs font-bold text-slate-200 mb-1">
+              <label className="block text-xs font-bold text-slate-900 dark:text-slate-100 mb-1">
                 عدد دروس الرسوب المسموح بها (حد الرسوب)
               </label>
-              <p className="text-[11px] text-slate-400 mb-3 leading-relaxed">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-3 leading-relaxed">
                 إذا رسب الطالب في عدد مواد يساوي هذه القيمة أو يتجاوزها تكون حالته <strong>راسباً</strong>. وإذا رسب في أقل منها (1 إلى {decisionSettings.maxFailedSubjectsAllowed - 1}) يكون <strong>مكمّلاً</strong>، وإذا 0 يكون <strong>ناجحاً</strong>.
               </p>
             </div>
@@ -156,26 +156,26 @@ export const AdminDecisionSettingsSection: React.FC<AdminDecisionSettingsSection
                       maxFailedSubjectsAllowed: Math.max(1, parseInt(e.target.value) || 1),
                     })
                   }
-                  className="w-full h-11 px-3 text-sm font-bold bg-slate-900 border border-slate-700 rounded-lg text-slate-100 focus:border-[#60CDFF] focus:outline-hidden"
+                  className="w-full h-11 px-3 text-sm font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
                   required
                 />
-                <span className="absolute left-3 top-3 text-xs text-slate-400 pointer-events-none">
+                <span className="absolute left-3 top-3 text-xs text-slate-500 dark:text-slate-400 pointer-events-none">
                   مواد / دروس
                 </span>
               </div>
-              <span className="text-[10px] text-slate-500 block mt-1">
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-1">
                 القيمة الافتراضية المعتمدة: 4 مواد
               </span>
             </div>
           </div>
 
           {/* 2. Primary Ministerial Assistance */}
-          <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+          <div className="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-between">
             <div>
-              <label className="block text-xs font-bold text-slate-200 mb-1">
+              <label className="block text-xs font-bold text-slate-900 dark:text-slate-100 mb-1">
                 درجات المساعدة الوزارية الرئيسية (الدور الأول)
               </label>
-              <p className="text-[11px] text-slate-400 mb-3 leading-relaxed">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-3 leading-relaxed">
                 رصيد درجات المساعدة المتاح للعام الدراسي. تُمنح فقط للمواد الراسبة (&lt; 50) بشرط إيصال الدرجة إلى 50 تماماً، مع أولوية المادة الأقل عجزاً.
               </p>
             </div>
@@ -193,26 +193,26 @@ export const AdminDecisionSettingsSection: React.FC<AdminDecisionSettingsSection
                       primaryAssistanceMarks: Math.max(0, parseInt(e.target.value) || 0),
                     })
                   }
-                  className="w-full h-11 px-3 text-sm font-bold bg-slate-900 border border-slate-700 rounded-lg text-emerald-300 focus:border-emerald-500 focus:outline-hidden"
+                  className="w-full h-11 px-3 text-sm font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-emerald-700 dark:text-emerald-400 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
                   required
                 />
-                <span className="absolute left-3 top-3 text-xs text-slate-400 pointer-events-none">
+                <span className="absolute left-3 top-3 text-xs text-slate-500 dark:text-slate-400 pointer-events-none">
                   درجات
                 </span>
               </div>
-              <span className="text-[10px] text-slate-500 block mt-1">
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-1">
                 القيمة الافتراضية الوزارية: 10 درجات
               </span>
             </div>
           </div>
 
           {/* 3. Additional Ministerial Assistance After 2nd Round */}
-          <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+          <div className="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-between">
             <div>
-              <label className="block text-xs font-bold text-slate-200 mb-1">
+              <label className="block text-xs font-bold text-slate-900 dark:text-slate-100 mb-1">
                 درجات المساعدة الإضافية بعد الدور الثاني
               </label>
-              <p className="text-[11px] text-slate-400 mb-3 leading-relaxed">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-3 leading-relaxed">
                 حقل اختياري يضاف إلى رصيد المتبقي من المساعدة الرئيسية، ويُطبق فقط على طلاب الإكمال الذين خاضوا الدور الثاني ولم ينجحوا في جميع المواد.
               </p>
             </div>
@@ -230,14 +230,14 @@ export const AdminDecisionSettingsSection: React.FC<AdminDecisionSettingsSection
                       secondRoundAdditionalAssistanceMarks: Math.max(0, parseInt(e.target.value) || 0),
                     })
                   }
-                  className="w-full h-11 px-3 text-sm font-bold bg-slate-900 border border-slate-700 rounded-lg text-blue-300 focus:border-blue-500 focus:outline-hidden"
+                  className="w-full h-11 px-3 text-sm font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-teal-700 dark:text-teal-300 focus:border-teal-600 dark:focus:border-teal-400 focus:outline-hidden"
                   required
                 />
-                <span className="absolute left-3 top-3 text-xs text-slate-400 pointer-events-none">
+                <span className="absolute left-3 top-3 text-xs text-slate-500 dark:text-slate-400 pointer-events-none">
                   درجات إضافية
                 </span>
               </div>
-              <span className="text-[10px] text-slate-500 block mt-1">
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 block mt-1">
                 القيمة الافتراضية: 0 (تُعدل عند صدور كتاب وزاري)
               </span>
             </div>
@@ -245,13 +245,13 @@ export const AdminDecisionSettingsSection: React.FC<AdminDecisionSettingsSection
         </div>
 
         {/* Informative Guidance Callout */}
-        <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 flex items-start gap-3">
-          <Info className="w-5 h-5 text-[#60CDFF] shrink-0 mt-0.5" />
+        <div className="p-4 rounded-xl bg-teal-50/70 dark:bg-teal-500/10 border border-teal-200 dark:border-teal-500/30 text-xs text-slate-700 dark:text-slate-300 flex items-start gap-3">
+          <Info className="w-5 h-5 text-teal-700 dark:text-teal-400 shrink-0 mt-0.5" />
           <div className="space-y-1.5 leading-relaxed">
-            <div className="font-bold text-slate-200">
+            <div className="font-bold text-slate-900 dark:text-slate-100">
               قواعد الاحتساب الآلي المعتمدة لعام {selectedYear?.name}:
             </div>
-            <ul className="list-disc list-inside space-y-1 text-slate-400 text-[11px]">
+            <ul className="list-disc list-inside space-y-1 text-slate-600 dark:text-slate-300 text-[11px]">
               <li>
                 <strong>الدور الأول:</strong> تُوزع درجات المساعدة على المواد الراسبة التي تحتاج إلى عجز أقل للوصول إلى 50 درجة. إذا كان الرصيد المتبقي أقل من العجز المطلوب لأي مادة، لا تُمنح المادة أي درجة وتبقى راسبة.
               </li>
@@ -272,7 +272,7 @@ export const AdminDecisionSettingsSection: React.FC<AdminDecisionSettingsSection
         <div className="flex justify-end pt-2">
           <button
             type="submit"
-            className="px-6 py-2.5 rounded-xl bg-[#65C18C] hover:bg-[#65C18C]/90 active:bg-[#65C18C] text-slate-950 font-black text-xs flex items-center gap-2 shadow-md shadow-[#65C18C]/20 cursor-pointer transition-all"
+            className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 font-black text-xs flex items-center gap-2 shadow-sm cursor-pointer transition-all"
           >
             <span>حفظ إعدادات القرار لعام {selectedYear?.name}</span>
           </button>

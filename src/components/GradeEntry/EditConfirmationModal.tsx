@@ -23,50 +23,50 @@ export const EditConfirmationModal: React.FC<EditConfirmationModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-      <div 
-        className="w-full max-w-lg bg-slate-900 border border-[#D99A55]/30 rounded-xl shadow-2xl p-6 text-slate-100 flex flex-col gap-5"
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+      <div
+        className="w-full max-w-lg bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-500/30 rounded-xl shadow-2xl p-6 text-slate-900 dark:text-slate-100 flex flex-col gap-5"
         role="dialog"
         aria-modal="true"
       >
         <div className="flex items-start gap-4">
-          <div className="p-3 bg-[#D99A55]/10 border border-[#D99A55]/20 rounded-xl text-[#D99A55] shrink-0">
+          <div className="p-3 bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 rounded-xl text-amber-700 dark:text-amber-400 shrink-0">
             <AlertTriangle className="w-7 h-7" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-[#D99A55]">
+            <h3 className="text-lg font-bold text-amber-800 dark:text-amber-400">
               تنبيه حماية وتعديل الدرجات السابقة
             </h3>
-            <p className="text-slate-300 mt-2 text-sm leading-relaxed">
-              أنت على وشك تعديل <span className="font-bold text-slate-100">«{fieldArabic}»</span> للطالب <span className="font-bold text-white underline decoration-[#D99A55] decoration-2">«{studentName}»</span>.
+            <p className="text-slate-600 dark:text-slate-300 mt-2 text-sm leading-relaxed">
+              أنت على وشك تعديل <span className="font-bold text-slate-900 dark:text-slate-100">«{fieldArabic}»</span> للطالب <span className="font-bold text-slate-900 dark:text-white underline decoration-amber-500 decoration-2">«{studentName}»</span>.
             </p>
-            <p className="text-[#D99A55] mt-1.5 text-xs font-semibold">
+            <p className="text-amber-700 dark:text-amber-400 mt-1.5 text-xs font-semibold">
               ⚠️ قد يؤثر هذا التعديل على درجة السعي السنوي والدرجة النهائية المحسوبة للطالب. هل تريد المتابعة؟
             </p>
           </div>
         </div>
 
-        <div className="bg-slate-950/80 border border-slate-800 rounded-lg p-3.5 flex items-center justify-between text-sm">
+        <div className="bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 rounded-lg p-3.5 flex items-center justify-between text-sm">
           <div className="flex flex-col">
-            <span className="text-slate-400 text-xs">الدرجة الحالية:</span>
-            <span className="font-mono text-base font-bold text-slate-200">
+            <span className="text-slate-500 dark:text-slate-400 text-xs">الدرجة الحالية:</span>
+            <span className="font-mono text-base font-bold text-slate-900 dark:text-slate-200">
               {currentValue !== null ? currentValue : 'غير مدخلة'}
             </span>
           </div>
-          <div className="text-slate-500 text-lg">←</div>
+          <div className="text-slate-400 dark:text-slate-500 text-lg">←</div>
           <div className="flex flex-col text-left">
-            <span className="text-slate-400 text-xs">الدرجة الجديدة:</span>
-            <span className="font-mono text-base font-bold text-emerald-400">
+            <span className="text-slate-500 dark:text-slate-400 text-xs">الدرجة الجديدة:</span>
+            <span className="font-mono text-base font-bold text-emerald-700 dark:text-emerald-400">
               {newValue !== null ? newValue : 'حذف (فارغة)'}
             </span>
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3 pt-2 border-t border-slate-800">
+        <div className="flex items-center justify-end gap-3 pt-2 border-t border-slate-200 dark:border-slate-800">
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors flex items-center gap-2 cursor-pointer"
+            className="px-4 py-2 text-sm font-medium rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors flex items-center gap-2 cursor-pointer"
           >
             <X className="w-4 h-4" />
             إلغاء
@@ -74,7 +74,7 @@ export const EditConfirmationModal: React.FC<EditConfirmationModalProps> = ({
           <button
             type="button"
             onClick={onConfirm}
-            className="px-5 py-2 text-sm font-bold rounded-lg bg-[#D99A55] hover:bg-[#D99A55]/90 text-slate-950 transition-colors flex items-center gap-2 shadow-md shadow-[#D99A55]/20 cursor-pointer"
+            className="px-5 py-2 text-sm font-bold rounded-lg bg-amber-600 hover:bg-amber-700 text-white dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950 transition-colors flex items-center gap-2 shadow-md cursor-pointer"
           >
             <Check className="w-4 h-4" />
             تأكيد التعديل

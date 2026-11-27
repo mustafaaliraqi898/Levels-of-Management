@@ -548,14 +548,14 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
   return (
     <div className="flex flex-col gap-6 pb-16">
       {/* Configuration & Actions Bar (Hidden during print) */}
-      <div className="no-print bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl flex flex-col gap-4">
+      <div className="no-print bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm flex flex-col gap-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-black text-white flex items-center gap-2">
-              <Printer className="w-6 h-6 text-emerald-400" />
+            <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <Printer className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
               التقارير المدرسية والطباعة الرسمية
             </h1>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
               إعداد وطباعة سجلات الدرجات، الشهادات الفردية، وقوائم الشرف بجودة عالية متوافقة مع A4 أفقية
             </p>
           </div>
@@ -564,17 +564,17 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             <button
               type="button"
               onClick={() => setShowPrintPreview(true)}
-              className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+              className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
               title="فتح نافذة المعاينة التفاعلية والطباعة"
             >
-              <Eye className="w-4 h-4 text-[#60CDFF]" />
+              <Eye className="w-4 h-4 text-teal-700 dark:text-teal-400" />
               <span>معاينة للطباعة</span>
             </button>
 
             <button
               type="button"
               onClick={handlePrint}
-              className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/25 transition-all cursor-pointer"
+              className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
             >
               <Printer className="w-4 h-4" />
               <span>طباعة التقرير الحالي</span>
@@ -583,14 +583,14 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         </div>
 
         {/* Report Selector Tabs */}
-        <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-800">
+        <div className="flex flex-wrap gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
           <button
             type="button"
             onClick={() => setActiveReport('master_sheet')}
             className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors ${
               activeReport === 'master_sheet'
-                ? 'bg-emerald-600 text-white'
-                : 'bg-slate-950 text-slate-300 hover:bg-slate-800'
+                ? 'bg-emerald-600 text-white dark:bg-emerald-400 dark:text-slate-950 shadow-xs'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
             <FileText className="w-4 h-4" />
@@ -602,8 +602,8 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             onClick={() => setActiveReport('student_card')}
             className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors ${
               activeReport === 'student_card'
-                ? 'bg-emerald-600 text-white'
-                : 'bg-slate-950 text-slate-300 hover:bg-slate-800'
+                ? 'bg-emerald-600 text-white dark:bg-emerald-400 dark:text-slate-950 shadow-xs'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
             <UserCheck className="w-4 h-4" />
@@ -615,8 +615,8 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             onClick={() => setActiveReport('honor_roll')}
             className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors ${
               activeReport === 'honor_roll'
-                ? 'bg-emerald-600 text-white'
-                : 'bg-slate-950 text-slate-300 hover:bg-slate-800'
+                ? 'bg-emerald-600 text-white dark:bg-emerald-400 dark:text-slate-950 shadow-xs'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
             <Award className="w-4 h-4" />
@@ -627,12 +627,12 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
         {/* Filters */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-2">
           <div>
-            <label className="block text-[11px] font-bold text-slate-400 mb-1">العام الدراسي</label>
+            <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">العام الدراسي</label>
             <div className="relative">
               <select
                 value={selectedYearId}
                 onChange={(e) => setSelectedYearId(e.target.value)}
-                className="w-full h-9 px-3 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-200 font-bold focus:outline-hidden appearance-none cursor-pointer"
+                className="w-full h-9 px-3 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-bold focus:outline-hidden focus:border-emerald-600 dark:focus:border-emerald-400 appearance-none cursor-pointer"
               >
                 {academicYears.map((y) => (
                   <option key={y.id} value={y.id}>{y.name}</option>
@@ -643,12 +643,12 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           </div>
 
           <div>
-            <label className="block text-[11px] font-bold text-slate-400 mb-1">الصف</label>
+            <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">الصف</label>
             <div className="relative">
               <select
                 value={selectedClassId}
                 onChange={(e) => setSelectedClassId(e.target.value)}
-                className="w-full h-9 px-3 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-200 font-bold focus:outline-hidden appearance-none cursor-pointer"
+                className="w-full h-9 px-3 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-bold focus:outline-hidden focus:border-emerald-600 dark:focus:border-emerald-400 appearance-none cursor-pointer"
               >
                 {availableClasses.length === 0 ? (
                   <option value="">(لا توجد صفوف مسجلة لهذا العام)</option>
@@ -663,13 +663,13 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           </div>
 
           <div>
-            <label className="block text-[11px] font-bold text-slate-400 mb-1">الشعبة</label>
+            <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">الشعبة</label>
             <div className="relative">
               <select
                 value={selectedSectionId}
                 disabled={availableSections.length === 0}
                 onChange={(e) => setSelectedSectionId(e.target.value)}
-                className={`w-full h-9 px-3 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-200 font-bold focus:outline-hidden appearance-none cursor-pointer ${
+                className={`w-full h-9 px-3 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-bold focus:outline-hidden focus:border-emerald-600 dark:focus:border-emerald-400 appearance-none cursor-pointer ${
                   availableSections.length === 0 ? 'opacity-60 cursor-not-allowed' : ''
                 }`}
               >
@@ -689,12 +689,12 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
           {activeReport === 'student_card' && (
             <div>
-              <label className="block text-[11px] font-bold text-slate-400 mb-1">اختر الطالب</label>
+              <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">اختر الطالب</label>
               <div className="relative">
                 <select
                   value={selectedStudentId}
                   onChange={(e) => setSelectedStudentId(e.target.value)}
-                  className="w-full h-9 px-3 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-200 font-bold focus:outline-hidden appearance-none cursor-pointer"
+                  className="w-full h-9 px-3 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-bold focus:outline-hidden focus:border-emerald-600 dark:focus:border-emerald-400 appearance-none cursor-pointer"
                 >
                   {sectionStudents.map((s) => (
                     <option key={s.id} value={s.id}>
@@ -709,17 +709,17 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
           {activeReport === 'master_sheet' && (
             <div>
-              <label className="block text-[11px] font-bold text-emerald-400 mb-1">نوع الدرجة للشيت العام</label>
+              <label className="block text-[11px] font-bold text-emerald-700 dark:text-emerald-400 mb-1">نوع الدرجة للشيت العام</label>
               <div className="relative">
                 <select
                   value={masterGradeType}
                   onChange={(e) => setMasterGradeType(e.target.value as 'termYearlyScore' | 'finalScore')}
-                  className="w-full h-9 px-3 text-xs bg-slate-950 border border-emerald-500/50 rounded-lg text-emerald-300 font-bold focus:outline-hidden appearance-none cursor-pointer"
+                  className="w-full h-9 px-3 text-xs bg-emerald-50/60 dark:bg-slate-800 border border-emerald-300 dark:border-emerald-500/40 rounded-lg text-emerald-800 dark:text-emerald-300 font-bold focus:outline-hidden appearance-none cursor-pointer"
                 >
                   <option value="finalScore">الدرجة النهائية</option>
                   <option value="termYearlyScore">السعي السنوي فقط</option>
                 </select>
-                <ChevronDown className="w-4 h-4 text-emerald-400 absolute left-2.5 top-2.5 pointer-events-none" />
+                <ChevronDown className="w-4 h-4 text-emerald-600 dark:text-emerald-400 absolute left-2.5 top-2.5 pointer-events-none" />
               </div>
             </div>
           )}
@@ -727,7 +727,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
       </div>
 
       {/* Printable Paper Canvas Area (A4 Styled) */}
-      <div className="bg-white text-slate-950 p-8 md:p-12 rounded-xl shadow-2xl max-w-6xl mx-auto w-full printable-card font-sans" dir="rtl">
+      <div className="bg-white text-slate-950 p-8 md:p-12 rounded-xl shadow-lg border border-slate-200 dark:border-slate-800 max-w-6xl mx-auto w-full printable-card font-sans" dir="rtl">
         {renderPrintableReportDocument()}
       </div>
 

@@ -150,14 +150,14 @@ export default function App() {
   // Database Error View
   if (dbError) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 text-center" dir="rtl">
-        <div className="max-w-md w-full bg-slate-900 border border-red-500/20 p-8 rounded-2xl">
-          <div className="w-16 h-16 bg-red-500/10 border border-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6 text-red-500 text-2xl font-bold">!</div>
-          <h1 className="text-xl font-bold text-white mb-4">خطأ في تهيئة قاعدة البيانات</h1>
-          <p className="text-slate-400 mb-8">{dbError}</p>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex items-center justify-center p-6 text-center transition-colors duration-200" dir="rtl">
+        <div className="max-w-md w-full bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-500/30 p-8 rounded-2xl shadow-xl">
+          <div className="w-16 h-16 bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 rounded-full flex items-center justify-center mx-auto mb-6 text-rose-600 dark:text-rose-400 text-2xl font-bold">!</div>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-4">خطأ في تهيئة قاعدة البيانات</h1>
+          <p className="text-slate-500 dark:text-slate-400 mb-8">{dbError}</p>
           <button 
             onClick={() => window.location.reload()}
-            className="w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-xl transition-all"
+            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 font-bold py-3 rounded-xl transition-all cursor-pointer"
           >
             إعادة محاولة التشغيل
           </button>
@@ -169,8 +169,8 @@ export default function App() {
   // Loading state
   if (setupRequired === null) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center transition-colors duration-200">
+        <div className="w-10 h-10 border-4 border-emerald-600 dark:border-emerald-400 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -197,9 +197,7 @@ export default function App() {
 
   return (
     <div
-      className={`min-h-screen ${
-        theme === 'dark' ? 'bg-[#202020] text-[#F3F3F3]' : 'bg-[#F3F5F7] text-[#414957]'
-      } flex flex-row-reverse transition-colors duration-200 print:bg-white print:text-black print:block`}
+      className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-row-reverse transition-colors duration-200 print:bg-white print:text-black print:block"
       dir="rtl"
     >
       {/* Forced Password Change Modal for initial admin login */}

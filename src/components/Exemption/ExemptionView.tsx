@@ -464,20 +464,20 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
   return (
     <div className="space-y-6 pb-12" dir="rtl">
       {/* 1. Header Bar */}
-      <div className="no-print bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="no-print bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-[#60CDFF]/15 border border-[#60CDFF]/30 flex items-center justify-center text-[#60CDFF] shadow-sm">
-              <Award className="w-6 h-6 text-[#60CDFF] font-bold" />
+            <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 flex items-center justify-center text-emerald-700 dark:text-emerald-400 shadow-xs">
+              <Award className="w-6 h-6 font-bold" />
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-black text-slate-100 flex items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 flex items-center gap-2 flex-wrap">
                 الإعفاء العام والفردي
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#60CDFF]/15 text-[#60CDFF] border border-[#60CDFF]/30 font-bold">
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-teal-50 dark:bg-teal-500/15 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-500/30 font-bold">
                   ضوابط واستحقاق الطلبة
                 </span>
               </h1>
-              <p className="text-xs sm:text-sm text-slate-400 mt-1">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
                 تحديد الطلبة المشمولين بالإعفاء العام والإعفاء الفردي في المواد الدراسية استناداً إلى درجات السعي السنوي
               </p>
             </div>
@@ -488,7 +488,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
           <button
             type="button"
             onClick={handlePrint}
-            className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md shadow-emerald-600/20"
+            className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
             title="معاينة وطباعة كشف نتائج الإعفاء الحالي"
           >
             <Printer className="w-4 h-4" />
@@ -497,10 +497,10 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
 
           <button
             onClick={handleCompleteSeedData}
-            className="flex-1 md:flex-initial px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 hover:border-slate-600 font-semibold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
+            className="flex-1 md:flex-initial px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-semibold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
             title="التحقق من اكتمال درجات جميع الطلاب والمواد وتحديثها بأمان"
           >
-            <Database className="w-4 h-4 text-teal-400" />
+            <Database className="w-4 h-4 text-teal-700 dark:text-teal-400" />
             استكمال بيانات الاختبار
           </button>
         </div>
@@ -508,15 +508,15 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
 
       {/* 2. Notification Banner if Exemption Settings not yet saved/configured for this year */}
       {!savedSettings.isConfigured && (
-        <div className="bg-amber-500/10 border-2 border-amber-500/30 rounded-2xl p-4 sm:p-5 flex items-start gap-3.5 shadow-md">
-          <AlertCircle className="w-6 h-6 text-amber-400 shrink-0 mt-0.5" />
+        <div className="bg-amber-50 dark:bg-amber-500/15 border-2 border-amber-300 dark:border-amber-500/30 rounded-2xl p-4 sm:p-5 flex items-start gap-3.5 shadow-sm">
+          <AlertCircle className="w-6 h-6 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
           <div className="flex-1 text-xs sm:text-sm">
-            <h4 className="font-bold text-amber-300 text-sm sm:text-base">
+            <h4 className="font-bold text-amber-900 dark:text-amber-300 text-sm sm:text-base">
               تنبيه: شروط الإعفاء للعام الدراسي ({activeYearObj?.name || 'المحدد'}) لم تُعتمد وتُحفظ بعد
             </h4>
-            <p className="text-amber-200/80 mt-1 leading-relaxed">
+            <p className="text-amber-800 dark:text-amber-200/80 mt-1 leading-relaxed">
               يُرجى مراجعة إعدادات شروط الإعفاء المقترحة أدناه والضغط على زر{' '}
-              <strong className="text-amber-300 underline font-bold">«حفظ الشروط»</strong> لاعتماد النتائج الرسمية
+              <strong className="text-amber-950 dark:text-amber-300 underline font-bold">«حفظ الشروط»</strong> لاعتماد النتائج الرسمية
               والتأكد من تطبيقها على طلاب هذا العام الدراسي.
             </p>
           </div>
@@ -524,21 +524,21 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
       )}
 
       {/* 3. Settings Section: "إعدادات شروط الإعفاء" */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
-        <div className="p-4 sm:p-5 bg-slate-850/80 border-b border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+        <div className="p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <Sliders className="w-5 h-5 text-[#60CDFF]" />
-            <h2 className="font-bold text-base sm:text-lg text-slate-100">
+            <Sliders className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            <h2 className="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-100">
               إعدادات شروط الإعفاء للعام الدراسي:
-              <span className="text-[#60CDFF] font-extrabold mr-2">
+              <span className="text-emerald-700 dark:text-emerald-400 font-extrabold mr-2">
                 {activeYearObj?.name || selectedYearId}
               </span>
             </h2>
           </div>
 
-          <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-end flex-wrap">
             {isDirty && (
-              <span className="text-xs px-2.5 py-1 rounded-full bg-[#D99A55]/15 text-[#D99A55] border border-[#D99A55]/30 font-medium flex items-center gap-1.5 animate-pulse">
+              <span className="text-xs px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30 font-medium flex items-center gap-1.5 animate-pulse">
                 <AlertCircle className="w-3.5 h-3.5" />
                 توجد تعديلات بانتظار الحفظ
               </span>
@@ -546,7 +546,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
 
             <button
               onClick={handleResetToDefaults}
-              className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium border border-slate-200 dark:border-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer"
               title="استعادة القيم الافتراضية المقترحة"
             >
               <RotateCcw className="w-3.5 h-3.5" />
@@ -555,7 +555,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
 
             <button
               onClick={handleSaveSettings}
-              className="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer shadow-md bg-[#65C18C] hover:bg-[#65C18C]/90 text-slate-950 shadow-[#65C18C]/20"
+              className="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer shadow-sm bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950"
             >
               <Save className="w-4 h-4" />
               حفظ الشروط
@@ -565,7 +565,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
 
         {/* Success Toast */}
         {saveFeedback && (
-          <div className="bg-emerald-500/15 border-b border-emerald-500/30 px-5 py-2.5 flex items-center gap-2 text-emerald-300 text-xs sm:text-sm font-semibold animate-fadeIn">
+          <div className="bg-emerald-50 dark:bg-emerald-500/15 border-b border-emerald-200 dark:border-emerald-500/30 px-5 py-2.5 flex items-center gap-2 text-emerald-800 dark:text-emerald-300 text-xs sm:text-sm font-semibold animate-fadeIn">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             {saveFeedback}
           </div>
@@ -574,15 +574,15 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
         <div className="p-5 sm:p-6 space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* أ. شروط الإعفاء العام */}
-            <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-5 space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-                  <h3 className="font-bold text-sm sm:text-base text-slate-200">
+                  <div className="w-2.5 h-2.5 rounded-full bg-amber-500 dark:bg-amber-400" />
+                  <h3 className="font-bold text-sm sm:text-base text-slate-900 dark:text-slate-200">
                     أ. شروط الإعفاء العام
                   </h3>
                 </div>
-                <span className="text-xs text-slate-400 bg-slate-800 px-2 py-0.5 rounded">
+                <span className="text-xs text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded">
                   معدل جميع المواد
                 </span>
               </div>
@@ -590,9 +590,9 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* 1. المعدل العام المطلوب */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-slate-300 flex items-center justify-between">
+                  <label className="text-xs font-medium text-slate-700 dark:text-slate-300 flex items-center justify-between">
                     <span>المعدل العام المطلوب للإعفاء العام</span>
-                    <span className="text-[11px] text-amber-400 font-bold">(افتراضي: 85)</span>
+                    <span className="text-[11px] text-amber-700 dark:text-amber-400 font-bold">(افتراضي: 85)</span>
                   </label>
                   <div className="relative">
                     <input
@@ -607,20 +607,20 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                           generalMinAverage: Number(e.target.value) || 0,
                         })
                       }
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 font-bold text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-center"
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:border-emerald-600 dark:focus:border-emerald-400 text-center"
                     />
-                    <span className="absolute left-3 top-2.5 text-xs text-slate-400">%</span>
+                    <span className="absolute left-3 top-2.5 text-xs text-slate-500 dark:text-slate-400">%</span>
                   </div>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
                     الحد الأدنى لمعدل السعي السنوي لجميع المواد.
                   </p>
                 </div>
 
                 {/* 2. أقل درجة مسموحة في أي مادة */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-slate-300 flex items-center justify-between">
+                  <label className="text-xs font-medium text-slate-700 dark:text-slate-300 flex items-center justify-between">
                     <span>أقل درجة مسموحة في أي مادة</span>
-                    <span className="text-[11px] text-amber-400 font-bold">(افتراضي: 75)</span>
+                    <span className="text-[11px] text-amber-700 dark:text-amber-400 font-bold">(افتراضي: 75)</span>
                   </label>
                   <div className="relative">
                     <input
@@ -635,35 +635,35 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                           generalMinSubjectScore: Number(e.target.value) || 0,
                         })
                       }
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 font-bold text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-center"
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:border-emerald-600 dark:focus:border-emerald-400 text-center"
                     />
-                    <span className="absolute left-3 top-2.5 text-xs text-slate-400">درجة</span>
+                    <span className="absolute left-3 top-2.5 text-xs text-slate-500 dark:text-slate-400">درجة</span>
                   </div>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
                     لا يجوز أن تقل درجة السعي السنوي لأي مادة عن هذا الحد.
                   </p>
                 </div>
               </div>
 
               {/* 3. مربع اختيار: تفعيل جبر كسر المعدل العام */}
-              <div className="pt-2 border-t border-slate-800/80 space-y-3">
+              <div className="pt-2 border-t border-slate-200 dark:border-slate-700/80 space-y-3">
                 <label className="flex items-start gap-3 cursor-pointer group select-none">
                   <div className="pt-0.5">
                     <input
                       type="checkbox"
                       checked={draftSettings.isGeneralExemptionEnabled}
                       onChange={(e) => handleToggleGeneralExemption(e.target.checked)}
-                      className="w-5 h-5 rounded-md text-amber-500 bg-slate-900 border-slate-700 focus:ring-amber-500 focus:ring-offset-slate-950 cursor-pointer accent-amber-500"
+                      className="w-5 h-5 rounded-md text-emerald-600 bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 focus:ring-emerald-500 cursor-pointer accent-emerald-600 dark:accent-emerald-400"
                     />
                   </div>
                   <div className="flex-1">
-                     <span className="text-xs sm:text-sm font-bold text-slate-200 group-hover:text-amber-400 transition-colors">
+                     <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-200 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
                         تفعيل نظام الإعفاء العام لهذا العام
                      </span>
-                     <p className="text-[11px] text-slate-400 mt-0.5">عند تعطيله، لن يُعتبر أي طالب معفى عاماً، حتى لو استوفى الشروط.</p>
+                     <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">عند تعطيله، لن يُعتبر أي طالب معفى عاماً، حتى لو استوفى الشروط.</p>
                   </div>
                 </label>
-                
+
                 <label className="flex items-start gap-3 cursor-pointer group select-none">
                   <div className="pt-0.5">
                     <input
@@ -675,30 +675,30 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                           enableGeneralJabr: e.target.checked,
                         })
                       }
-                      className="w-5 h-5 rounded-md text-amber-500 bg-slate-900 border-slate-700 focus:ring-amber-500 focus:ring-offset-slate-950 cursor-pointer accent-amber-500"
+                      className="w-5 h-5 rounded-md text-emerald-600 bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 focus:ring-emerald-500 cursor-pointer accent-emerald-600 dark:accent-emerald-400"
                     />
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs sm:text-sm font-bold text-slate-200 group-hover:text-amber-400 transition-colors">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-200 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
                         تفعيل جبر كسر المعدل العام
                       </span>
                       <span
-                        className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                        className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${
                           draftSettings.enableGeneralJabr
-                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                            : 'bg-slate-800 text-slate-400'
+                            ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/30'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700'
                         }`}
                       >
                         {draftSettings.enableGeneralJabr ? 'مفعّل' : 'معطّل (استخدام المعدل الدقيق)'}
                       </span>
                     </div>
 
-                    <div className="mt-2 text-[11px] text-slate-400 leading-relaxed bg-slate-900/80 border border-slate-800 rounded-lg p-2.5">
-                      <div className="font-semibold text-slate-300 flex items-center gap-1.5 mb-1">
-                        <Info className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                    <div className="mt-2 text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-2.5">
+                      <div className="font-semibold text-slate-800 dark:text-slate-300 flex items-center gap-1.5 mb-1">
+                        <Info className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
                         نظام الجبر المعتمد في إعدادات مدرستك حالياً:
-                        <span className="text-amber-300 font-bold">
+                        <span className="text-amber-700 dark:text-amber-300 font-bold">
                           {ROUNDING_RULE_LABELS[settings.roundingRule]?.title || 'التقريب الرياضي'}
                         </span>
                       </div>
@@ -724,24 +724,24 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
             </div>
 
             {/* ب. شروط الإعفاء الفردي وملاحظات النظام */}
-            <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-5 space-y-4 flex flex-col justify-between">
+            <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-4 flex flex-col justify-between">
               <div>
-                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-teal-400" />
-                    <h3 className="font-bold text-sm sm:text-base text-slate-200">
+                    <div className="w-2.5 h-2.5 rounded-full bg-teal-600 dark:bg-teal-400" />
+                    <h3 className="font-bold text-sm sm:text-base text-slate-900 dark:text-slate-200">
                       ب. شروط الإعفاء الفردي
                     </h3>
                   </div>
-                  <span className="text-xs text-slate-400 bg-slate-800 px-2 py-0.5 rounded">
+                  <span className="text-xs text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded">
                     لكل مادة مستقلة
                   </span>
                 </div>
 
                 <div className="mt-4 space-y-1.5">
-                  <label className="text-xs font-medium text-slate-300 flex items-center justify-between">
+                  <label className="text-xs font-medium text-slate-700 dark:text-slate-300 flex items-center justify-between">
                     <span>درجة السعي السنوي المطلوبة للإعفاء الفردي</span>
-                    <span className="text-[11px] text-teal-400 font-bold">(افتراضي: 90)</span>
+                    <span className="text-[11px] text-teal-700 dark:text-teal-400 font-bold">(افتراضي: 90)</span>
                   </label>
                   <div className="relative">
                     <input
@@ -756,36 +756,36 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                           individualMinScore: Number(e.target.value) || 0,
                         })
                       }
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 font-bold text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 text-center"
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-900 dark:text-slate-100 font-bold text-sm focus:outline-none focus:border-teal-600 dark:focus:border-teal-400 text-center"
                     />
-                    <span className="absolute left-3 top-2.5 text-xs text-slate-400">درجة</span>
+                    <span className="absolute left-3 top-2.5 text-xs text-slate-500 dark:text-slate-400">درجة</span>
                   </div>
-                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
                     تُقيّم كل مادة دراسية بصورة مستقلة، ويُعد الطالب مستحقاً للإعفاء الفردي في المادة إذا بلغت درجة سعيها السنوي هذا الحد أو تجاوزته.
                   </p>
-                  
-                  <label className="flex items-start gap-3 cursor-pointer group select-none pt-4 border-t border-slate-800">
+
+                  <label className="flex items-start gap-3 cursor-pointer group select-none pt-4 border-t border-slate-200 dark:border-slate-700">
                     <div className="pt-0.5">
                       <input
                         type="checkbox"
                         checked={draftSettings.isIndividualExemptionEnabled}
                         onChange={(e) => handleToggleIndividualExemption(e.target.checked)}
-                        className="w-5 h-5 rounded-md text-teal-500 bg-slate-900 border-slate-700 focus:ring-teal-500 focus:ring-offset-slate-950 cursor-pointer accent-teal-500"
+                        className="w-5 h-5 rounded-md text-teal-600 bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 focus:ring-teal-500 cursor-pointer accent-teal-600 dark:accent-teal-400"
                       />
                     </div>
                     <div className="flex-1">
-                       <span className="text-xs sm:text-sm font-bold text-slate-200 group-hover:text-teal-400 transition-colors">
+                       <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-200 group-hover:text-teal-700 dark:group-hover:text-teal-400 transition-colors">
                           تفعيل نظام الإعفاء الفردي لهذا العام
                        </span>
-                       <p className="text-[11px] text-slate-400 mt-0.5">عند تعطيله، لن يُعتبر أي طالب معفى فردياً، حتى لو استوفى الشروط.</p>
+                       <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">عند تعطيله، لن يُعتبر أي طالب معفى فردياً، حتى لو استوفى الشروط.</p>
                     </div>
                   </label>
                 </div>
               </div>
 
               {/* ملاحظة رسمية واضحة كما طلب المستخدم */}
-              <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3.5 text-[11px] text-amber-200/90 leading-relaxed">
-                <div className="font-bold text-amber-300 flex items-center gap-1.5 mb-1">
+              <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl p-3.5 text-[11px] text-amber-900 dark:text-amber-200/90 leading-relaxed">
+                <div className="font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5 mb-1">
                   <Sparkles className="w-3.5 h-3.5" />
                   ملاحظة تنظيمية هامة:
                 </div>
@@ -797,18 +797,18 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
       </div>
 
       {/* 4. Filter Toolbar: Year, Class, Section, and Quick Search */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           {/* Year Filter */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-amber-400" />
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <Calendar className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               العام الدراسي
             </label>
             <select
               value={selectedYearId}
               onChange={(e) => setSelectedYearId(e.target.value)}
-              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-100 font-medium focus:outline-none focus:border-amber-500 cursor-pointer"
+              className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-900 dark:text-slate-100 font-medium focus:outline-none focus:border-emerald-600 dark:focus:border-emerald-400 cursor-pointer"
             >
               {academicYears.map((y) => (
                 <option key={y.id} value={y.id}>
@@ -820,14 +820,14 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
 
           {/* Class Filter */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-              <Layers className="w-3.5 h-3.5 text-amber-400" />
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <Layers className="w-3.5 h-3.5 text-teal-700 dark:text-teal-400" />
               الصف الدراسي
             </label>
             <select
               value={selectedClassId}
               onChange={(e) => setSelectedClassId(e.target.value)}
-              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-100 font-medium focus:outline-none focus:border-amber-500 cursor-pointer"
+              className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-900 dark:text-slate-100 font-medium focus:outline-none focus:border-emerald-600 dark:focus:border-emerald-400 cursor-pointer"
             >
               {availableClasses.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -839,15 +839,15 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
 
           {/* Section Filter */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-              <Users className="w-3.5 h-3.5 text-amber-400" />
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <Users className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
               الشعبة
             </label>
             <select
               value={selectedSectionId}
               disabled={availableSections.length === 0}
               onChange={(e) => setSelectedSectionId(e.target.value)}
-              className={`w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-100 font-medium focus:outline-none focus:border-amber-500 cursor-pointer ${
+              className={`w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-900 dark:text-slate-100 font-medium focus:outline-none focus:border-emerald-600 dark:focus:border-emerald-400 cursor-pointer ${
                 availableSections.length === 0 ? 'opacity-60 cursor-not-allowed' : ''
               }`}
             >
@@ -865,8 +865,8 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
 
           {/* Search Query */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-              <Search className="w-3.5 h-3.5 text-amber-400" />
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <Search className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               بحث سريع عن طالب
             </label>
             <div className="relative">
@@ -875,12 +875,12 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                 placeholder="ابحث بالاسم أو رقم القيد..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-8 pr-3 py-2 text-xs sm:text-sm text-slate-100 focus:outline-none focus:border-amber-500"
+                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl pl-8 pr-3 py-2 text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-emerald-600 dark:focus:border-emerald-400"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute left-2.5 top-2.5 text-slate-400 hover:text-slate-200 cursor-pointer text-xs"
+                  className="absolute left-2.5 top-2.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer text-xs"
                 >
                   ✕
                 </button>
@@ -890,66 +890,68 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
         </div>
 
         {/* 5. Quick Stats Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-slate-800/80">
-          <div className="bg-slate-950/40 border border-slate-800 rounded-xl p-3 flex items-center justify-between">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+          <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 rounded-xl p-3 flex items-center justify-between">
             <div>
-              <p className="text-[11px] text-slate-400">إجمالي طلاب الشعبة</p>
-              <p className="text-lg font-black text-slate-100">{stats.totalStudents}</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">إجمالي طلاب الشعبة</p>
+              <p className="text-lg font-black text-slate-900 dark:text-slate-100">{stats.totalStudents}</p>
             </div>
-            <Users className="w-6 h-6 text-slate-500" />
+            <Users className="w-6 h-6 text-slate-400 dark:text-slate-500" />
           </div>
 
-          <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 flex items-center justify-between">
+          <div className="bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 rounded-xl p-3 flex items-center justify-between">
             <div>
-              <p className="text-[11px] text-amber-300 font-semibold">المعفون عاماً</p>
+              <p className="text-[11px] text-amber-800 dark:text-amber-300 font-semibold">المعفون عاماً</p>
               <div className="flex items-baseline gap-1.5">
-                <p className="text-lg font-black text-amber-400">{stats.generalExempt}</p>
-                <span className="text-[10px] text-amber-400/80">
+                <p className="text-lg font-black text-amber-700 dark:text-amber-400">{stats.generalExempt}</p>
+                <span className="text-[10px] text-amber-700/80 dark:text-amber-400/80">
                   ({stats.totalStudents > 0 ? Math.round((stats.generalExempt / stats.totalStudents) * 100) : 0}%)
                 </span>
               </div>
             </div>
-            <Award className="w-6 h-6 text-amber-400" />
+            <Award className="w-6 h-6 text-amber-600 dark:text-amber-400" />
           </div>
 
-          <div className="bg-teal-500/10 border border-teal-500/20 rounded-xl p-3 flex items-center justify-between">
+          <div className="bg-teal-50 dark:bg-teal-500/15 border border-teal-200 dark:border-teal-500/30 rounded-xl p-3 flex items-center justify-between">
             <div>
-              <p className="text-[11px] text-teal-300 font-semibold">مستحقون لإعفاء فردي</p>
+              <p className="text-[11px] text-teal-800 dark:text-teal-300 font-semibold">مستحقون لإعفاء فردي</p>
               <div className="flex items-baseline gap-1.5">
-                <p className="text-lg font-black text-teal-400">{stats.individualExemptCount}</p>
-                <span className="text-[10px] text-teal-400/80">
+                <p className="text-lg font-black text-teal-700 dark:text-teal-400">{stats.individualExemptCount}</p>
+                <span className="text-[10px] text-teal-700/80 dark:text-teal-400/80">
                   {savedSettings.isIndividualExemptionEnabled ? 'طالب مستحق' : '(معطّل)'}
                 </span>
               </div>
             </div>
-            <CheckCircle2 className="w-6 h-6 text-teal-400" />
+            <CheckCircle2 className="w-6 h-6 text-teal-600 dark:text-teal-400" />
           </div>
 
-          <div className="bg-slate-950/40 border border-slate-800 rounded-xl p-3 flex items-center justify-between">
+          <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 rounded-xl p-3 flex items-center justify-between">
             <div>
-              <p className="text-[11px] text-slate-400">حالات غير مكتملة</p>
-              <p className="text-lg font-black text-slate-300">{stats.generalIncomplete}</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">حالات غير مكتملة</p>
+              <p className="text-lg font-black text-slate-700 dark:text-slate-300">{stats.generalIncomplete}</p>
             </div>
-            <Clock className="w-6 h-6 text-slate-500" />
+            <Clock className="w-6 h-6 text-slate-400 dark:text-slate-500" />
           </div>
         </div>
       </div>
 
       {/* 6. Tabs to Switch Between General Exemption & Individual Exemption */}
-      <div className="flex items-center gap-2 border-b border-slate-800 pb-1">
+      <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
         <button
           onClick={() => setActiveTab('general')}
           className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
             activeTab === 'general'
-              ? 'bg-[#60CDFF] text-slate-950 shadow-md shadow-[#60CDFF]/20 font-black'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-850'
+              ? 'bg-emerald-600 text-white dark:bg-emerald-400 dark:text-slate-950 shadow-sm font-black'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
           }`}
         >
           <Award className="w-4 h-4" />
           نتائج الإعفاء العام
           <span
             className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-              activeTab === 'general' ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-800 text-slate-400'
+              activeTab === 'general'
+                ? 'bg-white/20 text-white dark:bg-slate-950/20 dark:text-slate-950'
+                : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
             }`}
           >
             {showNearEligible && stats.nearEligibleCount > 0
@@ -962,15 +964,17 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
           onClick={() => setActiveTab('individual')}
           className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
             activeTab === 'individual'
-              ? 'bg-teal-500 text-slate-950 shadow-md shadow-teal-500/20 font-black'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-850'
+              ? 'bg-teal-700 text-white dark:bg-teal-400 dark:text-slate-950 shadow-sm font-black'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
           }`}
         >
           <CheckCircle2 className="w-4 h-4" />
           نتائج الإعفاء الفردي في المواد
           <span
             className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-              activeTab === 'individual' ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-800 text-slate-400'
+              activeTab === 'individual'
+                ? 'bg-white/20 text-white dark:bg-slate-950/20 dark:text-slate-950'
+                : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
             }`}
           >
             {stats.individualExemptCount}
@@ -980,17 +984,17 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
 
       {/* 7. SECTION A: RESULTS OF GENERAL EXEMPTION (نتائج الإعفاء العام) */}
       {activeTab === 'general' && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
-          <div className="p-4 sm:p-5 bg-slate-850/80 border-b border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+          <div className="p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
-              <h3 className="font-bold text-slate-100 text-base sm:text-lg flex items-center gap-2">
-                <Award className="w-5 h-5 text-[#60CDFF]" />
+              <h3 className="font-bold text-slate-900 dark:text-slate-100 text-base sm:text-lg flex items-center gap-2">
+                <Award className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                 قائمة المستحقين للإعفاء العام
-                <span className="text-xs text-slate-400 font-normal">
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-normal">
                   ({activeClassObj?.name} - شعبة {activeSectionObj?.name})
                 </span>
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 المعدل المطلوب: {savedSettings.generalMinAverage}% | أقل درجة مسموحة: {savedSettings.generalMinSubjectScore} | جبر المعدل:{' '}
                 {savedSettings.enableGeneralJabr
                   ? `مفعّل (${ROUNDING_RULE_LABELS[settings.roundingRule]?.title || 'تقريب'})`
@@ -1004,13 +1008,13 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
               <button
                 type="button"
                 onClick={handleOpenExportCertificates}
-                className="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer bg-[#60CDFF] hover:bg-[#60CDFF]/90 text-slate-950 shadow-md shadow-[#60CDFF]/20 active:scale-95"
+                className="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 shadow-sm active:scale-95"
                 title="تصدير شهادات شكر وتقدير للإعفاء العام بصيغة PDF للطلبة المحددين"
               >
                 <FileText className="w-4 h-4 stroke-[2.5]" />
                 <span>تصدير الشهادات PDF</span>
                 {strictlyGeneralExemptStudents.length > 0 && (
-                  <span className="px-2 py-0.5 rounded-full text-[11px] font-black bg-slate-950/25 text-slate-950">
+                  <span className="px-2 py-0.5 rounded-full text-[11px] font-black bg-white/25 text-white dark:bg-slate-950/20 dark:text-slate-950">
                     {selectedForCertificateIds.length} / {strictlyGeneralExemptStudents.length}
                   </span>
                 )}
@@ -1022,23 +1026,23 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                 onClick={() => setShowNearEligible(!showNearEligible)}
                 className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer border shadow-xs ${
                   showNearEligible
-                    ? 'bg-[#60CDFF]/15 text-[#60CDFF] border-[#60CDFF]/30 shadow-[#60CDFF]/10'
-                    : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-750 hover:text-white'
+                    ? 'bg-teal-50 dark:bg-teal-500/15 text-teal-800 dark:text-teal-300 border-teal-300 dark:border-teal-500/30'
+                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
                 }`}
                 title="إظهار الطلبة الذين يحققون شرط المعدل ولديهم مادة أو مادتان دون الحد الأدنى"
               >
                 <div
                   className={`w-4 h-4 rounded flex items-center justify-center border transition-colors ${
                     showNearEligible
-                      ? 'bg-[#60CDFF] border-[#60CDFF] text-slate-950 font-bold'
-                      : 'border-slate-500 bg-slate-900'
+                      ? 'bg-teal-700 dark:bg-teal-400 border-teal-700 dark:border-teal-400 text-white dark:text-slate-950 font-bold'
+                      : 'border-slate-300 dark:border-slate-500 bg-white dark:bg-slate-900'
                   }`}
                 >
                   {showNearEligible && <Check className="w-3 h-3 stroke-[3]" />}
                 </div>
                 <span>إظهار الطلبة الذين لديهم مادة أو مادتان دون الحد الأدنى</span>
                 {stats.nearEligibleCount > 0 && (
-                  <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/30 text-amber-200">
+                  <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 dark:bg-amber-500/25 text-amber-800 dark:text-amber-200">
                     {stats.nearEligibleCount}
                   </span>
                 )}
@@ -1048,15 +1052,15 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
 
           {/* Active Near-Eligible Filter Notification */}
           {showNearEligible && (
-            <div className="bg-amber-500/10 border-b border-amber-500/20 px-5 py-2.5 text-xs text-amber-200/90 flex items-center justify-between">
+            <div className="bg-amber-50 dark:bg-amber-500/10 border-b border-amber-200 dark:border-amber-500/20 px-5 py-2.5 text-xs text-amber-900 dark:text-amber-200/90 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <Info className="w-4 h-4 text-amber-400 shrink-0" />
+                <Info className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
                 <span>
                   يتم حالياً عرض الطلبة المستحقين فعلياً للإعفاء العام بالإضافة إلى الطلبة{' '}
-                  <strong className="text-amber-300 font-bold">«القريبين من الاستحقاق»</strong> (الذين استوفوا شرط المعدل ولديهم مادة واحدة أو مادتان فقط دون {savedSettings.generalMinSubjectScore}).
+                  <strong className="text-amber-950 dark:text-amber-300 font-bold">«القريبين من الاستحقاق»</strong> (الذين استوفوا شرط المعدل ولديهم مادة واحدة أو مادتان فقط دون {savedSettings.generalMinSubjectScore}).
                 </span>
               </div>
-              <span className="text-[11px] text-amber-400 font-bold whitespace-nowrap">
+              <span className="text-[11px] text-amber-700 dark:text-amber-400 font-bold whitespace-nowrap">
                 {stats.nearEligibleCount} طالب قريب
               </span>
             </div>
@@ -1064,15 +1068,15 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
 
           {/* Notification when trying to export with 0 students selected */}
           {noStudentSelectedNotice && (
-            <div className="bg-rose-500/15 border-b border-rose-500/30 px-5 py-3 text-xs sm:text-sm text-rose-200 flex items-center justify-between">
+            <div className="bg-rose-50 dark:bg-rose-500/15 border-b border-rose-200 dark:border-rose-500/30 px-5 py-3 text-xs sm:text-sm text-rose-800 dark:text-rose-200 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
                 <span className="font-semibold">{noStudentSelectedNotice}</span>
               </div>
               <button
                 type="button"
                 onClick={() => setNoStudentSelectedNotice(null)}
-                className="text-rose-400 hover:text-rose-200 p-1"
+                className="text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-200 p-1"
                 aria-label="إغلاق"
               >
                 <XCircle className="w-4 h-4" />
@@ -1083,7 +1087,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
           <div className="overflow-x-auto">
             <table className="w-full text-right text-xs sm:text-sm border-collapse min-w-[760px]">
               <thead>
-                <tr className="bg-slate-950/80 border-b border-slate-800 text-slate-400 font-semibold">
+                <tr className="bg-slate-100 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-semibold">
                   <th className="py-3 px-3 text-center w-12">
                     {strictlyGeneralExemptStudents.length > 0 && (
                       <div className="flex items-center justify-center">
@@ -1095,7 +1099,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                           }
                           onChange={toggleSelectAllForCertificates}
                           title="تحديد أو إلغاء تحديد جميع الطلبة المعفين عاماً لتصدير شهاداتهم"
-                          className="w-4 h-4 rounded text-amber-500 focus:ring-amber-500/30 bg-slate-800 border-slate-600 cursor-pointer accent-amber-500"
+                          className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500/30 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 cursor-pointer accent-emerald-600 dark:accent-emerald-400"
                         />
                       </div>
                     )}
@@ -1108,10 +1112,10 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                   <th className="py-3 px-4">الملاحظات وتفاصيل الاستحقاق</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60">
                 {filteredGeneralResults.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-12 text-center text-slate-500">
+                    <td colSpan={7} className="py-12 text-center text-slate-500 dark:text-slate-400">
                       {searchQuery
                         ? 'لا توجد نتائج مطابقة لبحثك'
                         : 'لا يوجد طلبة مستحقون للإعفاء العام في هذا الصف والشعبة حالياً'}
@@ -1129,11 +1133,11 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                         className={`transition-colors ${
                           isExempt
                             ? isSelected
-                              ? 'bg-amber-500/10 hover:bg-amber-500/15'
-                              : 'bg-amber-500/5 hover:bg-amber-500/10'
+                              ? 'bg-emerald-50/70 dark:bg-emerald-500/10 hover:bg-emerald-100/60 dark:hover:bg-emerald-500/15'
+                              : 'bg-emerald-50/30 dark:bg-emerald-500/5 hover:bg-emerald-50/70 dark:hover:bg-emerald-500/10'
                             : isNear
-                            ? 'bg-amber-500/10 hover:bg-amber-500/15 border-r-2 border-r-amber-400'
-                            : 'hover:bg-slate-800/40'
+                            ? 'bg-amber-50/70 dark:bg-amber-500/10 hover:bg-amber-100/60 dark:hover:bg-amber-500/15 border-r-2 border-r-amber-500 dark:border-r-amber-400'
+                            : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'
                         }`}
                       >
                         {/* 0. تحديد لإصدار الشهادة */}
@@ -1145,31 +1149,31 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                                 checked={isSelected}
                                 onChange={() => toggleStudentForCertificate(row.student.id)}
                                 title={`تحديد ${row.student.name} لإصدار شهادة الإعفاء`}
-                                className="w-4 h-4 rounded text-amber-500 focus:ring-amber-500/30 bg-slate-800 border-slate-600 cursor-pointer accent-amber-500"
+                                className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500/30 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 cursor-pointer accent-emerald-600 dark:accent-emerald-400"
                               />
                             </div>
                           ) : (
-                            <span className="text-slate-600 text-xs">—</span>
+                            <span className="text-slate-400 dark:text-slate-600 text-xs">—</span>
                           )}
                         </td>
 
                         {/* 1. التسلسل */}
-                        <td className="py-3 px-3 text-center font-mono text-slate-400">
+                        <td className="py-3 px-3 text-center font-mono text-slate-500 dark:text-slate-400">
                           {idx + 1}
                         </td>
 
                         {/* 2. اسم الطالب */}
                         <td className="py-3 px-4">
-                          <div className="font-bold text-slate-100 flex items-center gap-2">
+                          <div className="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                             <span>{row.student.name}</span>
                             <StudentStatusBadge status={row.student.status} />
                             {isExempt && (
                               <span title="معفى عام">
-                                <Award className="w-4 h-4 text-amber-400 shrink-0" />
+                                <Award className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                               </span>
                             )}
                           </div>
-                          <div className="text-[11px] text-slate-400 flex items-center gap-2 mt-0.5">
+                          <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-2 mt-0.5">
                             {row.student.registrationNumber && (
                               <span>رقم القيد: {row.student.registrationNumber}</span>
                             )}
@@ -1186,27 +1190,27 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                               <span
                                 className={`font-mono font-black text-sm ${
                                   isExempt
-                                    ? 'text-amber-400'
+                                    ? 'text-emerald-700 dark:text-emerald-400'
                                     : isNear
-                                    ? 'text-amber-300'
-                                    : 'text-slate-200'
+                                    ? 'text-amber-700 dark:text-amber-300'
+                                    : 'text-slate-900 dark:text-slate-200'
                                 }`}
                               >
                                 {row.rawAverage.toFixed(2)}%
                               </span>
                               {row.appliedJabr && row.evaluatedAverage !== null && row.evaluatedAverage !== row.rawAverage && (
-                                <span className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20 mt-0.5">
+                                <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-500/15 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-500/30 mt-0.5">
                                   المعتمد بالجبر: {row.evaluatedAverage}%
                                 </span>
                               )}
                               {row.appliedJabr && row.evaluatedAverage !== null && row.evaluatedAverage === row.rawAverage && (
-                                <span className="text-[10px] text-slate-400 mt-0.5">
+                                <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
                                   (معتمد بالجبر)
                                 </span>
                               )}
                             </div>
                           ) : (
-                            <span className="text-slate-500 font-mono">—</span>
+                            <span className="text-slate-400 dark:text-slate-500 font-mono">—</span>
                           )}
                         </td>
 
@@ -1217,34 +1221,34 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                               <span
                                 className={`font-mono font-bold ${
                                   row.minSubjectScore < savedSettings.generalMinSubjectScore
-                                    ? 'text-rose-400'
-                                    : 'text-slate-200'
+                                    ? 'text-rose-700 dark:text-rose-400'
+                                    : 'text-slate-900 dark:text-slate-200'
                                 }`}
                               >
                                 {row.minSubjectScore}
                               </span>
                               {row.lowestSubjectName && (
-                                <span className="text-[10px] text-slate-400 truncate max-w-[100px]">
+                                <span className="text-[10px] text-slate-500 dark:text-slate-400 truncate max-w-[100px]">
                                   ({row.lowestSubjectName})
                                 </span>
                               )}
                             </div>
                           ) : (
-                            <span className="text-slate-500 font-mono">—</span>
+                            <span className="text-slate-400 dark:text-slate-500 font-mono">—</span>
                           )}
                         </td>
 
                         {/* 5. حالة الاستحقاق */}
                         <td className="py-3 px-4 text-center">
                           {isExempt && (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-xs">
-                              <Award className="w-3.5 h-3.5 text-amber-400" />
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 shadow-xs">
+                              <Award className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                               معفى عام
                             </span>
                           )}
                           {isNear && (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-xs">
-                              <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30 shadow-xs">
+                              <AlertCircle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                               قريب من الاستحقاق
                             </span>
                           )}
@@ -1253,22 +1257,22 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                         {/* 6. سبب عدم الاستحقاق / الملاحظات */}
                         <td className="py-3 px-4 text-xs">
                           {isExempt ? (
-                            <span className="text-emerald-400 flex items-center gap-1 font-medium">
+                            <span className="text-emerald-700 dark:text-emerald-400 flex items-center gap-1 font-medium">
                               <Check className="w-3.5 h-3.5" />
                               مستوفٍ لكافة الشروط المقررة
                             </span>
                           ) : isNear ? (
-                            <div className="text-amber-200/90 leading-relaxed">
+                            <div className="text-amber-900 dark:text-amber-200/90 leading-relaxed">
                               <span className="font-semibold">المعدل مستوفٍ ({row.evaluatedAverage}%)</span>
-                              <span className="text-slate-400 mr-1.5">
+                              <span className="text-slate-600 dark:text-slate-400 mr-1.5">
                                 • لديه {row.subjectsBelowMin?.length === 1 ? 'مادة واحدة' : 'مادتان'} دون الحد الأدنى ({savedSettings.generalMinSubjectScore}):{' '}
-                                <strong className="text-rose-300">
+                                <strong className="text-rose-700 dark:text-rose-300">
                                   {row.subjectsBelowMin?.map((s) => `${s.subjectName} (${s.score})`).join('، ')}
                                 </strong>
                               </span>
                             </div>
                           ) : (
-                            <span className="text-slate-400">{row.reason}</span>
+                            <span className="text-slate-500 dark:text-slate-400">{row.reason}</span>
                           )}
                         </td>
                       </tr>
@@ -1283,17 +1287,17 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
 
       {/* 8. SECTION B: RESULTS OF INDIVIDUAL EXEMPTION (نتائج الإعفاء الفردي) */}
       {activeTab === 'individual' && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-sm space-y-0">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm space-y-0">
           {/* Activation Notice Banner if Individual Exemption is Disabled */}
           {!savedSettings.isIndividualExemptionEnabled && (
-            <div className="bg-rose-500/15 border-b-2 border-rose-500/40 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="bg-rose-50 dark:bg-rose-500/15 border-b-2 border-rose-200 dark:border-rose-500/40 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <AlertCircle className="w-6 h-6 text-rose-400 shrink-0" />
+                <AlertCircle className="w-6 h-6 text-rose-600 dark:text-rose-400 shrink-0" />
                 <div>
-                  <h4 className="font-bold text-rose-300 text-sm sm:text-base">
+                  <h4 className="font-bold text-rose-900 dark:text-rose-300 text-sm sm:text-base">
                     نظام الإعفاء الفردي معطّل حالياً للعام الدراسي ({activeYearObj?.name || selectedYearId})
                   </h4>
-                  <p className="text-rose-200/90 text-xs mt-0.5 leading-relaxed">
+                  <p className="text-rose-800 dark:text-rose-200/90 text-xs mt-0.5 leading-relaxed">
                     تم إيقاف تطبيق الإعفاء الفردي في المواد بقرار إداري. لن يُعتمد أي طالب كمعفى فردياً حتى يتم تفعيل الخيار مجدداً.
                   </p>
                 </div>
@@ -1301,7 +1305,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
               <button
                 type="button"
                 onClick={() => handleToggleIndividualExemption(true)}
-                className="px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs sm:text-sm flex items-center gap-2 cursor-pointer shadow-md transition-all shrink-0 active:scale-95"
+                className="px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 text-white dark:bg-teal-400 dark:hover:bg-teal-300 dark:text-slate-950 font-bold text-xs sm:text-sm flex items-center gap-2 cursor-pointer shadow-sm transition-all shrink-0 active:scale-95"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 تفعيل الإعفاء الفردي الآن
@@ -1311,29 +1315,29 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
 
           {/* Active Status Info Bar when Individual Exemption is Enabled */}
           {savedSettings.isIndividualExemptionEnabled && (
-            <div className="bg-teal-500/10 border-b border-teal-500/25 px-5 py-2.5 text-xs text-teal-200 flex items-center justify-between flex-wrap gap-2">
+            <div className="bg-teal-50 dark:bg-teal-500/10 border-b border-teal-200 dark:border-teal-500/25 px-5 py-2.5 text-xs text-teal-900 dark:text-teal-200 flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-2 font-medium">
-                <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-teal-700 dark:text-teal-400 shrink-0" />
                 <span>
                   نظام الإعفاء الفردي <strong>مفعّل للعام الدراسي ({activeYearObj?.name || selectedYearId})</strong> • شرط الاستحقاق: بلوغ درجة السعي السنوي <strong>{savedSettings.individualMinScore} فأعلى</strong> لكل مادة بصورة مستقلة.
                 </span>
               </div>
-              <span className="text-[11px] font-bold text-teal-300 bg-teal-500/20 px-2.5 py-0.5 rounded-full border border-teal-500/30">
+              <span className="text-[11px] font-bold text-teal-800 dark:text-teal-300 bg-teal-100 dark:bg-teal-500/20 px-2.5 py-0.5 rounded-full border border-teal-200 dark:border-teal-500/30">
                 {stats.individualExemptCount} طالب مستحق في الشعبة
               </span>
             </div>
           )}
 
-          <div className="p-4 sm:p-5 bg-slate-850/80 border-b border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+          <div className="p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
             <div>
-              <h3 className="font-bold text-slate-100 text-base sm:text-lg flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-teal-400" />
+              <h3 className="font-bold text-slate-900 dark:text-slate-100 text-base sm:text-lg flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-teal-700 dark:text-teal-400" />
                 قائمة المستحقين للإعفاء الفردي في المواد
-                <span className="text-xs text-slate-400 font-normal">
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-normal">
                   ({activeClassObj?.name} - شعبة {activeSectionObj?.name})
                 </span>
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 تُقيّم كل مادة دراسية بصورة مستقلة استناداً إلى درجة السعي السنوي، دون استبعاد المستحقين للإعفاء العام.
               </p>
             </div>
@@ -1342,11 +1346,11 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
             <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto justify-end">
               {/* Filter by Subject */}
               <div className="flex items-center gap-1.5">
-                <span className="text-xs text-slate-400 whitespace-nowrap">تصفية بمادة:</span>
+                <span className="text-xs text-slate-600 dark:text-slate-400 whitespace-nowrap">تصفية بمادة:</span>
                 <select
                   value={individualSubjectFilter}
                   onChange={(e) => setIndividualSubjectFilter(e.target.value)}
-                  className="bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-teal-500 cursor-pointer"
+                  className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-teal-600 dark:focus:border-teal-400 cursor-pointer"
                 >
                   <option value="all">جميع المواد المعتمدة</option>
                   {classSubjects.map((sub) => (
@@ -1362,10 +1366,10 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                 <button
                   type="button"
                   onClick={toggleExpandAllDiagnostics}
-                  className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-750 text-slate-200 text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition-colors cursor-pointer"
+                  className="px-3 py-1.5 rounded-lg bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
                   title="عرض أو طي جدول تشخيص الدرجات لجميع الطلبة المعروضين"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-teal-400" />
+                  <Sparkles className="w-3.5 h-3.5 text-teal-700 dark:text-teal-400" />
                   <span>{expandedStudentDiagnosticIds.length > 0 ? 'طي التشخيص' : 'عرض تشخيص المواد'}</span>
                   {expandedStudentDiagnosticIds.length > 0 ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                 </button>
@@ -1377,12 +1381,12 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                 onClick={() => setShowAllSectionDiagnostic(!showAllSectionDiagnostic)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border transition-colors cursor-pointer ${
                   showAllSectionDiagnostic
-                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                    : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-750'
+                    ? 'bg-amber-50 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-500/40'
+                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
                 }`}
                 title="فحص درجات جميع طلاب الشعبة ومعرفة أسباب عدم استحقاق المواد"
               >
-                <HelpCircle className="w-3.5 h-3.5 text-amber-400" />
+                <HelpCircle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                 <span>{showAllSectionDiagnostic ? 'عرض المستحقين فقط' : 'فحص جميع طلاب الشعبة'}</span>
               </button>
             </div>
@@ -1390,9 +1394,9 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
 
           {/* Full Section Diagnostics Banner when active */}
           {showAllSectionDiagnostic && (
-            <div className="bg-amber-500/10 border-b border-amber-500/30 px-5 py-3 text-xs text-amber-200 flex items-center justify-between">
+            <div className="bg-amber-50 dark:bg-amber-500/10 border-b border-amber-200 dark:border-amber-500/30 px-5 py-3 text-xs text-amber-900 dark:text-amber-200 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <Info className="w-4 h-4 text-amber-400 shrink-0" />
+                <Info className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
                 <span>
                   يتم حالياً عرض <strong>تشخيص درجات جميع طلاب الشعبة ({evaluatedResults.length} طالب)</strong> للتحقق من أسباب استحقاق أو عدم استحقاق كل مادة.
                 </span>
@@ -1400,7 +1404,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
               <button
                 type="button"
                 onClick={() => setShowAllSectionDiagnostic(false)}
-                className="text-xs text-amber-400 underline font-bold hover:text-amber-300 cursor-pointer"
+                className="text-xs text-amber-700 dark:text-amber-400 underline font-bold hover:text-amber-900 dark:hover:text-amber-300 cursor-pointer shrink-0"
               >
                 إغلاق وضع الفحص الشامل
               </button>
@@ -1410,7 +1414,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
           <div className="overflow-x-auto">
             <table className="w-full text-right text-xs sm:text-sm border-collapse min-w-[760px]">
               <thead>
-                <tr className="bg-slate-950/80 border-b border-slate-800 text-slate-400 font-semibold">
+                <tr className="bg-slate-100 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-semibold">
                   <th className="py-3 px-3 text-center w-14">التسلسل</th>
                   <th className="py-3 px-4">اسم الطالب</th>
                   <th className="py-3 px-4 text-center">عدد المواد المستحقة</th>
@@ -1419,7 +1423,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                   <th className="py-3 px-4 text-center">حالة الاستحقاق والإجراءات</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60">
                 {/* 1. All Students Diagnostics View Mode */}
                 {showAllSectionDiagnostic ? (
                   evaluatedResults.map((row, idx) => {
@@ -1428,26 +1432,28 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
 
                     return (
                       <React.Fragment key={row.student.id}>
-                        <tr className="hover:bg-slate-850/50 transition-colors">
-                          <td className="py-3 px-3 text-center font-mono text-slate-400">{idx + 1}</td>
+                        <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                          <td className="py-3 px-3 text-center font-mono text-slate-500 dark:text-slate-400">{idx + 1}</td>
                           <td className="py-3 px-4">
-                            <div className="font-bold text-slate-100 flex items-center gap-2">
+                            <div className="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                               <span>{row.student.name}</span>
                               <StudentStatusBadge status={row.student.status} />
                               {row.status === 'معفى عام' && (
-                                <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold flex items-center gap-1" title="مشمول بالإعفاء العام أيضاً">
-                                  <Award className="w-3 h-3 text-amber-400" />
+                                <span className="text-[10px] bg-amber-50 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30 px-2 py-0.5 rounded-full font-bold flex items-center gap-1" title="مشمول بالإعفاء العام أيضاً">
+                                  <Award className="w-3 h-3 text-amber-600 dark:text-amber-400" />
                                   معفى عام أيضاً
                                 </span>
                               )}
                             </div>
-                            <div className="text-[11px] text-slate-400 mt-0.5">
+                            <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                               رقم القيد: {row.student.registrationNumber || '—'}
                             </div>
                           </td>
                           <td className="py-3 px-4 text-center">
-                            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                              eligibleSubs.length > 0 ? 'bg-teal-500/20 text-teal-300 border border-teal-500/30 font-black' : 'bg-slate-800 text-slate-500'
+                            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold border ${
+                              eligibleSubs.length > 0
+                                ? 'bg-teal-50 dark:bg-teal-500/20 text-teal-800 dark:text-teal-300 border-teal-200 dark:border-teal-500/30 font-black'
+                                : 'bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700'
                             }`}>
                               {eligibleSubs.length} مواد
                             </span>
@@ -1456,7 +1462,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                             {eligibleSubs.length > 0 ? (
                               <div className="flex flex-wrap gap-1.5">
                                 {eligibleSubs.map((sub) => (
-                                  <span key={sub.subjectId} className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-900 border border-teal-500/30 text-xs text-teal-300">
+                                  <span key={sub.subjectId} className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-teal-50 dark:bg-slate-900 border border-teal-200 dark:border-teal-500/30 text-xs text-teal-800 dark:text-teal-300">
                                     <span>{sub.subjectName}</span>
                                     <strong className="font-mono">({sub.yearlyScore})</strong>
                                   </span>
@@ -1466,14 +1472,14 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                               <span className="text-slate-500 text-xs">لا توجد مواد مستوفية للحد ({savedSettings.individualMinScore})</span>
                             )}
                           </td>
-                          <td className="py-3 px-4 text-center font-mono text-slate-400">{savedSettings.individualMinScore}</td>
+                          <td className="py-3 px-4 text-center font-mono text-slate-600 dark:text-slate-400">{savedSettings.individualMinScore}</td>
                           <td className="py-3 px-4 text-center">
                             <button
                               type="button"
                               onClick={() => toggleStudentDiagnostic(row.student.id)}
-                              className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 inline-flex items-center gap-1 transition-colors cursor-pointer"
+                              className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium border border-slate-200 dark:border-slate-700 inline-flex items-center gap-1 transition-colors cursor-pointer"
                             >
-                              <Sparkles className="w-3 h-3 text-teal-400" />
+                              <Sparkles className="w-3 h-3 text-teal-700 dark:text-teal-400" />
                               <span>{isExpanded ? 'إخفاء الفحص' : 'فحص المواد'}</span>
                               {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                             </button>
@@ -1482,22 +1488,22 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
 
                         {/* Expandable Diagnostic Panel for this student */}
                         {isExpanded && (
-                          <tr className="bg-slate-950/90 border-b border-slate-800">
+                          <tr className="bg-slate-50 dark:bg-slate-950/60 border-b border-slate-200 dark:border-slate-800">
                             <td colSpan={6} className="p-4">
-                              <div className="bg-slate-900 border border-slate-800 rounded-xl p-3.5 space-y-2.5">
-                                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                                  <span className="text-xs font-bold text-slate-200 flex items-center gap-2">
-                                    <Info className="w-4 h-4 text-teal-400" />
-                                    تقرير تشخيص وفحص درجات المواد للطالب: <strong className="text-teal-300">{row.student.name}</strong>
+                              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 space-y-2.5 shadow-xs">
+                                <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+                                  <span className="text-xs font-bold text-slate-900 dark:text-slate-200 flex items-center gap-2">
+                                    <Info className="w-4 h-4 text-teal-700 dark:text-teal-400" />
+                                    تقرير تشخيص وفحص درجات المواد للطالب: <strong className="text-teal-700 dark:text-teal-300">{row.student.name}</strong>
                                   </span>
-                                  <span className="text-[11px] text-slate-400">
+                                  <span className="text-[11px] text-slate-500 dark:text-slate-400">
                                     الحد المطلوب: {savedSettings.individualMinScore} درجة في السعي السنوي
                                   </span>
                                 </div>
                                 <div className="overflow-x-auto">
                                   <table className="w-full text-right text-xs">
                                     <thead>
-                                      <tr className="text-slate-400 border-b border-slate-800 bg-slate-950/50">
+                                      <tr className="text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
                                         <th className="py-2 px-3">المادة الدراسية</th>
                                         <th className="py-2 px-3 text-center">درجة السعي المقروءة</th>
                                         <th className="py-2 px-3 text-center">الشرط المطلوب</th>
@@ -1506,56 +1512,56 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                                         <th className="py-2 px-3">النتيجة والتشخيص النهائي</th>
                                       </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-800/40">
+                                    <tbody className="divide-y divide-slate-200 dark:divide-slate-800/40">
                                       {row.individualResults.map((subRes) => (
-                                        <tr key={subRes.subjectId} className="hover:bg-slate-850/40">
-                                          <td className="py-2 px-3 font-semibold text-slate-200">{subRes.subjectName}</td>
+                                        <tr key={subRes.subjectId} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                          <td className="py-2 px-3 font-semibold text-slate-900 dark:text-slate-200">{subRes.subjectName}</td>
                                           <td className="py-2 px-3 text-center font-mono font-bold">
                                             {subRes.yearlyScore !== null ? (
-                                              <span className={subRes.meetsScoreCondition ? 'text-teal-400 font-black' : 'text-slate-300'}>
+                                              <span className={subRes.meetsScoreCondition ? 'text-teal-700 dark:text-teal-400 font-black' : 'text-slate-700 dark:text-slate-300'}>
                                                 {subRes.yearlyScore}
                                               </span>
                                             ) : (
-                                              <span className="text-rose-400 font-medium">سعي غير مكتمل</span>
+                                              <span className="text-rose-700 dark:text-rose-400 font-medium">سعي غير مكتمل</span>
                                             )}
                                           </td>
-                                          <td className="py-2 px-3 text-center text-slate-400 font-mono">
+                                          <td className="py-2 px-3 text-center text-slate-500 dark:text-slate-400 font-mono">
                                             &gt;= {subRes.requiredScore}
                                           </td>
                                           <td className="py-2 px-3 text-center">
                                             {subRes.meetsScoreCondition ? (
-                                              <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">
+                                              <span className="text-[10px] bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">
                                                 مستوفٍ للدرجة
                                               </span>
                                             ) : subRes.yearlyScore === null ? (
-                                              <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">
+                                              <span className="text-[10px] bg-amber-50 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30 px-2 py-0.5 rounded-full font-bold">
                                                 نقص رصد
                                               </span>
                                             ) : (
-                                              <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">
+                                              <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-0.5 rounded-full">
                                                 دون الحد
                                               </span>
                                             )}
                                           </td>
                                           <td className="py-2 px-3 text-center">
                                             {subRes.isExemptionEnabled ? (
-                                              <span className="text-[10px] bg-teal-500/20 text-teal-300 px-2 py-0.5 rounded-full font-bold">
+                                              <span className="text-[10px] bg-teal-50 dark:bg-teal-500/20 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full font-bold">
                                                 مفعّل
                                               </span>
                                             ) : (
-                                              <span className="text-[10px] bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded-full font-bold">
+                                              <span className="text-[10px] bg-rose-50 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 px-2 py-0.5 rounded-full font-bold">
                                                 معطّل
                                               </span>
                                             )}
                                           </td>
                                           <td className="py-2 px-3 text-xs">
                                             {subRes.status === 'مستحق للإعفاء الفردي' ? (
-                                              <span className="text-teal-300 font-bold flex items-center gap-1">
-                                                <Check className="w-3.5 h-3.5 text-teal-400" />
+                                              <span className="text-teal-700 dark:text-teal-300 font-bold flex items-center gap-1">
+                                                <Check className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
                                                 {subRes.diagnosticReason}
                                               </span>
                                             ) : (
-                                              <span className="text-slate-400">
+                                              <span className="text-slate-500 dark:text-slate-400">
                                                 {subRes.diagnosticReason}
                                               </span>
                                             )}
@@ -1575,19 +1581,19 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                 ) : filteredIndividualStudents.length === 0 ? (
                   /* 2. Normal View: Empty State */
                   <tr>
-                    <td colSpan={6} className="py-12 text-center text-slate-500">
+                    <td colSpan={6} className="py-12 text-center text-slate-500 dark:text-slate-400">
                       {!savedSettings.isIndividualExemptionEnabled ? (
                         <div className="space-y-3 max-w-md mx-auto">
-                          <p className="text-rose-400 font-semibold text-sm">
+                          <p className="text-rose-700 dark:text-rose-400 font-semibold text-sm">
                             نظام الإعفاء الفردي معطّل حالياً لهذا العام الدراسي بقرار الإدارة.
                           </p>
-                          <p className="text-xs text-slate-400 leading-relaxed">
+                          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                             لتطبيق الإعفاء الفردي وعرض الطلبة المستحقين، اضغط على زر التفعيل أعلاه أو قم بتفعيله من إعدادات شروط الإعفاء.
                           </p>
                           <button
                             type="button"
                             onClick={() => handleToggleIndividualExemption(true)}
-                            className="px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs inline-flex items-center gap-2 cursor-pointer shadow-md transition-all"
+                            className="px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 text-white dark:bg-teal-400 dark:hover:bg-teal-300 dark:text-slate-950 font-bold text-xs inline-flex items-center gap-2 cursor-pointer shadow-sm transition-all"
                           >
                             <CheckCircle2 className="w-4 h-4" />
                             تفعيل نظام الإعفاء الفردي فوراً
@@ -1597,13 +1603,13 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                         'لا توجد نتائج مطابقة لبحثك أو للمادة المختارة'
                       ) : (
                         <div className="space-y-2 max-w-md mx-auto">
-                          <p className="text-slate-400 text-sm">
+                          <p className="text-slate-600 dark:text-slate-400 text-sm">
                             لا يوجد طلبة استوفوا شرط الإعفاء الفردي (سعي سنوي {savedSettings.individualMinScore} فأعلى) في هذا الصف والشعبة حالياً.
                           </p>
                           <button
                             type="button"
                             onClick={() => setShowAllSectionDiagnostic(true)}
-                            className="text-xs text-teal-400 underline hover:text-teal-300 font-semibold cursor-pointer"
+                            className="text-xs text-teal-700 dark:text-teal-400 underline hover:text-teal-800 dark:hover:text-teal-300 font-semibold cursor-pointer"
                           >
                             اضغط هنا لفحص درجات جميع طلاب الشعبة ومعرفة أسباب عدم الاستحقاق
                           </button>
@@ -1618,25 +1624,25 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
 
                     return (
                       <React.Fragment key={row.student.id}>
-                        <tr className="bg-teal-500/5 hover:bg-teal-500/10 transition-colors">
+                        <tr className="bg-teal-50/30 dark:bg-teal-500/5 hover:bg-teal-50/70 dark:hover:bg-teal-500/10 transition-colors">
                           {/* 1. التسلسل */}
-                          <td className="py-3.5 px-3 text-center font-mono text-slate-400 font-bold">
+                          <td className="py-3.5 px-3 text-center font-mono text-slate-500 dark:text-slate-400 font-bold">
                             {idx + 1}
                           </td>
 
                           {/* 2. اسم الطالب */}
                           <td className="py-3.5 px-4">
-                            <div className="font-bold text-slate-100 flex items-center gap-2 flex-wrap">
+                            <div className="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2 flex-wrap">
                               <span>{row.student.name}</span>
                               <StudentStatusBadge status={row.student.status} />
                               {row.isGeneralExempt && (
-                                <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold flex items-center gap-1" title="مستوفٍ أيضاً لشروط الإعفاء العام">
-                                  <Award className="w-3 h-3 text-amber-400" />
+                                <span className="text-[10px] bg-amber-50 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30 px-2 py-0.5 rounded-full font-bold flex items-center gap-1" title="مستوفٍ أيضاً لشروط الإعفاء العام">
+                                  <Award className="w-3 h-3 text-amber-600 dark:text-amber-400" />
                                   معفى عام أيضاً
                                 </span>
                               )}
                             </div>
-                            <div className="text-[11px] text-slate-400 flex items-center gap-2 mt-0.5">
+                            <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-2 mt-0.5">
                               {row.student.registrationNumber && (
                                 <span>رقم القيد: {row.student.registrationNumber}</span>
                               )}
@@ -1648,7 +1654,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
 
                           {/* 3. عدد المواد المعفى فيها */}
                           <td className="py-3.5 px-4 text-center">
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black bg-teal-50 dark:bg-teal-500/20 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-500/30">
                               {row.eligibleCount === 1
                                 ? 'مادة واحدة'
                                 : row.eligibleCount === 2
@@ -1663,13 +1669,13 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                               {row.eligibleSubjects.map((sub) => (
                                 <div
                                   key={sub.subjectId}
-                                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-teal-500/30 shadow-xs"
+                                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-teal-200 dark:border-teal-500/30 shadow-xs"
                                   title={sub.diagnosticReason || 'مستحق للإعفاء الفردي'}
                                 >
-                                  <span className="text-xs font-medium text-slate-200">
+                                  <span className="text-xs font-medium text-slate-800 dark:text-slate-200">
                                     {sub.subjectName}
                                   </span>
-                                  <span className="font-mono font-black text-xs text-teal-300 bg-teal-950/60 px-1.5 py-0.5 rounded border border-teal-500/30">
+                                  <span className="font-mono font-black text-xs text-teal-800 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 px-1.5 py-0.5 rounded border border-teal-200 dark:border-teal-500/30">
                                     {sub.yearlyScore}
                                   </span>
                                 </div>
@@ -1678,24 +1684,24 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                           </td>
 
                           {/* 5. درجة الإعفاء المطلوبة */}
-                          <td className="py-3.5 px-4 text-center font-mono font-bold text-slate-400">
+                          <td className="py-3.5 px-4 text-center font-mono font-bold text-slate-600 dark:text-slate-400">
                             {row.requiredScore}
                           </td>
 
                           {/* 6. حالة الاستحقاق والإجراءات */}
                           <td className="py-3.5 px-4 text-center">
                             <div className="flex flex-col items-center gap-1.5">
-                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-black bg-teal-500/20 text-teal-300 border border-teal-500/30">
-                                <CheckCircle2 className="w-3.5 h-3.5 text-teal-400" />
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-black bg-teal-50 dark:bg-teal-500/20 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-500/30">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-teal-700 dark:text-teal-400" />
                                 مستحق للإعفاء الفردي
                               </span>
                               <button
                                 type="button"
                                 onClick={() => toggleStudentDiagnostic(row.student.id)}
-                                className="text-[11px] px-2 py-0.5 rounded text-slate-400 hover:text-teal-300 inline-flex items-center gap-1 transition-colors cursor-pointer"
+                                className="text-[11px] px-2 py-0.5 rounded text-slate-500 dark:text-slate-400 hover:text-teal-700 dark:hover:text-teal-300 inline-flex items-center gap-1 transition-colors cursor-pointer"
                                 title="عرض فحص وتشخيص درجات جميع المواد لهذا الطالب"
                               >
-                                <Sparkles className="w-3 h-3 text-teal-400" />
+                                <Sparkles className="w-3 h-3 text-teal-700 dark:text-teal-400" />
                                 <span>{isExpanded ? 'إخفاء التشخيص' : 'تشخيص جميع المواد'}</span>
                                 {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                               </button>
@@ -1705,22 +1711,22 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
 
                         {/* Expandable Diagnostic Table for this Qualifying Student */}
                         {isExpanded && (
-                          <tr className="bg-slate-950/90 border-b border-slate-800">
+                          <tr className="bg-slate-50 dark:bg-slate-950/60 border-b border-slate-200 dark:border-slate-800">
                             <td colSpan={6} className="p-4">
-                              <div className="bg-slate-900 border border-slate-800 rounded-xl p-3.5 space-y-2.5">
-                                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                                  <span className="text-xs font-bold text-slate-200 flex items-center gap-2">
-                                    <Info className="w-4 h-4 text-teal-400" />
-                                    تقرير تشخيص وفحص المواد للطالب: <strong className="text-teal-300">{row.student.name}</strong>
+                              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 space-y-2.5 shadow-xs">
+                                <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+                                  <span className="text-xs font-bold text-slate-900 dark:text-slate-200 flex items-center gap-2">
+                                    <Info className="w-4 h-4 text-teal-700 dark:text-teal-400" />
+                                    تقرير تشخيص وفحص المواد للطالب: <strong className="text-teal-700 dark:text-teal-300">{row.student.name}</strong>
                                   </span>
-                                  <span className="text-[11px] text-slate-400">
+                                  <span className="text-[11px] text-slate-500 dark:text-slate-400">
                                     الحد المطلوب: {row.requiredScore} درجة في السعي السنوي
                                   </span>
                                 </div>
                                 <div className="overflow-x-auto">
                                   <table className="w-full text-right text-xs">
                                     <thead>
-                                      <tr className="text-slate-400 border-b border-slate-800 bg-slate-950/50">
+                                      <tr className="text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
                                         <th className="py-2 px-3">المادة الدراسية</th>
                                         <th className="py-2 px-3 text-center">درجة السعي المقروءة</th>
                                         <th className="py-2 px-3 text-center">الشرط المطلوب</th>
@@ -1729,56 +1735,56 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                                         <th className="py-2 px-3">النتيجة والتشخيص النهائي</th>
                                       </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-800/40">
+                                    <tbody className="divide-y divide-slate-200 dark:divide-slate-800/40">
                                       {row.allSubjectsResults.map((subRes) => (
-                                        <tr key={subRes.subjectId} className="hover:bg-slate-850/40">
-                                          <td className="py-2 px-3 font-semibold text-slate-200">{subRes.subjectName}</td>
+                                        <tr key={subRes.subjectId} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                          <td className="py-2 px-3 font-semibold text-slate-900 dark:text-slate-200">{subRes.subjectName}</td>
                                           <td className="py-2 px-3 text-center font-mono font-bold">
                                             {subRes.yearlyScore !== null ? (
-                                              <span className={subRes.meetsScoreCondition ? 'text-teal-400 font-black' : 'text-slate-300'}>
+                                              <span className={subRes.meetsScoreCondition ? 'text-teal-700 dark:text-teal-400 font-black' : 'text-slate-700 dark:text-slate-300'}>
                                                 {subRes.yearlyScore}
                                               </span>
                                             ) : (
-                                              <span className="text-rose-400 font-medium">سعي غير مكتمل</span>
+                                              <span className="text-rose-700 dark:text-rose-400 font-medium">سعي غير مكتمل</span>
                                             )}
                                           </td>
-                                          <td className="py-2 px-3 text-center text-slate-400 font-mono">
+                                          <td className="py-2 px-3 text-center text-slate-500 dark:text-slate-400 font-mono">
                                             &gt;= {subRes.requiredScore}
                                           </td>
                                           <td className="py-2 px-3 text-center">
                                             {subRes.meetsScoreCondition ? (
-                                              <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">
+                                              <span className="text-[10px] bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">
                                                 مستوفٍ للدرجة
                                               </span>
                                             ) : subRes.yearlyScore === null ? (
-                                              <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">
+                                              <span className="text-[10px] bg-amber-50 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30 px-2 py-0.5 rounded-full font-bold">
                                                 نقص رصد
                                               </span>
                                             ) : (
-                                              <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">
+                                              <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-0.5 rounded-full">
                                                 دون الحد
                                               </span>
                                             )}
                                           </td>
                                           <td className="py-2 px-3 text-center">
                                             {subRes.isExemptionEnabled ? (
-                                              <span className="text-[10px] bg-teal-500/20 text-teal-300 px-2 py-0.5 rounded-full font-bold">
+                                              <span className="text-[10px] bg-teal-50 dark:bg-teal-500/20 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full font-bold">
                                                 مفعّل
                                               </span>
                                             ) : (
-                                              <span className="text-[10px] bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded-full font-bold">
+                                              <span className="text-[10px] bg-rose-50 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 px-2 py-0.5 rounded-full font-bold">
                                                 معطّل
                                               </span>
                                             )}
                                           </td>
                                           <td className="py-2 px-3 text-xs">
                                             {subRes.status === 'مستحق للإعفاء الفردي' ? (
-                                              <span className="text-teal-300 font-bold flex items-center gap-1">
-                                                <Check className="w-3.5 h-3.5 text-teal-400" />
+                                              <span className="text-teal-700 dark:text-teal-300 font-bold flex items-center gap-1">
+                                                <Check className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
                                                 {subRes.diagnosticReason}
                                               </span>
                                             ) : (
-                                              <span className="text-slate-400">
+                                              <span className="text-slate-500 dark:text-slate-400">
                                                 {subRes.diagnosticReason}
                                               </span>
                                             )}

@@ -339,22 +339,22 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
   return (
     <div className="w-full flex flex-col gap-6 pb-12">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 shadow-inner">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-400/15 border border-emerald-200 dark:border-emerald-400/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
             <ShieldCheck className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-xl font-black text-slate-100">إضافة درجات القرار ومساعدة المدير</h1>
-            <p className="text-sm text-slate-400">
+            <h1 className="text-xl font-black text-slate-900 dark:text-slate-100">إضافة درجات القرار ومساعدة المدير</h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               منح درجات المساعدة الوزارية يدوياً للطلبة المستحقين وفق الضوابط، مع مزامنة فورية في قسم إدخال الدرجات والنتائج.
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="px-4 py-2 rounded-xl bg-slate-950/60 border border-slate-800 text-xs font-mono text-emerald-400 flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-amber-400" />
+          <div className="px-4 py-2 rounded-xl bg-teal-50 dark:bg-teal-400/10 border border-teal-200 dark:border-teal-400/30 text-xs font-mono font-bold text-teal-700 dark:text-teal-300 flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-amber-500 dark:text-amber-400" />
             <span>رصيد الدور الأول الأساسي: {decisionSettings?.primaryAssistanceMarks || 10} درجات</span>
           </div>
         </div>
@@ -365,15 +365,15 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
         <div
           className={`p-4 rounded-xl border flex items-center justify-between gap-3 animate-in fade-in ${
             feedbackMessage.type === 'success'
-              ? 'bg-emerald-950/30 border-emerald-800/50 text-emerald-300'
-              : 'bg-red-950/30 border-red-800/50 text-red-300'
+              ? 'bg-emerald-50 dark:bg-emerald-500/15 border-emerald-200 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300'
+              : 'bg-rose-50 dark:bg-rose-500/15 border-rose-200 dark:border-rose-500/30 text-rose-800 dark:text-rose-300'
           }`}
         >
           <div className="flex items-center gap-2.5 text-sm font-medium">
             {feedbackMessage.type === 'success' ? (
-              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
             ) : (
-              <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
+              <AlertCircle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0" />
             )}
             <span>{feedbackMessage.text}</span>
           </div>
@@ -387,17 +387,17 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
       )}
 
       {/* Filter Controls Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
         {/* 1. Academic Year */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-bold text-slate-400 flex items-center gap-1.5">
-            <Calendar className="w-3.5 h-3.5 text-emerald-400" />
+          <label className="text-xs font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
+            <Calendar className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>العام الدراسي</span>
           </label>
           <select
             value={selectedYearId}
             onChange={(e) => setSelectedYearId(e.target.value)}
-            className="w-full h-10 px-3 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-emerald-500 font-bold"
+            className="w-full h-10 px-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-emerald-600 dark:focus:border-emerald-400 font-bold"
           >
             {academicYears.map((y) => (
               <option key={y.id} value={y.id}>
@@ -409,14 +409,14 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
 
         {/* 2. Class */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-bold text-slate-400 flex items-center gap-1.5">
-            <Layers className="w-3.5 h-3.5 text-emerald-400" />
+          <label className="text-xs font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
+            <Layers className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>الصف الدراسي</span>
           </label>
           <select
             value={selectedClassId}
             onChange={(e) => setSelectedClassId(e.target.value)}
-            className="w-full h-10 px-3 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-emerald-500 font-bold"
+            className="w-full h-10 px-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-emerald-600 dark:focus:border-emerald-400 font-bold"
           >
             {availableClasses.map((cls) => (
               <option key={cls.id} value={cls.id}>
@@ -428,14 +428,14 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
 
         {/* 3. Section */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-bold text-slate-400 flex items-center gap-1.5">
-            <Users className="w-3.5 h-3.5 text-emerald-400" />
+          <label className="text-xs font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
+            <Users className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>الشعبة</span>
           </label>
           <select
             value={selectedSectionId}
             onChange={(e) => setSelectedSectionId(e.target.value)}
-            className="w-full h-10 px-3 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-emerald-500 font-bold"
+            className="w-full h-10 px-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-emerald-600 dark:focus:border-emerald-400 font-bold"
           >
             <option value="all">جميع الشعب</option>
             {classSections.map((sec) => (
@@ -448,14 +448,14 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
 
         {/* 4. Round */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-bold text-slate-400 flex items-center gap-1.5">
-            <FileCheck className="w-3.5 h-3.5 text-emerald-400" />
+          <label className="text-xs font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
+            <FileCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>الدور</span>
           </label>
           <select
             value={selectedRound}
             onChange={(e) => setSelectedRound(e.target.value as 'round1' | 'round2')}
-            className="w-full h-10 px-3 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-emerald-500 font-bold"
+            className="w-full h-10 px-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-emerald-600 dark:focus:border-emerald-400 font-bold"
           >
             <option value="round1">الدور الأول</option>
             <option value="round2">الدور الثاني (الإكمال)</option>
@@ -464,8 +464,8 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
 
         {/* 5. Search Student */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-bold text-slate-400 flex items-center gap-1.5">
-            <Search className="w-3.5 h-3.5 text-emerald-400" />
+          <label className="text-xs font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
+            <Search className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>بحث باسم الطالب</span>
           </label>
           <div className="relative">
@@ -474,9 +474,9 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="اكتب للبحث..."
-              className="w-full h-10 px-3 pl-9 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:border-emerald-500"
+              className="w-full h-10 px-3 pl-9 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 text-sm focus:outline-none focus:border-emerald-600 dark:focus:border-emerald-400"
             />
-            <Search className="absolute left-3 top-3 w-4 h-4 text-slate-500" />
+            <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400 dark:text-slate-500" />
           </div>
         </div>
       </div>
@@ -484,24 +484,24 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
       {/* Main Students List */}
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between px-1">
-          <h2 className="text-base font-bold text-slate-200 flex items-center gap-2">
+          <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             <span>الطلبة المستحقون والمشمولون بالقرار</span>
-            <span className="px-2.5 py-0.5 rounded-full bg-slate-800 text-emerald-400 font-mono text-xs">
+            <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-400/15 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-400/30 font-mono text-xs">
               {eligibleStudentsList.length} طالب
             </span>
           </h2>
-          <span className="text-xs text-slate-400">
+          <span className="text-xs text-slate-500 dark:text-slate-400">
             يظهر كل طالب مرة واحدة مع كافة مواده المستحقة في {selectedRound === 'round1' ? 'الدور الأول' : 'الدور الثاني'}
           </span>
         </div>
 
         {eligibleStudentsList.length === 0 ? (
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center flex flex-col items-center justify-center gap-3">
-            <div className="w-16 h-16 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center text-slate-600">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center flex flex-col items-center justify-center gap-3 shadow-sm">
+            <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 dark:text-slate-500">
               <ShieldCheck className="w-8 h-8" />
             </div>
-            <p className="text-slate-300 font-bold text-base">لا يوجد طلبة مستحقون للقرار وفق الفلاتر المحددة.</p>
-            <p className="text-xs text-slate-500 max-w-md">
+            <p className="text-slate-800 dark:text-slate-200 font-bold text-base">لا يوجد طلبة مستحقون للقرار وفق الفلاتر المحددة.</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md">
               تأكد من إدخال درجات السعي والامتحان النهائي للطلبة وأن لديهم عجزاً ضمن رصيد المساعدة المتاحة.
             </p>
           </div>
@@ -514,20 +514,20 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
               return (
                 <div
                   key={student.id}
-                  className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col gap-4 transition-all hover:border-slate-700"
+                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm flex flex-col gap-4 transition-all hover:border-slate-300 dark:hover:border-slate-700"
                 >
                   {/* Student Top Bar */}
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-slate-200 dark:border-slate-800">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center font-mono font-bold text-emerald-400 text-sm">
+                      <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center font-mono font-bold text-emerald-700 dark:text-emerald-400 text-sm">
                         #{student.seatNumber}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="text-base font-bold text-slate-100">{student.name}</h3>
+                          <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">{student.name}</h3>
                           <StudentStatusBadge status={student.status} />
                         </div>
-                        <p className="text-xs text-slate-400 font-mono">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-mono">
                           الصف: {classObj?.name} | الشعبة: ({sectionObj?.name || '—'}) | رقم القيد: {student.registrationNumber || '—'}
                         </p>
                       </div>
@@ -535,13 +535,13 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
 
                     {/* Balance Info */}
                     <div className="flex flex-wrap items-center gap-2">
-                      <div className="px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-slate-300 flex items-center gap-2">
-                        <span className="text-slate-500">رصيد المساعدة المستهلك:</span>
-                        <span className="font-bold text-amber-400">{balance.usedMarks} / {balance.totalPool}</span>
+                      <div className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-mono text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                        <span className="text-slate-500 dark:text-slate-400">رصيد المساعدة المستهلك:</span>
+                        <span className="font-bold text-amber-600 dark:text-amber-400">{balance.usedMarks} / {balance.totalPool}</span>
                       </div>
-                      <div className="px-3 py-1.5 rounded-xl bg-emerald-950/30 border border-emerald-800/50 text-xs font-mono text-emerald-300 flex items-center gap-2">
-                        <span className="text-emerald-500/80">المتبقي:</span>
-                        <span className="font-bold text-emerald-400">{balance.remainingMarks} درجات</span>
+                      <div className="px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-xs font-mono text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
+                        <span className="text-emerald-700/80 dark:text-emerald-400/80">المتبقي:</span>
+                        <span className="font-bold text-emerald-700 dark:text-emerald-400">{balance.remainingMarks} درجات</span>
                       </div>
                     </div>
                   </div>
@@ -550,39 +550,39 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
                   <div className="overflow-x-auto">
                     <table className="w-full text-right border-collapse">
                       <thead>
-                        <tr className="border-b border-slate-800 text-xs text-slate-400 bg-slate-950/50">
-                          <th className="p-3 font-medium">المادة الدراسية</th>
-                          <th className="p-3 font-medium text-center">درجة السعي السنوي</th>
-                          <th className="p-3 font-medium text-center">
+                        <tr className="border-b border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/60">
+                          <th className="p-3 font-bold">المادة الدراسية</th>
+                          <th className="p-3 font-bold text-center">درجة السعي السنوي</th>
+                          <th className="p-3 font-bold text-center">
                             {selectedRound === 'round1' ? 'درجة الامتحان النهائي' : 'درجة الإكمال (الدور الثاني)'}
                           </th>
-                          <th className="p-3 font-medium text-center">الدرجة النهائية الحالية</th>
-                          <th className="p-3 font-medium text-center">العجز المطلوب للنجاح</th>
-                          <th className="p-3 font-medium text-center">حالة القرار</th>
-                          <th className="p-3 font-medium text-center">الإجراء</th>
+                          <th className="p-3 font-bold text-center">الدرجة النهائية الحالية</th>
+                          <th className="p-3 font-bold text-center">العجز المطلوب للنجاح</th>
+                          <th className="p-3 font-bold text-center">حالة القرار</th>
+                          <th className="p-3 font-bold text-center">الإجراء</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-800/60 font-mono text-sm">
+                      <tbody className="divide-y divide-slate-200 dark:divide-slate-800 font-mono text-sm">
                         {eligibleSubjects.map((item) => {
                           const subEval = evaluation.subjects[item.subject.id];
                           const yearlyScore = subEval?.termYearlyScore ?? '—';
                           const examScore = selectedRound === 'round1' ? subEval?.finalExamScore ?? '—' : subEval?.secondRoundScore ?? '—';
 
                           return (
-                            <tr key={item.subject.id} className="hover:bg-slate-850/40 transition-colors">
-                              <td className="p-3 font-sans font-bold text-slate-200">
+                            <tr key={item.subject.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                              <td className="p-3 font-sans font-bold text-slate-900 dark:text-slate-100">
                                 {item.subject.name}
                               </td>
-                              <td className="p-3 text-center text-slate-300">{yearlyScore}</td>
-                              <td className="p-3 text-center text-slate-300">{examScore}</td>
+                              <td className="p-3 text-center text-slate-700 dark:text-slate-300">{yearlyScore}</td>
+                              <td className="p-3 text-center text-slate-700 dark:text-slate-300">{examScore}</td>
                               <td className="p-3 text-center">
                                 {item.isGranted && item.grantRecord && item.originalScore !== item.grantRecord.finalScoreAfterDecision ? (
                                   <div className="relative w-full h-full flex items-center justify-center min-h-[32px]">
-                                    <span className="text-base font-black text-emerald-400">
+                                    <span className="text-base font-black text-emerald-700 dark:text-emerald-400">
                                       {item.grantRecord.finalScoreAfterDecision}
                                     </span>
                                     <span
-                                      className="absolute text-[9px] text-red-400 font-mono font-bold leading-none select-none bg-slate-950/90 px-0.5 rounded"
+                                      className="absolute text-[9px] text-rose-600 dark:text-rose-400 font-mono font-bold leading-none select-none bg-white dark:bg-slate-950/90 border border-rose-200 dark:border-rose-500/30 px-0.5 rounded"
                                       style={{ right: '5px', bottom: '3px' }}
                                       title={`الدرجة الأصلية قبل القرار: ${item.originalScore}`}
                                     >
@@ -590,21 +590,21 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
                                     </span>
                                   </div>
                                 ) : (
-                                  <span className="text-base font-bold text-amber-400">
+                                  <span className="text-base font-bold text-amber-600 dark:text-amber-400">
                                     {item.originalScore}
                                   </span>
                                 )}
                               </td>
-                              <td className="p-3 text-center text-red-400 font-bold">
+                              <td className="p-3 text-center text-rose-600 dark:text-rose-400 font-bold">
                                 {item.neededMarks} درجات
                               </td>
                               <td className="p-3 text-center">
                                 {item.isGranted ? (
-                                  <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-sans font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                  <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-sans font-bold bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30">
                                     ممنوح ({item.grantRecord?.appliedMarks} درجات)
                                   </span>
                                 ) : (
-                                  <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-sans text-slate-400 bg-slate-800 border border-slate-700">
+                                  <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-sans text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                                     غير ممنوح
                                   </span>
                                 )}
@@ -613,7 +613,7 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
                                 {item.isGranted ? (
                                   <button
                                     onClick={() => handleRevokeDecision(student, item.subject)}
-                                    className="px-3 py-1.5 rounded-xl bg-red-950/40 hover:bg-red-900/60 text-red-300 border border-red-800 text-xs font-sans font-bold transition-colors cursor-pointer"
+                                    className="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/15 dark:hover:bg-rose-500/25 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 text-xs font-sans font-bold transition-colors cursor-pointer"
                                   >
                                     إلغاء القرار
                                   </button>
@@ -632,8 +632,8 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
                                     disabled={balance.remainingMarks < item.neededMarks}
                                     className={`px-3 py-1.5 rounded-xl text-xs font-sans font-bold transition-colors cursor-pointer ${
                                       balance.remainingMarks >= item.neededMarks
-                                        ? 'bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black shadow-lg shadow-emerald-600/20'
-                                        : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
+                                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 font-black shadow-sm'
+                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed border border-slate-200 dark:border-slate-700'
                                     }`}
                                   >
                                     {balance.remainingMarks >= item.neededMarks ? 'منح القرار (موافق)' : 'الرصيد غير كافٍ'}
@@ -655,59 +655,59 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
 
       {/* Confirmation Modal */}
       {grantModalData && (
-        <div className="no-print fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl flex flex-col gap-5">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div className="no-print fixed inset-0 z-50 bg-slate-950/70 dark:bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl flex flex-col gap-5">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-400/15 border border-emerald-200 dark:border-emerald-400/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-100">تأكيد منح قرار المساعدة الوزارية</h3>
-                  <p className="text-xs text-slate-400">يرجى مراجعة تفاصيل القرار قبل الحفظ</p>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">تأكيد منح قرار المساعدة الوزارية</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">يرجى مراجعة تفاصيل القرار قبل الحفظ</p>
                 </div>
               </div>
               <button
                 onClick={() => setGrantModalData(null)}
-                className="text-slate-400 hover:text-slate-200 cursor-pointer p-1"
+                className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer p-1"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="flex flex-col gap-3 text-sm bg-slate-950 p-4 rounded-xl border border-slate-800 font-mono">
-              <div className="flex justify-between items-center pb-2 border-b border-slate-850">
-                <span className="text-slate-400 font-sans">اسم الطالب:</span>
-                <span className="font-bold text-slate-100 font-sans">{grantModalData.student.name}</span>
+            <div className="flex flex-col gap-3 text-sm bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 font-mono">
+              <div className="flex justify-between items-center pb-2 border-b border-slate-200 dark:border-slate-700">
+                <span className="text-slate-500 dark:text-slate-400 font-sans">اسم الطالب:</span>
+                <span className="font-bold text-slate-900 dark:text-slate-100 font-sans">{grantModalData.student.name}</span>
               </div>
-              <div className="flex justify-between items-center pb-2 border-b border-slate-850">
-                <span className="text-slate-400 font-sans">المادة الدراسية:</span>
-                <span className="font-bold text-emerald-400 font-sans">{grantModalData.subject.name}</span>
+              <div className="flex justify-between items-center pb-2 border-b border-slate-200 dark:border-slate-700">
+                <span className="text-slate-500 dark:text-slate-400 font-sans">المادة الدراسية:</span>
+                <span className="font-bold text-emerald-700 dark:text-emerald-400 font-sans">{grantModalData.subject.name}</span>
               </div>
-              <div className="flex justify-between items-center pb-2 border-b border-slate-850">
-                <span className="text-slate-400 font-sans">الدرجة النهائية الأصلية قبل القرار:</span>
-                <span className="text-red-400 font-bold">{grantModalData.originalScore} من {grantModalData.passScore}</span>
+              <div className="flex justify-between items-center pb-2 border-b border-slate-200 dark:border-slate-700">
+                <span className="text-slate-500 dark:text-slate-400 font-sans">الدرجة النهائية الأصلية قبل القرار:</span>
+                <span className="text-rose-600 dark:text-rose-400 font-bold">{grantModalData.originalScore} من {grantModalData.passScore}</span>
               </div>
-              <div className="flex justify-between items-center pb-2 border-b border-slate-850">
-                <span className="text-slate-400 font-sans">مقدار المساعدة اللازم للوصول إلى النجاح:</span>
-                <span className="text-amber-400 font-bold">+{grantModalData.neededMarks} درجات</span>
+              <div className="flex justify-between items-center pb-2 border-b border-slate-200 dark:border-slate-700">
+                <span className="text-slate-500 dark:text-slate-400 font-sans">مقدار المساعدة اللازم للوصول إلى النجاح:</span>
+                <span className="text-amber-600 dark:text-amber-400 font-bold">+{grantModalData.neededMarks} درجات</span>
               </div>
-              <div className="flex justify-between items-center pb-2 border-b border-slate-850">
-                <span className="text-slate-400 font-sans">رصيد المساعدة المتاح قبل المنح:</span>
-                <span className="text-slate-200 font-bold">{grantModalData.balanceRemaining} درجات</span>
+              <div className="flex justify-between items-center pb-2 border-b border-slate-200 dark:border-slate-700">
+                <span className="text-slate-500 dark:text-slate-400 font-sans">رصيد المساعدة المتاح قبل المنح:</span>
+                <span className="text-slate-800 dark:text-slate-200 font-bold">{grantModalData.balanceRemaining} درجات</span>
               </div>
-              <div className="flex justify-between items-center pb-2 border-b border-slate-850">
-                <span className="text-slate-400 font-sans">الدرجة التي ستظهر بعد القرار:</span>
-                <span className="text-emerald-400 font-black text-base">{grantModalData.passScore} (ناجح)</span>
+              <div className="flex justify-between items-center pb-2 border-b border-slate-200 dark:border-slate-700">
+                <span className="text-slate-500 dark:text-slate-400 font-sans">الدرجة التي ستظهر بعد القرار:</span>
+                <span className="text-emerald-700 dark:text-emerald-400 font-black text-base">{grantModalData.passScore} (ناجح)</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-slate-400 font-sans">الرصيد المتبقي بعد المنح:</span>
-                <span className="text-cyan-400 font-bold">{grantModalData.balanceRemaining - grantModalData.neededMarks} درجات</span>
+                <span className="text-slate-500 dark:text-slate-400 font-sans">الرصيد المتبقي بعد المنح:</span>
+                <span className="text-teal-700 dark:text-teal-400 font-bold">{grantModalData.balanceRemaining - grantModalData.neededMarks} درجات</span>
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-amber-950/30 border border-amber-800/40 text-amber-300 text-xs flex items-start gap-2">
-              <Info className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+            <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs flex items-start gap-2">
+              <Info className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
               <span>
                 هل تريد منح القرار لهذا الطالب في هذه المادة؟ سيتم تطبيق الدرجة مباشرة في قسم إدخال الدرجات والنتائج دون تغيير الدرجة الأصلية.
               </span>
@@ -717,14 +717,14 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
               <button
                 type="button"
                 onClick={() => setGrantModalData(null)}
-                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-xs font-bold transition-colors cursor-pointer"
               >
                 إلغاء
               </button>
               <button
                 type="button"
                 onClick={handleConfirmGrant}
-                className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 text-xs font-black transition-colors shadow-lg shadow-emerald-600/20 cursor-pointer"
+                className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 text-xs font-black transition-colors shadow-sm cursor-pointer"
               >
                 موافق (منح القرار)
               </button>

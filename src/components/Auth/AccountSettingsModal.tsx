@@ -101,25 +101,19 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm"
       dir="rtl"
     >
-      <div
-        className={`w-full max-w-lg rounded-3xl border p-6 sm:p-7 shadow-2xl transition-all duration-200 ${
-          theme === 'dark'
-            ? 'bg-[#181F2A] border-[#2E3748] text-white shadow-black/60'
-            : 'bg-[#FAFAF9] border-[#E0E4E8] text-[#202631] shadow-slate-400/40'
-        }`}
-      >
+      <div className="w-full max-w-lg rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-6 sm:p-7 shadow-2xl transition-all duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-700/50 mb-5">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800 mb-5">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-500">
+            <div className="p-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-400/15 border border-emerald-200 dark:border-emerald-400/30 text-emerald-600 dark:text-emerald-400">
               <User className="w-5 h-5" />
             </div>
             <div>
               <h3 className="text-base sm:text-lg font-black">إعدادات الحساب الشخصي (حسابي)</h3>
-              <p className={`text-xs ${theme === 'dark' ? 'text-slate-400' : 'text-[#707987]'}`}>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 تعديل اسم المستخدم وكلمة المرور
               </p>
             </div>
@@ -127,36 +121,30 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className={`p-2 rounded-xl transition-colors cursor-pointer ${
-              theme === 'dark' ? 'hover:bg-slate-800 text-slate-400' : 'hover:bg-slate-200 text-slate-600'
-            }`}
+            className="p-2 rounded-xl transition-colors cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Current User Info Card */}
-        <div
-          className={`p-3 rounded-2xl border mb-5 flex items-center justify-between ${
-            theme === 'dark' ? 'bg-[#212836] border-[#364153]' : 'bg-[#F0F2F5] border-[#D7DCE1]'
-          }`}
-        >
+        <div className="p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/70 mb-5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center font-bold text-slate-950 text-sm">
+            <div className="w-9 h-9 rounded-xl bg-emerald-600 dark:bg-emerald-400 flex items-center justify-center font-bold text-white dark:text-slate-950 text-sm">
               {session.user.username.slice(0, 2).toUpperCase()}
             </div>
             <div>
               <div className="text-sm font-bold">{session.user.username}</div>
-              <div className="text-[11px] text-slate-400">
+              <div className="text-[11px] text-slate-500 dark:text-slate-400">
                 {session.user.role === 'admin' ? 'مدير النظام الكامل' : 'مستخدم عادي'}
               </div>
             </div>
           </div>
           <span
-            className={`text-xs px-2.5 py-1 rounded-full font-bold ${
+            className={`text-xs px-2.5 py-1 rounded-full font-bold border ${
               session.user.role === 'admin'
-                ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                ? 'bg-teal-50 dark:bg-teal-400/15 text-teal-700 dark:text-teal-400 border-teal-200 dark:border-teal-400/30'
+                : 'bg-emerald-50 dark:bg-emerald-400/15 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-400/30'
             }`}
           >
             {session.user.role === 'admin' ? 'مدير (Admin)' : 'مستخدم (User)'}
@@ -165,27 +153,15 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
 
         {/* Notifications */}
         {error && (
-          <div
-            className={`p-3 rounded-xl border mb-4 text-xs font-bold flex items-center gap-2 ${
-              theme === 'dark'
-                ? 'bg-rose-950/60 border-rose-500/40 text-rose-300'
-                : 'bg-rose-50 border-rose-200 text-rose-700'
-            }`}
-          >
-            <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
+          <div className="p-3 rounded-xl border mb-4 text-xs font-bold flex items-center gap-2 bg-rose-50 dark:bg-rose-950/50 border-rose-200 dark:border-rose-500/40 text-rose-700 dark:text-rose-300">
+            <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
         {success && (
-          <div
-            className={`p-3 rounded-xl border mb-4 text-xs font-bold flex items-center gap-2 ${
-              theme === 'dark'
-                ? 'bg-emerald-950/60 border-emerald-500/40 text-emerald-300'
-                : 'bg-emerald-50 border-emerald-200 text-emerald-700'
-            }`}
-          >
-            <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+          <div className="p-3 rounded-xl border mb-4 text-xs font-bold flex items-center gap-2 bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-500/40 text-emerald-700 dark:text-emerald-300">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <span>{success}</span>
           </div>
         )}
@@ -193,45 +169,37 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
         {/* Edit Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label className="block text-xs font-bold mb-1.5">اسم المستخدم</label>
+            <label className="block text-xs font-bold mb-1.5 text-slate-700 dark:text-slate-200">اسم المستخدم</label>
             <input
               type="text"
               required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className={`w-full h-10 px-3 text-sm rounded-xl border font-bold transition-colors focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 ${
-                theme === 'dark'
-                  ? 'bg-[#212836] border-[#364153] text-white focus:border-emerald-500'
-                  : 'bg-[#F0F2F5] border-[#D7DCE1] text-[#202631] focus:border-emerald-600'
-              }`}
+              className="w-full h-10 px-3 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-bold transition-colors focus:outline-hidden focus:ring-2 focus:ring-emerald-600/25 dark:focus:ring-emerald-400/25 focus:border-emerald-600 dark:focus:border-emerald-400"
             />
           </div>
 
-          <div className="pt-2 border-t border-slate-700/50">
-            <h4 className="text-xs font-bold text-emerald-500 mb-3 flex items-center gap-1.5">
+          <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
+            <h4 className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-3 flex items-center gap-1.5">
               <Lock className="w-3.5 h-3.5" />
               <span>تغيير كلمة المرور (اختياري - اتركه فارغاً إذا كنت لا ترغب بتغييرها)</span>
             </h4>
 
             <div className="flex flex-col gap-3">
               <div>
-                <label className="block text-xs font-bold mb-1">كلمة المرور الحالية</label>
+                <label className="block text-xs font-bold mb-1 text-slate-700 dark:text-slate-300">كلمة المرور الحالية</label>
                 <div className="relative">
                   <input
                     type={showCurrentPassword ? 'text' : 'password'}
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     placeholder="مطلوبة فقط عند تغيير كلمة المرور"
-                    className={`w-full h-10 pr-3 pl-10 text-xs rounded-xl border font-medium transition-colors focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 ${
-                      theme === 'dark'
-                        ? 'bg-[#212836] border-[#364153] text-white focus:border-emerald-500'
-                        : 'bg-[#F0F2F5] border-[#D7DCE1] text-[#202631] focus:border-emerald-600'
-                    }`}
+                    className="w-full h-10 pr-3 pl-10 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-medium transition-colors focus:outline-hidden focus:ring-2 focus:ring-emerald-600/25 dark:focus:ring-emerald-400/25 focus:border-emerald-600 dark:focus:border-emerald-400"
                   />
                   <button
                     type="button"
                     onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                    className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 hover:text-slate-200 cursor-pointer"
+                    className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
                   >
                     {showCurrentPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                   </button>
@@ -239,23 +207,19 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold mb-1">كلمة المرور الجديدة</label>
+                <label className="block text-xs font-bold mb-1 text-slate-700 dark:text-slate-300">كلمة المرور الجديدة</label>
                 <div className="relative">
                   <input
                     type={showNewPassword ? 'text' : 'password'}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="6 خانات على الأقل"
-                    className={`w-full h-10 pr-3 pl-10 text-xs rounded-xl border font-medium transition-colors focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 ${
-                      theme === 'dark'
-                        ? 'bg-[#212836] border-[#364153] text-white focus:border-emerald-500'
-                        : 'bg-[#F0F2F5] border-[#D7DCE1] text-[#202631] focus:border-emerald-600'
-                    }`}
+                    className="w-full h-10 pr-3 pl-10 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-medium transition-colors focus:outline-hidden focus:ring-2 focus:ring-emerald-600/25 dark:focus:ring-emerald-400/25 focus:border-emerald-600 dark:focus:border-emerald-400"
                   />
                   <button
                     type="button"
                     onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 hover:text-slate-200 cursor-pointer"
+                    className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
                   >
                     {showNewPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                   </button>
@@ -263,41 +227,33 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold mb-1">تأكيد كلمة المرور الجديدة</label>
+                <label className="block text-xs font-bold mb-1 text-slate-700 dark:text-slate-300">تأكيد كلمة المرور الجديدة</label>
                 <input
                   type={showNewPassword ? 'text' : 'password'}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="أعد إدخال كلمة المرور الجديدة"
-                  className={`w-full h-10 px-3 text-xs rounded-xl border font-medium transition-colors focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 ${
-                    theme === 'dark'
-                      ? 'bg-[#212836] border-[#364153] text-white focus:border-emerald-500'
-                      : 'bg-[#F0F2F5] border-[#D7DCE1] text-[#202631] focus:border-emerald-600'
-                  }`}
+                  className="w-full h-10 px-3 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-medium transition-colors focus:outline-hidden focus:ring-2 focus:ring-emerald-600/25 dark:focus:ring-emerald-400/25 focus:border-emerald-600 dark:focus:border-emerald-400"
                 />
               </div>
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-3 mt-4 pt-3 border-t border-slate-700/50">
+          <div className="flex items-center justify-end gap-3 mt-4 pt-3 border-t border-slate-200 dark:border-slate-800">
             <button
               type="button"
               onClick={onClose}
-              className={`px-4 py-2 rounded-xl text-xs font-bold cursor-pointer transition-colors ${
-                theme === 'dark'
-                  ? 'bg-slate-800 hover:bg-slate-700 text-slate-300'
-                  : 'bg-slate-200 hover:bg-slate-300 text-slate-700'
-              }`}
+              className="px-4 py-2 rounded-xl text-xs font-bold cursor-pointer transition-colors bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300"
             >
               إلغاء
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-lg shadow-emerald-600/20 cursor-pointer disabled:opacity-50 transition-all"
+              className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-lg shadow-emerald-600/20 dark:shadow-emerald-400/15 cursor-pointer disabled:opacity-50 transition-all"
             >
               {isLoading ? (
-                <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-white dark:border-slate-950 border-t-transparent rounded-full animate-spin" />
               ) : (
                 <>
                   <Save className="w-4 h-4" />
