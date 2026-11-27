@@ -747,17 +747,11 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                 <Sparkles className="w-3 h-3" />
                 <span>النوع المعروض: {activeGradeConfig.label}</span>
               </span>
-              <span className="text-[#64748B] dark:text-[#A8B5C7] text-xs hidden sm:inline">
-                {activeGradeConfig.description}
-              </span>
             </div>
             <h1 className="text-2xl font-black text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2.5">
               <Trophy className="w-6 h-6 text-[#3156C9] dark:text-[#60A5FA]" />
               <span>عرض وتدقيق نتائج وتقييم الطلاب</span>
             </h1>
-            <p className="text-xs text-[#64748B] dark:text-[#A8B5C7] mt-1">
-              اختر نوع الدرجة المطلوب لعرض كشف الدرجات الشامل، مع حساب المجموع والمعدل والترتيب آلياً.
-            </p>
           </div>
 
           {/* Action Buttons: Export Excel, Print Preview & Print */}
@@ -1206,15 +1200,6 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
             )}
           </tbody>
         </table>
-      </div>
-
-      {/* Informative Guidance Footer Note */}
-      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[12px] p-3.5 flex items-center gap-3 text-xs text-[#475569] dark:text-[#A8B5C7] no-print shadow-2xs">
-        <Info className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA] shrink-0" />
-        <div>
-          <span>ملاحظة: علامة الشرطة (—) تعني أن الدرجة غير مدخلة بعد ولم تُحتسب صفراً. </span>
-          <span>المجموع والمعدل يُحسبان بصورة نهائية فور اكتمال رصد جميع المواد لهذا النوع من الدرجات.</span>
-        </div>
       </div>
 
       {/* Unified Interactive Print Preview Modal */}
