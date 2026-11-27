@@ -759,140 +759,127 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
         )}
       </div>
 
-      {/* =========================================================================
-          MODAL 1: Add Class (إضافة صف دراسي جديد) - Refined per prompt
-          ========================================================================= */}
+      {/* Add Class Modal */}
       {isAddClassModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[16px] w-full max-w-lg p-6 shadow-2xl flex flex-col gap-4 text-[#1E293B] dark:text-[#E2E8F0] max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border border-[#3156C9]/25 dark:border-[#2785F5]/30 text-[#3156C9] dark:text-[#60A5FA]">
-                  <Plus className="w-5 h-5" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/75 backdrop-blur-sm animate-in fade-in duration-150">
+          <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[22px] w-full max-w-2xl p-5 sm:p-6 shadow-2xl flex flex-col gap-5 text-[#1E293B] dark:text-[#E2E8F0] max-h-[92vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-4 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-xl bg-[#E8EFFF] dark:bg-[#263B63] border border-[#D3DFFF] dark:border-[#3B4D78] text-[#3156C9] dark:text-[#8DB5FF] flex items-center justify-center">
+                  <Layers className="w-6 h-6" />
                 </div>
-                <div>
-                  <h3 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0]">إضافة صف دراسي جديد</h3>
-                  <p className="text-xs text-[#64748B] dark:text-[#8493A8]">أدخل اسم الصف، واسترشد بالتحديد التلقائي أو اختر يدوياً مع تحديد الشعب</p>
-                </div>
+                <h3 className="text-lg font-black text-[#1E293B] dark:text-[#E2E8F0]">إضافة صف دراسي جديد</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setIsAddClassModalOpen(false)}
-                className="p-1.5 rounded-lg text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] transition-colors cursor-pointer"
+                aria-label="إغلاق"
+                className="p-2 rounded-xl text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {addClassError && (
-              <div className="p-3 rounded-lg bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 border border-[#E35D6A]/30 text-[#C83D4B] dark:text-[#E35D6A] text-xs flex items-center gap-2">
+              <div className="p-3 rounded-xl bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 border border-[#E35D6A]/30 text-[#C83D4B] dark:text-[#E35D6A] text-xs flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 shrink-0" />
                 <span>{addClassError}</span>
               </div>
             )}
 
-            <form onSubmit={handleAddClassSubmit} className="flex flex-col gap-4">
-              {/* 1. Class Name */}
-              <div>
-                <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1">
-                  اسم الصف الدراسي <span className="text-[#C83D4B] dark:text-[#E35D6A]">*</span>
-                </label>
-                <input
-                  ref={newClassNameInputRef}
-                  type="text"
-                  value={newClassName}
-                  onChange={(e) => handleNewClassNameChange(e.target.value)}
-                  placeholder="مثال: الأول المتوسط، الرابع العلمي، السادس الأدبي"
-                  className="w-full h-10 px-3 text-sm bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] placeholder:text-[#64748B] dark:placeholder:text-[#8493A8] focus:border-[#2785F5] focus:outline-hidden"
-                  required
-                />
+            <form onSubmit={handleAddClassSubmit} className="flex flex-col gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-2">
+                    اسم الصف الدراسي <span className="text-[#C83D4B] dark:text-[#E35D6A]">*</span>
+                  </label>
+                  <input
+                    ref={newClassNameInputRef}
+                    type="text"
+                    value={newClassName}
+                    onChange={(e) => handleNewClassNameChange(e.target.value)}
+                    placeholder="مثال: الرابع العلمي"
+                    className="w-full h-12 px-3 text-sm bg-[#F6F8FC] dark:bg-[#26364B] border border-[#D5E0F0] dark:border-[#3B4D66] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] placeholder:text-[#8493A8] focus:border-[#3976DB] focus:ring-2 focus:ring-[#3976DB]/15 focus:outline-none transition"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-2">
+                    المرحلة الدراسية <span className="text-[#C83D4B] dark:text-[#E35D6A]">*</span>
+                  </label>
+                  <select
+                    value={newClassStage}
+                    onChange={(e) => handleNewClassStageChange(e.target.value)}
+                    className="w-full h-12 px-3 text-sm bg-[#F6F8FC] dark:bg-[#26364B] border border-[#D5E0F0] dark:border-[#3B4D66] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] focus:border-[#3976DB] focus:ring-2 focus:ring-[#3976DB]/15 focus:outline-none cursor-pointer font-bold transition"
+                  >
+                    {STAGE_OPTIONS.map((opt) => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
-              {/* 2. Stage (Auto-detected + 4 Manual Options) */}
-              <div>
-                <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1">
-                  المرحلة الدراسية <span className="text-[#C83D4B] dark:text-[#E35D6A]">*</span>
-                </label>
-                <select
-                  value={newClassStage}
-                  onChange={(e) => handleNewClassStageChange(e.target.value)}
-                  className="w-full h-10 px-3 text-sm bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] focus:border-[#2785F5] focus:outline-hidden cursor-pointer font-bold"
-                >
-                  {STAGE_OPTIONS.map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt}
-                    </option>
-                  ))}
-                </select>
-                <p className="text-[11px] text-[#64748B] dark:text-[#8493A8] mt-1">
-                  يحدد النظام المرحلة تلقائياً بناءً على اسم الصف، ويمكنك تعديلها يدوياً عند الحاجة.
-                </p>
-              </div>
-
-              {/* 3. Preset Sections Checkboxes */}
-              <div>
-                <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-2">
-                  الشعب الدراسية الجاهزة (اختياري)
-                </label>
-                <div className="grid grid-cols-5 gap-2">
+              <section className="rounded-2xl border border-[#E0E8F5] dark:border-[#33465F] bg-[#F8FAFE] dark:bg-[#202E40] p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Users className="w-4 h-4 text-[#3156C9] dark:text-[#8DB5FF]" />
+                  <h4 className="text-sm font-black text-[#334B6D] dark:text-[#D5E2F2]">الشُعب الدراسية</h4>
+                  <span className="text-[10px] font-semibold text-[#8493A8]">(اختياري)</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                   {PRESET_SECTIONS.map((sec) => {
                     const isChecked = Boolean(selectedPresetSections[sec]);
                     return (
                       <button
                         key={sec}
                         type="button"
+                        aria-pressed={isChecked}
                         onClick={() => {
                           setSelectedPresetSections((prev) => ({
                             ...prev,
                             [sec]: !prev[sec],
                           }));
                         }}
-                        className={`h-10 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
+                        className={`min-h-11 px-2.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                           isChecked
-                            ? 'bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border-[#3156C9] dark:border-[#2785F5] text-[#3156C9] dark:text-[#60A5FA] shadow-xs'
-                            : 'bg-[#F8FAFC] dark:bg-[#202E40] border-[#DCE3ED] dark:border-[#2D3B4D] text-[#475569] dark:text-[#A8B5C7] hover:border-[#CBD5E1] dark:hover:border-[#3A4D63] hover:text-[#1E293B] dark:hover:text-[#E2E8F0]'
+                            ? 'bg-[#E8EFFF] dark:bg-[#263B63] border-[#8EAAEF] dark:border-[#5277C8] text-[#244DB5] dark:text-[#A9C3FF] shadow-sm'
+                            : 'bg-white dark:bg-[#26364B] border-[#DCE5F1] dark:border-[#3B4D66] text-[#475569] dark:text-[#B8C6D8] hover:border-[#9CB5E8] dark:hover:border-[#5877A5]'
                         }`}
                       >
-                        {isChecked ? <CheckSquare className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA]" /> : <Square className="w-4 h-4 text-[#64748B] dark:text-[#8493A8]" />}
                         <span>شعبة {sec}</span>
+                        {isChecked ? <CheckSquare className="w-4 h-4 shrink-0" /> : <Square className="w-4 h-4 shrink-0 text-[#94A3B8]" />}
                       </button>
                     );
                   })}
                 </div>
-              </div>
+              </section>
 
-              {/* 4. Manual Sections Input */}
-              <div>
-                <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1">
-                  إضافة شعب يدوياً (اختياري)
+              <section className="rounded-2xl border border-[#E0E8F5] dark:border-[#33465F] bg-white dark:bg-[#202E40] p-4">
+                <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-2">
+                  إضافة شُعب أخرى <span className="font-medium text-[#8493A8]">(اختياري)</span>
                 </label>
                 <input
                   type="text"
                   value={manualSectionsInput}
                   onChange={(e) => setManualSectionsInput(e.target.value)}
-                  placeholder="مثال: ك، ل، م، شعبة المسائي"
-                  className="w-full h-10 px-3 text-sm bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] placeholder:text-[#64748B] dark:placeholder:text-[#8493A8] focus:border-[#2785F5] focus:outline-hidden"
+                  placeholder="أدخل أسماء الشُعب"
+                  className="w-full h-12 px-3 text-sm bg-[#F6F8FC] dark:bg-[#26364B] border border-[#D5E0F0] dark:border-[#3B4D66] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] placeholder:text-[#8493A8] focus:border-[#3976DB] focus:ring-2 focus:ring-[#3976DB]/15 focus:outline-none transition"
                 />
-                <p className="text-[11px] text-[#64748B] dark:text-[#8493A8] mt-1">
-                  افصل بين أسماء الشعب اليدوية بالفواصل (، أو ,). يمكنك الجمع بين مربعات الاختيار والإدخال اليدوي.
-                </p>
-              </div>
+              </section>
 
-              {/* 5. Buttons */}
-              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
+              <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-start gap-2.5 pt-4 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
+                <button
+                  type="submit"
+                  className="px-5 h-11 text-xs font-bold rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3979E6] dark:hover:bg-[#4B8CF0] text-white flex items-center justify-center gap-2 transition-all cursor-pointer shadow-[0_5px_14px_rgba(49,86,201,0.2)]"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>حفظ الصف وإضافة الشُعب</span>
+                </button>
                 <button
                   type="button"
                   onClick={() => setIsAddClassModalOpen(false)}
-                  className="px-4 py-2 text-xs font-bold rounded-lg bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] transition-colors cursor-pointer"
+                  className="px-5 h-11 text-xs font-bold rounded-xl bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#334155] dark:text-[#E2E8F0] transition-colors cursor-pointer"
                 >
                   إلغاء
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 text-xs font-bold rounded-lg bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>حفظ الصف وإضافة الشعب</span>
                 </button>
               </div>
             </form>
