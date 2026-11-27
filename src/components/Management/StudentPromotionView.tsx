@@ -803,7 +803,7 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
   return (
     <div className="w-full flex flex-col gap-6 pb-20" dir="rtl">
       {/* Top Header Banner */}
-      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-6 shadow-sm dark:shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-6 shadow-sm dark:shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 app-card-surface">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-[#3156C9]/8 dark:bg-[#2785F5]/12 border border-[#3156C9]/25 dark:border-[#2785F5]/25 flex items-center justify-center text-[#3156C9] dark:text-[#60A5FA] shrink-0">
             <GraduationCap className="w-6 h-6" />
@@ -865,7 +865,7 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
       )}
 
       {/* SECTION 1: Academic Years & Class Selection */}
-      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-5 shadow-sm dark:shadow-lg flex flex-col gap-5">
+      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-5 shadow-sm dark:shadow-lg flex flex-col gap-5 app-card-surface">
         <div className="flex items-center justify-between pb-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D] flex-wrap gap-2">
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-lg bg-[#3156C9]/8 dark:bg-[#2785F5]/12 border border-[#3156C9]/25 dark:border-[#2785F5]/25 text-[#3156C9] dark:text-[#60A5FA] font-black text-xs flex items-center justify-center font-mono">
@@ -887,7 +887,7 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
 
         {/* Source and destination selection cards */}
         <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-3 items-stretch">
-          <section className="relative overflow-hidden rounded-2xl border border-[#BFD5FF] dark:border-[#365681] bg-gradient-to-br from-[#F1F6FF] via-white to-[#E5EFFF] dark:from-[#1B2D46] dark:via-[#1C2939] dark:to-[#203657] p-4 sm:p-5 shadow-sm flex flex-col gap-4">
+          <section className="relative overflow-hidden rounded-2xl border border-[#BFD5FF] dark:border-[#365681] bg-gradient-to-br from-[#F1F6FF] via-white to-[#E5EFFF] dark:from-[#1B2D46] dark:via-[#1C2939] dark:to-[#203657] p-4 sm:p-5 shadow-sm flex flex-col gap-4 app-card-surface">
             <div className="absolute -left-8 -top-8 w-32 h-32 rounded-full bg-[#3976DB]/[0.07] dark:bg-[#60A5FA]/[0.08] pointer-events-none" />
             <div className="relative flex items-center justify-between gap-2 pb-3 border-b border-[#C9D9F2] dark:border-[#344D6E]">
               <div className="flex items-center gap-2.5">
@@ -1003,7 +1003,7 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
             <span className="w-12 h-12 rounded-full bg-white dark:bg-[#26364B] border border-[#D7E2F1] dark:border-[#3B5577] shadow-sm text-[#3156C9] dark:text-[#8DB5FF] flex items-center justify-center"><ArrowRightLeft className="w-6 h-6" /></span>
           </div>
 
-          <section className="relative overflow-hidden rounded-2xl border border-[#BFE8D7] dark:border-[#326B58] bg-gradient-to-br from-[#EDFBF5] via-white to-[#E1F7EC] dark:from-[#193B34] dark:via-[#1C2939] dark:to-[#1B4038] p-4 sm:p-5 shadow-sm flex flex-col gap-4">
+          <section className="relative overflow-hidden rounded-2xl border border-[#BFE8D7] dark:border-[#326B58] bg-gradient-to-br from-[#EDFBF5] via-white to-[#E1F7EC] dark:from-[#193B34] dark:via-[#1C2939] dark:to-[#1B4038] p-4 sm:p-5 shadow-sm flex flex-col gap-4 app-card-surface">
             <div className="absolute -left-8 -top-8 w-32 h-32 rounded-full bg-[#15966B]/[0.07] dark:bg-[#54D6A6]/[0.08] pointer-events-none" />
             <div className="relative flex items-center justify-between gap-2 pb-3 border-b border-[#C8E8D9] dark:border-[#326B58]">
               <div className="flex items-center gap-2.5">
@@ -1197,7 +1197,7 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
 
       {/* SECTION 3: Distribution Methods & Live Section Counters */}
       {targetClassId !== 'graduated' && (
-        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-5 shadow-sm dark:shadow-lg flex flex-col gap-4">
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-5 shadow-sm dark:shadow-lg flex flex-col gap-4 app-card-surface">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
             <div className="flex items-center gap-2.5">
               <div className="w-7 h-7 rounded-lg bg-[#3156C9]/8 dark:bg-[#2785F5]/12 border border-[#3156C9]/25 dark:border-[#2785F5]/25 text-[#3156C9] dark:text-[#60A5FA] font-black text-xs flex items-center justify-center font-mono">
@@ -1299,7 +1299,7 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
       )}
 
       {/* SECTION 4: Ledger Table & Review Trigger */}
-      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-5 shadow-sm dark:shadow-xl flex flex-col gap-4">
+      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-5 shadow-sm dark:shadow-xl flex flex-col gap-4 app-card-surface">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-lg bg-[#3156C9]/8 dark:bg-[#2785F5]/12 border border-[#3156C9]/25 dark:border-[#2785F5]/25 text-[#3156C9] dark:text-[#60A5FA] font-black text-xs flex items-center justify-center font-mono">
