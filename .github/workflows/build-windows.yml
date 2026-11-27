@@ -8,6 +8,7 @@ on:
       - build/isolate-school-grades-data
       - feature/dashboard-professional-redesign
       - design/dashboard-navy-fluent
+      - design/dashboard-stat-cards-dual-theme
 
 permissions:
   contents: read
