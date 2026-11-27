@@ -26,10 +26,12 @@ import {
 
 interface UserManagementSectionProps {
   currentUserId: string;
+  section: 'users' | 'email';
 }
 
 export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
   currentUserId,
+  section,
 }) => {
   const [users, setUsers] = useState<UserAccount[]>(() => db.getUsers());
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -378,6 +380,7 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
 
   return (
     <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-5 sm:p-6 shadow-sm dark:shadow-lg app-card-surface">
+      {section === 'users' && <>
       {/* Header and Add Button */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
         <div>
@@ -574,6 +577,9 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
         </span>
       </div>
 
+      </>)}
+
+      {section === 'email' && <>
       {/* Gmail SMTP Settings Card */}
       <div className="mt-8 pt-6 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
@@ -754,6 +760,9 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
         </form>
       </div>
 
+      </>)}
+
+      {section === 'users' && <>
       {/* MODAL 1: Add User */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs" dir="rtl">
@@ -1036,6 +1045,9 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
         </div>
       )}
 
+      </>)}
+
+      {section === 'email' && <>
       {/* MODAL 5: Gmail SMTP Setup Instructions */}
       {isSmtpHelpOpen && (
         <div 
@@ -1122,6 +1134,7 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
           </div>
         </div>
       )}
+      </>)}
     </div>
   );
 };
