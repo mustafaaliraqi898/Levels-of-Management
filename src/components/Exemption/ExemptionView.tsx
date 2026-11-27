@@ -572,12 +572,12 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
         )}
 
         <div className="p-3 sm:p-4 space-y-3">
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
             {/* أ. شروط الإعفاء العام */}
             <div className="bg-gradient-to-br from-[#F0FAF6] to-[#F8FCFA] dark:from-[#18352F] dark:to-[#1B2A38] border border-[#BFE8D7] dark:border-[#326B58] rounded-xl p-4 space-y-3 shadow-sm">
               <div className="flex items-center justify-between border-b border-[#DCE3ED] dark:border-[#2D3B4D] pb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#D69B42]" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#15966B]" />
                   <h3 className="font-bold text-sm sm:text-base text-[#1E293B] dark:text-[#E2E8F0]">
                     أ. شروط الإعفاء العام
                   </h3>
