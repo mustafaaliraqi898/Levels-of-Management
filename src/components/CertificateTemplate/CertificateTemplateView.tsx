@@ -383,7 +383,7 @@ export const CertificateTemplateView: React.FC<CertificateTemplateViewProps> = (
   return (
     <div className="flex flex-col gap-6 pb-20 select-none" dir="rtl">
       {/* 1. Header Toolbar */}
-      <div className="no-print bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-5 rounded-[14px] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="no-print bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-5 rounded-[14px] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 app-card-surface">
         <div>
           <div className="flex items-center gap-2.5">
             <div className="w-10 h-10 rounded-[10px] bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border border-[#3156C9]/25 dark:border-[#2785F5]/30 flex items-center justify-center text-[#3156C9] dark:text-[#60A5FA] font-bold shadow-xs">
@@ -461,7 +461,7 @@ export const CertificateTemplateView: React.FC<CertificateTemplateViewProps> = (
         {/* Left Side: Control Tools & Settings (5 cols on lg) */}
         <div className="lg:col-span-5 flex flex-col gap-4">
           {/* Tabs for Sidebar Panel */}
-          <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-1.5 rounded-[14px] flex items-center gap-1 shadow-xs">
+          <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-1.5 rounded-[14px] flex items-center gap-1 shadow-xs app-card-surface">
             <button
               type="button"
               onClick={() => setActiveTab('elements')}
@@ -504,7 +504,7 @@ export const CertificateTemplateView: React.FC<CertificateTemplateViewProps> = (
 
           {/* TAB 1: Elements & Positioning Tools */}
           {activeTab === 'elements' && (
-            <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[14px] p-5 shadow-xs flex flex-col gap-5">
+            <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[14px] p-5 shadow-xs flex flex-col gap-5 app-card-surface">
               {/* Element Selector Dropdown / Chips */}
               <div>
                 <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-2">
@@ -857,7 +857,7 @@ export const CertificateTemplateView: React.FC<CertificateTemplateViewProps> = (
 
           {/* TAB 2: Template Image Management */}
           {activeTab === 'template' && (
-            <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[14px] p-5 shadow-xs flex flex-col gap-4">
+            <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[14px] p-5 shadow-xs flex flex-col gap-4 app-card-surface">
               <h3 className="text-sm font-bold text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2">
                 <ImageIcon className="w-4 h-4 text-[#D69B42]" />
                 <span>إدارة صورة قالب الشهادة (خلفية A4)</span>
@@ -951,7 +951,7 @@ export const CertificateTemplateView: React.FC<CertificateTemplateViewProps> = (
 
           {/* TAB 3: Student Selection & Live Print Binding */}
           {activeTab === 'recipient' && (
-            <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[14px] p-5 shadow-xs flex flex-col gap-4">
+            <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[14px] p-5 shadow-xs flex flex-col gap-4 app-card-surface">
               <h3 className="text-sm font-bold text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2">
                 <User className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA]" />
                 <span>اختيار الطالب المستحق للشهادة</span>
@@ -1052,7 +1052,7 @@ export const CertificateTemplateView: React.FC<CertificateTemplateViewProps> = (
         {/* Right Side: Interactive Live A4 Canvas (7 cols on lg) */}
         <div className="lg:col-span-7 flex flex-col gap-3">
           {/* Canvas Controls Header Bar (Zoom, Grid, Reset View) */}
-          <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] px-4 py-2.5 rounded-[14px] flex items-center justify-between text-xs shadow-xs">
+          <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] px-4 py-2.5 rounded-[14px] flex items-center justify-between text-xs shadow-xs app-card-surface">
             <div className="flex items-center gap-2 text-[#1E293B] dark:text-[#E2E8F0] font-bold">
               <Move className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA]" />
               <span>المعاينة التفاعلية المباشرة (A4 أفقي)</span>
