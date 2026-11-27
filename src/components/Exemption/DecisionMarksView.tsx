@@ -336,28 +336,50 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
     }
   };
 
+  const eligibleSubjectCount = eligibleStudentsList.reduce((total, item) => total + item.eligibleSubjects.length, 0);
+  const grantedDecisionCount = eligibleStudentsList.reduce(
+    (total, item) => total + item.eligibleSubjects.filter((subject) => subject.isGranted).length,
+    0
+  );
+  const totalRemainingMarks = eligibleStudentsList.reduce((total, item) => total + item.balance.remainingMarks, 0);
+
   return (
     <div className="w-full flex flex-col gap-6 pb-12">
-      {/* Header Banner */}
-      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-6 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border border-[#3156C9]/25 dark:border-[#2785F5]/30 flex items-center justify-center text-[#3156C9] dark:text-[#60A5FA] shrink-0">
-            <ShieldCheck className="w-6 h-6" />
-          </div>
-          <div>
-            <h1 className="text-xl font-black text-[#1E293B] dark:text-[#E2E8F0]">إضافة درجات القرار ومساعدة المدير</h1>
-            <p className="text-sm text-[#64748B] dark:text-[#8493A8]">
-              منح درجات المساعدة الوزارية يدوياً للطلبة المستحقين وفق الضوابط، مع مزامنة فورية في قسم إدخال الدرجات والنتائج.
-            </p>
-          </div>
+      {/* Header */}
+      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl px-5 py-4 shadow-sm flex items-center gap-3">
+        <div className="w-11 h-11 rounded-xl bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border border-[#3156C9]/25 dark:border-[#2785F5]/30 flex items-center justify-center text-[#3156C9] dark:text-[#60A5FA] shrink-0">
+          <ShieldCheck className="w-5 h-5" />
         </div>
+        <h1 className="text-lg sm:text-xl font-black text-[#1E293B] dark:text-[#E2E8F0]">إضافة درجات القرار ومساعدة المدير</h1>
+      </div>
 
-        <div className="flex items-center gap-3">
-          <div className="px-4 py-2 rounded-xl bg-[#EDF1F7] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] text-xs font-mono font-bold text-[#3156C9] dark:text-[#60A5FA] flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-[#B45309] dark:text-[#D69B42]" />
-            <span>رصيد الدور الأول الأساسي: {decisionSettings?.primaryAssistanceMarks || 10} درجات</span>
-          </div>
-        </div>
+      {/* Summary Statistics */}
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
+        {[
+          { label: 'الطلاب المستحقون', value: eligibleStudentsList.length, icon: Users, tone: 'blue' },
+          { label: 'المواد المستحقة', value: eligibleSubjectCount, icon: BookOpen, tone: 'violet' },
+          { label: 'القرارات الممنوحة', value: grantedDecisionCount, icon: CheckCircle2, tone: 'green' },
+          { label: 'الرصيد المتبقي', value: totalRemainingMarks, suffix: 'درجة', icon: Sparkles, tone: 'amber' },
+        ].map((item) => {
+          const tones: Record<string, string> = {
+            blue: 'bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-blue-100 dark:border-blue-900',
+            violet: 'bg-violet-50 dark:bg-violet-950/30 text-violet-700 dark:text-violet-300 border-violet-100 dark:border-violet-900',
+            green: 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border-emerald-100 dark:border-emerald-900',
+            amber: 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300 border-amber-100 dark:border-amber-900',
+          };
+          const Icon = item.icon;
+          return (
+            <div key={item.label} className={`rounded-2xl border p-4 ${tones[item.tone]}`}>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs font-bold">{item.label}</span>
+                <Icon className="w-5 h-5 opacity-80" />
+              </div>
+              <div className="mt-2 text-2xl font-black font-mono tabular-nums">
+                {item.value}{item.suffix ? <span className="mr-1 text-xs font-bold">{item.suffix}</span> : null}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Feedback Banner */}
@@ -397,7 +419,7 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
           <select
             value={selectedYearId}
             onChange={(e) => setSelectedYearId(e.target.value)}
-            className="w-full h-10 px-3 bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] text-sm focus:outline-none focus:border-[#2785F5] font-bold"
+            className="w-full h-10 px-3 bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] text-sm focus:outline-none focus:border-[#2785F5] font-bold cursor-pointer"
           >
             {academicYears.map((y) => (
               <option key={y.id} value={y.id}>
@@ -490,9 +512,6 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
               {eligibleStudentsList.length} طالب
             </span>
           </h2>
-          <span className="text-xs text-[#64748B] dark:text-[#8493A8]">
-            يظهر كل طالب مرة واحدة مع كافة مواده المستحقة في {selectedRound === 'round1' ? 'الدور الأول' : 'الدور الثاني'}
-          </span>
         </div>
 
         {eligibleStudentsList.length === 0 ? (
@@ -501,9 +520,7 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
               <ShieldCheck className="w-8 h-8" />
             </div>
             <p className="text-[#1E293B] dark:text-[#E2E8F0] font-bold text-base">لا يوجد طلبة مستحقون للقرار وفق الفلاتر المحددة.</p>
-            <p className="text-xs text-[#64748B] dark:text-[#8493A8] max-w-md">
-              تأكد من إدخال درجات السعي والامتحان النهائي للطلبة وأن لديهم عجزاً ضمن رصيد المساعدة المتاحة.
-            </p>
+            <p className="text-xs text-[#64748B] dark:text-[#8493A8] max-w-md">لا توجد حالات مستحقة وفق خيارات التصفية الحالية.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">
@@ -664,8 +681,7 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0]">تأكيد منح قرار المساعدة الوزارية</h3>
-                  <p className="text-xs text-[#64748B] dark:text-[#8493A8]">يرجى مراجعة تفاصيل القرار قبل الحفظ</p>
-                </div>
+                    </div>
               </div>
               <button
                 onClick={() => setGrantModalData(null)}
@@ -709,7 +725,7 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
             <div className="p-3 rounded-xl bg-[#D69B42]/10 border border-[#D69B42]/30 text-[#B45309] dark:text-[#D69B42] text-xs flex items-start gap-2">
               <Info className="w-4 h-4 shrink-0 mt-0.5" />
               <span>
-                هل تريد منح القرار لهذا الطالب في هذه المادة؟ سيتم تطبيق الدرجة مباشرة في قسم إدخال الدرجات والنتائج دون تغيير الدرجة الأصلية.
+                سيتم تطبيق القرار على هذه المادة مع الاحتفاظ بالدرجة الأصلية.
               </span>
             </div>
 
