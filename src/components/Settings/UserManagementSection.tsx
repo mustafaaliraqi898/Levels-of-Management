@@ -577,7 +577,7 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
         </span>
       </div>
 
-      </>)}
+      </>}
 
       {section === 'email' && <>
       {/* Gmail SMTP Settings Card */}
@@ -760,7 +760,7 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
         </form>
       </div>
 
-      </>)}
+      </>}
 
       {section === 'users' && <>
       {/* MODAL 1: Add User */}
@@ -1045,7 +1045,7 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
         </div>
       )}
 
-      </>)}
+      </>}
 
       {section === 'email' && <>
       {/* MODAL 5: Gmail SMTP Setup Instructions */}
@@ -1134,7 +1134,7 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
           </div>
         </div>
       )}
-      </>)}
+      </>}
     </div>
   );
 };
