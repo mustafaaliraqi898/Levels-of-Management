@@ -738,7 +738,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
   return (
     <div className="flex flex-col gap-6 pb-16" dir="rtl">
       {/* Main Header & Filter Control Bar */}
-      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-5 rounded-[14px] shadow-xs flex flex-col gap-4 no-print">
+      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-5 rounded-[14px] shadow-xs flex flex-col gap-4 no-print app-card-surface">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
           <div>
             <h1 className="text-2xl font-black text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2.5">
@@ -883,7 +883,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
 
       {/* Summary KPI Cards for the chosen Grade Type */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 no-print">
-        <div className="min-h-[88px] rounded-2xl border border-blue-200 dark:border-blue-900/70 bg-gradient-to-br from-blue-50 to-blue-100/70 dark:from-blue-950/45 dark:to-blue-900/20 p-3.5 flex flex-col justify-between shadow-sm">
+        <div className="min-h-[88px] rounded-2xl border border-blue-200 dark:border-blue-900/70 bg-gradient-to-br from-blue-50 to-blue-100/70 dark:from-blue-950/45 dark:to-blue-900/20 p-3.5 flex flex-col justify-between shadow-sm app-card-surface">
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-bold text-blue-800 dark:text-blue-300">إجمالي طلاب الشعبة</span>
             <Users className="w-7 h-7 text-blue-600 dark:text-blue-400 shrink-0" />
@@ -891,7 +891,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
           <span className="text-2xl font-black font-mono tabular-nums text-blue-700 dark:text-blue-300">{classStats.total}</span>
         </div>
 
-        <div className="min-h-[88px] rounded-2xl border border-emerald-200 dark:border-emerald-900/70 bg-gradient-to-br from-emerald-50 to-emerald-100/70 dark:from-emerald-950/45 dark:to-emerald-900/20 p-3.5 flex flex-col justify-between shadow-sm">
+        <div className="min-h-[88px] rounded-2xl border border-emerald-200 dark:border-emerald-900/70 bg-gradient-to-br from-emerald-50 to-emerald-100/70 dark:from-emerald-950/45 dark:to-emerald-900/20 p-3.5 flex flex-col justify-between shadow-sm app-card-surface">
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300">الدرجات المكتملة</span>
             <CheckCircle2 className="w-7 h-7 text-emerald-600 dark:text-emerald-400 shrink-0" />
@@ -901,7 +901,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
           </span>
         </div>
 
-        <div className="min-h-[88px] rounded-2xl border border-rose-200 dark:border-rose-900/70 bg-gradient-to-br from-rose-50 to-rose-100/70 dark:from-rose-950/45 dark:to-rose-900/20 p-3.5 flex flex-col justify-between shadow-sm">
+        <div className="min-h-[88px] rounded-2xl border border-rose-200 dark:border-rose-900/70 bg-gradient-to-br from-rose-50 to-rose-100/70 dark:from-rose-950/45 dark:to-rose-900/20 p-3.5 flex flex-col justify-between shadow-sm app-card-surface">
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-bold text-rose-800 dark:text-rose-300">عدد الراسبين</span>
             <XCircle className="w-7 h-7 text-rose-600 dark:text-rose-400 shrink-0" />
@@ -909,7 +909,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
           <span className="text-2xl font-black font-mono tabular-nums text-rose-700 dark:text-rose-300">{classStats.failed}</span>
         </div>
 
-        <div className="min-h-[88px] rounded-2xl border border-amber-200 dark:border-amber-900/70 bg-gradient-to-br from-amber-50 to-amber-100/70 dark:from-amber-950/45 dark:to-amber-900/20 p-3.5 flex flex-col justify-between shadow-sm">
+        <div className="min-h-[88px] rounded-2xl border border-amber-200 dark:border-amber-900/70 bg-gradient-to-br from-amber-50 to-amber-100/70 dark:from-amber-950/45 dark:to-amber-900/20 p-3.5 flex flex-col justify-between shadow-sm app-card-surface">
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-bold text-amber-800 dark:text-amber-300">المكملون (1-2 مادة)</span>
             <BookOpen className="w-7 h-7 text-amber-600 dark:text-amber-400 shrink-0" />
@@ -917,7 +917,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
           <span className="text-2xl font-black font-mono tabular-nums text-amber-700 dark:text-amber-300">{classStats.supplementary}</span>
         </div>
 
-        <div className="min-h-[88px] rounded-2xl border border-violet-200 dark:border-violet-900/70 bg-gradient-to-br from-violet-50 to-violet-100/70 dark:from-violet-950/45 dark:to-violet-900/20 p-3.5 flex flex-col justify-between shadow-sm">
+        <div className="min-h-[88px] rounded-2xl border border-violet-200 dark:border-violet-900/70 bg-gradient-to-br from-violet-50 to-violet-100/70 dark:from-violet-950/45 dark:to-violet-900/20 p-3.5 flex flex-col justify-between shadow-sm app-card-surface">
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-bold text-violet-800 dark:text-violet-300">عدد الناجحين</span>
             <Award className="w-7 h-7 text-violet-600 dark:text-violet-400 shrink-0" />
@@ -925,7 +925,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
           <span className="text-2xl font-black font-mono tabular-nums text-violet-700 dark:text-violet-300">{classStats.passed}</span>
         </div>
 
-        <div className="min-h-[88px] rounded-2xl border border-green-200 dark:border-green-900/70 bg-gradient-to-br from-green-50 to-green-100/70 dark:from-green-950/45 dark:to-green-900/20 p-3.5 flex flex-col justify-between shadow-sm">
+        <div className="min-h-[88px] rounded-2xl border border-green-200 dark:border-green-900/70 bg-gradient-to-br from-green-50 to-green-100/70 dark:from-green-950/45 dark:to-green-900/20 p-3.5 flex flex-col justify-between shadow-sm app-card-surface">
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-bold text-green-800 dark:text-green-300">نسبة النجاح للمكتملين</span>
             <Trophy className="w-7 h-7 text-green-600 dark:text-green-400 shrink-0" />
@@ -938,7 +938,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
 
       {/* Top 5 Honors Cards for this Selected Grade Type */}
       {topStudents.length > 0 && (
-        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[14px] p-5 shadow-xs no-print">
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[14px] p-5 shadow-xs no-print app-card-surface">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Award className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" />
