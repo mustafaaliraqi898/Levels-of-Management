@@ -811,13 +811,7 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
           <div>
             <h1 className="text-xl font-black text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2 flex-wrap">
               <span>ترحيل الطلاب وترقيتهم للسنة الدراسية الجديدة</span>
-              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#3156C9]/8 dark:bg-[#2785F5]/12 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/25 dark:border-[#2785F5]/25">
-                ربط دقيق بين صفوف وشُعب كل سنة
-              </span>
             </h1>
-            <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-1">
-              ترقية الناجحين والمعفين وتأطير المعيدين في صفوف وشُعب السنة الجديدة الحصرية، مع حماية تامة وغير قابلة للتعديل للدرجات السابقة.
-            </p>
           </div>
         </div>
 
