@@ -118,6 +118,7 @@ export const BackupRestoreView: React.FC = () => {
       {/* Automated Backup Status & Location Settings */}
       <div className="flex flex-col gap-5">
         <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-6 rounded-[14px] shadow-xs relative overflow-hidden">
+          <span aria-hidden="true" className="pointer-events-none absolute -left-10 -top-12 h-40 w-40 rounded-full bg-[#3156C9]/10 dark:bg-[#2785F5]/15 blur-[1px]" />
           {!isElectron && (
             <div className="mb-3 md:mb-0 md:absolute md:top-3 md:left-4 z-10 inline-block">
               <div className="bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border border-[#3156C9]/25 dark:border-[#2785F5]/30 text-[#3156C9] dark:text-[#60A5FA] px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-xs">
@@ -126,7 +127,7 @@ export const BackupRestoreView: React.FC = () => {
               </div>
             </div>
           )}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-[12px] bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border border-[#3156C9]/25 dark:border-[#2785F5]/30 text-[#3156C9] dark:text-[#60A5FA] flex items-center justify-center shrink-0">
                 <HardDrive className="w-6 h-6" />
@@ -178,6 +179,7 @@ export const BackupRestoreView: React.FC = () => {
         </div>
 
         <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-6 rounded-[14px] shadow-xs relative overflow-hidden">
+          <span aria-hidden="true" className="pointer-events-none absolute -left-10 -top-12 h-40 w-40 rounded-full bg-[#059669]/10 dark:bg-[#10B981]/15 blur-[1px]" />
           {!isElectron && (
             <div className="mb-3 md:mb-0 md:absolute md:top-3 md:left-4 z-10 inline-block">
               <div className="bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border border-[#3156C9]/25 dark:border-[#2785F5]/30 text-[#3156C9] dark:text-[#60A5FA] px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-xs">
@@ -234,8 +236,9 @@ export const BackupRestoreView: React.FC = () => {
       </div>
 
       {/* Restore database */}
-      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-6 rounded-[14px] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-5">
-        <div className="flex items-start gap-4">
+      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-6 rounded-[14px] shadow-xs relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-5">
+        <span aria-hidden="true" className="pointer-events-none absolute -left-10 -top-12 h-40 w-40 rounded-full bg-[#D69B42]/12 dark:bg-[#D69B42]/15 blur-[1px]" />
+        <div className="relative z-10 flex items-start gap-4">
           <div className="w-12 h-12 rounded-[12px] bg-[#D69B42]/12 dark:bg-[#D69B42]/15 border border-[#D69B42]/30 text-[#B45309] dark:text-[#D69B42] flex items-center justify-center shrink-0">
             <RefreshCw className="w-6 h-6" />
           </div>
@@ -253,7 +256,7 @@ export const BackupRestoreView: React.FC = () => {
           type="button"
           onClick={handleRestoreDB}
           disabled={!isElectron}
-          className={`h-11 px-6 rounded-[8px] font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-xs ${
+          className={`relative z-10 h-11 px-6 rounded-[8px] font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-xs ${
             !isElectron
               ? 'bg-[#EDF1F7] dark:bg-[#26364B] text-[#64748B] dark:text-[#8493A8] border border-[#DCE3ED] dark:border-[#2D3B4D] cursor-not-allowed opacity-70'
               : 'bg-[#D69B42] hover:bg-[#B45309] text-white active:scale-95 cursor-pointer'
