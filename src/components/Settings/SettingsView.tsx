@@ -208,7 +208,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
   return (
     <div className="flex flex-col gap-6 pb-16">
-      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-5 rounded-2xl shadow-sm dark:shadow-xl flex items-center justify-between">
+      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-5 rounded-2xl shadow-sm dark:shadow-xl flex items-center justify-between app-card-surface">
         <div>
           <h1 className="text-2xl font-black text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2">
             <Settings className="w-6 h-6 text-[#3156C9] dark:text-[#60A5FA]" />
@@ -229,7 +229,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         {/* 1. School Official Information */}
-        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-6 shadow-sm dark:shadow-lg">
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-6 shadow-sm dark:shadow-lg app-card-surface">
           <h3 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0] mb-4 flex items-center gap-2">
             <School className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" />
             بيانات المدرسة والترويسة الرسمية للتقارير
@@ -272,7 +272,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
 
         {/* 2. School Logo Section */}
-        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-6 shadow-sm dark:shadow-lg">
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-6 shadow-sm dark:shadow-lg app-card-surface">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
             <div className="flex items-center gap-2">
               <ImageIcon className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" />
@@ -400,7 +400,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
 
         {/* 3. Kufic Geometric School Logo Section */}
-        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-6 shadow-sm dark:shadow-lg">
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-6 shadow-sm dark:shadow-lg app-card-surface">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
             <div className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" />
@@ -527,7 +527,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
 
         {/* 4. Rounding Rules */}
-        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-6 shadow-sm dark:shadow-lg">
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-6 shadow-sm dark:shadow-lg app-card-surface">
           <div className="flex items-center gap-2 mb-2">
             <Calculator className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" />
             <h3 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0]">
@@ -575,7 +575,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
 
         {/* 5. Security & Confirmation Preferences */}
-        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-6 shadow-sm dark:shadow-lg">
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-6 shadow-sm dark:shadow-lg app-card-surface">
           <div className="flex items-center gap-2 mb-4">
             <ShieldAlert className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" />
             <h3 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0]">
@@ -619,7 +619,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
       {/* 6. System Access Code & Security Section */}
       {userRole === 'admin' && (
-        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-6 shadow-sm">
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-6 shadow-sm app-card-surface">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="p-3 rounded-xl bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border border-[#3156C9]/25 dark:border-[#2785F5]/30 text-[#3156C9] dark:text-[#60A5FA]">
