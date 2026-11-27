@@ -377,7 +377,7 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
   const activeAdminsCount = db.getActiveAdminsCount();
 
   return (
-    <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-5 sm:p-6 shadow-sm dark:shadow-lg">
+    <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-5 sm:p-6 shadow-sm dark:shadow-lg app-card-surface">
       {/* Header and Add Button */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
         <div>
