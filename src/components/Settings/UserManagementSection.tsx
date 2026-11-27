@@ -388,9 +388,6 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
             <Users className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" />
             إدارة المستخدمين وصلاحيات النظام
           </h3>
-          <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-1">
-            إدارة حسابات المسؤولين والمعلمين، تعيين كلمات المرور، والتحكم بالحسابات النشطة والمعطلة
-          </p>
         </div>
 
         <button
@@ -569,14 +566,6 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
         </table>
       </div>
 
-      {/* Safety Notice for Admin Protections */}
-      <div className="mt-4 p-3 rounded-xl bg-[#F8FAFC] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[11px] text-[#475569] dark:text-[#A8B5C7] flex items-center gap-2">
-        <ShieldCheck className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA] shrink-0" />
-        <span>
-          حماية أمان النظام: يمنع النظام تلقائياً حذف أو تعطيل آخر مدير نشط لضمان عدم فقدان الوصول الإداري لقاعدة البيانات.
-        </span>
-      </div>
-
       </>}
 
       {section === 'email' && <>
@@ -598,9 +587,6 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
                 طريقة الإعداد
               </button>
             </div>
-            <p className="text-[11px] text-[#64748B] dark:text-[#8493A8]">
-              إرسال رموز استعادة كلمة المرور لبريد المدير الرئيسي (يتطلب Gmail App Password)
-            </p>
           </div>
 
           <div>
