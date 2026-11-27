@@ -92,9 +92,7 @@ export const AdminDecisionSettingsSection: React.FC<AdminDecisionSettingsSection
             <h3 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0]">
               إعدادات الإدارة — المساعدة الوزارية وضوابط الرسوب والإكمال
             </h3>
-            <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-0.5">
-              تحديد حد الرسوب ودرجات المساعدة المعتمدة لكل عام دراسي بشكل مستقل لحماية السجلات التاريخية
-            </p>
+            
           </div>
         </div>
 
@@ -138,9 +136,7 @@ export const AdminDecisionSettingsSection: React.FC<AdminDecisionSettingsSection
               <label className="block text-xs font-bold text-[#1E293B] dark:text-[#E2E8F0] mb-1">
                 عدد دروس الرسوب المسموح بها (حد الرسوب)
               </label>
-              <p className="text-[11px] text-[#64748B] dark:text-[#8493A8] mb-3 leading-relaxed">
-                إذا رسب الطالب في عدد مواد يساوي هذه القيمة أو يتجاوزها تكون حالته <strong>راسباً</strong>. وإذا رسب في أقل منها (1 إلى {decisionSettings.maxFailedSubjectsAllowed - 1}) يكون <strong>مكمّلاً</strong>، وإذا 0 يكون <strong>ناجحاً</strong>.
-              </p>
+              
             </div>
             <div>
               <div className="relative">
@@ -163,9 +159,7 @@ export const AdminDecisionSettingsSection: React.FC<AdminDecisionSettingsSection
                   مواد / دروس
                 </span>
               </div>
-              <span className="text-[10px] text-[#64748B] dark:text-[#8493A8] block mt-1.5">
-                القيمة الافتراضية المعتمدة: 4 مواد
-              </span>
+              
             </div>
           </div>
 
@@ -175,9 +169,7 @@ export const AdminDecisionSettingsSection: React.FC<AdminDecisionSettingsSection
               <label className="block text-xs font-bold text-[#1E293B] dark:text-[#E2E8F0] mb-1">
                 درجات المساعدة الوزارية الرئيسية (الدور الأول)
               </label>
-              <p className="text-[11px] text-[#64748B] dark:text-[#8493A8] mb-3 leading-relaxed">
-                رصيد درجات المساعدة المتاح للعام الدراسي. تُمنح فقط للمواد الراسبة (&lt; 50) بشرط إيصال الدرجة إلى 50 تماماً، مع أولوية المادة الأقل عجزاً.
-              </p>
+              
             </div>
             <div>
               <div className="relative">
@@ -200,9 +192,7 @@ export const AdminDecisionSettingsSection: React.FC<AdminDecisionSettingsSection
                   درجات
                 </span>
               </div>
-              <span className="text-[10px] text-[#64748B] dark:text-[#8493A8] block mt-1.5">
-                القيمة الافتراضية الوزارية: 10 درجات
-              </span>
+              
             </div>
           </div>
 
@@ -212,9 +202,7 @@ export const AdminDecisionSettingsSection: React.FC<AdminDecisionSettingsSection
               <label className="block text-xs font-bold text-[#1E293B] dark:text-[#E2E8F0] mb-1">
                 درجات المساعدة الإضافية بعد الدور الثاني
               </label>
-              <p className="text-[11px] text-[#64748B] dark:text-[#8493A8] mb-3 leading-relaxed">
-                حقل اختياري يضاف إلى رصيد المتبقي من المساعدة الرئيسية، ويُطبق فقط على طلاب الإكمال الذين خاضوا الدور الثاني ولم ينجحوا في جميع المواد.
-              </p>
+              
             </div>
             <div>
               <div className="relative">
@@ -237,38 +225,10 @@ export const AdminDecisionSettingsSection: React.FC<AdminDecisionSettingsSection
                   درجات إضافية
                 </span>
               </div>
-              <span className="text-[10px] text-[#64748B] dark:text-[#8493A8] block mt-1.5">
-                القيمة الافتراضية: 0 (تُعدل عند صدور كتاب وزاري)
-              </span>
+              
             </div>
           </div>
-        </div>
-
-        {/* Informative Guidance Callout */}
-        <div className="p-4 rounded-[12px] bg-[#3156C9]/8 dark:bg-[#2785F5]/10 border border-[#3156C9]/25 dark:border-[#2785F5]/25 text-xs text-[#475569] dark:text-[#A8B5C7] flex items-start gap-3">
-          <Info className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA] shrink-0 mt-0.5" />
-          <div className="space-y-1.5 leading-relaxed">
-            <div className="font-bold text-[#1E293B] dark:text-[#E2E8F0]">
-              قواعد الاحتساب الآلي المعتمدة لعام {selectedYear?.name}:
-            </div>
-            <ul className="list-disc list-inside space-y-1 text-[#475569] dark:text-[#A8B5C7] text-[11px]">
-              <li>
-                <strong className="text-[#1E293B] dark:text-[#E2E8F0]">الدور الأول:</strong> تُوزع درجات المساعدة على المواد الراسبة التي تحتاج إلى عجز أقل للوصول إلى 50 درجة. إذا كان الرصيد المتبقي أقل من العجز المطلوب لأي مادة، لا تُمنح المادة أي درجة وتبقى راسبة.
-              </li>
-              <li>
-                <strong className="text-[#1E293B] dark:text-[#E2E8F0]">تحديد الإكمال والرسوب:</strong> إذا بقي الطالب راسباً في عدد مواد &lt; {decisionSettings.maxFailedSubjectsAllowed}، يعد «مكمّلاً» ويحق له أداء الدور الثاني في تلك المواد فقط. إذا رسب في {decisionSettings.maxFailedSubjectsAllowed} مواد أو أكثر، يُعد «راسباً» في صفه.
-              </li>
-              <li>
-                <strong className="text-[#1E293B] dark:text-[#E2E8F0]">الدور الثاني والإكمال:</strong> تُحسب الدرجة النهائية بعد الإكمال = (السعي السنوي + درجة الإكمال) ÷ 2. وإذا كان الرصيد المتاح (المتبقي + الإضافي) يكفي لإيصال الطالب إلى 50 يُمنح درجات النجاح، وإلا تظل درجته دون زيادة.
-              </li>
-              <li>
-                <strong className="text-[#1E293B] dark:text-[#E2E8F0]">الإعفاء العام والفردي:</strong> طالب الإعفاء العام يُعتبر ناجحاً في جميع المواد بدرجة سعيه السنوي، وتظهر ملاحظته «ناجح — إعفاء عام». وفي الإعفاء الفردي، تُعتمد درجة السعي للمادة المعفى منها.
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Submit */}
+        </div>{/* Submit */}
         <div className="flex justify-end pt-2">
           <button
             type="submit"
