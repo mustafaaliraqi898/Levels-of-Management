@@ -25,7 +25,7 @@ import {
   Layers,
   Calendar,
   BookOpen,
-  ArrowRight,
+  Users,
 } from 'lucide-react';
 
 interface GradeEntryViewProps {
