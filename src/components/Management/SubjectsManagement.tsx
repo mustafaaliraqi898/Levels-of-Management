@@ -331,7 +331,7 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
       {saveSuccessNotification && (
         <div role="status" className="fixed top-5 left-5 z-[70] flex items-center gap-2 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-[#1C2939] px-4 py-3 text-xs font-bold text-emerald-700 dark:text-emerald-400 shadow-lg">
           <Check className="w-4 h-4 shrink-0" />{saveSuccessNotification}
-          <button type="button" onClick={() => setSaveSuccessNotification(null)} className="mr-2 text-slate-400 hover:text-slate-700"><X className="w-4 h-4" /></button>
+          <button type="button" onClick={() => setSaveSuccessNotification(null)} className="mr-2 text-slate-400 hover:text-slate-700 cursor-pointer disabled:cursor-not-allowed"><X className="w-4 h-4" /></button>
         </div>
       )}
 
@@ -348,7 +348,7 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
                 </h1>
                 <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-1">إدارة المواد المقررة لكل صف وتحديد درجاتها وترتيبها.</p>
               </div>
-              <button type="button" onClick={openAddSubjectsPage} className="h-11 px-5 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] text-white text-sm font-bold inline-flex items-center justify-center gap-2 shadow-sm transition-colors">
+              <button type="button" onClick={openAddSubjectsPage} className="h-11 px-5 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] text-white text-sm font-bold inline-flex items-center justify-center gap-2 shadow-sm transition-colors cursor-pointer disabled:cursor-not-allowed">
                 <Plus className="w-4 h-4" /> إضافة مواد دراسية
               </button>
             </div>
@@ -392,7 +392,7 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
                   const active = selectedClassId === cl.id;
                   return (
                     <button key={cl.id} type="button" onClick={() => setSelectedClassId(cl.id)}
-                      className={`w-full rounded-xl px-3 py-3 text-right flex items-center justify-between gap-2 transition-colors ${active ? 'bg-[#3156C9]/10 dark:bg-[#2785F5]/15 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/20 dark:border-[#2785F5]/25' : 'text-[#475569] dark:text-[#A8B5C7] hover:bg-[#F4F7FC] dark:hover:bg-[#26364B] border border-transparent'}`}>
+                      className={`w-full rounded-xl px-3 py-3 text-right flex items-center justify-between gap-2 transition-colors ${active ? 'bg-[#3156C9]/10 dark:bg-[#2785F5]/15 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/20 dark:border-[#2785F5]/25' : 'text-[#475569] dark:text-[#A8B5C7] hover:bg-[#F4F7FC] dark:hover:bg-[#26364B] border border-transparent'}`} className="cursor-pointer disabled:cursor-not-allowed">
                       <span className="text-xs font-bold">{cl.name}</span>
                       <span className={`text-[10px] rounded-full px-2 py-0.5 font-bold ${active ? 'bg-white/80 dark:bg-[#1C2939]' : 'bg-[#EDF1F7] dark:bg-[#26364B]'}`}>{count}</span>
                     </button>
@@ -414,7 +414,7 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
                       {academicYears.map((y) => <option key={y.id} value={y.id}>{y.name} {y.isCurrent ? '(الحالي)' : ''}</option>)}
                     </select>
                   )}
-                  <button type="button" onClick={openAddSubjectsPage} className="h-9 px-3 rounded-lg bg-[#EEF3FF] dark:bg-[#263B63] text-[#3156C9] dark:text-[#8DB5FF] text-xs font-bold inline-flex items-center gap-1.5 hover:bg-[#E2EAFF] dark:hover:bg-[#304A78]">
+                  <button type="button" onClick={openAddSubjectsPage} className="h-9 px-3 rounded-lg bg-[#EEF3FF] dark:bg-[#263B63] text-[#3156C9] dark:text-[#8DB5FF] text-xs font-bold inline-flex items-center gap-1.5 hover:bg-[#E2EAFF] dark:hover:bg-[#304A78] cursor-pointer disabled:cursor-not-allowed">
                     <Plus className="w-3.5 h-3.5" /> إضافة مواد
                   </button>
                 </div>
@@ -425,7 +425,7 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
                   <BookOpen className="w-10 h-10 mx-auto text-[#94A3B8] mb-3" />
                   <h3 className="font-bold text-sm text-[#1E293B] dark:text-[#E2E8F0]">لا توجد مواد لهذا الصف</h3>
                   <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-1 mb-4">ابدأ بإضافة المواد المقررة للصف.</p>
-                  <button type="button" onClick={openAddSubjectsPage} className="h-9 px-4 rounded-lg bg-[#3156C9] text-white text-xs font-bold"><Plus className="inline w-4 h-4 ml-1" /> إضافة مواد دراسية</button>
+                  <button type="button" onClick={openAddSubjectsPage} className="h-9 px-4 rounded-lg bg-[#3156C9] text-white text-xs font-bold cursor-pointer disabled:cursor-not-allowed"><Plus className="inline w-4 h-4 ml-1" /> إضافة مواد دراسية</button>
                 </div>
               ) : (
                 <div className="overflow-x-auto mt-4">
@@ -454,10 +454,10 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
                             <td className="p-3 text-center"><span className="inline-flex min-w-14 justify-center rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 px-3 py-1 font-mono font-bold">{sub.passScore}</span></td>
                             <td className="p-2">
                               <div className="flex items-center justify-center gap-1">
-                                <button type="button" onClick={() => handleMove(sub.id, 'up')} disabled={idx === 0} title="تحريك لأعلى" className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-[#26364B] disabled:opacity-25"><ChevronUp className="w-4 h-4" /></button>
-                                <button type="button" onClick={() => handleMove(sub.id, 'down')} disabled={idx === classSubjects.length - 1} title="تحريك لأسفل" className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-[#26364B] disabled:opacity-25"><ChevronDown className="w-4 h-4" /></button>
-                                <button type="button" onClick={() => startEditing(sub)} title="تعديل" className="p-2 rounded-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40"><Edit3 className="w-4 h-4" /></button>
-                                <button type="button" onClick={() => setDeletingSubject(sub)} title="حذف" className="p-2 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"><Trash2 className="w-4 h-4" /></button>
+                                <button type="button" onClick={() => handleMove(sub.id, 'up')} disabled={idx === 0} title="تحريك لأعلى" className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-[#26364B] disabled:opacity-25 cursor-pointer disabled:cursor-not-allowed"><ChevronUp className="w-4 h-4" /></button>
+                                <button type="button" onClick={() => handleMove(sub.id, 'down')} disabled={idx === classSubjects.length - 1} title="تحريك لأسفل" className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-[#26364B] disabled:opacity-25 cursor-pointer disabled:cursor-not-allowed"><ChevronDown className="w-4 h-4" /></button>
+                                <button type="button" onClick={() => startEditing(sub)} title="تعديل" className="p-2 rounded-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40 cursor-pointer disabled:cursor-not-allowed"><Edit3 className="w-4 h-4" /></button>
+                                <button type="button" onClick={() => setDeletingSubject(sub)} title="حذف" className="p-2 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 cursor-pointer disabled:cursor-not-allowed"><Trash2 className="w-4 h-4" /></button>
                               </div>
                             </td>
                           </tr>
@@ -475,11 +475,11 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
         <section className="max-w-5xl w-full mx-auto rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] shadow-sm overflow-hidden">
           <div className="p-5 sm:p-6 border-b border-[#DCE3ED] dark:border-[#2D3B4D] flex items-start justify-between gap-3">
             <div>
-              <button type="button" onClick={() => { setIsAddPageOpen(false); setAddStep(1); }} className="text-xs font-bold text-[#64748B] dark:text-[#A8B5C7] hover:text-[#3156C9] mb-3 inline-flex items-center gap-1"><ArrowLeft className="w-4 h-4" /> العودة لإدارة المواد</button>
+              <button type="button" onClick={() => { setIsAddPageOpen(false); setAddStep(1); }} className="text-xs font-bold text-[#64748B] dark:text-[#A8B5C7] hover:text-[#3156C9] mb-3 inline-flex items-center gap-1 cursor-pointer disabled:cursor-not-allowed"><ArrowLeft className="w-4 h-4" /> العودة لإدارة المواد</button>
               <h1 className="text-xl font-black text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2"><BookOpen className="w-6 h-6 text-[#3156C9]" /> إضافة مواد دراسية</h1>
               <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-1">اختر الصف والمواد، ثم حدد درجاتها قبل اعتماد الإضافة.</p>
             </div>
-            <button type="button" onClick={() => setIsAddPageOpen(false)} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-[#26364B] text-slate-500"><X className="w-5 h-5" /></button>
+            <button type="button" onClick={() => setIsAddPageOpen(false)} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-[#26364B] text-slate-500 cursor-pointer disabled:cursor-not-allowed"><X className="w-5 h-5" /></button>
           </div>
 
           <div className="px-5 sm:px-6 pt-5">
@@ -521,19 +521,19 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
                   </div>
                   <div className="flex flex-wrap items-center justify-between gap-2 mt-3">
                     <span className="text-xs text-[#64748B] dark:text-[#8493A8]">تم تحديد <strong className="text-[#3156C9] dark:text-[#60A5FA]">{selectedNewSubjects.length}</strong> مادة</span>
-                    <button type="button" onClick={() => setSelectedNewSubjects(availableCatalogSubjects)} className="text-xs font-bold text-[#3156C9] dark:text-[#60A5FA] hover:underline">تحديد كل المواد المتاحة</button>
+                    <button type="button" onClick={() => setSelectedNewSubjects(availableCatalogSubjects)} className="text-xs font-bold text-[#3156C9] dark:text-[#60A5FA] hover:underline cursor-pointer disabled:cursor-not-allowed">تحديد كل المواد المتاحة</button>
                   </div>
                 </div>
                 <div className="rounded-xl border border-dashed border-[#B8C7E2] dark:border-[#3B4D66] p-4">
                   <h3 className="text-xs font-black text-[#1E293B] dark:text-[#E2E8F0] mb-2">إضافة مادة يدوية</h3>
                   <div className="flex flex-col sm:flex-row gap-2">
                     <input value={customSubjectName} onChange={(e) => setCustomSubjectName(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomCatalogSubject(); } }} placeholder="اكتب اسم المادة الجديدة..." className="flex-1 h-10 rounded-lg border border-[#DCE3ED] dark:border-[#2D3B4D] bg-[#F8FAFC] dark:bg-[#26364B] px-3 text-xs text-[#1E293B] dark:text-[#E2E8F0]" />
-                    <button type="button" onClick={addCustomCatalogSubject} disabled={!customSubjectName.trim()} className="h-10 px-4 rounded-lg bg-[#EEF3FF] dark:bg-[#263B63] text-[#3156C9] dark:text-[#8DB5FF] text-xs font-bold disabled:opacity-40"><Plus className="inline w-4 h-4 ml-1" /> إضافة للقائمة</button>
+                    <button type="button" onClick={addCustomCatalogSubject} disabled={!customSubjectName.trim()} className="h-10 px-4 rounded-lg bg-[#EEF3FF] dark:bg-[#263B63] text-[#3156C9] dark:text-[#8DB5FF] text-xs font-bold disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"><Plus className="inline w-4 h-4 ml-1" /> إضافة للقائمة</button>
                   </div>
                   <p className="text-[10px] text-slate-500 mt-2">المادة اليدوية تُحفظ في قائمة المواد الجاهزة على هذا الجهاز وتُحدد تلقائياً.</p>
                 </div>
                 <div className="flex justify-end pt-2 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
-                  <button type="button" onClick={proceedToGradeSetup} disabled={!selectedClassId || selectedNewSubjects.length === 0} className="h-10 px-5 rounded-lg bg-[#3156C9] hover:bg-[#2749B0] text-white text-xs font-bold disabled:opacity-40 inline-flex items-center gap-2">متابعة تحديد الدرجات <ArrowLeft className="w-4 h-4" /></button>
+                  <button type="button" onClick={proceedToGradeSetup} disabled={!selectedClassId || selectedNewSubjects.length === 0} className="h-10 px-5 rounded-lg bg-[#3156C9] hover:bg-[#2749B0] text-white text-xs font-bold disabled:opacity-40 inline-flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed">متابعة تحديد الدرجات <ArrowLeft className="w-4 h-4" /></button>
                 </div>
               </div>
             ) : (
@@ -554,8 +554,8 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
                   </table>
                 </div>
                 <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-2 pt-3 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
-                  <button type="button" onClick={() => setAddStep(1)} className="h-10 px-4 rounded-lg border border-[#DCE3ED] dark:border-[#2D3B4D] text-xs font-bold text-[#475569] dark:text-[#A8B5C7]">رجوع لاختيار المواد</button>
-                  <button type="button" onClick={confirmBulkAddSubjects} className="h-10 px-5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold inline-flex items-center justify-center gap-2"><Check className="w-4 h-4" /> اعتماد وإضافة {selectedNewSubjects.length} مادة</button>
+                  <button type="button" onClick={() => setAddStep(1)} className="h-10 px-4 rounded-lg border border-[#DCE3ED] dark:border-[#2D3B4D] text-xs font-bold text-[#475569] dark:text-[#A8B5C7] cursor-pointer disabled:cursor-not-allowed">رجوع لاختيار المواد</button>
+                  <button type="button" onClick={confirmBulkAddSubjects} className="h-10 px-5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold inline-flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"><Check className="w-4 h-4" /> اعتماد وإضافة {selectedNewSubjects.length} مادة</button>
                 </div>
               </div>
             )}
@@ -575,7 +575,7 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
               <button
                 type="button"
                 onClick={() => setEditingSubject(null)}
-                className="text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] p-1.5 rounded-[8px] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] cursor-pointer"
+                className="text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] p-1.5 rounded-[8px] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] cursor-pointer disabled:cursor-not-allowed"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -623,13 +623,13 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
                 <button
                   type="button"
                   onClick={() => setEditingSubject(null)}
-                  className="px-4 py-2 rounded-[8px] text-xs font-bold bg-[#EDF1F7] dark:bg-[#26364B] text-[#475569] dark:text-[#A8B5C7] hover:bg-[#DCE3ED]/70 dark:hover:bg-[#2D3B4D] cursor-pointer transition-colors"
+                  className="px-4 py-2 rounded-[8px] text-xs font-bold bg-[#EDF1F7] dark:bg-[#26364B] text-[#475569] dark:text-[#A8B5C7] hover:bg-[#DCE3ED]/70 dark:hover:bg-[#2D3B4D] cursor-pointer transition-colors disabled:cursor-not-allowed"
                 >
                   إلغاء
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-[8px] text-xs font-bold bg-[#3156C9] hover:bg-[#2749B0] dark:hover:bg-[#3979E6] text-white cursor-pointer shadow-xs transition-colors"
+                  className="px-4 py-2 rounded-[8px] text-xs font-bold bg-[#3156C9] hover:bg-[#2749B0] dark:hover:bg-[#3979E6] text-white cursor-pointer shadow-xs transition-colors disabled:cursor-not-allowed"
                 >
                   حفظ التعديلات
                 </button>
@@ -663,14 +663,14 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
               <button
                 type="button"
                 onClick={() => setDeletingSubject(null)}
-                className="px-4 py-2 rounded-[8px] text-xs font-bold bg-[#EDF1F7] dark:bg-[#26364B] text-[#475569] dark:text-[#A8B5C7] hover:bg-[#DCE3ED]/70 dark:hover:bg-[#2D3B4D] cursor-pointer transition-colors"
+                className="px-4 py-2 rounded-[8px] text-xs font-bold bg-[#EDF1F7] dark:bg-[#26364B] text-[#475569] dark:text-[#A8B5C7] hover:bg-[#DCE3ED]/70 dark:hover:bg-[#2D3B4D] cursor-pointer transition-colors disabled:cursor-not-allowed"
               >
                 تراجع
               </button>
               <button
                 type="button"
                 onClick={confirmDelete}
-                className="px-4 py-2 rounded-[8px] text-xs font-bold bg-[#C83D4B] hover:bg-[#B02E3C] text-white cursor-pointer shadow-xs transition-colors"
+                className="px-4 py-2 rounded-[8px] text-xs font-bold bg-[#C83D4B] hover:bg-[#B02E3C] text-white cursor-pointer shadow-xs transition-colors disabled:cursor-not-allowed"
               >
                 تأكيد الحذف
               </button>
