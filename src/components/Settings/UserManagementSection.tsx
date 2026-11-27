@@ -377,15 +377,15 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
   const activeAdminsCount = db.getActiveAdminsCount();
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm dark:shadow-lg">
+    <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-5 sm:p-6 shadow-sm dark:shadow-lg">
       {/* Header and Add Button */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-200 dark:border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
         <div>
-          <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <Users className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+          <h3 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2">
+            <Users className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" />
             إدارة المستخدمين وصلاحيات النظام
           </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-1">
             إدارة حسابات المسؤولين والمعلمين، تعيين كلمات المرور، والتحكم بالحسابات النشطة والمعطلة
           </p>
         </div>
@@ -398,7 +398,7 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
             setAddRole('user');
             setIsAddModalOpen(true);
           }}
-          className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 font-black text-xs flex items-center justify-center gap-2 shadow-sm cursor-pointer transition-all self-start sm:self-auto"
+          className="px-4 py-2.5 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white font-black text-xs flex items-center justify-center gap-2 shadow-sm cursor-pointer transition-all self-start sm:self-auto"
         >
           <UserPlus className="w-4 h-4" />
           <span>إضافة مستخدم جديد</span>
@@ -410,24 +410,24 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
         <div
           className={`p-3.5 rounded-xl border mb-5 flex items-center gap-2.5 text-xs font-bold animate-in fade-in ${
             notification.type === 'success'
-              ? 'bg-emerald-50 dark:bg-emerald-500/15 border-emerald-200 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300'
-              : 'bg-rose-50 dark:bg-rose-500/15 border-rose-200 dark:border-rose-500/30 text-rose-800 dark:text-rose-300'
+              ? 'bg-[#10B981]/12 dark:bg-[#10B981]/15 border-[#10B981]/30 text-[#059669] dark:text-[#10B981]'
+              : 'bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 border-[#E35D6A]/30 text-[#C83D4B] dark:text-[#E35D6A]'
           }`}
         >
           {notification.type === 'success' ? (
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
           ) : (
-            <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
+            <AlertTriangle className="w-4 h-4 shrink-0" />
           )}
           <span>{notification.message}</span>
         </div>
       )}
 
       {/* Users Table */}
-      <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+      <div className="overflow-x-auto rounded-xl border border-[#DCE3ED] dark:border-[#2D3B4D]">
         <table className="w-full text-right text-xs">
           <thead>
-            <tr className="bg-slate-50 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700 font-bold">
+            <tr className="bg-[#EDF1F7] dark:bg-[#26364B] text-[#475569] dark:text-[#A8B5C7] border-b border-[#DCE3ED] dark:border-[#2D3B4D] font-bold">
               <th className="py-3 px-4">اسم المستخدم</th>
               <th className="py-3 px-4">الدور والصلاحية</th>
               <th className="py-3 px-4">الحالة</th>
@@ -435,30 +435,30 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
               <th className="py-3 px-4 text-center">الإجراءات</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+          <tbody className="divide-y divide-[#DCE3ED] dark:divide-[#2D3B4D]">
             {users.map((u) => {
               const isCurrentUser = u.id === currentUserId;
               const isLastActiveAdmin = u.role === 'admin' && u.isActive && activeAdminsCount <= 1;
 
               return (
-                <tr key={u.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
+                <tr key={u.id} className="hover:bg-[#F8FAFC] dark:hover:bg-[#202E40] transition-colors">
                   {/* Username */}
-                  <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-slate-100">
+                  <td className="py-3.5 px-4 font-bold text-[#1E293B] dark:text-[#E2E8F0]">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center font-mono text-emerald-700 dark:text-emerald-400 font-bold text-xs">
+                      <div className="w-8 h-8 rounded-lg bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border border-[#3156C9]/25 dark:border-[#2785F5]/25 flex items-center justify-center font-mono text-[#3156C9] dark:text-[#60A5FA] font-bold text-xs">
                         {u.username.slice(0, 2).toUpperCase()}
                       </div>
                       <div className="flex flex-col">
                         <span className="flex items-center gap-1.5">
                           {u.username}
                           {isCurrentUser && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30">
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#3156C9]/8 dark:bg-[#2785F5]/12 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/25 dark:border-[#2785F5]/25">
                               حسابك
                             </span>
                           )}
                         </span>
                         {u.mustChangePassword && (
-                          <span className="text-[10px] text-amber-700 dark:text-amber-400 flex items-center gap-1">
+                          <span className="text-[10px] text-[#B45309] dark:text-[#D69B42] flex items-center gap-1">
                             <ShieldAlert className="w-3 h-3" />
                             بانتظار تغيير كلمة المرور الافتراضية
                           </span>
@@ -470,12 +470,12 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
                   {/* Role */}
                   <td className="py-3.5 px-4">
                     {u.role === 'admin' ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 text-amber-700 dark:text-amber-300 font-bold text-[11px]">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#D69B42]/10 dark:bg-[#D69B42]/15 border border-[#D69B42]/30 text-[#B45309] dark:text-[#D69B42] font-bold text-[11px]">
                         <ShieldCheck className="w-3.5 h-3.5" />
                         مدير النظام (Admin)
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-500/15 border border-blue-200 dark:border-blue-500/30 text-blue-700 dark:text-blue-300 font-bold text-[11px]">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#3156C9]/8 dark:bg-[#2785F5]/12 border border-[#3156C9]/25 dark:border-[#2785F5]/25 text-[#3156C9] dark:text-[#60A5FA] font-bold text-[11px]">
                         <Users className="w-3.5 h-3.5" />
                         مستخدم عادي (User)
                       </span>
@@ -485,23 +485,23 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
                   {/* Status */}
                   <td className="py-3.5 px-4">
                     {u.isActive ? (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300 font-bold text-[11px]">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#10B981]/12 dark:bg-[#10B981]/15 border border-[#10B981]/30 text-[#059669] dark:text-[#10B981] font-bold text-[11px]">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#059669] dark:bg-[#10B981]" />
                         نشط
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-300 font-bold text-[11px]">
-                        <span className="w-1.5 h-1.5 rounded-full bg-rose-600 dark:bg-rose-400" />
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 border border-[#E35D6A]/30 text-[#C83D4B] dark:text-[#E35D6A] font-bold text-[11px]">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#C83D4B] dark:bg-[#E35D6A]" />
                         معطل
                       </span>
                     )}
                   </td>
 
                   {/* Dates */}
-                  <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400">
+                  <td className="py-3.5 px-4 text-[#475569] dark:text-[#A8B5C7]">
                     <div className="flex flex-col text-[11px]">
                       <span>إنشاء: {new Date(u.createdAt).toLocaleDateString('ar-EG')}</span>
-                      <span className="text-slate-500 dark:text-slate-500 text-[10px]">
+                      <span className="text-[#64748B] dark:text-[#8493A8] text-[10px]">
                         آخر دخول: {u.lastLogin ? new Date(u.lastLogin).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }) : 'لم يسجل بعد'}
                       </span>
                     </div>
@@ -513,7 +513,7 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
                       <button
                         type="button"
                         onClick={() => handleOpenEdit(u)}
-                        className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+                        className="p-1.5 rounded-lg bg-[#EDF1F7] dark:bg-[#26364B] hover:bg-[#E2E8F0] dark:hover:bg-[#2D3B4D] text-[#475569] dark:text-[#A8B5C7] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] transition-colors cursor-pointer"
                         title="تعديل اسم المستخدم أو الصلاحية"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
@@ -522,7 +522,7 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
                       <button
                         type="button"
                         onClick={() => handleOpenResetPassword(u)}
-                        className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-amber-50 dark:hover:bg-amber-500/15 text-amber-700 dark:text-amber-400 transition-colors cursor-pointer"
+                        className="p-1.5 rounded-lg bg-[#EDF1F7] dark:bg-[#26364B] hover:bg-[#D69B42]/15 text-[#B45309] dark:text-[#D69B42] transition-colors cursor-pointer"
                         title="إعادة تعيين كلمة المرور"
                       >
                         <KeyRound className="w-3.5 h-3.5" />
@@ -534,8 +534,8 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
                         onClick={() => handleToggleStatus(u)}
                         className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                           u.isActive
-                            ? 'bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-500/15 text-rose-600 dark:text-rose-400 disabled:opacity-30 disabled:cursor-not-allowed'
-                            : 'bg-slate-100 dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
+                            ? 'bg-[#EDF1F7] dark:bg-[#26364B] hover:bg-[#E35D6A]/15 text-[#C83D4B] dark:text-[#E35D6A] disabled:opacity-30 disabled:cursor-not-allowed'
+                            : 'bg-[#EDF1F7] dark:bg-[#26364B] hover:bg-[#10B981]/15 text-[#059669] dark:text-[#10B981]'
                         }`}
                         title={
                           isLastActiveAdmin
@@ -552,7 +552,7 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
                         type="button"
                         disabled={isLastActiveAdmin}
                         onClick={() => handleOpenDelete(u)}
-                        className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-500/15 text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                        className="p-1.5 rounded-lg bg-[#EDF1F7] dark:bg-[#26364B] hover:bg-[#E35D6A]/15 text-[#64748B] dark:text-[#8493A8] hover:text-[#C83D4B] dark:hover:text-[#E35D6A] transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                         title={isLastActiveAdmin ? 'لا يمكن حذف آخر مدير نشط' : 'حذف المستخدم'}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -567,45 +567,45 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
       </div>
 
       {/* Safety Notice for Admin Protections */}
-      <div className="mt-4 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-[11px] text-slate-600 dark:text-slate-400 flex items-center gap-2">
-        <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+      <div className="mt-4 p-3 rounded-xl bg-[#F8FAFC] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[11px] text-[#475569] dark:text-[#A8B5C7] flex items-center gap-2">
+        <ShieldCheck className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA] shrink-0" />
         <span>
           حماية أمان النظام: يمنع النظام تلقائياً حذف أو تعطيل آخر مدير نشط لضمان عدم فقدان الوصول الإداري لقاعدة البيانات.
         </span>
       </div>
 
       {/* Gmail SMTP Settings Card */}
-      <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800">
+      <div className="mt-8 pt-6 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
-              <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <Mail className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <h4 className="text-sm font-bold text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2">
+                <Mail className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA]" />
                 إعدادات خادم البريد الإلكتروني (Gmail SMTP)
               </h4>
               <button
                 type="button"
                 onClick={() => setIsSmtpHelpOpen(true)}
-                className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-teal-50 dark:bg-teal-500/15 border border-teal-200 dark:border-teal-500/30 hover:bg-teal-100 dark:hover:bg-teal-500/25 text-[10px] font-bold text-teal-800 dark:text-teal-300 transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-[#3156C9]/8 dark:bg-[#2785F5]/12 border border-[#3156C9]/25 dark:border-[#2785F5]/25 hover:bg-[#3156C9]/15 dark:hover:bg-[#2785F5]/20 text-[10px] font-bold text-[#3156C9] dark:text-[#60A5FA] transition-colors cursor-pointer"
               >
                 <HelpCircle className="w-3 h-3" />
                 طريقة الإعداد
               </button>
             </div>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+            <p className="text-[11px] text-[#64748B] dark:text-[#8493A8]">
               إرسال رموز استعادة كلمة المرور لبريد المدير الرئيسي (يتطلب Gmail App Password)
             </p>
           </div>
 
           <div>
             {smtpIsConfigured ? (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300 font-bold text-xs">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#10B981]/12 dark:bg-[#10B981]/15 border border-[#10B981]/30 text-[#059669] dark:text-[#10B981] font-bold text-xs">
+                <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>مفعل لـ ({smtpMaskedEmail})</span>
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 text-amber-700 dark:text-amber-300 font-bold text-xs">
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D69B42]/10 dark:bg-[#D69B42]/15 border border-[#D69B42]/30 text-[#B45309] dark:text-[#D69B42] font-bold text-xs">
+                <AlertTriangle className="w-3.5 h-3.5" />
                 <span>غير مجهز بعد</span>
               </span>
             )}
@@ -616,23 +616,23 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
           <div
             className={`p-3 rounded-xl border mb-4 flex items-center gap-2 text-xs font-bold ${
               smtpNotice.type === 'success'
-                ? 'bg-emerald-50 dark:bg-emerald-500/15 border-emerald-200 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300'
-                : 'bg-rose-50 dark:bg-rose-500/15 border-rose-200 dark:border-rose-500/30 text-rose-800 dark:text-rose-300'
+                ? 'bg-[#10B981]/12 dark:bg-[#10B981]/15 border-[#10B981]/30 text-[#059669] dark:text-[#10B981]'
+                : 'bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 border-[#E35D6A]/30 text-[#C83D4B] dark:text-[#E35D6A]'
             }`}
           >
             {smtpNotice.type === 'success' ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
             ) : (
-              <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
+              <AlertTriangle className="w-4 h-4 shrink-0" />
             )}
             <span>{smtpNotice.message}</span>
           </div>
         )}
 
-        <form onSubmit={handleSaveSmtp} className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 p-4 rounded-2xl">
+        <form onSubmit={handleSaveSmtp} className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#F8FAFC] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D] p-4 rounded-2xl">
           {/* Email Field */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+            <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1">
               عنوان Gmail الإداري للإرسال
             </label>
             <div className="relative">
@@ -643,13 +643,13 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
                 value={(smtpIsConfigured && !isEditingSmtpUser) ? smtpMaskedEmail : smtpUser}
                 onChange={(e) => setSmtpUser(e.target.value)}
                 placeholder={(!smtpIsConfigured || isEditingSmtpUser) ? "أدخل البريد الإلكتروني الجديد" : "school.admin@gmail.com"}
-                className={`w-full h-10 px-3 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden dir-ltr font-mono ${(smtpIsConfigured && !isEditingSmtpUser) ? 'opacity-70 cursor-default' : ''}`}
+                className={`w-full h-10 px-3 text-xs bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] focus:border-[#2785F5] focus:outline-hidden dir-ltr font-mono ${(smtpIsConfigured && !isEditingSmtpUser) ? 'opacity-70 cursor-default' : ''}`}
               />
               {smtpIsConfigured && !isEditingSmtpUser && (
                 <button
                   type="button"
                   onClick={() => setIsEditingSmtpUser(true)}
-                  className="absolute inset-y-0 left-0 px-3 flex items-center text-[10px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer"
+                  className="absolute inset-y-0 left-0 px-3 flex items-center text-[10px] font-bold text-[#3156C9] dark:text-[#60A5FA] hover:underline cursor-pointer"
                 >
                   تغيير العنوان
                 </button>
@@ -658,7 +658,7 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
                 <button
                   type="button"
                   onClick={() => { setIsEditingSmtpUser(false); setSmtpUser(''); }}
-                  className="absolute inset-y-0 left-0 px-3 flex items-center text-[10px] font-bold text-rose-600 dark:text-rose-400 hover:underline cursor-pointer"
+                  className="absolute inset-y-0 left-0 px-3 flex items-center text-[10px] font-bold text-[#C83D4B] dark:text-[#E35D6A] hover:underline cursor-pointer"
                 >
                   إلغاء
                 </button>
@@ -668,7 +668,7 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
 
           {/* Password Field */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+            <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1">
               كلمة مرور التطبيقات (Gmail App Password - 16 خانة)
             </label>
             <div className="relative">
@@ -679,13 +679,13 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
                 value={(smtpIsConfigured && !isEditingSmtpPass) ? "••••••••••••••••" : smtpPass}
                 onChange={(e) => setSmtpPass(e.target.value)}
                 placeholder={(!smtpIsConfigured || isEditingSmtpPass) ? "أدخل الرمز المكون من 16 حرفاً" : ""}
-                className={`w-full h-10 px-3 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden dir-ltr font-mono ${(smtpIsConfigured && !isEditingSmtpPass) ? 'opacity-70 cursor-default' : ''}`}
+                className={`w-full h-10 px-3 text-xs bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] focus:border-[#2785F5] focus:outline-hidden dir-ltr font-mono ${(smtpIsConfigured && !isEditingSmtpPass) ? 'opacity-70 cursor-default' : ''}`}
               />
               {smtpIsConfigured && !isEditingSmtpPass && (
                 <button
                   type="button"
                   onClick={() => setIsEditingSmtpPass(true)}
-                  className="absolute inset-y-0 left-0 px-3 flex items-center text-[10px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer"
+                  className="absolute inset-y-0 left-0 px-3 flex items-center text-[10px] font-bold text-[#3156C9] dark:text-[#60A5FA] hover:underline cursor-pointer"
                 >
                   تغيير الرمز
                 </button>
@@ -694,7 +694,7 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
                 <button
                   type="button"
                   onClick={() => { setIsEditingSmtpPass(false); setSmtpPass(''); }}
-                  className="absolute inset-y-0 left-0 px-3 flex items-center text-[10px] font-bold text-rose-600 dark:text-rose-400 hover:underline cursor-pointer"
+                  className="absolute inset-y-0 left-0 px-3 flex items-center text-[10px] font-bold text-[#C83D4B] dark:text-[#E35D6A] hover:underline cursor-pointer"
                 >
                   إلغاء
                 </button>
@@ -703,31 +703,31 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">
+            <label className="block text-xs font-bold text-[#64748B] dark:text-[#8493A8] mb-1">
               خادم SMTP
             </label>
             <input
               type="text"
               value={smtpHost}
               onChange={(e) => setSmtpHost(e.target.value)}
-              className="w-full h-9 px-3 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-300 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden dir-ltr font-mono"
+              className="w-full h-9 px-3 text-xs bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#475569] dark:text-[#A8B5C7] focus:border-[#2785F5] focus:outline-hidden dir-ltr font-mono"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">
+            <label className="block text-xs font-bold text-[#64748B] dark:text-[#8493A8] mb-1">
               منفذ الاتصال (Port)
             </label>
             <input
               type="text"
               value={smtpPort}
               onChange={(e) => setSmtpPort(e.target.value)}
-              className="w-full h-9 px-3 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-300 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden dir-ltr font-mono"
+              className="w-full h-9 px-3 text-xs bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#475569] dark:text-[#A8B5C7] focus:border-[#2785F5] focus:outline-hidden dir-ltr font-mono"
             />
           </div>
 
-          <div className="sm:col-span-2 flex flex-col sm:flex-row justify-between items-center gap-3 pt-3 border-t border-slate-200 dark:border-slate-700">
-            <span className="text-[11px] text-slate-500 dark:text-slate-400">
+          <div className="sm:col-span-2 flex flex-col sm:flex-row justify-between items-center gap-3 pt-3 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
+            <span className="text-[11px] text-[#64748B] dark:text-[#8493A8]">
               * يُحفظ السر آمنياً في مسار بيانات التطبيق المحمي ببيئة Windows Electron ولن يُرفع للإنترنت.
             </span>
 
@@ -736,16 +736,16 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
                 type="button"
                 disabled={isSmtpTesting}
                 onClick={handleTestSmtp}
-                className="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                className="px-4 py-2 rounded-xl bg-white dark:bg-[#26364B] hover:bg-[#EDF1F7] dark:hover:bg-[#2D3B4D] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] text-xs font-bold flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
-                <Send className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                <Send className="w-3.5 h-3.5 text-[#3156C9] dark:text-[#60A5FA]" />
                 <span>{isSmtpTesting ? 'جاري الاختبار...' : 'اختبار الاتصال'}</span>
               </button>
 
               <button
                 type="submit"
                 disabled={isSmtpSaving}
-                className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 text-xs font-black flex items-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50"
+                className="px-5 py-2 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white text-xs font-black flex items-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50"
               >
                 <span>{isSmtpSaving ? 'جاري الحفظ...' : 'حفظ إعدادات SMTP'}</span>
               </button>
@@ -757,16 +757,16 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
       {/* MODAL 1: Add User */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs" dir="rtl">
-          <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xl text-slate-900 dark:text-slate-100">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 mb-4">
-              <h4 className="text-base font-bold flex items-center gap-2 text-slate-900 dark:text-slate-100">
-                <UserPlus className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+          <div className="w-full max-w-md bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[16px] p-6 shadow-2xl text-[#1E293B] dark:text-[#E2E8F0]">
+            <div className="flex items-center justify-between pb-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D] mb-4">
+              <h4 className="text-base font-bold flex items-center gap-2 text-[#1E293B] dark:text-[#E2E8F0]">
+                <UserPlus className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" />
                 إضافة مستخدم جديد
               </h4>
               <button
                 type="button"
                 onClick={() => setIsAddModalOpen(false)}
-                className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-pointer"
+                className="p-1.5 rounded-lg hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] text-[#64748B] dark:text-[#8493A8] cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -774,19 +774,19 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
 
             <form onSubmit={handleAddUser} className="flex flex-col gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">اسم المستخدم</label>
+                <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1">اسم المستخدم</label>
                 <input
                   type="text"
                   required
                   value={addUsername}
                   onChange={(e) => setAddUsername(e.target.value)}
                   placeholder="مثال: teacher1 أو ahmed"
-                  className="w-full h-10 px-3 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden font-bold"
+                  className="w-full h-10 px-3 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] focus:border-[#2785F5] focus:outline-hidden font-bold"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">كلمة المرور الأولية (6 أحرف/أرقام على الأقل)</label>
+                <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1">كلمة المرور الأولية (6 أحرف/أرقام على الأقل)</label>
                 <div className="relative">
                   <input
                     type={showAddPassword ? 'text' : 'password'}
@@ -794,12 +794,12 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
                     value={addPassword}
                     onChange={(e) => setAddPassword(e.target.value)}
                     placeholder="أدخل كلمة المرور"
-                    className="w-full h-10 pr-3 pl-10 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
+                    className="w-full h-10 pr-3 pl-10 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] focus:border-[#2785F5] focus:outline-hidden"
                   />
                   <button
                     type="button"
                     onClick={() => setShowAddPassword(!showAddPassword)}
-                    className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
+                    className="absolute inset-y-0 left-0 pl-3 flex items-center text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] cursor-pointer"
                   >
                     {showAddPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -807,11 +807,11 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الدور والصلاحية</label>
+                <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1">الدور والصلاحية</label>
                 <select
                   value={addRole}
                   onChange={(e) => setAddRole(e.target.value as UserRole)}
-                  className="w-full h-10 px-3 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden font-bold"
+                  className="w-full h-10 px-3 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] focus:border-[#2785F5] focus:outline-hidden font-bold"
                 >
                   <option value="user">مستخدم عادي (معاينة فقط - Read Only)</option>
                   <option value="admin">مدير رئيسي كامل (Admin - إدارة ومستخدمون ونسخ احتياطي)</option>
@@ -820,7 +820,7 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
 
               {addRole === 'admin' && (
                 <div>
-                  <label className="block text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1">
+                  <label className="block text-xs font-bold text-[#3156C9] dark:text-[#60A5FA] mb-1">
                     البريد الإلكتروني للمدير (إلزامي لاستعادة كلمة المرور)
                   </label>
                   <input
@@ -829,23 +829,23 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
                     value={addEmail}
                     onChange={(e) => setAddEmail(e.target.value)}
                     placeholder="admin@school.edu.iq"
-                    className="w-full h-10 px-3 text-xs bg-slate-50 dark:bg-slate-800 border border-emerald-500/50 rounded-xl text-slate-900 dark:text-slate-100 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden dir-ltr font-mono"
+                    className="w-full h-10 px-3 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#3156C9]/40 dark:border-[#2785F5]/40 rounded-xl text-[#1E293B] dark:text-[#E2E8F0] focus:border-[#2785F5] focus:outline-hidden dir-ltr font-mono"
                   />
                 </div>
               )}
 
-              <div className="flex justify-end gap-2.5 mt-2 pt-3 border-t border-slate-200 dark:border-slate-800">
+              <div className="flex justify-end gap-2.5 mt-2 pt-3 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-[#EDF1F7] dark:bg-[#26364B] text-[#1E293B] dark:text-[#E2E8F0] text-xs font-bold hover:bg-[#E2E8F0] dark:hover:bg-[#2D3B4D] cursor-pointer"
                 >
                   إلغاء
                 </button>
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 text-xs font-black cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white text-xs font-black cursor-pointer disabled:opacity-50"
                 >
                   {isLoading ? 'جاري الإضافة...' : 'حفظ المستخدم'}
                 </button>
@@ -858,16 +858,16 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
       {/* MODAL 2: Edit User */}
       {isEditModalOpen && selectedUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs" dir="rtl">
-          <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xl text-slate-900 dark:text-slate-100">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 mb-4">
-              <h4 className="text-base font-bold flex items-center gap-2 text-slate-900 dark:text-slate-100">
-                <Edit2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+          <div className="w-full max-w-md bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[16px] p-6 shadow-2xl text-[#1E293B] dark:text-[#E2E8F0]">
+            <div className="flex items-center justify-between pb-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D] mb-4">
+              <h4 className="text-base font-bold flex items-center gap-2 text-[#1E293B] dark:text-[#E2E8F0]">
+                <Edit2 className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" />
                 تعديل بيانات المستخدم
               </h4>
               <button
                 type="button"
                 onClick={() => setIsEditModalOpen(false)}
-                className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-pointer"
+                className="p-1.5 rounded-lg hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] text-[#64748B] dark:text-[#8493A8] cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -875,22 +875,22 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
 
             <form onSubmit={handleEditUser} className="flex flex-col gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">اسم المستخدم</label>
+                <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1">اسم المستخدم</label>
                 <input
                   type="text"
                   required
                   value={editUsername}
                   onChange={(e) => setEditUsername(e.target.value)}
-                  className="w-full h-10 px-3 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden font-bold"
+                  className="w-full h-10 px-3 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] focus:border-[#2785F5] focus:outline-hidden font-bold"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">الدور والصلاحية</label>
+                <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1">الدور والصلاحية</label>
                 <select
                   value={editRole}
                   onChange={(e) => setEditRole(e.target.value as UserRole)}
-                  className="w-full h-10 px-3 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden font-bold"
+                  className="w-full h-10 px-3 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] focus:border-[#2785F5] focus:outline-hidden font-bold"
                 >
                   <option value="user">مستخدم عادي (معاينة فقط - Read Only)</option>
                   <option value="admin">مدير كامل (Admin)</option>
@@ -899,7 +899,7 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
 
               {editRole === 'admin' && (
                 <div>
-                  <label className="block text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1">
+                  <label className="block text-xs font-bold text-[#3156C9] dark:text-[#60A5FA] mb-1">
                     البريد الإلكتروني للمدير (إلزامي لاستعادة كلمة المرور)
                   </label>
                   <input
@@ -908,22 +908,22 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
                     value={editEmail}
                     onChange={(e) => setEditEmail(e.target.value)}
                     placeholder="admin@school.edu.iq"
-                    className="w-full h-10 px-3 text-xs bg-slate-50 dark:bg-slate-800 border border-emerald-500/50 rounded-xl text-slate-900 dark:text-slate-100 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden dir-ltr font-mono"
+                    className="w-full h-10 px-3 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#3156C9]/40 dark:border-[#2785F5]/40 rounded-xl text-[#1E293B] dark:text-[#E2E8F0] focus:border-[#2785F5] focus:outline-hidden dir-ltr font-mono"
                   />
                 </div>
               )}
 
-              <div className="flex justify-end gap-2.5 mt-2 pt-3 border-t border-slate-200 dark:border-slate-800">
+              <div className="flex justify-end gap-2.5 mt-2 pt-3 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
                 <button
                   type="button"
                   onClick={() => setIsEditModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-[#EDF1F7] dark:bg-[#26364B] text-[#1E293B] dark:text-[#E2E8F0] text-xs font-bold hover:bg-[#E2E8F0] dark:hover:bg-[#2D3B4D] cursor-pointer"
                 >
                   إلغاء
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 text-xs font-black cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white text-xs font-black cursor-pointer"
                 >
                   حفظ التعديلات
                 </button>
@@ -936,28 +936,28 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
       {/* MODAL 3: Reset Password */}
       {isResetPasswordModalOpen && selectedUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs" dir="rtl">
-          <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xl text-slate-900 dark:text-slate-100">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 mb-4">
-              <h4 className="text-base font-bold flex items-center gap-2 text-teal-700 dark:text-teal-400">
+          <div className="w-full max-w-md bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[16px] p-6 shadow-2xl text-[#1E293B] dark:text-[#E2E8F0]">
+            <div className="flex items-center justify-between pb-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D] mb-4">
+              <h4 className="text-base font-bold flex items-center gap-2 text-[#3156C9] dark:text-[#60A5FA]">
                 <KeyRound className="w-5 h-5" />
                 إعادة تعيين كلمة المرور
               </h4>
               <button
                 type="button"
                 onClick={() => setIsResetPasswordModalOpen(false)}
-                className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-pointer"
+                className="p-1.5 rounded-lg hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] text-[#64748B] dark:text-[#8493A8] cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <p className="text-xs text-slate-600 dark:text-slate-300 mb-4">
-              سيتم تعيين كلمة مرور جديدة للمستخدم <strong className="text-emerald-700 dark:text-emerald-400 font-bold">{selectedUser.username}</strong>:
+            <p className="text-xs text-[#475569] dark:text-[#A8B5C7] mb-4">
+              سيتم تعيين كلمة مرور جديدة للمستخدم <strong className="text-[#3156C9] dark:text-[#60A5FA] font-bold">{selectedUser.username}</strong>:
             </p>
 
             <form onSubmit={handleResetPassword} className="flex flex-col gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">كلمة المرور الجديدة (6 خانات على الأقل)</label>
+                <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1">كلمة المرور الجديدة (6 خانات على الأقل)</label>
                 <div className="relative">
                   <input
                     type={showResetPassword ? 'text' : 'password'}
@@ -965,30 +965,30 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
                     value={resetPassword}
                     onChange={(e) => setResetPassword(e.target.value)}
                     placeholder="أدخل كلمة المرور الجديدة"
-                    className="w-full h-10 pr-3 pl-10 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
+                    className="w-full h-10 pr-3 pl-10 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] focus:border-[#2785F5] focus:outline-hidden"
                   />
                   <button
                     type="button"
                     onClick={() => setShowResetPassword(!showResetPassword)}
-                    className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
+                    className="absolute inset-y-0 left-0 pl-3 flex items-center text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] cursor-pointer"
                   >
                     {showResetPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2.5 mt-2 pt-3 border-t border-slate-200 dark:border-slate-800">
+              <div className="flex justify-end gap-2.5 mt-2 pt-3 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
                 <button
                   type="button"
                   onClick={() => setIsResetPasswordModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-[#EDF1F7] dark:bg-[#26364B] text-[#1E293B] dark:text-[#E2E8F0] text-xs font-bold hover:bg-[#E2E8F0] dark:hover:bg-[#2D3B4D] cursor-pointer"
                 >
                   إلغاء
                 </button>
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="px-5 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 text-white dark:bg-teal-400 dark:hover:bg-teal-300 dark:text-slate-950 text-xs font-black cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white text-xs font-black cursor-pointer disabled:opacity-50"
                 >
                   {isLoading ? 'جاري الحفظ...' : 'تأكيد التعيين'}
                 </button>
@@ -1001,33 +1001,33 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
       {/* MODAL 4: Delete User Confirmation */}
       {isDeleteModalOpen && selectedUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs" dir="rtl">
-          <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xl text-slate-900 dark:text-slate-100">
-            <div className="flex items-center gap-3 text-rose-700 dark:text-rose-400 mb-4">
-              <div className="p-2.5 rounded-2xl bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30">
+          <div className="w-full max-w-md bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[16px] p-6 shadow-2xl text-[#1E293B] dark:text-[#E2E8F0]">
+            <div className="flex items-center gap-3 text-[#C83D4B] dark:text-[#E35D6A] mb-4">
+              <div className="p-2.5 rounded-2xl bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 border border-[#E35D6A]/30">
                 <Trash2 className="w-6 h-6" />
               </div>
               <div>
-                <h4 className="text-base font-bold text-slate-900 dark:text-slate-100">تأكيد حذف المستخدم</h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400">هذا الإجراء نهائي ولا يمكن التراجع عنه</p>
+                <h4 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0]">تأكيد حذف المستخدم</h4>
+                <p className="text-xs text-[#64748B] dark:text-[#8493A8]">هذا الإجراء نهائي ولا يمكن التراجع عنه</p>
               </div>
             </div>
 
-            <p className="text-xs text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">
-              هل أنت متأكد من رغبتك في حذف حساب المستخدم <strong className="text-slate-900 dark:text-slate-100 font-bold font-mono">"{selectedUser.username}"</strong>؟
+            <p className="text-xs text-[#475569] dark:text-[#A8B5C7] mb-6 leading-relaxed">
+              هل أنت متأكد من رغبتك في حذف حساب المستخدم <strong className="text-[#1E293B] dark:text-[#E2E8F0] font-bold font-mono">"{selectedUser.username}"</strong>؟
             </p>
 
-            <div className="flex justify-end gap-2.5 pt-3 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex justify-end gap-2.5 pt-3 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
               <button
                 type="button"
                 onClick={() => setIsDeleteModalOpen(false)}
-                className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-[#EDF1F7] dark:bg-[#26364B] text-[#1E293B] dark:text-[#E2E8F0] text-xs font-bold hover:bg-[#E2E8F0] dark:hover:bg-[#2D3B4D] cursor-pointer"
               >
                 إلغاء
               </button>
               <button
                 type="button"
                 onClick={handleDeleteUser}
-                className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-black cursor-pointer"
+                className="px-5 py-2 rounded-xl bg-[#C83D4B] hover:bg-[#B02E3C] text-white text-xs font-black cursor-pointer"
               >
                 نعم، احذف المستخدم
               </button>
@@ -1044,7 +1044,7 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
           onClick={() => setIsSmtpHelpOpen(false)}
         >
           <div 
-            className="w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl text-slate-900 dark:text-slate-100 relative animate-in zoom-in-95 duration-200"
+            className="w-full max-w-lg bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[16px] p-6 sm:p-8 shadow-2xl text-[#1E293B] dark:text-[#E2E8F0] relative animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
             onKeyDown={(e) => { if (e.key === 'Escape') setIsSmtpHelpOpen(false); }}
             tabIndex={-1}
@@ -1052,41 +1052,41 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
             <button
               type="button"
               onClick={() => setIsSmtpHelpOpen(false)}
-              className="absolute top-6 left-6 p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+              className="absolute top-6 left-6 p-2 rounded-xl bg-[#EDF1F7] dark:bg-[#26364B] hover:bg-[#E2E8F0] dark:hover:bg-[#2D3B4D] text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] transition-colors cursor-pointer"
               title="إغلاق"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="flex items-center gap-4 mb-6">
-              <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400">
+              <div className="p-3.5 rounded-2xl bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border border-[#3156C9]/25 dark:border-[#2785F5]/30 text-[#3156C9] dark:text-[#60A5FA]">
                 <HelpCircle className="w-7 h-7" />
               </div>
               <div>
-                <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100">طريقة إعداد بريد Gmail</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">خطوات تفعيل إرسال رموز استعادة كلمة المرور</p>
+                <h3 className="text-lg sm:text-xl font-black text-[#1E293B] dark:text-[#E2E8F0]">طريقة إعداد بريد Gmail</h3>
+                <p className="text-xs text-[#64748B] dark:text-[#8493A8]">خطوات تفعيل إرسال رموز استعادة كلمة المرور</p>
               </div>
             </div>
 
             <div className="space-y-4 mb-8">
               <div className="flex gap-4">
-                <div className="w-6 h-6 rounded-full bg-emerald-50 dark:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">١</div>
-                <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">سجّل الدخول إلى حساب <strong>Gmail</strong> المخصص لإرسال بريد النظام.</p>
+                <div className="w-6 h-6 rounded-full bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border border-[#3156C9]/25 dark:border-[#2785F5]/30 text-[#3156C9] dark:text-[#60A5FA] text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">١</div>
+                <p className="text-sm text-[#475569] dark:text-[#A8B5C7] leading-relaxed">سجّل الدخول إلى حساب <strong className="text-[#1E293B] dark:text-[#E2E8F0]">Gmail</strong> المخصص لإرسال بريد النظام.</p>
               </div>
               
               <div className="flex gap-4">
-                <div className="w-6 h-6 rounded-full bg-emerald-50 dark:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">٢</div>
-                <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">تأكد من تفعيل خاصية <strong>التحقق بخطوتين (2-Step Verification)</strong> في إعدادات الأمان بالحساب.</p>
+                <div className="w-6 h-6 rounded-full bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border border-[#3156C9]/25 dark:border-[#2785F5]/30 text-[#3156C9] dark:text-[#60A5FA] text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">٢</div>
+                <p className="text-sm text-[#475569] dark:text-[#A8B5C7] leading-relaxed">تأكد من تفعيل خاصية <strong className="text-[#1E293B] dark:text-[#E2E8F0]">التحقق بخطوتين (2-Step Verification)</strong> في إعدادات الأمان بالحساب.</p>
               </div>
 
               <div className="flex gap-4">
-                <div className="w-6 h-6 rounded-full bg-emerald-50 dark:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">٣</div>
+                <div className="w-6 h-6 rounded-full bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border border-[#3156C9]/25 dark:border-[#2785F5]/30 text-[#3156C9] dark:text-[#60A5FA] text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">٣</div>
                 <div className="flex flex-col gap-2">
-                  <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">افتح صفحة <strong>كلمات مرور التطبيقات</strong> الرسمية من جوجل:</p>
+                  <p className="text-sm text-[#475569] dark:text-[#A8B5C7] leading-relaxed">افتح صفحة <strong className="text-[#1E293B] dark:text-[#E2E8F0]">كلمات مرور التطبيقات</strong> الرسمية من جوجل:</p>
                   <button
                     type="button"
                     onClick={handleOpenGoogleLink}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-teal-50 dark:bg-teal-500/15 hover:bg-teal-100 dark:hover:bg-teal-500/25 text-teal-800 dark:text-teal-300 text-xs font-bold self-start transition-all cursor-pointer border border-teal-200 dark:border-teal-500/30"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#3156C9]/8 dark:bg-[#2785F5]/12 hover:bg-[#3156C9]/15 dark:hover:bg-[#2785F5]/20 text-[#3156C9] dark:text-[#60A5FA] text-xs font-bold self-start transition-all cursor-pointer border border-[#3156C9]/25 dark:border-[#2785F5]/25"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                     فتح صفحة إنشاء كلمة مرور التطبيقات
@@ -1095,18 +1095,18 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
               </div>
 
               <div className="flex gap-4">
-                <div className="w-6 h-6 rounded-full bg-emerald-50 dark:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">٤</div>
-                <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">أنشئ كلمة مرور تطبيقات جديدة باسم <strong>"School Grades App"</strong>.</p>
+                <div className="w-6 h-6 rounded-full bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border border-[#3156C9]/25 dark:border-[#2785F5]/30 text-[#3156C9] dark:text-[#60A5FA] text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">٤</div>
+                <p className="text-sm text-[#475569] dark:text-[#A8B5C7] leading-relaxed">أنشئ كلمة مرور تطبيقات جديدة باسم <strong className="text-[#1E293B] dark:text-[#E2E8F0]">"School Grades App"</strong>.</p>
               </div>
 
               <div className="flex gap-4">
-                <div className="w-6 h-6 rounded-full bg-emerald-50 dark:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">٥</div>
-                <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">انسخ الرمز المكون من <strong>١٦ حرفاً</strong> الملحق به والصقه في حقل «كلمة مرور التطبيقات» في هذه الشاشة.</p>
+                <div className="w-6 h-6 rounded-full bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border border-[#3156C9]/25 dark:border-[#2785F5]/30 text-[#3156C9] dark:text-[#60A5FA] text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">٥</div>
+                <p className="text-sm text-[#475569] dark:text-[#A8B5C7] leading-relaxed">انسخ الرمز المكون من <strong className="text-[#1E293B] dark:text-[#E2E8F0]">١٦ حرفاً</strong> الملحق به والصقه في حقل «كلمة مرور التطبيقات» في هذه الشاشة.</p>
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-xs text-amber-800 dark:text-amber-300 leading-relaxed mb-8 flex gap-3">
-              <ShieldAlert className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
+            <div className="p-4 rounded-2xl bg-[#D69B42]/10 dark:bg-[#D69B42]/15 border border-[#D69B42]/30 text-xs text-[#B45309] dark:text-[#D69B42] leading-relaxed mb-8 flex gap-3">
+              <ShieldAlert className="w-5 h-5 shrink-0" />
               <span>
                 <strong>تنبيه أمني:</strong> كلمة مرور التطبيقات تختلف عن كلمة مرور حسابك العادية. لا تشارك هذا الرمز مع أحد، ولا تقم برفعه إلى مستودعات الكود العامة (مثل GitHub).
               </span>
@@ -1115,7 +1115,7 @@ export const UserManagementSection: React.FC<UserManagementSectionProps> = ({
             <button
               type="button"
               onClick={() => setIsSmtpHelpOpen(false)}
-              className="w-full h-12 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 font-black text-sm transition-all shadow-sm cursor-pointer"
+              className="w-full h-12 rounded-2xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white font-black text-sm transition-all shadow-sm cursor-pointer"
             >
               فهمت، العودة للإعدادات
             </button>

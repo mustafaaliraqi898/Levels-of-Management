@@ -83,13 +83,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Mobile Backdrop */}
       {isMobileOpen && (
         <div
-          className="no-print fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-xs md:hidden"
+          className="no-print fixed inset-0 z-40 bg-[#111C2A]/70 backdrop-blur-xs md:hidden"
           onClick={onCloseMobile}
         />
       )}
 
       <aside
-        className={`no-print fixed top-0 right-0 z-50 h-screen bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 flex flex-col justify-between transition-all duration-200 ease-in-out md:translate-x-0 select-none ${
+        className={`no-print fixed top-0 right-0 z-50 h-screen bg-white dark:bg-[#202D3E] border-l border-[#DCE3ED] dark:border-[#2D3B4D] flex flex-col justify-between transition-all duration-200 ease-in-out md:translate-x-0 select-none ${
           isMobileOpen
             ? 'translate-x-0 shadow-2xl w-72'
             : isCollapsed
@@ -98,12 +98,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         }`}
       >
         {/* Top Header & Brand */}
-        <div className="p-3 border-b border-slate-200 dark:border-slate-800 flex flex-col gap-2">
+        <div className="p-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D] flex flex-col gap-2">
           {/* Header Row: School Brand & Collapse Toggle */}
           <div className={`flex items-center ${isCollapsed ? 'flex-col justify-center gap-2.5' : 'justify-between gap-2'}`}>
             <div className={`flex items-center gap-3 overflow-hidden ${isCollapsed ? 'justify-center' : ''}`}>
               <div
-                className="w-10 h-10 rounded-xl bg-emerald-600 dark:bg-emerald-400 flex items-center justify-center text-white dark:text-slate-950 font-black shadow-md shadow-emerald-600/20 dark:shadow-emerald-400/15 shrink-0"
+                className="w-10 h-10 rounded-xl bg-[#3156C9] flex items-center justify-center text-white font-black shadow-sm shadow-[#3156C9]/25 shrink-0"
                 title={settings.schoolName}
               >
                 <School className="w-5 h-5" />
@@ -112,12 +112,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {!isCollapsed && (
                 <div className="flex flex-col overflow-hidden">
                   <h2
-                    className="font-black text-sm tracking-tight truncate max-w-[155px] text-slate-900 dark:text-slate-100"
+                    className="font-black text-sm tracking-tight truncate max-w-[155px] text-[#1E293B] dark:text-[#E2E8F0]"
                     title={settings.schoolName}
                   >
                     {settings.schoolName}
                   </h2>
-                  <span className="text-[11px] truncate text-slate-500 dark:text-slate-400">
+                  <span className="text-[11px] truncate text-[#64748B] dark:text-[#A8B5C7]">
                     نظام الدرجات المكتبي
                   </span>
                 </div>
@@ -128,14 +128,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               type="button"
               onClick={onToggleCollapse}
-              className={`p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors cursor-pointer hidden md:flex items-center justify-center shrink-0 ${
+              className={`p-2 rounded-lg border border-[#DCE3ED] dark:border-[#2D3B4D] bg-[#EDF1F7] dark:bg-[#26364B] hover:border-[#2785F5] text-[#64748B] dark:text-[#A8B5C7] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] transition-colors cursor-pointer hidden md:flex items-center justify-center shrink-0 ${
                 isCollapsed ? 'w-10 h-10' : ''
               }`}
               title={isCollapsed ? 'توسيع القائمة الجانبية' : 'تصغير القائمة الجانبية (أيقونات فقط)'}
               aria-label={isCollapsed ? 'توسيع القائمة الجانبية' : 'تصغير القائمة الجانبية'}
             >
               {isCollapsed ? (
-                <PanelRightOpen className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                <PanelRightOpen className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" />
               ) : (
                 <PanelRightClose className="w-4 h-4" />
               )}
@@ -144,9 +144,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           {/* Academic Year Badge */}
           {!isCollapsed && (
-            <div className="mt-1 flex items-center justify-between px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/70 text-[11px]">
-              <span className="text-slate-500 dark:text-slate-400">العام الدراسي:</span>
-              <span className="font-bold font-mono text-emerald-700 dark:text-emerald-400">
+            <div className="mt-1 flex items-center justify-between px-2.5 py-1.5 rounded-lg border border-[#DCE3ED] dark:border-[#2D3B4D] bg-[#F4F6FA] dark:bg-[#1C2939] text-[11px]">
+              <span className="text-[#64748B] dark:text-[#A8B5C7]">العام الدراسي:</span>
+              <span className="font-bold font-mono tabular-nums text-[#3156C9] dark:text-[#60A5FA]">
                 {currentYearName || '2026–2027'}
               </span>
             </div>
@@ -154,7 +154,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Navigation Menu */}
-        <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-1.5 overflow-x-hidden">
+        <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-1 overflow-x-hidden">
           {menuItems.map((item) => {
             const isActive = activeTab === item.id;
             const Icon = item.icon;
@@ -167,23 +167,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onSelectTab(item.id);
                     if (onCloseMobile) onCloseMobile();
                   }}
-                  className={`w-full flex items-center rounded-xl text-xs font-bold transition-all duration-150 cursor-pointer ${
+                  className={`relative w-full flex items-center rounded-xl text-xs font-bold transition-all duration-150 cursor-pointer ${
                     isCollapsed
                       ? 'justify-center p-3 h-12'
                       : 'justify-between px-3.5 py-2.5'
                   } ${
                     isActive
-                      ? 'bg-emerald-50 dark:bg-emerald-400/15 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-400/30 shadow-xs'
-                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 border border-transparent'
+                      ? 'bg-[#3156C9]/10 dark:bg-[#3156C9]/22 text-[#3156C9] dark:text-white border border-[#3156C9]/30 dark:border-[#2785F5]/45 shadow-xs'
+                      : 'text-[#64748B] dark:text-[#A8B5C7] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] border border-transparent'
                   }`}
                   aria-label={item.label}
                 >
-                  <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'}`}>
+                  {isActive && !isCollapsed && (
+                    <span className="absolute right-1 top-2 bottom-2 w-1 rounded-full bg-[#3156C9] dark:bg-[#2785F5]" />
+                  )}
+
+                  <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3 pr-1'}`}>
                     <Icon
                       className={`w-5 h-5 shrink-0 ${
                         isActive
-                          ? 'text-emerald-600 dark:text-emerald-400'
-                          : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-100'
+                          ? 'text-[#3156C9] dark:text-[#60A5FA]'
+                          : 'text-[#64748B] dark:text-[#8493A8] group-hover:text-[#1E293B] dark:group-hover:text-[#E2E8F0]'
                       }`}
                     />
                     {!isCollapsed && <span className="tracking-wide truncate">{item.label}</span>}
@@ -191,16 +195,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
                   {/* Indicator Dot for Collapsed Active Item */}
                   {isCollapsed && isActive && (
-                    <span className="absolute top-1.5 left-1.5 w-2 h-2 rounded-full ring-2 bg-emerald-600 dark:bg-emerald-400 ring-white dark:ring-slate-900" />
+                    <span className="absolute top-1.5 left-1.5 w-2 h-2 rounded-full ring-2 bg-[#3156C9] dark:bg-[#2785F5] ring-white dark:ring-[#202D3E]" />
                   )}
                 </button>
 
                 {/* Floating Tooltip in Collapsed Mode */}
                 {isCollapsed && (
-                  <div className="hidden md:flex absolute right-full top-1/2 -translate-y-1/2 mr-3 px-3 py-1.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-xs font-bold rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 items-center gap-2">
+                  <div className="hidden md:flex absolute right-full top-1/2 -translate-y-1/2 mr-3 px-3 py-1.5 border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] text-[#1E293B] dark:text-[#E2E8F0] text-xs font-bold rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 items-center gap-2">
                     <span>{item.label}</span>
-                    {/* Arrow pointer */}
-                    <div className="absolute top-1/2 -translate-y-1/2 -right-1.5 w-3 h-3 border-t border-r rotate-45 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700" />
+                    <div className="absolute top-1/2 -translate-y-1/2 -right-1.5 w-3 h-3 border-t border-r rotate-45 bg-white dark:bg-[#1C2939] border-[#DCE3ED] dark:border-[#2D3B4D]" />
                   </div>
                 )}
               </div>
@@ -210,17 +213,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Current User Card */}
         {currentUser && (
-          <div className="p-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60">
+          <div className="p-3 border-t border-[#DCE3ED] dark:border-[#2D3B4D] bg-[#F4F6FA] dark:bg-[#1C2939]/80">
             {!isCollapsed ? (
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 overflow-hidden">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 bg-emerald-100 dark:bg-emerald-400/15 text-emerald-700 dark:text-emerald-400">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 bg-[#3156C9]/12 dark:bg-[#60A5FA]/15 text-[#3156C9] dark:text-[#60A5FA]">
                       <User className="w-4 h-4" />
                     </div>
                     <div className="flex flex-col min-w-0">
-                      <span className="text-xs font-bold truncate text-slate-900 dark:text-slate-100">{currentUser.username}</span>
-                      <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                      <span className="text-xs font-bold truncate text-[#1E293B] dark:text-[#E2E8F0]">{currentUser.username}</span>
+                      <span className="text-[10px] text-[#64748B] dark:text-[#A8B5C7]">
                         {currentUser.role === 'admin' ? 'مدير النظام' : 'مستخدم عادي'}
                       </span>
                     </div>
@@ -228,8 +231,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <span
                     className={`text-[9px] px-1.5 py-0.5 rounded font-bold border ${
                       currentUser.role === 'admin'
-                        ? 'bg-teal-50 dark:bg-teal-400/15 text-teal-700 dark:text-teal-400 border-teal-200 dark:border-teal-400/30'
-                        : 'bg-emerald-50 dark:bg-emerald-400/15 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-400/30'
+                        ? 'bg-[#3156C9]/10 dark:bg-[#60A5FA]/15 text-[#3156C9] dark:text-[#60A5FA] border-[#3156C9]/25 dark:border-[#60A5FA]/30'
+                        : 'bg-[#A78BFA]/15 text-[#7C3AED] dark:text-[#A78BFA] border-[#A78BFA]/30'
                     }`}
                   >
                     {currentUser.role === 'admin' ? 'مدير كامل' : 'معاينة فقط'}
@@ -240,14 +243,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <button
                     type="button"
                     onClick={onOpenAccountSettings}
-                    className="flex-1 py-1 px-2 rounded-lg text-[11px] font-bold text-center cursor-pointer transition-colors bg-slate-200 hover:bg-slate-300 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-100"
+                    className="flex-1 py-1.5 px-2 rounded-lg text-[11px] font-bold text-center cursor-pointer transition-colors bg-[#EDF1F7] hover:bg-[#DCE3ED] text-[#1E293B] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] dark:text-[#E2E8F0] border border-[#DCE3ED] dark:border-[#2D3B4D]"
                   >
                     حسابي
                   </button>
                   <button
                     type="button"
                     onClick={onLogout}
-                    className="py-1 px-2 rounded-lg text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-slate-800 dark:hover:bg-rose-950/70 dark:text-rose-400"
+                    className="py-1.5 px-2.5 rounded-lg text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors bg-[#E35D6A]/10 hover:bg-[#E35D6A]/20 text-[#C83D4B] dark:text-[#E35D6A] border border-[#E35D6A]/25"
                     title="تسجيل الخروج"
                   >
                     <LogOut className="w-3.5 h-3.5" />
@@ -260,20 +263,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <button
                   type="button"
                   onClick={onOpenAccountSettings}
-                  className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-colors bg-slate-200 hover:bg-slate-300 text-emerald-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-emerald-400"
+                  className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-colors bg-[#EDF1F7] hover:bg-[#DCE3ED] text-[#3156C9] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] dark:text-[#60A5FA] border border-[#DCE3ED] dark:border-[#2D3B4D]"
                   title="حسابي"
                 >
                   <User className="w-4 h-4" />
                 </button>
 
                 {/* Collapsed Tooltip */}
-                <div className="hidden md:flex flex-col absolute right-full bottom-0 mr-3 p-2.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-xl shadow-xl z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 gap-1.5 min-w-[130px]">
+                <div className="hidden md:flex flex-col absolute right-full bottom-0 mr-3 p-2.5 border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] text-[#1E293B] dark:text-[#E2E8F0] rounded-xl shadow-xl z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 gap-1.5 min-w-[130px]">
                   <span className="font-bold text-xs">{currentUser.username}</span>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                  <span className="text-[10px] text-[#64748B] dark:text-[#A8B5C7]">
                     {currentUser.role === 'admin' ? 'مدير النظام' : 'مستخدم عادي'}
                   </span>
-                  <div className="text-[10px] text-emerald-700 dark:text-emerald-400">انقر لفتح حسابي</div>
-                  <div className="absolute top-1/2 -translate-y-1/2 -right-1.5 w-3 h-3 border-t border-r rotate-45 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700" />
+                  <div className="text-[10px] text-[#3156C9] dark:text-[#60A5FA]">انقر لفتح حسابي</div>
+                  <div className="absolute top-1/2 -translate-y-1/2 -right-1.5 w-3 h-3 border-t border-r rotate-45 bg-white dark:bg-[#1C2939] border-[#DCE3ED] dark:border-[#2D3B4D]" />
                 </div>
               </div>
             )}
@@ -281,56 +284,52 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
 
         {/* Sidebar Footer */}
-        <div className="p-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60">
+        <div className="p-3 border-t border-[#DCE3ED] dark:border-[#2D3B4D] bg-[#F4F6FA] dark:bg-[#1C2939]">
           {!isCollapsed ? (
             <div className="flex flex-col gap-1 text-center select-none" dir="rtl">
-              {/* Line 1: Concept & Supervision + Teacher Name */}
               <div className="flex items-center justify-center gap-1.5 text-xs">
-                <span className="text-slate-500 dark:text-slate-400">فكرة وإشراف</span>
-                <span className="text-[10px] leading-none select-none text-teal-700 dark:text-teal-400">◆</span>
-                <span className="font-bold text-teal-700 dark:text-teal-400">الأستاذ مصطفى</span>
+                <span className="text-[#64748B] dark:text-[#A8B5C7]">فكرة وإشراف</span>
+                <span className="text-[10px] leading-none select-none text-[#3156C9] dark:text-[#60A5FA]">◆</span>
+                <span className="font-bold text-[#3156C9] dark:text-[#60A5FA]">الأستاذ مصطفى</span>
               </div>
 
-              {/* Line 2: Subject Role + School Name */}
               <div className="flex items-center justify-center gap-1.5 text-[11px]">
-                <span className="font-medium text-slate-900 dark:text-slate-100">مدرس الرياضيات</span>
-                <span className="text-[10px] leading-none select-none text-teal-700 dark:text-teal-400">◆</span>
-                <span className="text-slate-500 dark:text-slate-400">إعدادية داقوق للبنين</span>
+                <span className="font-medium text-[#1E293B] dark:text-[#E2E8F0]">مدرس الرياضيات</span>
+                <span className="text-[10px] leading-none select-none text-[#3156C9] dark:text-[#60A5FA]">◆</span>
+                <span className="text-[#64748B] dark:text-[#A8B5C7]">إعدادية داقوق للبنين</span>
               </div>
 
-              <div className="border-t border-slate-200 dark:border-slate-800 my-1.5" />
+              <div className="border-t border-[#DCE3ED] dark:border-[#2D3B4D] my-1.5" />
 
-              {/* Version & Copyright */}
               <div className="flex items-center justify-between text-[10px] px-0.5">
-                <span className="text-slate-500 dark:text-slate-400">
+                <span className="text-[#64748B] dark:text-[#8493A8]">
                   جميع الحقوق محفوظة © 2026
                 </span>
-                <span className="font-mono font-medium text-slate-500 dark:text-slate-400">
+                <span className="font-mono font-medium text-[#64748B] dark:text-[#8493A8]">
                   v1.2.0
                 </span>
               </div>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-1 group relative">
-              <span className="font-mono text-[10px] text-slate-500 dark:text-slate-400 font-medium">v1.2.0</span>
-              {/* Tooltip for collapsed mode */}
-              <div className="hidden md:flex flex-col absolute right-full bottom-0 mr-3 p-2.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-xl shadow-xl z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 gap-1 min-w-[210px] text-center" dir="rtl">
+              <span className="font-mono text-[10px] text-[#64748B] dark:text-[#8493A8] font-medium">v1.2.0</span>
+              <div className="hidden md:flex flex-col absolute right-full bottom-0 mr-3 p-2.5 border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] text-[#1E293B] dark:text-[#E2E8F0] rounded-xl shadow-xl z-50 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 gap-1 min-w-[210px] text-center" dir="rtl">
                 <div className="flex items-center justify-center gap-1.5 text-xs whitespace-nowrap">
-                  <span className="text-slate-500 dark:text-slate-400">فكرة وإشراف</span>
-                  <span className="text-[9px] leading-none select-none text-teal-700 dark:text-teal-400">◆</span>
-                  <span className="font-bold text-teal-700 dark:text-teal-400">الأستاذ مصطفى</span>
+                  <span className="text-[#64748B] dark:text-[#A8B5C7]">فكرة وإشراف</span>
+                  <span className="text-[9px] leading-none select-none text-[#3156C9] dark:text-[#60A5FA]">◆</span>
+                  <span className="font-bold text-[#3156C9] dark:text-[#60A5FA]">الأستاذ مصطفى</span>
                 </div>
                 <div className="flex items-center justify-center gap-1.5 text-[11px] whitespace-nowrap">
-                  <span className="font-medium text-slate-900 dark:text-slate-100">مدرس الرياضيات</span>
-                  <span className="text-[9px] leading-none select-none text-teal-700 dark:text-teal-400">◆</span>
-                  <span className="text-slate-500 dark:text-slate-400">إعدادية داقوق للبنين</span>
+                  <span className="font-medium text-[#1E293B] dark:text-[#E2E8F0]">مدرس الرياضيات</span>
+                  <span className="text-[9px] leading-none select-none text-[#3156C9] dark:text-[#60A5FA]">◆</span>
+                  <span className="text-[#64748B] dark:text-[#A8B5C7]">إعدادية داقوق للبنين</span>
                 </div>
-                <div className="border-t border-slate-200 dark:border-slate-800 my-1" />
-                <div className="flex items-center justify-between text-[9px] text-slate-500 dark:text-slate-400 gap-2">
+                <div className="border-t border-[#DCE3ED] dark:border-[#2D3B4D] my-1" />
+                <div className="flex items-center justify-between text-[9px] text-[#64748B] dark:text-[#8493A8] gap-2">
                   <span>جميع الحقوق محفوظة © 2026</span>
                   <span className="font-mono">v1.2.0</span>
                 </div>
-                <div className="absolute top-1/2 -translate-y-1/2 -right-1.5 w-3 h-3 border-t border-r rotate-45 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700" />
+                <div className="absolute top-1/2 -translate-y-1/2 -right-1.5 w-3 h-3 border-t border-r rotate-45 bg-white dark:bg-[#1C2939] border-[#DCE3ED] dark:border-[#2D3B4D]" />
               </div>
             </div>
           )}

@@ -208,63 +208,63 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
   return (
     <div className="flex flex-col gap-6 pb-16">
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm dark:shadow-xl flex items-center justify-between">
+      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-5 rounded-2xl shadow-sm dark:shadow-xl flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <Settings className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+          <h1 className="text-2xl font-black text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2">
+            <Settings className="w-6 h-6 text-[#3156C9] dark:text-[#60A5FA]" />
             إعدادات النظام والتقريب ومعادلات الدرجات
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-1">
             تخصيص قواعد التقريب الحسابي لدرجة السعي والنهائي، بيانات المدرسة الرسمية، وضوابط الأمان
           </p>
         </div>
       </div>
 
       {savedSuccess && (
-        <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-sm font-bold flex items-center gap-2 animate-in fade-in">
-          <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+        <div className="p-4 rounded-xl bg-[#10B981]/12 dark:bg-[#10B981]/15 border border-[#10B981]/30 text-[#059669] dark:text-[#10B981] text-sm font-bold flex items-center gap-2 animate-in fade-in">
+          <CheckCircle2 className="w-5 h-5 text-[#059669] dark:text-[#10B981]" />
           <span>تم حفظ الإعدادات وإعادة احتساب درجات السعي والدرجات النهائية تلقائياً لجميع الطلاب!</span>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         {/* 1. School Official Information */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm dark:shadow-lg">
-          <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-4 flex items-center gap-2">
-            <School className="w-5 h-5 text-teal-700 dark:text-teal-400" />
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-6 shadow-sm dark:shadow-lg">
+          <h3 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0] mb-4 flex items-center gap-2">
+            <School className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" />
             بيانات المدرسة والترويسة الرسمية للتقارير
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">اسم المدرسة الرسمي</label>
+              <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1.5">اسم المدرسة الرسمي</label>
               <input
                 type="text"
                 value={formData.schoolName}
                 onChange={(e) => setFormData({ ...formData, schoolName: e.target.value })}
-                className="w-full h-10 px-3 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden font-bold"
+                className="w-full h-10 px-3 text-sm bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] focus:border-[#2785F5] focus:outline-hidden font-bold"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">المدينة والمديرية العامة</label>
+              <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1.5">المدينة والمديرية العامة</label>
               <input
                 type="text"
                 value={formData.city}
                 onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                className="w-full h-10 px-3 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
+                className="w-full h-10 px-3 text-sm bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] focus:border-[#2785F5] focus:outline-hidden"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">اسم مدير المدرسة</label>
+              <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1.5">اسم مدير المدرسة</label>
               <input
                 type="text"
                 value={formData.directorName}
                 onChange={(e) => setFormData({ ...formData, directorName: e.target.value })}
-                className="w-full h-10 px-3 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
+                className="w-full h-10 px-3 text-sm bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] focus:border-[#2785F5] focus:outline-hidden"
                 required
               />
             </div>
@@ -272,13 +272,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
 
         {/* 2. School Logo Section */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm dark:shadow-lg">
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-6 shadow-sm dark:shadow-lg">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
             <div className="flex items-center gap-2">
-              <ImageIcon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-              <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">شعار المدرسة</h3>
+              <ImageIcon className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" />
+              <h3 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0]">شعار المدرسة</h3>
             </div>
-            <span className="text-xs text-slate-500 dark:text-slate-400">
+            <span className="text-xs text-[#64748B] dark:text-[#8493A8]">
               يُعتمد الشعار تلقائياً في جميع التقارير، كشوف الدرجات، والشهادات الرسمية القابلة للطباعة
             </span>
           </div>
@@ -292,23 +292,23 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           />
 
           {logoSuccess && (
-            <div className="mb-4 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs font-bold flex items-center gap-2 animate-in fade-in">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <div className="mb-4 p-3 rounded-xl bg-[#10B981]/12 dark:bg-[#10B981]/15 border border-[#10B981]/30 text-[#059669] dark:text-[#10B981] text-xs font-bold flex items-center gap-2 animate-in fade-in">
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>{logoSuccess}</span>
             </div>
           )}
 
           {logoError && (
-            <div className="mb-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 text-rose-800 dark:text-rose-300 text-xs font-bold flex items-center gap-2 animate-in fade-in">
-              <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
+            <div className="mb-4 p-3 rounded-xl bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 border border-[#E35D6A]/30 text-[#C83D4B] dark:text-[#E35D6A] text-xs font-bold flex items-center gap-2 animate-in fade-in">
+              <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{logoError}</span>
             </div>
           )}
 
           {formData.schoolLogo ? (
-            <div className="flex flex-col md:flex-row items-center gap-6 p-5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+            <div className="flex flex-col md:flex-row items-center gap-6 p-5 rounded-xl bg-[#F8FAFC] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D]">
               <div className="relative group shrink-0">
-                <div className="w-32 h-32 rounded-2xl p-2.5 bg-white border-2 border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-center overflow-hidden">
+                <div className="w-32 h-32 rounded-2xl p-2.5 bg-white border-2 border-[#DCE3ED] dark:border-[#2D3B4D] shadow-sm flex items-center justify-center overflow-hidden">
                   <SchoolLogo
                     logoUrl={formData.schoolLogo}
                     schoolName={formData.schoolName}
@@ -316,21 +316,21 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     className="w-full h-full object-contain"
                   />
                 </div>
-                <div className="absolute -bottom-2 -left-2 px-2 py-0.5 rounded-md bg-emerald-600 dark:bg-emerald-400 text-white dark:text-slate-950 text-[10px] font-black shadow-xs">
+                <div className="absolute -bottom-2 -left-2 px-2 py-0.5 rounded-md bg-[#059669] dark:bg-[#10B981] text-white dark:text-[#0B1420] text-[10px] font-black shadow-xs">
                   معتمد
                 </div>
               </div>
 
               <div className="flex-1 flex flex-col gap-2 text-center md:text-right">
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
-                  <span className="font-bold text-sm text-slate-900 dark:text-slate-100">
+                  <span className="font-bold text-sm text-[#1E293B] dark:text-[#E2E8F0]">
                     تم ضبط وتثبيت شعار المدرسة بنجاح
                   </span>
-                  <span className="text-[11px] px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30">
+                  <span className="text-[11px] px-2 py-0.5 rounded bg-[#10B981]/12 dark:bg-[#10B981]/15 text-[#059669] dark:text-[#10B981] border border-[#10B981]/30">
                     دقة طباعة عالية A4
                   </span>
                 </div>
-                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                <p className="text-xs text-[#475569] dark:text-[#A8B5C7] leading-relaxed">
                   هذا الشعار يظهر في ترويسة التقارير الرسمية، كشوف النتائج، وشيتات الإعفاء. يتم الحفاظ على أبعاده الهندسية ونقاء الألوان والشفافية بدون أي تشويه.
                 </p>
 
@@ -339,12 +339,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     type="button"
                     disabled={logoProcessing}
                     onClick={() => fileInputRef.current?.click()}
-                    className="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors border border-slate-200 dark:border-slate-700 disabled:opacity-50"
+                    className="px-4 py-2 rounded-xl bg-white dark:bg-[#26364B] hover:bg-[#EDF1F7] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors border border-[#DCE3ED] dark:border-[#2D3B4D] disabled:opacity-50"
                   >
                     {logoProcessing ? (
-                      <div className="w-3.5 h-3.5 border-2 border-emerald-600 dark:border-emerald-400 border-t-transparent rounded-full animate-spin" />
+                      <div className="w-3.5 h-3.5 border-2 border-[#3156C9] dark:border-[#60A5FA] border-t-transparent rounded-full animate-spin" />
                     ) : (
-                      <RefreshCw className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                      <RefreshCw className="w-3.5 h-3.5 text-[#3156C9] dark:text-[#60A5FA]" />
                     )}
                     <span>تغيير الشعار</span>
                   </button>
@@ -353,28 +353,28 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     type="button"
                     disabled={logoProcessing}
                     onClick={handleRemoveLogo}
-                    className="px-4 py-2 rounded-xl bg-rose-50 dark:bg-rose-500/15 hover:bg-rose-100 dark:hover:bg-rose-500/25 text-rose-700 dark:text-rose-300 text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors border border-rose-200 dark:border-rose-500/30 disabled:opacity-50"
+                    className="px-4 py-2 rounded-xl bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 hover:bg-[#E35D6A]/20 text-[#C83D4B] dark:text-[#E35D6A] text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors border border-[#E35D6A]/30 disabled:opacity-50"
                   >
-                    <Trash2 className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
+                    <Trash2 className="w-3.5 h-3.5" />
                     <span>حذف الشعار</span>
                   </button>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-400 rounded-2xl p-6 sm:p-8 flex flex-col items-center justify-center text-center transition-colors bg-slate-50/70 dark:bg-slate-800/40">
-              <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-3 shadow-xs">
+            <div className="border-2 border-dashed border-[#CBD5E1] dark:border-[#2D3B4D] hover:border-[#3156C9] dark:hover:border-[#2785F5] rounded-2xl p-6 sm:p-8 flex flex-col items-center justify-center text-center transition-colors bg-[#F8FAFC] dark:bg-[#202E40]">
+              <div className="w-14 h-14 rounded-2xl bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border border-[#3156C9]/25 dark:border-[#2785F5]/30 text-[#3156C9] dark:text-[#60A5FA] flex items-center justify-center mb-3 shadow-xs">
                 {logoProcessing ? (
-                  <div className="w-6 h-6 border-2 border-emerald-600 dark:border-emerald-400 border-t-transparent rounded-full animate-spin" />
+                  <div className="w-6 h-6 border-2 border-[#3156C9] dark:border-[#60A5FA] border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <Upload className="w-6 h-6" />
                 )}
               </div>
 
-              <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100 mb-1">
+              <h4 className="font-bold text-sm text-[#1E293B] dark:text-[#E2E8F0] mb-1">
                 رفع شعار المدرسة للمطبوعات والتقارير الرسمية
               </h4>
-              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md leading-relaxed mb-4">
+              <p className="text-xs text-[#64748B] dark:text-[#8493A8] max-w-md leading-relaxed mb-4">
                 يدعم صيغ PNG (مع شفافية)، JPG، JPEG، وWebP. يقوم النظام بتحسين أبعاد الشعار وضغطه تلقائياً لضمان أعلى جودة طباعة على ورق A4 بدون إبطاء التطبيق.
               </p>
 
@@ -382,7 +382,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 type="button"
                 disabled={logoProcessing}
                 onClick={() => fileInputRef.current?.click()}
-                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 text-xs font-bold flex items-center gap-2 cursor-pointer transition-all shadow-sm disabled:opacity-50"
+                className="px-5 py-2.5 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white text-xs font-bold flex items-center gap-2 cursor-pointer transition-all shadow-sm disabled:opacity-50"
               >
                 {logoProcessing ? (
                   <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
@@ -392,7 +392,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 <span>اختيار صورة من الجهاز</span>
               </button>
 
-              <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-3">
+              <span className="text-[11px] text-[#64748B] dark:text-[#8493A8] mt-3">
                 ملاحظة: في حال عدم رفع أي شعار، تظهر جميع التقارير والمطبوعات بشكل طبيعي وأنيق بدون مساحات فارغة.
               </span>
             </div>
@@ -400,13 +400,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
 
         {/* 3. Kufic Geometric School Logo Section */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm dark:shadow-lg">
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-6 shadow-sm dark:shadow-lg">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-teal-700 dark:text-teal-400" />
-              <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">شعار المدرسة بالخط الكوفي</h3>
+              <Sparkles className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" />
+              <h3 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0]">شعار المدرسة بالخط الكوفي</h3>
             </div>
-            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+            <span className="text-xs text-[#64748B] dark:text-[#8493A8] font-medium">
               شعار هندسي بالخط الكوفي مخصص للشهادات، وثائق التقدير، والمناسبات المدرسية الخاصة
             </span>
           </div>
@@ -420,44 +420,44 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           />
 
           {kuficSuccess && (
-            <div className="mb-4 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs font-bold flex items-center gap-2 animate-in fade-in">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <div className="mb-4 p-3 rounded-xl bg-[#10B981]/12 dark:bg-[#10B981]/15 border border-[#10B981]/30 text-[#059669] dark:text-[#10B981] text-xs font-bold flex items-center gap-2 animate-in fade-in">
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>{kuficSuccess}</span>
             </div>
           )}
 
           {kuficError && (
-            <div className="mb-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 text-rose-800 dark:text-rose-300 text-xs font-bold flex items-center gap-2 animate-in fade-in">
-              <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
+            <div className="mb-4 p-3 rounded-xl bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 border border-[#E35D6A]/30 text-[#C83D4B] dark:text-[#E35D6A] text-xs font-bold flex items-center gap-2 animate-in fade-in">
+              <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{kuficError}</span>
             </div>
           )}
 
           {formData.kuficLogo ? (
-            <div className="flex flex-col md:flex-row items-center gap-6 p-5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+            <div className="flex flex-col md:flex-row items-center gap-6 p-5 rounded-xl bg-[#F8FAFC] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D]">
               <div className="relative group shrink-0">
-                <div className="w-32 h-32 rounded-2xl p-2.5 bg-white border-2 border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-center overflow-hidden">
+                <div className="w-32 h-32 rounded-2xl p-2.5 bg-white border-2 border-[#DCE3ED] dark:border-[#2D3B4D] shadow-sm flex items-center justify-center overflow-hidden">
                   <img
                     src={formData.kuficLogo}
                     alt="شعار المدرسة بالخط الكوفي"
                     className="w-full h-full object-contain pointer-events-none select-none"
                   />
                 </div>
-                <div className="absolute -bottom-2 -left-2 px-2 py-0.5 rounded-md bg-teal-700 dark:bg-teal-400 text-white dark:text-slate-950 text-[10px] font-black shadow-xs">
+                <div className="absolute -bottom-2 -left-2 px-2 py-0.5 rounded-md bg-[#059669] dark:bg-[#10B981] text-white dark:text-[#0B1420] text-[10px] font-black shadow-xs">
                   كوفي معتمد
                 </div>
               </div>
 
               <div className="flex-1 flex flex-col gap-2 text-center md:text-right">
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
-                  <span className="font-bold text-sm text-slate-900 dark:text-slate-100">
+                  <span className="font-bold text-sm text-[#1E293B] dark:text-[#E2E8F0]">
                     تم ضبط وتثبيت شعار المدرسة بالخط الكوفي بنجاح
                   </span>
-                  <span className="text-[11px] px-2 py-0.5 rounded bg-teal-50 dark:bg-teal-500/15 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-500/30 font-medium">
+                  <span className="text-[11px] px-2 py-0.5 rounded bg-[#3156C9]/8 dark:bg-[#2785F5]/12 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/25 dark:border-[#2785F5]/25 font-medium">
                     مستقل عن الشعار الرسمي العام
                   </span>
                 </div>
-                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                <p className="text-xs text-[#475569] dark:text-[#A8B5C7] leading-relaxed">
                   هذا الشعار مخصص للشهادات والنماذج التكريمية التي تتطلب مظهراً هندسياً بالخط الكوفي. يبقى محفوظاً بشكل دائم ومستقل تماماً، ويمكن تغييره أو حذفه في أي وقت دون التأثير على الشعار الرسمي للمدرسة.
                 </p>
 
@@ -466,12 +466,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     type="button"
                     disabled={kuficProcessing}
                     onClick={() => kuficFileInputRef.current?.click()}
-                    className="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors border border-slate-200 dark:border-slate-700 disabled:opacity-50"
+                    className="px-4 py-2 rounded-xl bg-white dark:bg-[#26364B] hover:bg-[#EDF1F7] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors border border-[#DCE3ED] dark:border-[#2D3B4D] disabled:opacity-50"
                   >
                     {kuficProcessing ? (
-                      <div className="w-3.5 h-3.5 border-2 border-teal-700 dark:border-teal-400 border-t-transparent rounded-full animate-spin" />
+                      <div className="w-3.5 h-3.5 border-2 border-[#3156C9] dark:border-[#60A5FA] border-t-transparent rounded-full animate-spin" />
                     ) : (
-                      <RefreshCw className="w-3.5 h-3.5 text-teal-700 dark:text-teal-400" />
+                      <RefreshCw className="w-3.5 h-3.5 text-[#3156C9] dark:text-[#60A5FA]" />
                     )}
                     <span>تغيير الشعار الكوفي</span>
                   </button>
@@ -480,28 +480,28 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     type="button"
                     disabled={kuficProcessing}
                     onClick={handleRemoveKuficLogo}
-                    className="px-4 py-2 rounded-xl bg-rose-50 dark:bg-rose-500/15 hover:bg-rose-100 dark:hover:bg-rose-500/25 text-rose-700 dark:text-rose-300 text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors border border-rose-200 dark:border-rose-500/30 disabled:opacity-50"
+                    className="px-4 py-2 rounded-xl bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 hover:bg-[#E35D6A]/20 text-[#C83D4B] dark:text-[#E35D6A] text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors border border-[#E35D6A]/30 disabled:opacity-50"
                   >
-                    <Trash2 className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
+                    <Trash2 className="w-3.5 h-3.5" />
                     <span>حذف الشعار الكوفي</span>
                   </button>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-teal-600 dark:hover:border-teal-400 rounded-2xl p-6 sm:p-8 flex flex-col items-center justify-center text-center transition-colors bg-slate-50/70 dark:bg-slate-800/40">
-              <div className="w-14 h-14 rounded-2xl bg-teal-50 dark:bg-teal-500/15 border border-teal-200 dark:border-teal-500/30 text-teal-700 dark:text-teal-400 flex items-center justify-center mb-3 shadow-xs">
+            <div className="border-2 border-dashed border-[#CBD5E1] dark:border-[#2D3B4D] hover:border-[#3156C9] dark:hover:border-[#2785F5] rounded-2xl p-6 sm:p-8 flex flex-col items-center justify-center text-center transition-colors bg-[#F8FAFC] dark:bg-[#202E40]">
+              <div className="w-14 h-14 rounded-2xl bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border border-[#3156C9]/25 dark:border-[#2785F5]/30 text-[#3156C9] dark:text-[#60A5FA] flex items-center justify-center mb-3 shadow-xs">
                 {kuficProcessing ? (
-                  <div className="w-6 h-6 border-2 border-teal-700 dark:border-teal-400 border-t-transparent rounded-full animate-spin" />
+                  <div className="w-6 h-6 border-2 border-[#3156C9] dark:border-[#60A5FA] border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <Upload className="w-6 h-6" />
                 )}
               </div>
 
-              <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100 mb-1">
+              <h4 className="font-bold text-sm text-[#1E293B] dark:text-[#E2E8F0] mb-1">
                 رفع شعار المدرسة بالخط الكوفي
               </h4>
-              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md leading-relaxed mb-4">
+              <p className="text-xs text-[#64748B] dark:text-[#8493A8] max-w-md leading-relaxed mb-4">
                 يدعم صيغ PNG (مع شفافية)، JPG، JPEG، وWebP. يُعالج الشعار تلقائياً ليناسب النماذج والشهادات التكريمية بدقة هندسية عالية دون إثقال التطبيق.
               </p>
 
@@ -509,7 +509,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 type="button"
                 disabled={kuficProcessing}
                 onClick={() => kuficFileInputRef.current?.click()}
-                className="px-5 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white dark:bg-teal-400 dark:hover:bg-teal-300 dark:text-slate-950 text-xs font-bold flex items-center gap-2 cursor-pointer transition-all shadow-sm disabled:opacity-50"
+                className="px-5 py-2.5 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white text-xs font-bold flex items-center gap-2 cursor-pointer transition-all shadow-sm disabled:opacity-50"
               >
                 {kuficProcessing ? (
                   <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
@@ -519,7 +519,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 <span>اختيار صورة الشعار الكوفي من الجهاز</span>
               </button>
 
-              <span className="text-[11px] text-slate-500 dark:text-slate-400 mt-3">
+              <span className="text-[11px] text-[#64748B] dark:text-[#8493A8] mt-3">
                 ملاحظة: هذا الحقل مستقل تماماً عن شعار المدرسة الرسمي؛ يمكنك استخدام الشعارين معاً أو كلاً على حدة.
               </span>
             </div>
@@ -527,14 +527,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
 
         {/* 4. Rounding Rules */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm dark:shadow-lg">
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-6 shadow-sm dark:shadow-lg">
           <div className="flex items-center gap-2 mb-2">
-            <Calculator className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
+            <Calculator className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" />
+            <h3 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0]">
               قاعدة تقريب الكسور وحساب المعدلات
             </h3>
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mb-5 leading-relaxed">
+          <p className="text-xs text-[#64748B] dark:text-[#8493A8] mb-5 leading-relaxed">
             يتم تطبيق هذه القاعدة مباشرة على حساب <strong>درجة السعي السنوي</strong> (مجموع الفصول الثلاثة ÷ 3) وحساب <strong>الدرجة النهائية</strong> (السعي + الامتحان النهائي ÷ 2).
           </p>
 
@@ -548,8 +548,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   key={rule}
                   className={`p-4 rounded-xl border flex items-start gap-3.5 cursor-pointer transition-all ${
                     isSelected
-                      ? 'bg-emerald-50/70 dark:bg-emerald-500/10 border-emerald-600 dark:border-emerald-400 shadow-xs ring-1 ring-emerald-600/30 dark:ring-emerald-400/30'
-                      : 'bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
+                      ? 'bg-[#3156C9]/8 dark:bg-[#2785F5]/12 border-[#3156C9] dark:border-[#2785F5] shadow-xs ring-1 ring-[#2785F5]/30'
+                      : 'bg-[#F8FAFC] dark:bg-[#202E40] border-[#DCE3ED] dark:border-[#2D3B4D] hover:border-[#CBD5E1] dark:hover:border-[#3A4D63]'
                   }`}
                 >
                   <input
@@ -558,13 +558,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     value={rule}
                     checked={isSelected}
                     onChange={() => setFormData({ ...formData, roundingRule: rule })}
-                    className="mt-1 w-4 h-4 accent-emerald-600 dark:accent-emerald-400"
+                    className="mt-1 w-4 h-4 accent-[#3156C9] dark:accent-[#2785F5]"
                   />
                   <div className="flex flex-col">
-                    <span className={`font-bold text-sm ${isSelected ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-900 dark:text-slate-100'}`}>
+                    <span className={`font-bold text-sm ${isSelected ? 'text-[#3156C9] dark:text-[#60A5FA]' : 'text-[#1E293B] dark:text-[#E2E8F0]'}`}>
                       {info.title}
                     </span>
-                    <span className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                    <span className="text-xs text-[#64748B] dark:text-[#8493A8] mt-1 leading-relaxed">
                       {info.desc}
                     </span>
                   </div>
@@ -575,20 +575,20 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
 
         {/* 5. Security & Confirmation Preferences */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm dark:shadow-lg">
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-6 shadow-sm dark:shadow-lg">
           <div className="flex items-center gap-2 mb-4">
-            <ShieldAlert className="w-5 h-5 text-teal-700 dark:text-teal-400" />
-            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
+            <ShieldAlert className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" />
+            <h3 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0]">
               ضوابط الأمان وحماية الدرجات السابقة
             </h3>
           </div>
 
-          <div className="flex items-center justify-between gap-4 p-4 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl">
+          <div className="flex items-center justify-between gap-4 p-4 bg-[#F8FAFC] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl">
             <div>
-              <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100">
+              <h4 className="font-bold text-sm text-[#1E293B] dark:text-[#E2E8F0]">
                 طلب تأكيد صريح قبل تعديل أي درجة سابقة
               </h4>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-1">
                 عند النقر لتعديل درجات الفصول السابقة، تظهر نافذة تأكيد تحذر من تأثير التعديل على السعي والنهائي.
               </p>
             </div>
@@ -597,7 +597,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               type="checkbox"
               checked={formData.confirmPreviousTermEdits}
               onChange={(e) => setFormData({ ...formData, confirmPreviousTermEdits: e.target.checked })}
-              className="w-5 h-5 rounded accent-emerald-600 dark:accent-emerald-400 cursor-pointer shrink-0"
+              className="w-5 h-5 rounded accent-[#3156C9] dark:accent-[#2785F5] cursor-pointer shrink-0"
             />
           </div>
         </div>
@@ -606,7 +606,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         <div className="flex justify-end">
           <button
             type="submit"
-            className="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 font-black text-sm flex items-center gap-2 shadow-sm transition-all cursor-pointer"
+            className="px-6 py-3 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white font-black text-sm flex items-center gap-2 shadow-sm transition-all cursor-pointer"
           >
             <Save className="w-5 h-5" />
             <span>حفظ جميع الإعدادات وتطبيقها فوراً</span>
@@ -619,26 +619,26 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
       {/* 6. System Access Code & Security Section */}
       {userRole === 'admin' && (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-6 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400">
+              <div className="p-3 rounded-xl bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border border-[#3156C9]/25 dark:border-[#2785F5]/30 text-[#3156C9] dark:text-[#60A5FA]">
                 <KeyRound className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex flex-wrap items-center gap-2">
+                <h3 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0] flex flex-wrap items-center gap-2">
                   <span>رمز الدخول والأمان للنظام</span>
                   {db.isAccessCodeConfigured() ? (
-                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400">
+                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#10B981]/12 dark:bg-[#10B981]/15 border border-[#10B981]/30 text-[#059669] dark:text-[#10B981]">
                       مفعّل ومحفوظ في قاعدة SQLite
                     </span>
                   ) : (
-                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 text-amber-700 dark:text-amber-400">
+                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#D69B42]/10 dark:bg-[#D69B42]/15 border border-[#D69B42]/30 text-[#B45309] dark:text-[#D69B42]">
                       بانتظار الإعداد
                     </span>
                   )}
                 </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-1">
                   رمز أمان خاص بالنظام لحماية سرية البيانات والسجلات المدرسية ومصادقة العمليات الحساسة.
                 </p>
               </div>
@@ -653,9 +653,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 setConfirmNewAccessCode('');
                 setIsAccessCodeModalOpen(true);
               }}
-              className="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer shrink-0"
+              className="px-4 py-2.5 rounded-xl bg-[#EDF1F7] dark:bg-[#26364B] hover:bg-[#E2E8F0] dark:hover:bg-[#2D3B4D] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer shrink-0"
             >
-              <KeyRound className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <KeyRound className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA]" />
               <span>تحديث رمز الدخول</span>
             </button>
           </div>
@@ -665,43 +665,43 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       {/* Access Code Update Modal */}
       {isAccessCodeModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs" dir="rtl">
-          <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xl text-slate-900 dark:text-slate-100">
-            <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-200 dark:border-slate-800">
+          <div className="w-full max-w-md bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[16px] p-6 shadow-2xl text-[#1E293B] dark:text-[#E2E8F0]">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
               <div className="flex items-center gap-2.5">
-                <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30">
+                <div className="p-2.5 rounded-xl bg-[#3156C9]/10 dark:bg-[#2785F5]/15 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/25 dark:border-[#2785F5]/30">
                   <KeyRound className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100">تحديث رمز الدخول للنظام</h4>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">يُحفظ مشفراً في قاعدة SQLite بشكل دائم</p>
+                  <h4 className="font-bold text-sm text-[#1E293B] dark:text-[#E2E8F0]">تحديث رمز الدخول للنظام</h4>
+                  <p className="text-[11px] text-[#64748B] dark:text-[#8493A8]">يُحفظ مشفراً في قاعدة SQLite بشكل دائم</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setIsAccessCodeModalOpen(false)}
-                className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-1 cursor-pointer"
+                className="text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] p-1 cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
             {accessCodeSuccess && (
-              <div className="mb-4 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs font-bold flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <div className="mb-4 p-3 rounded-xl bg-[#10B981]/12 dark:bg-[#10B981]/15 border border-[#10B981]/30 text-[#059669] dark:text-[#10B981] text-xs font-bold flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
                 <span>{accessCodeSuccess}</span>
               </div>
             )}
 
             {accessCodeError && (
-              <div className="mb-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 text-rose-800 dark:text-rose-300 text-xs font-bold flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
+              <div className="mb-4 p-3 rounded-xl bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 border border-[#E35D6A]/30 text-[#C83D4B] dark:text-[#E35D6A] text-xs font-bold flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{accessCodeError}</span>
               </div>
             )}
 
             <form onSubmit={handleUpdateAccessCode} className="flex flex-col gap-3.5">
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1">
                   رمز الدخول الجديد (4 خانات على الأقل)
                 </label>
                 <input
@@ -710,12 +710,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   value={newAccessCode}
                   onChange={(e) => setNewAccessCode(e.target.value)}
                   placeholder="أدخل رمز الدخول الجديد"
-                  className="w-full h-10 px-3 text-xs font-mono font-bold tracking-widest rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-hidden focus:border-emerald-600 dark:focus:border-emerald-400"
+                  className="w-full h-10 px-3 text-xs font-mono font-bold tracking-widest rounded-xl bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] focus:outline-hidden focus:border-[#2785F5]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1">
                   تأكيد رمز الدخول الجديد
                 </label>
                 <input
@@ -724,7 +724,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   value={confirmNewAccessCode}
                   onChange={(e) => setConfirmNewAccessCode(e.target.value)}
                   placeholder="أعد إدخال الرمز للتأكيد"
-                  className="w-full h-10 px-3 text-xs font-mono font-bold tracking-widest rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-hidden focus:border-emerald-600 dark:focus:border-emerald-400"
+                  className="w-full h-10 px-3 text-xs font-mono font-bold tracking-widest rounded-xl bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] focus:outline-hidden focus:border-[#2785F5]"
                 />
               </div>
 
@@ -734,25 +734,25 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   id="showCodeCheck"
                   checked={showAccessCode}
                   onChange={(e) => setShowAccessCode(e.target.checked)}
-                  className="rounded accent-emerald-600 dark:accent-emerald-400"
+                  className="rounded accent-[#3156C9] dark:accent-[#2785F5]"
                 />
-                <label htmlFor="showCodeCheck" className="text-xs text-slate-600 dark:text-slate-400 select-none cursor-pointer">
+                <label htmlFor="showCodeCheck" className="text-xs text-[#475569] dark:text-[#A8B5C7] select-none cursor-pointer">
                   إظهار الرمز أثناء الكتابة
                 </label>
               </div>
 
-              <div className="flex items-center justify-end gap-2.5 mt-2 pt-3 border-t border-slate-200 dark:border-slate-800">
+              <div className="flex items-center justify-end gap-2.5 mt-2 pt-3 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
                 <button
                   type="button"
                   onClick={() => setIsAccessCodeModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-bold bg-[#EDF1F7] dark:bg-[#26364B] text-[#1E293B] dark:text-[#E2E8F0] hover:bg-[#E2E8F0] dark:hover:bg-[#2D3B4D] cursor-pointer"
                 >
                   إلغاء
                 </button>
                 <button
                   type="submit"
                   disabled={isAccessCodeLoading}
-                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 text-xs font-black flex items-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white text-xs font-black flex items-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50"
                 >
                   {isAccessCodeLoading ? (
                     <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />

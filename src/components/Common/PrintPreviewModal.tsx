@@ -170,38 +170,38 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
 
   return (
     <div
-      className="print-preview-modal-root fixed inset-0 z-[9999] flex flex-col bg-slate-950/75 dark:bg-slate-950/85 backdrop-blur-md text-slate-900 dark:text-slate-100 select-none animate-in fade-in duration-200 print:static print:bg-white print:text-black print:p-0 print:m-0 print:overflow-visible print:block"
+      className="print-preview-modal-root fixed inset-0 z-[9999] flex flex-col bg-[#111C2A]/80 backdrop-blur-md text-[#1E293B] dark:text-[#E2E8F0] select-none animate-in fade-in duration-200 print:static print:bg-white print:text-black print:p-0 print:m-0 print:overflow-visible print:block"
       dir="rtl"
     >
       {/* Top Application Bar */}
-      <div className="no-print bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-3 flex flex-wrap items-center justify-between gap-3 shadow-sm shrink-0">
+      <div className="no-print bg-white dark:bg-[#1C2939] border-b border-[#DCE3ED] dark:border-[#2D3B4D] px-4 py-3 flex flex-wrap items-center justify-between gap-3 shadow-sm shrink-0">
         {/* Title & Document Badge */}
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-400/15 border border-emerald-200 dark:border-emerald-400/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-[#3156C9]/10 dark:bg-[#60A5FA]/15 border border-[#3156C9]/25 dark:border-[#60A5FA]/30 text-[#3156C9] dark:text-[#60A5FA] flex items-center justify-center shrink-0">
             <Printer className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-base font-black text-slate-900 dark:text-slate-100">{title}</h2>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-teal-50 dark:bg-teal-400/15 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-400/30">
+              <h2 className="text-base font-black text-[#1E293B] dark:text-[#E2E8F0]">{title}</h2>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#3156C9]/10 dark:bg-[#60A5FA]/15 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/25 dark:border-[#60A5FA]/30">
                 معاينة الطباعة الرسمية
               </span>
             </div>
-            {subtitle && <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{subtitle}</p>}
+            {subtitle && <p className="text-xs text-[#64748B] dark:text-[#A8B5C7] mt-0.5">{subtitle}</p>}
           </div>
         </div>
 
         {/* Toolbar Controls */}
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           {/* Orientation Toggle */}
-          <div className="flex items-center bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-1 text-xs">
+          <div className="flex items-center bg-[#EDF1F7] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl p-1 text-xs">
             <button
               type="button"
               onClick={() => setOrientation('landscape')}
               className={`px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
                 orientation === 'landscape'
-                  ? 'bg-emerald-600 text-white dark:bg-emerald-400 dark:text-slate-950 shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+                  ? 'bg-[#3156C9] text-white shadow-sm'
+                  : 'text-[#64748B] dark:text-[#A8B5C7] hover:text-[#1E293B] dark:hover:text-[#E2E8F0]'
               }`}
               title="تنسيق ورقة A4 بالعرض (Landscape)"
             >
@@ -212,8 +212,8 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
               onClick={() => setOrientation('portrait')}
               className={`px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
                 orientation === 'portrait'
-                  ? 'bg-emerald-600 text-white dark:bg-emerald-400 dark:text-slate-950 shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+                  ? 'bg-[#3156C9] text-white shadow-sm'
+                  : 'text-[#64748B] dark:text-[#A8B5C7] hover:text-[#1E293B] dark:hover:text-[#E2E8F0]'
               }`}
               title="تنسيق ورقة A4 بالطول (Portrait)"
             >
@@ -222,22 +222,22 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
           </div>
 
           {/* Zoom Controls */}
-          <div className="hidden sm:flex items-center bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-1 text-xs text-slate-700 dark:text-slate-300">
+          <div className="hidden sm:flex items-center bg-[#EDF1F7] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl p-1 text-xs text-[#1E293B] dark:text-[#E2E8F0]">
             <button
               type="button"
               onClick={() => setZoom((z) => Math.max(0.4, Number((z - 0.1).toFixed(2))))}
-              className="p-1.5 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors cursor-pointer"
+              className="p-1.5 rounded-md hover:bg-[#DCE3ED] dark:hover:bg-[#26364B] text-[#64748B] dark:text-[#A8B5C7] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] transition-colors cursor-pointer"
               title="تصغير"
             >
               <ZoomOut className="w-3.5 h-3.5" />
             </button>
-            <span className="px-2 font-mono text-[11px] font-bold min-w-[42px] text-center">
+            <span className="px-2 font-mono tabular-nums text-[11px] font-bold min-w-[42px] text-center">
               {Math.round(zoom * 100)}%
             </span>
             <button
               type="button"
               onClick={() => setZoom((z) => Math.min(1.4, Number((z + 0.1).toFixed(2))))}
-              className="p-1.5 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors cursor-pointer"
+              className="p-1.5 rounded-md hover:bg-[#DCE3ED] dark:hover:bg-[#26364B] text-[#64748B] dark:text-[#A8B5C7] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] transition-colors cursor-pointer"
               title="تكبير"
             >
               <ZoomIn className="w-3.5 h-3.5" />
@@ -245,7 +245,7 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
             <button
               type="button"
               onClick={() => setZoom(0.85)}
-              className="p-1.5 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors cursor-pointer ml-0.5"
+              className="p-1.5 rounded-md hover:bg-[#DCE3ED] dark:hover:bg-[#26364B] text-[#64748B] dark:text-[#A8B5C7] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] transition-colors cursor-pointer ml-0.5"
               title="إعادة تعيين الحجم الطبيعي"
             >
               <Maximize2 className="w-3.5 h-3.5" />
@@ -254,15 +254,15 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
 
           {/* Printer Selector (Electron Desktop) */}
           {isDesktop && printers.length > 0 && (
-            <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-2 py-1">
-              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-bold hidden md:inline">الطابعة:</span>
+            <div className="flex items-center gap-1.5 bg-[#EDF1F7] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl px-2 py-1">
+              <span className="text-[11px] text-[#64748B] dark:text-[#A8B5C7] font-bold hidden md:inline">الطابعة:</span>
               <select
                 value={selectedPrinter}
                 onChange={(e) => setSelectedPrinter(e.target.value)}
-                className="bg-transparent text-xs text-slate-900 dark:text-slate-100 font-bold outline-none cursor-pointer max-w-[150px] sm:max-w-[200px] truncate"
+                className="bg-transparent text-xs text-[#1E293B] dark:text-[#E2E8F0] font-bold outline-none cursor-pointer max-w-[150px] sm:max-w-[200px] truncate"
               >
                 {printers.map((p) => (
-                  <option key={p.name} value={p.name} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+                  <option key={p.name} value={p.name} className="bg-white dark:bg-[#1C2939] text-[#1E293B] dark:text-[#E2E8F0]">
                     {p.name} {p.isDefault ? '(الافتراضية)' : ''}
                   </option>
                 ))}
@@ -271,7 +271,7 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
                 type="button"
                 onClick={loadPrinters}
                 disabled={isLoadingPrinters}
-                className="p-1 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors cursor-pointer"
+                className="p-1 text-[#64748B] dark:text-[#A8B5C7] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] transition-colors cursor-pointer"
                 title="تحديث قائمة الطابعات"
               >
                 <RefreshCw className={`w-3 h-3 ${isLoadingPrinters ? 'animate-spin' : ''}`} />
@@ -284,13 +284,13 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
             type="button"
             disabled={isExportingPdf || isPrinting}
             onClick={handleExportPdf}
-            className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-all disabled:opacity-50"
+            className="px-3.5 py-2 rounded-xl bg-[#EDF1F7] hover:bg-[#DCE3ED] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] border border-[#DCE3ED] dark:border-[#2D3B4D] hover:border-[#2785F5] font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-all disabled:opacity-50"
             title="تصدير المستند كملف PDF عالي الدقة"
           >
             {isExportingPdf ? (
-              <div className="w-3.5 h-3.5 border-2 border-emerald-600 dark:border-emerald-400 border-t-transparent rounded-full animate-spin" />
+              <div className="w-3.5 h-3.5 border-2 border-[#3156C9] dark:border-[#60A5FA] border-t-transparent rounded-full animate-spin" />
             ) : (
-              <FileDown className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <FileDown className="w-3.5 h-3.5 text-[#3156C9] dark:text-[#60A5FA]" />
             )}
             <span>حفظ كملف PDF</span>
           </button>
@@ -300,7 +300,7 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
             type="button"
             disabled={isPrinting || isExportingPdf}
             onClick={() => handleDirectPrint(true)}
-            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 font-bold text-xs flex items-center gap-2 cursor-pointer shadow-sm transition-all disabled:opacity-50"
+            className="px-4 py-2 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:hover:bg-[#3979E6] text-white font-bold text-xs flex items-center gap-2 cursor-pointer shadow-sm transition-all disabled:opacity-50"
             title="إرسال أمر الطباعة مباشرة إلى الطابعة المحددة"
           >
             {isPrinting ? (
@@ -317,7 +317,7 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
               type="button"
               disabled={isPrinting || isExportingPdf}
               onClick={() => handleDirectPrint(false)}
-              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+              className="p-2 rounded-xl bg-[#EDF1F7] hover:bg-[#DCE3ED] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#64748B] dark:text-[#A8B5C7] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] border border-[#DCE3ED] dark:border-[#2D3B4D] transition-colors cursor-pointer"
               title="طباعة عبر نافذة إعدادات Windows المتقدمة"
             >
               <Monitor className="w-4 h-4" />
@@ -328,7 +328,7 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer ml-1"
+            className="p-2 rounded-xl bg-[#EDF1F7] hover:bg-[#DCE3ED] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#64748B] dark:text-[#A8B5C7] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] border border-[#DCE3ED] dark:border-[#2D3B4D] transition-colors cursor-pointer ml-1"
             title="إغلاق المعاينة (Esc)"
           >
             <X className="w-4 h-4" />
@@ -338,19 +338,19 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
 
       {/* Floating Status / Feedback Alert */}
       {statusMessage && (
-        <div className="no-print px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-center gap-2 text-xs font-bold animate-in slide-in-from-top-2 duration-150">
-          {statusMessage.type === 'success' && <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
-          {statusMessage.type === 'error' && <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400" />}
+        <div className="no-print px-4 py-2.5 bg-[#F4F6FA] dark:bg-[#202E40] border-b border-[#DCE3ED] dark:border-[#2D3B4D] flex items-center justify-center gap-2 text-xs font-bold animate-in slide-in-from-top-2 duration-150">
+          {statusMessage.type === 'success' && <CheckCircle2 className="w-4 h-4 text-[#10B981]" />}
+          {statusMessage.type === 'error' && <AlertCircle className="w-4 h-4 text-[#E35D6A]" />}
           {statusMessage.type === 'info' && (
-            <div className="w-3.5 h-3.5 border-2 border-teal-600 dark:border-teal-400 border-t-transparent rounded-full animate-spin" />
+            <div className="w-3.5 h-3.5 border-2 border-[#3156C9] dark:border-[#60A5FA] border-t-transparent rounded-full animate-spin" />
           )}
           <span
             className={
               statusMessage.type === 'success'
-                ? 'text-emerald-700 dark:text-emerald-300'
+                ? 'text-[#059669] dark:text-[#10B981]'
                 : statusMessage.type === 'error'
-                ? 'text-rose-700 dark:text-rose-300'
-                : 'text-teal-700 dark:text-teal-300'
+                ? 'text-[#C83D4B] dark:text-[#E35D6A]'
+                : 'text-[#3156C9] dark:text-[#60A5FA]'
             }
           >
             {statusMessage.text}
@@ -359,7 +359,7 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
       )}
 
       {/* Interactive Paper Canvas Viewport */}
-      <div className="print-preview-viewport flex-1 overflow-auto p-4 sm:p-8 flex justify-center items-start bg-slate-200 dark:bg-slate-950 print:bg-transparent print:p-0 print:m-0 print:overflow-visible print:block">
+      <div className="print-preview-viewport flex-1 overflow-auto p-4 sm:p-8 flex justify-center items-start bg-[#E2E8F0] dark:bg-[#111C2A] print:bg-transparent print:p-0 print:m-0 print:overflow-visible print:block">
         <div
           ref={paperRef}
           style={{
@@ -379,22 +379,22 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
       </div>
 
       {/* Footer Info & Keyboard Hints */}
-      <div className="no-print bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-4 py-2 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 shrink-0">
+      <div className="no-print bg-white dark:bg-[#1C2939] border-t border-[#DCE3ED] dark:border-[#2D3B4D] px-4 py-2 flex items-center justify-between text-[11px] text-[#64748B] dark:text-[#A8B5C7] shrink-0">
         <div className="flex items-center gap-4">
           <span>
-            ورق الطباعة: <strong className="text-slate-700 dark:text-slate-200">A4 ({orientation === 'landscape' ? '297 × 210 مم أفقي' : '210 × 297 مم عمودي'})</strong>
+            ورق الطباعة: <strong className="text-[#1E293B] dark:text-[#E2E8F0]">A4 ({orientation === 'landscape' ? '297 × 210 مم أفقي' : '210 × 297 مم عمودي'})</strong>
           </span>
           <span className="hidden md:inline">
-            الألوان والخلفيات: <strong className="text-emerald-700 dark:text-emerald-400">محفوظة بالكامل (Exact Colors)</strong>
+            الألوان والخلفيات: <strong className="text-[#059669] dark:text-[#10B981]">محفوظة بالكامل (Exact Colors)</strong>
           </span>
           {isDesktop && (
             <span className="hidden sm:inline">
-              البيئة: <strong className="text-slate-700 dark:text-slate-200">تطبيق Electron المكتبي</strong>
+              البيئة: <strong className="text-[#1E293B] dark:text-[#E2E8F0]">تطبيق Electron المكتبي</strong>
             </span>
           )}
         </div>
         <div className="flex items-center gap-2">
-          <span>اضغط <kbd className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 font-mono text-[10px] text-slate-900 dark:text-slate-100">Esc</kbd> للخروج</span>
+          <span>اضغط <kbd className="px-1.5 py-0.5 rounded bg-[#EDF1F7] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] font-mono text-[10px] text-[#1E293B] dark:text-[#E2E8F0]">Esc</kbd> للخروج</span>
         </div>
       </div>
     </div>

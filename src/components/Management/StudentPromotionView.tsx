@@ -803,19 +803,19 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
   return (
     <div className="w-full flex flex-col gap-6 pb-20" dir="rtl">
       {/* Top Header Banner */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm dark:shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-6 shadow-sm dark:shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 flex items-center justify-center text-emerald-700 dark:text-emerald-400 shrink-0">
+          <div className="w-12 h-12 rounded-2xl bg-[#3156C9]/8 dark:bg-[#2785F5]/12 border border-[#3156C9]/25 dark:border-[#2785F5]/25 flex items-center justify-center text-[#3156C9] dark:text-[#60A5FA] shrink-0">
             <GraduationCap className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-xl font-black text-slate-900 dark:text-slate-100 flex items-center gap-2 flex-wrap">
+            <h1 className="text-xl font-black text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2 flex-wrap">
               <span>ترحيل الطلاب وترقيتهم للسنة الدراسية الجديدة</span>
-              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-teal-50 dark:bg-teal-500/15 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-500/30">
+              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#3156C9]/8 dark:bg-[#2785F5]/12 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/25 dark:border-[#2785F5]/25">
                 ربط دقيق بين صفوف وشُعب كل سنة
               </span>
             </h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-1">
               ترقية الناجحين والمعفين وتأطير المعيدين في صفوف وشُعب السنة الجديدة الحصرية، مع حماية تامة وغير قابلة للتعديل للدرجات السابقة.
             </p>
           </div>
@@ -825,18 +825,18 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
           <button
             type="button"
             onClick={handleExportExcel}
-            className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center gap-2 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+            className="px-3.5 py-2 rounded-xl bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] text-xs font-bold flex items-center gap-2 border border-[#DCE3ED] dark:border-[#2D3B4D] transition-colors cursor-pointer"
           >
-            <FileSpreadsheet className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+            <FileSpreadsheet className="w-4 h-4 text-[#059669] dark:text-[#10B981]" />
             <span>تصدير قائمة الترحيل Excel</span>
           </button>
           {onNavigateToStudents && (
             <button
               type="button"
               onClick={onNavigateToStudents}
-              className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center gap-2 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+              className="px-3.5 py-2 rounded-xl bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] text-xs font-bold flex items-center gap-2 border border-[#DCE3ED] dark:border-[#2D3B4D] transition-colors cursor-pointer"
             >
-              <Users className="w-4 h-4 text-teal-700 dark:text-teal-400" />
+              <Users className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA]" />
               <span>إدارة الطلاب</span>
             </button>
           )}
@@ -848,15 +848,15 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
         <div
           className={`p-4 rounded-xl border flex items-center justify-between gap-3 animate-in fade-in ${
             feedbackMessage.type === 'success'
-              ? 'bg-emerald-50 dark:bg-emerald-500/15 border-emerald-200 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300'
-              : 'bg-rose-50 dark:bg-rose-500/15 border-rose-200 dark:border-rose-500/30 text-rose-800 dark:text-rose-300'
+              ? 'bg-[#10B981]/12 dark:bg-[#10B981]/15 border-[#10B981]/30 text-[#059669] dark:text-[#10B981]'
+              : 'bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 border-[#E35D6A]/30 text-[#C83D4B] dark:text-[#E35D6A]'
           }`}
         >
           <div className="flex items-center gap-2.5 text-xs font-bold">
             {feedbackMessage.type === 'success' ? (
-              <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-5 h-5 shrink-0" />
             ) : (
-              <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0" />
+              <AlertTriangle className="w-5 h-5 shrink-0" />
             )}
             <span>{feedbackMessage.text}</span>
           </div>
@@ -871,20 +871,20 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
       )}
 
       {/* SECTION 1: Academic Years & Class Selection */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm dark:shadow-lg flex flex-col gap-5">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 flex-wrap gap-2">
+      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-5 shadow-sm dark:shadow-lg flex flex-col gap-5">
+        <div className="flex items-center justify-between pb-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D] flex-wrap gap-2">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 font-black text-xs flex items-center justify-center font-mono">
+            <div className="w-7 h-7 rounded-lg bg-[#3156C9]/8 dark:bg-[#2785F5]/12 border border-[#3156C9]/25 dark:border-[#2785F5]/25 text-[#3156C9] dark:text-[#60A5FA] font-black text-xs flex items-center justify-center font-mono">
               ١
             </div>
-            <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
+            <h2 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0]">
               تحديد الأعوام الدراسية والصفوف المخصصة بكل سنة
             </h2>
           </div>
           <button
             type="button"
             onClick={handleCopyClassStructure}
-            className="text-xs font-bold text-teal-800 dark:text-teal-300 hover:bg-teal-100 dark:hover:bg-teal-500/25 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-50 dark:bg-teal-500/15 border border-teal-200 dark:border-teal-500/30 cursor-pointer transition-colors"
+            className="text-xs font-bold text-[#3156C9] dark:text-[#60A5FA] hover:bg-[#3156C9]/15 dark:hover:bg-[#2785F5]/20 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#3156C9]/8 dark:bg-[#2785F5]/12 border border-[#3156C9]/25 dark:border-[#2785F5]/25 cursor-pointer transition-colors"
           >
             <Copy className="w-3.5 h-3.5" />
             <span>نسخ هيكل الصفوف والشُعب والمواد إلى السنة الجديدة</span>
@@ -895,14 +895,14 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
           {/* Source Academic Year */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-              <Calendar className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+            <label className="text-xs font-bold text-[#475569] dark:text-[#A8B5C7] flex items-center gap-1.5">
+              <Calendar className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA]" />
               <span>1. السنة الدراسية المنصرمة (المصدر)</span>
             </label>
             <select
               value={sourceYearId}
               onChange={(e) => setSourceYearId(e.target.value)}
-              className="w-full h-10 px-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 text-sm font-bold focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
+              className="w-full h-10 px-3 bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] text-sm font-bold focus:border-[#2785F5] focus:outline-hidden"
             >
               {academicYears.map((y) => (
                 <option key={y.id} value={y.id}>
@@ -913,21 +913,21 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
           </div>
 
           {/* Direction Arrow */}
-          <div className="hidden lg:flex items-center justify-center pb-2 text-emerald-700 dark:text-emerald-400">
+          <div className="hidden lg:flex items-center justify-center pb-2 text-[#3156C9] dark:text-[#60A5FA]">
             <ArrowRightLeft className="w-6 h-6" />
           </div>
 
           {/* Target Academic Year */}
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                <Calendar className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+              <label className="text-xs font-bold text-[#475569] dark:text-[#A8B5C7] flex items-center gap-1.5">
+                <Calendar className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA]" />
                 <span>2. السنة الدراسية الجديدة (الوجهة)</span>
               </label>
               <button
                 type="button"
                 onClick={() => setIsAddYearModalOpen(true)}
-                className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 cursor-pointer"
+                className="text-[11px] font-bold text-[#3156C9] dark:text-[#60A5FA] hover:underline flex items-center gap-1 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>+ إنشاء عام جديد</span>
@@ -936,7 +936,7 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
             <select
               value={targetYearId}
               onChange={(e) => setTargetYearId(e.target.value)}
-              className="w-full h-10 px-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 text-sm font-bold focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
+              className="w-full h-10 px-3 bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] text-sm font-bold focus:border-[#2785F5] focus:outline-hidden"
             >
               {academicYears.map((y) => (
                 <option key={y.id} value={y.id} disabled={y.id === sourceYearId}>
@@ -949,9 +949,9 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
 
         {/* Warning if target year has no classes */}
         {availableTargetClasses.length === 0 && targetYearId && (
-          <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs flex items-center justify-between gap-3 flex-wrap">
+          <div className="p-4 rounded-xl bg-[#D69B42]/10 dark:bg-[#D69B42]/15 border border-[#D69B42]/30 text-[#B45309] dark:text-[#D69B42] text-xs flex items-center justify-between gap-3 flex-wrap">
             <div className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
+              <AlertTriangle className="w-5 h-5 shrink-0" />
               <span>
                 السنة الدراسية الجديدة ({targetYearObj?.name}) لا تحتوي على أي صفوف معرّفة بعد.
               </span>
@@ -959,7 +959,7 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
             <button
               type="button"
               onClick={handleCopyClassStructure}
-              className="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white dark:bg-amber-400 dark:hover:bg-amber-300 dark:text-slate-950 font-black text-xs cursor-pointer flex items-center gap-1.5 shadow-xs"
+              className="px-3.5 py-1.5 rounded-lg bg-[#D69B42] hover:bg-[#B45309] text-white font-black text-xs cursor-pointer flex items-center gap-1.5 shadow-xs"
             >
               <Copy className="w-4 h-4" />
               <span>نسخ هيكل الصفوف والشُعب من السنة المنصرمة فورياً</span>
@@ -968,15 +968,15 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
         )}
 
         {/* 2. Source Class & Target Class Selection */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2 border-t border-slate-200 dark:border-slate-800">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
           {/* Source Class (تُعرض فقط صفوف السنة المنصرمة) */}
-          <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex flex-col gap-3">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-700">
-              <label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                <Layers className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+          <div className="bg-[#F8FAFC] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl p-4 flex flex-col gap-3">
+            <div className="flex items-center justify-between pb-2 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
+              <label className="text-xs font-bold text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2">
+                <Layers className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA]" />
                 <span>الصف المنصرم (من سنة {sourceYearObj?.name})</span>
               </label>
-              <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
+              <span className="text-[11px] font-mono tabular-nums text-[#64748B] dark:text-[#8493A8]">
                 إجمالي طلاب الصف: {sourceYearStudents.filter((s) => s.classId === sourceClassId).length}
               </span>
             </div>
@@ -984,7 +984,7 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
             <select
               value={sourceClassId}
               onChange={(e) => setSourceClassId(e.target.value)}
-              className="w-full h-9 px-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-900 dark:text-slate-100 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
+              className="w-full h-9 px-3 bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-xs font-bold text-[#1E293B] dark:text-[#E2E8F0] focus:border-[#2785F5] focus:outline-hidden"
             >
               {availableSourceClasses.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -996,22 +996,22 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
             {/* Source Sections Multi-select */}
             <div className="flex flex-col gap-2 pt-1">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                <span className="text-[11px] font-bold text-[#475569] dark:text-[#A8B5C7]">
                   شُعب الصف المنصرم ({sourceYearObj?.name}):
                 </span>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => setSelectedSourceSectionIds(availableSourceSections.map((s) => s.id))}
-                    className="text-[10px] text-emerald-700 dark:text-emerald-400 hover:underline font-bold cursor-pointer"
+                    className="text-[10px] text-[#3156C9] dark:text-[#60A5FA] hover:underline font-bold cursor-pointer"
                   >
                     تحديد الكل
                   </button>
-                  <span className="text-slate-300 dark:text-slate-600">|</span>
+                  <span className="text-[#DCE3ED] dark:text-[#2D3B4D]">|</span>
                   <button
                     type="button"
                     onClick={() => setSelectedSourceSectionIds([])}
-                    className="text-[10px] text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-bold cursor-pointer"
+                    className="text-[10px] text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] font-bold cursor-pointer"
                   >
                     إلغاء
                   </button>
@@ -1019,7 +1019,7 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
               </div>
 
               {availableSourceSections.length === 0 ? (
-                <span className="text-[11px] text-slate-400 dark:text-slate-500 italic">لا توجد شُعب منفصلة لهذا الصف</span>
+                <span className="text-[11px] text-[#64748B] dark:text-[#8493A8] italic">لا توجد شُعب منفصلة لهذا الصف</span>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {availableSourceSections.map((sec) => {
@@ -1041,15 +1041,15 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
                         }}
                         className={`p-2 rounded-lg border text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
                           isChecked
-                            ? 'bg-emerald-50 dark:bg-emerald-500/15 border-emerald-600 dark:border-emerald-400 text-emerald-800 dark:text-emerald-300'
-                            : 'bg-white dark:bg-slate-800/70 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                            ? 'bg-[#3156C9]/8 dark:bg-[#2785F5]/12 border-[#3156C9] dark:border-[#2785F5] text-[#3156C9] dark:text-[#60A5FA]'
+                            : 'bg-white dark:bg-[#26364B] border-[#DCE3ED] dark:border-[#2D3B4D] text-[#475569] dark:text-[#A8B5C7] hover:bg-[#EDF1F7] dark:hover:bg-[#2D3B4D]'
                         }`}
                       >
                         <span className="flex items-center gap-1.5">
-                          {isChecked ? <CheckSquare className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Square className="w-3.5 h-3.5" />}
+                          {isChecked ? <CheckSquare className="w-3.5 h-3.5 text-[#3156C9] dark:text-[#60A5FA]" /> : <Square className="w-3.5 h-3.5" />}
                           <span>شعبة {sec.name}</span>
                         </span>
-                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400">
+                        <span className="text-[10px] font-mono tabular-nums px-1.5 py-0.5 rounded bg-[#EDF1F7] dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[#475569] dark:text-[#A8B5C7]">
                           {secCount}
                         </span>
                       </button>
@@ -1061,13 +1061,13 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
           </div>
 
           {/* Target Class (تُعرض فقط صفوف السنة الجديدة) */}
-          <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex flex-col gap-3">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-700">
-              <label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                <GraduationCap className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+          <div className="bg-[#F8FAFC] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl p-4 flex flex-col gap-3">
+            <div className="flex items-center justify-between pb-2 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
+              <label className="text-xs font-bold text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2">
+                <GraduationCap className="w-4 h-4 text-[#059669] dark:text-[#10B981]" />
                 <span>الصف الوجهة للناجحين (في سنة {targetYearObj?.name})</span>
               </label>
-              <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
+              <span className="text-[11px] font-mono tabular-nums text-[#64748B] dark:text-[#8493A8]">
                 شُعب الصف الجديد: {availableTargetSections.length}
               </span>
             </div>
@@ -1075,7 +1075,7 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
             <select
               value={targetClassId}
               onChange={(e) => setTargetClassId(e.target.value)}
-              className="w-full h-9 px-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-900 dark:text-slate-100 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
+              className="w-full h-9 px-3 bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-xs font-bold text-[#1E293B] dark:text-[#E2E8F0] focus:border-[#2785F5] focus:outline-hidden"
             >
               {availableTargetClasses.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -1089,13 +1089,13 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
             {targetClassId !== 'graduated' && (
               <div className="flex flex-col gap-2 pt-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                  <span className="text-[11px] font-bold text-[#475569] dark:text-[#A8B5C7]">
                     الشُعب المستقبلة للناجحين في السنة الجديدة ({targetYearObj?.name}):
                   </span>
                   <button
                     type="button"
                     onClick={() => setIsAddSectionModalOpen(true)}
-                    className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 cursor-pointer"
+                    className="text-[11px] font-bold text-[#3156C9] dark:text-[#60A5FA] hover:underline flex items-center gap-1 cursor-pointer"
                   >
                     <Plus className="w-3 h-3" />
                     <span>+ إضافة شعبة</span>
@@ -1103,12 +1103,12 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
                 </div>
 
                 {availableTargetSections.length === 0 ? (
-                  <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs flex items-center justify-between">
+                  <div className="p-3 rounded-lg bg-[#D69B42]/10 dark:bg-[#D69B42]/15 border border-[#D69B42]/30 text-[#B45309] dark:text-[#D69B42] text-xs flex items-center justify-between">
                     <span>الصف المختار في السنة الجديدة لا يحتوي على شُعب.</span>
                     <button
                       type="button"
                       onClick={() => setIsAddSectionModalOpen(true)}
-                      className="px-2.5 py-1 rounded bg-amber-600 hover:bg-amber-700 text-white font-bold text-[11px] cursor-pointer"
+                      className="px-2.5 py-1 rounded bg-[#D69B42] hover:bg-[#B45309] text-white font-bold text-[11px] cursor-pointer"
                     >
                       إضافة شعبة
                     </button>
@@ -1130,12 +1130,12 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
                           }}
                           className={`p-2 rounded-lg border text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
                             isChecked
-                              ? 'bg-emerald-50 dark:bg-emerald-500/15 border-emerald-600 dark:border-emerald-400 text-emerald-800 dark:text-emerald-300'
-                              : 'bg-white dark:bg-slate-800/70 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                              ? 'bg-[#3156C9]/8 dark:bg-[#2785F5]/12 border-[#3156C9] dark:border-[#2785F5] text-[#3156C9] dark:text-[#60A5FA]'
+                              : 'bg-white dark:bg-[#26364B] border-[#DCE3ED] dark:border-[#2D3B4D] text-[#475569] dark:text-[#A8B5C7] hover:bg-[#EDF1F7] dark:hover:bg-[#2D3B4D]'
                           }`}
                         >
                           <span className="flex items-center gap-1.5">
-                            {isChecked ? <CheckSquare className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Square className="w-3.5 h-3.5" />}
+                            {isChecked ? <CheckSquare className="w-3.5 h-3.5 text-[#3156C9] dark:text-[#60A5FA]" /> : <Square className="w-3.5 h-3.5" />}
                             <span>شعبة {sec.name}</span>
                           </span>
                         </button>
@@ -1149,24 +1149,24 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
         </div>
 
         {/* Options Row: Repeater Students Handling */}
-        <div className="flex flex-col gap-3 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800">
+        <div className="flex flex-col gap-3 p-4 rounded-xl bg-[#F8FAFC] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D]">
           <div className="flex items-center justify-between flex-wrap gap-3">
-            <label className="flex items-center gap-2.5 text-xs text-slate-700 dark:text-slate-300 cursor-pointer select-none">
+            <label className="flex items-center gap-2.5 text-xs text-[#1E293B] dark:text-[#E2E8F0] cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={includeFailingAsRepeaters}
                 onChange={(e) => setIncludeFailingAsRepeaters(e.target.checked)}
-                className="w-4 h-4 rounded focus:ring-0 cursor-pointer accent-emerald-600 dark:accent-emerald-400"
+                className="w-4 h-4 rounded focus:ring-0 cursor-pointer accent-[#3156C9] dark:accent-[#2785F5]"
               />
-              <span className="font-bold text-amber-800 dark:text-amber-300">
+              <span className="font-bold text-[#B45309] dark:text-[#D69B42]">
                 تسجيل الطلاب الراسبين كـ «معيدين» في السنة الجديدة ({targetYearObj?.name})
               </span>
             </label>
 
             {includeFailingAsRepeaters && (
               <div className="flex items-center gap-2 text-xs">
-                <span className="text-slate-500 dark:text-slate-400">صف المعيدين بالسنة الجديدة:</span>
-                <span className="font-bold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-500/15 px-2.5 py-1 rounded-lg border border-amber-200 dark:border-amber-500/30">
+                <span className="text-[#64748B] dark:text-[#8493A8]">صف المعيدين بالسنة الجديدة:</span>
+                <span className="font-bold text-[#B45309] dark:text-[#D69B42] bg-[#D69B42]/10 dark:bg-[#D69B42]/15 px-2.5 py-1 rounded-lg border border-[#D69B42]/30">
                   {repeaterTargetClassObj ? repeaterTargetClassObj.name : 'غير متوفر (يرجى نسخ الهيكل)'}
                 </span>
               </div>
@@ -1174,7 +1174,7 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
           </div>
 
           {includeFailingAsRepeaters && (
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+            <p className="text-[11px] text-[#64748B] dark:text-[#8493A8]">
               * سيتم ربط الطلاب الراسبين بصف {repeaterTargetClassObj?.name || 'المعيدين'} التابع مباشرة للعام الدراسي الجديد {targetYearObj?.name} وليس بالصف القديم، مع تعيين شُعبهم المخصصة.
             </p>
           )}
@@ -1183,34 +1183,34 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
 
       {/* SECTION 2: Summary KPI Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-xl flex flex-col shadow-xs">
-          <span className="text-[11px] text-slate-500 dark:text-slate-400">إجمالي طلاب الشُعب</span>
-          <span className="text-xl font-bold font-mono text-slate-900 dark:text-white mt-1">{stats.total}</span>
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-3.5 rounded-xl flex flex-col shadow-xs">
+          <span className="text-[11px] text-[#64748B] dark:text-[#8493A8]">إجمالي طلاب الشُعب</span>
+          <span className="text-xl font-bold font-mono tabular-nums text-[#1E293B] dark:text-[#E2E8F0] mt-1">{stats.total}</span>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-xl flex flex-col shadow-xs">
-          <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-bold">المستحقون للترقية</span>
-          <span className="text-xl font-bold font-mono text-emerald-700 dark:text-emerald-400 mt-1">{stats.eligiblePromote}</span>
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-3.5 rounded-xl flex flex-col shadow-xs">
+          <span className="text-[11px] text-[#059669] dark:text-[#10B981] font-bold">المستحقون للترقية</span>
+          <span className="text-xl font-bold font-mono tabular-nums text-[#059669] dark:text-[#10B981] mt-1">{stats.eligiblePromote}</span>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-xl flex flex-col shadow-xs">
-          <span className="text-[11px] text-amber-700 dark:text-amber-400 font-bold">المعيدون (الراسبون)</span>
-          <span className="text-xl font-bold font-mono text-amber-700 dark:text-amber-400 mt-1">{stats.repeating}</span>
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-3.5 rounded-xl flex flex-col shadow-xs">
+          <span className="text-[11px] text-[#B45309] dark:text-[#D69B42] font-bold">المعيدون (الراسبون)</span>
+          <span className="text-xl font-bold font-mono tabular-nums text-[#B45309] dark:text-[#D69B42] mt-1">{stats.repeating}</span>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-xl flex flex-col shadow-xs">
-          <span className="text-[11px] text-rose-700 dark:text-rose-400 font-bold">المكمّلون / غير مكتمل</span>
-          <span className="text-xl font-bold font-mono text-rose-700 dark:text-rose-400 mt-1">{stats.incompleteTotal}</span>
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-3.5 rounded-xl flex flex-col shadow-xs">
+          <span className="text-[11px] text-[#C83D4B] dark:text-[#E35D6A] font-bold">المكمّلون / غير مكتمل</span>
+          <span className="text-xl font-bold font-mono tabular-nums text-[#C83D4B] dark:text-[#E35D6A] mt-1">{stats.incompleteTotal}</span>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-xl flex flex-col shadow-xs">
-          <span className="text-[11px] text-teal-700 dark:text-teal-400 font-bold">مُرحّلون مسبقاً</span>
-          <span className="text-xl font-bold font-mono text-teal-700 dark:text-teal-400 mt-1">{stats.alreadyMigrated}</span>
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-3.5 rounded-xl flex flex-col shadow-xs">
+          <span className="text-[11px] text-[#3156C9] dark:text-[#60A5FA] font-bold">مُرحّلون مسبقاً</span>
+          <span className="text-xl font-bold font-mono tabular-nums text-[#3156C9] dark:text-[#60A5FA] mt-1">{stats.alreadyMigrated}</span>
         </div>
 
-        <div className="bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/40 p-3.5 rounded-xl flex flex-col shadow-xs">
-          <span className="text-[11px] text-emerald-800 dark:text-emerald-300 font-bold">الجاهزون للتوزيع والترحيل</span>
-          <span className="text-xl font-black font-mono text-emerald-800 dark:text-emerald-300 mt-1">
+        <div className="bg-[#3156C9]/8 dark:bg-[#2785F5]/12 border border-[#3156C9]/25 dark:border-[#2785F5]/30 p-3.5 rounded-xl flex flex-col shadow-xs">
+          <span className="text-[11px] text-[#3156C9] dark:text-[#60A5FA] font-bold">الجاهزون للتوزيع والترحيل</span>
+          <span className="text-xl font-black font-mono tabular-nums text-[#3156C9] dark:text-[#60A5FA] mt-1">
             {stats.pendingEligible + (includeFailingAsRepeaters ? stats.repeating : 0)}
           </span>
         </div>
@@ -1218,31 +1218,31 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
 
       {/* SECTION 3: Distribution Methods & Live Section Counters */}
       {targetClassId !== 'graduated' && (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm dark:shadow-lg flex flex-col gap-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-slate-800">
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-5 shadow-sm dark:shadow-lg flex flex-col gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
             <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 font-black text-xs flex items-center justify-center font-mono">
+              <div className="w-7 h-7 rounded-lg bg-[#3156C9]/8 dark:bg-[#2785F5]/12 border border-[#3156C9]/25 dark:border-[#2785F5]/25 text-[#3156C9] dark:text-[#60A5FA] font-black text-xs flex items-center justify-center font-mono">
                 ٢
               </div>
               <div>
-                <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
+                <h2 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0]">
                   توزيع الناجحين والمعيدين على شُعب السنة الجديدة ({targetYearObj?.name})
                 </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
+                <p className="text-xs text-[#64748B] dark:text-[#8493A8]">
                   اختر بين التوزيع التلقائي المتوازن بالتساوي، أو التوزيع اليدوي لكل طالب
                 </p>
               </div>
             </div>
 
             {/* Method Tabs */}
-            <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800/70 p-1.5 rounded-xl border border-slate-200 dark:border-slate-700">
+            <div className="flex items-center gap-2 bg-[#EDF1F7] dark:bg-[#26364B] p-1.5 rounded-xl border border-[#DCE3ED] dark:border-[#2D3B4D]">
               <button
                 type="button"
                 onClick={() => setDistributionMethod('manual')}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors ${
                   distributionMethod === 'manual'
-                    ? 'bg-emerald-600 text-white dark:bg-emerald-400 dark:text-slate-950 shadow-xs'
-                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                    ? 'bg-[#3156C9] text-white shadow-xs'
+                    : 'text-[#475569] dark:text-[#A8B5C7] hover:text-[#1E293B] dark:hover:text-[#E2E8F0]'
                 }`}
               >
                 <Sliders className="w-3.5 h-3.5" />
@@ -1257,8 +1257,8 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
                 }}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors ${
                   distributionMethod === 'auto_balanced'
-                    ? 'bg-emerald-600 text-white dark:bg-emerald-400 dark:text-slate-950 shadow-xs'
-                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                    ? 'bg-[#3156C9] text-white shadow-xs'
+                    : 'text-[#475569] dark:text-[#A8B5C7] hover:text-[#1E293B] dark:hover:text-[#E2E8F0]'
                 }`}
               >
                 <Shuffle className="w-3.5 h-3.5" />
@@ -1269,7 +1269,7 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
 
           {/* Live Section Balancer Counters */}
           <div className="flex flex-col gap-2 pt-1">
-            <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+            <span className="text-xs font-bold text-[#475569] dark:text-[#A8B5C7]">
               توزيع أعداد الناجحين على شُعب الصف الجديد ({targetClassObj?.name}):
             </span>
             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2.5">
@@ -1278,10 +1278,10 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
                 return (
                   <div
                     key={sec.id}
-                    className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 flex items-center justify-between"
+                    className="p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D] flex items-center justify-between"
                   >
-                    <span className="font-bold text-xs text-slate-800 dark:text-slate-200">شعبة ({sec.name})</span>
-                    <span className="text-sm font-black font-mono text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/15 px-2 py-0.5 rounded-lg border border-emerald-200 dark:border-emerald-500/30">
+                    <span className="font-bold text-xs text-[#1E293B] dark:text-[#E2E8F0]">شعبة ({sec.name})</span>
+                    <span className="text-sm font-black font-mono tabular-nums text-[#3156C9] dark:text-[#60A5FA] bg-[#3156C9]/8 dark:bg-[#2785F5]/12 px-2 py-0.5 rounded-lg border border-[#3156C9]/25 dark:border-[#2785F5]/25">
                       {count} طالب
                     </span>
                   </div>
@@ -1289,9 +1289,9 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
               })}
 
               {targetSectionCounts.unassignedCount > 0 && (
-                <div className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 flex items-center justify-between">
-                  <span className="font-bold text-xs text-rose-800 dark:text-rose-300">غير محدد</span>
-                  <span className="text-sm font-black font-mono text-rose-700 dark:text-rose-400 bg-white dark:bg-slate-900 px-2 py-0.5 rounded-lg border border-rose-200 dark:border-rose-500/30">
+                <div className="p-2.5 rounded-xl bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 border border-[#E35D6A]/30 flex items-center justify-between">
+                  <span className="font-bold text-xs text-[#C83D4B] dark:text-[#E35D6A]">غير محدد</span>
+                  <span className="text-sm font-black font-mono tabular-nums text-[#C83D4B] dark:text-[#E35D6A] bg-white dark:bg-[#1C2939] px-2 py-0.5 rounded-lg border border-[#E35D6A]/30">
                     {targetSectionCounts.unassignedCount} طالب
                   </span>
                 </div>
@@ -1302,15 +1302,15 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
       )}
 
       {/* SECTION 4: Ledger Table & Review Trigger */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm dark:shadow-xl flex flex-col gap-4">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-3 border-b border-slate-200 dark:border-slate-800">
+      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-5 shadow-sm dark:shadow-xl flex flex-col gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 font-black text-xs flex items-center justify-center font-mono">
+            <div className="w-7 h-7 rounded-lg bg-[#3156C9]/8 dark:bg-[#2785F5]/12 border border-[#3156C9]/25 dark:border-[#2785F5]/25 text-[#3156C9] dark:text-[#60A5FA] font-black text-xs flex items-center justify-center font-mono">
               ٣
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">جدول تعيينات الصفوف والشُعب للعام الجديد</h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <h2 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0]">جدول تعيينات الصفوف والشُعب للعام الجديد</h2>
+              <p className="text-xs text-[#64748B] dark:text-[#8493A8]">
                 تأكد من صحة الصف والشعبة المسندة لكل طالب ناجح أو معيد قبل اعتماد العملية
               </p>
             </div>
@@ -1320,10 +1320,10 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
             type="button"
             disabled={stats.pendingEligible === 0 && (!includeFailingAsRepeaters || stats.repeating === 0)}
             onClick={handleProceedToReview}
-            className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 font-black text-xs flex items-center justify-center gap-2 shadow-sm transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2.5 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white font-black text-xs flex items-center justify-center gap-2 shadow-sm transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <GraduationCap className="w-4 h-4" />
-            <span>معاينة ومراجعة الترحيل قبل الاعتماد ({stats.pendingEligible + (includeFailingAsRepeaters ? stats.repeating : 0)} طالب)</span>
+            <span>معاينة ومراجعة الترحيل قبل الاعتماد (<span className="font-mono tabular-nums">{stats.pendingEligible + (includeFailingAsRepeaters ? stats.repeating : 0)}</span> طالب)</span>
           </button>
         </div>
 
@@ -1335,22 +1335,22 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
               onClick={() => setStatusFilter('all')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-colors ${
                 statusFilter === 'all'
-                  ? 'bg-emerald-600 text-white dark:bg-emerald-400 dark:text-slate-950'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                  ? 'bg-[#3156C9] text-white shadow-xs'
+                  : 'bg-[#EDF1F7] dark:bg-[#26364B] text-[#475569] dark:text-[#A8B5C7] hover:bg-[#E2E8F0] dark:hover:bg-[#2D3B4D] border border-[#DCE3ED] dark:border-[#2D3B4D]'
               }`}
             >
-              الكل ({stats.total})
+              الكل (<span className="font-mono tabular-nums">{stats.total}</span>)
             </button>
             <button
               type="button"
               onClick={() => setStatusFilter('promote')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-colors ${
                 statusFilter === 'promote'
-                  ? 'bg-emerald-600 text-white dark:bg-emerald-400 dark:text-slate-950'
-                  : 'bg-slate-100 dark:bg-slate-800 text-emerald-700 dark:text-emerald-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                  ? 'bg-[#3156C9] text-white shadow-xs'
+                  : 'bg-[#EDF1F7] dark:bg-[#26364B] text-[#059669] dark:text-[#10B981] hover:bg-[#E2E8F0] dark:hover:bg-[#2D3B4D] border border-[#DCE3ED] dark:border-[#2D3B4D]'
               }`}
             >
-              مستحقو الترقية ({stats.eligiblePromote})
+              مستحقو الترقية (<span className="font-mono tabular-nums">{stats.eligiblePromote}</span>)
             </button>
             {includeFailingAsRepeaters && (
               <button
@@ -1358,11 +1358,11 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
                 onClick={() => setStatusFilter('repeat')}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-colors ${
                   statusFilter === 'repeat'
-                    ? 'bg-emerald-600 text-white dark:bg-emerald-400 dark:text-slate-950'
-                    : 'bg-slate-100 dark:bg-slate-800 text-amber-700 dark:text-amber-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                    ? 'bg-[#3156C9] text-white shadow-xs'
+                    : 'bg-[#EDF1F7] dark:bg-[#26364B] text-[#B45309] dark:text-[#D69B42] hover:bg-[#E2E8F0] dark:hover:bg-[#2D3B4D] border border-[#DCE3ED] dark:border-[#2D3B4D]'
                 }`}
               >
-                المعيدون ({stats.repeating})
+                المعيدون (<span className="font-mono tabular-nums">{stats.repeating}</span>)
               </button>
             )}
             <button
@@ -1370,22 +1370,22 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
               onClick={() => setStatusFilter('exclude')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-colors ${
                 statusFilter === 'exclude'
-                  ? 'bg-emerald-600 text-white dark:bg-emerald-400 dark:text-slate-950'
-                  : 'bg-slate-100 dark:bg-slate-800 text-rose-700 dark:text-rose-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                  ? 'bg-[#3156C9] text-white shadow-xs'
+                  : 'bg-[#EDF1F7] dark:bg-[#26364B] text-[#C83D4B] dark:text-[#E35D6A] hover:bg-[#E2E8F0] dark:hover:bg-[#2D3B4D] border border-[#DCE3ED] dark:border-[#2D3B4D]'
               }`}
             >
-              المستبعدون ({stats.excluded})
+              المستبعدون (<span className="font-mono tabular-nums">{stats.excluded}</span>)
             </button>
             <button
               type="button"
               onClick={() => setStatusFilter('migrated')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-colors ${
                 statusFilter === 'migrated'
-                  ? 'bg-emerald-600 text-white dark:bg-emerald-400 dark:text-slate-950'
-                  : 'bg-slate-100 dark:bg-slate-800 text-teal-700 dark:text-teal-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                  ? 'bg-[#3156C9] text-white shadow-xs'
+                  : 'bg-[#EDF1F7] dark:bg-[#26364B] text-[#3156C9] dark:text-[#60A5FA] hover:bg-[#E2E8F0] dark:hover:bg-[#2D3B4D] border border-[#DCE3ED] dark:border-[#2D3B4D]'
               }`}
             >
-              مُرحّلون مسبقاً ({stats.alreadyMigrated})
+              مُرحّلون مسبقاً (<span className="font-mono tabular-nums">{stats.alreadyMigrated}</span>)
             </button>
           </div>
 
@@ -1396,31 +1396,31 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="بحث باسم الطالب أو رقم القيد..."
-              className="w-full h-9 pr-8 pl-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-hidden focus:border-emerald-600 dark:focus:border-emerald-400"
+              className="w-full h-9 pr-8 pl-3 bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-xs text-[#1E293B] dark:text-[#E2E8F0] placeholder:text-[#64748B] dark:placeholder:text-[#8493A8] focus:outline-hidden focus:border-[#2785F5]"
             />
-            <Search className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 absolute right-2.5 top-2.5" />
+            <Search className="w-3.5 h-3.5 text-[#64748B] dark:text-[#8493A8] absolute right-2.5 top-2.5" />
           </div>
         </div>
 
         {/* Ledger Table */}
-        <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+        <div className="overflow-x-auto rounded-xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939]">
           <table className="w-full text-right border-collapse text-xs select-none">
             <thead>
-              <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-bold">
-                <th className="p-3 text-center w-12 border-l border-slate-200 dark:border-slate-800">ت</th>
-                <th className="p-3 border-l border-slate-200 dark:border-slate-800 min-w-[180px]">اسم الطالب ورقم القيد</th>
-                <th className="p-3 border-l border-slate-200 dark:border-slate-800 text-center">النتيجة الرسمية</th>
-                <th className="p-3 border-l border-slate-200 dark:border-slate-800 text-center min-w-[130px]">الصف والشعبة الحالية</th>
-                <th className="p-3 border-l border-slate-200 dark:border-slate-800 text-center">الإجراء المعتمد</th>
-                <th className="p-3 border-l border-slate-200 dark:border-slate-800 text-center min-w-[150px]">الصف في السنة الجديدة</th>
-                <th className="p-3 border-l border-slate-200 dark:border-slate-800 text-center min-w-[160px]">الشعبة في السنة الجديدة</th>
+              <tr className="bg-[#EDF1F7] dark:bg-[#26364B] border-b border-[#DCE3ED] dark:border-[#2D3B4D] text-[#475569] dark:text-[#A8B5C7] font-bold">
+                <th className="p-3 text-center w-12 border-l border-[#DCE3ED] dark:border-[#2D3B4D]">ت</th>
+                <th className="p-3 border-l border-[#DCE3ED] dark:border-[#2D3B4D] min-w-[180px]">اسم الطالب ورقم القيد</th>
+                <th className="p-3 border-l border-[#DCE3ED] dark:border-[#2D3B4D] text-center">النتيجة الرسمية</th>
+                <th className="p-3 border-l border-[#DCE3ED] dark:border-[#2D3B4D] text-center min-w-[130px]">الصف والشعبة الحالية</th>
+                <th className="p-3 border-l border-[#DCE3ED] dark:border-[#2D3B4D] text-center">الإجراء المعتمد</th>
+                <th className="p-3 border-l border-[#DCE3ED] dark:border-[#2D3B4D] text-center min-w-[150px]">الصف في السنة الجديدة</th>
+                <th className="p-3 border-l border-[#DCE3ED] dark:border-[#2D3B4D] text-center min-w-[160px]">الشعبة في السنة الجديدة</th>
                 <th className="p-3 text-center min-w-[100px]">الحالة</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-800 font-sans">
+            <tbody className="divide-y divide-[#DCE3ED] dark:divide-[#2D3B4D] font-sans">
               {filteredCandidates.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-500 dark:text-slate-400 font-bold">
+                  <td colSpan={8} className="py-12 text-center text-[#64748B] dark:text-[#8493A8] font-bold">
                     لا توجد سجلات مطابقة للفلتر أو البحث المحدد.
                   </td>
                 </tr>
@@ -1432,62 +1432,62 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
                   return (
                     <tr
                       key={item.student.id}
-                      className={`hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors ${
-                        item.isAlreadyMigrated ? 'opacity-70 bg-purple-50/50 dark:bg-purple-950/15' : ''
+                      className={`hover:bg-[#F8FAFC] dark:hover:bg-[#202E40] transition-colors ${
+                        item.isAlreadyMigrated ? 'opacity-75 bg-[#3156C9]/5 dark:bg-[#2785F5]/8' : ''
                       }`}
                     >
-                      <td className="p-2.5 text-center font-mono text-slate-500 dark:text-slate-400 border-l border-slate-200 dark:border-slate-800">
+                      <td className="p-2.5 text-center font-mono tabular-nums text-[#64748B] dark:text-[#8493A8] border-l border-[#DCE3ED] dark:border-[#2D3B4D]">
                         {idx + 1}
                       </td>
-                      <td className="p-2.5 border-l border-slate-200 dark:border-slate-800">
-                        <div className="font-bold text-slate-900 dark:text-slate-200 flex items-center gap-1.5">
+                      <td className="p-2.5 border-l border-[#DCE3ED] dark:border-[#2D3B4D]">
+                        <div className="font-bold text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-1.5">
                           <span>{item.student.name}</span>
                           <StudentStatusBadge status={item.student.status} />
                         </div>
-                        <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+                        <div className="text-[10px] text-[#64748B] dark:text-[#8493A8] font-mono tabular-nums">
                           قيد: {item.student.registrationNumber || `#${item.student.seatNumber}`}
                         </div>
                       </td>
-                      <td className="p-2.5 text-center border-l border-slate-200 dark:border-slate-800">
+                      <td className="p-2.5 text-center border-l border-[#DCE3ED] dark:border-[#2D3B4D]">
                         <span
                           className={`inline-block px-2 py-0.5 rounded text-[11px] font-bold ${
                             item.statusFinal === 'ناجح' ||
                             item.statusFinal === 'ناجح — إعفاء عام' ||
                             item.statusFinal === 'معفى عام'
-                              ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30'
+                              ? 'bg-[#10B981]/12 dark:bg-[#10B981]/15 text-[#059669] dark:text-[#10B981] border border-[#10B981]/30'
                               : item.statusFinal === 'راسب'
-                              ? 'bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30'
-                              : 'bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30'
+                              ? 'bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 text-[#C83D4B] dark:text-[#E35D6A] border border-[#E35D6A]/30'
+                              : 'bg-[#D69B42]/10 dark:bg-[#D69B42]/15 text-[#B45309] dark:text-[#D69B42] border border-[#D69B42]/30'
                           }`}
                         >
                           {item.statusFinal}
                         </span>
                       </td>
-                      <td className="p-2.5 text-center font-mono text-slate-700 dark:text-slate-300 border-l border-slate-200 dark:border-slate-800">
+                      <td className="p-2.5 text-center font-mono text-[#475569] dark:text-[#A8B5C7] border-l border-[#DCE3ED] dark:border-[#2D3B4D]">
                         {item.sourceClass?.name} ({item.sourceSection?.name})
                       </td>
-                      <td className="p-2.5 text-center border-l border-slate-200 dark:border-slate-800">
+                      <td className="p-2.5 text-center border-l border-[#DCE3ED] dark:border-[#2D3B4D]">
                         {item.action === 'promote' && (
-                          <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-bold">
+                          <span className="inline-flex items-center gap-1 text-[#059669] dark:text-[#10B981] font-bold">
                             <CheckCircle2 className="w-3.5 h-3.5" />
                             <span>ترقية للصف الأعلى</span>
                           </span>
                         )}
                         {item.action === 'repeat' && (
-                          <span className="inline-flex items-center gap-1 text-amber-700 dark:text-amber-400 font-bold">
+                          <span className="inline-flex items-center gap-1 text-[#B45309] dark:text-[#D69B42] font-bold">
                             <RotateCcw className="w-3.5 h-3.5" />
                             <span>معيد بالصف نفسه</span>
                           </span>
                         )}
                         {item.action === 'graduate' && (
-                          <span className="inline-flex items-center gap-1 text-teal-700 dark:text-teal-400 font-bold">
+                          <span className="inline-flex items-center gap-1 text-[#3156C9] dark:text-[#60A5FA] font-bold">
                             <GraduationCap className="w-3.5 h-3.5" />
                             <span>خريج</span>
                           </span>
                         )}
                         {item.action === 'exclude' && (
                           <span
-                            className="inline-flex items-center gap-1 text-rose-700 dark:text-rose-400 font-bold"
+                            className="inline-flex items-center gap-1 text-[#C83D4B] dark:text-[#E35D6A] font-bold"
                             title={item.reason}
                           >
                             <AlertTriangle className="w-3.5 h-3.5" />
@@ -1497,27 +1497,27 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
                       </td>
 
                       {/* Target Class Name in New Academic Year */}
-                      <td className="p-2.5 text-center font-bold text-slate-900 dark:text-slate-200 border-l border-slate-200 dark:border-slate-800">
+                      <td className="p-2.5 text-center font-bold text-[#1E293B] dark:text-[#E2E8F0] border-l border-[#DCE3ED] dark:border-[#2D3B4D]">
                         {item.action === 'promote' ? (
                           targetClassId === 'graduated' ? (
-                            <span className="text-teal-700 dark:text-teal-400 font-normal">خريج</span>
+                            <span className="text-[#3156C9] dark:text-[#60A5FA] font-normal">خريج</span>
                           ) : (
-                            <span className="text-emerald-700 dark:text-emerald-400">{targetClassObj?.name}</span>
+                            <span className="text-[#059669] dark:text-[#10B981]">{targetClassObj?.name}</span>
                           )
                         ) : item.action === 'repeat' ? (
-                          <span className="text-amber-700 dark:text-amber-400">
+                          <span className="text-[#B45309] dark:text-[#D69B42]">
                             {repeaterTargetClassObj ? repeaterTargetClassObj.name : 'غير محدد'}
                           </span>
                         ) : (
-                          <span className="text-slate-400 dark:text-slate-500 font-normal">—</span>
+                          <span className="text-[#64748B] dark:text-[#8493A8] font-normal">—</span>
                         )}
                       </td>
 
                       {/* Target Section dropdown in New Academic Year */}
-                      <td className="p-2.5 text-center border-l border-slate-200 dark:border-slate-800">
+                      <td className="p-2.5 text-center border-l border-[#DCE3ED] dark:border-[#2D3B4D]">
                         {isPromoted ? (
                           targetClassId === 'graduated' ? (
-                            <span className="text-slate-500 dark:text-slate-400 font-mono">خريج</span>
+                            <span className="text-[#64748B] dark:text-[#8493A8] font-mono">خريج</span>
                           ) : (
                             <select
                               value={studentTargetSections[item.student.id] || ''}
@@ -1527,7 +1527,7 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
                                   [item.student.id]: e.target.value,
                                 }))
                               }
-                              className="w-full h-8 px-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-emerald-700 dark:text-emerald-300 focus:outline-hidden focus:border-emerald-600 dark:focus:border-emerald-400"
+                              className="w-full h-8 px-2 bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-xs font-bold text-[#3156C9] dark:text-[#60A5FA] focus:outline-hidden focus:border-[#2785F5]"
                             >
                               <option value="">— اختر الشعبة —</option>
                               {activeTargetSections.map((ts) => (
@@ -1546,7 +1546,7 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
                                 [item.student.id]: e.target.value,
                               }))
                             }
-                            className="w-full h-8 px-2 bg-amber-50 dark:bg-slate-800 border border-amber-300 dark:border-amber-500/40 rounded-lg text-xs font-bold text-amber-800 dark:text-amber-300 focus:outline-hidden focus:border-amber-600 dark:focus:border-amber-400"
+                            className="w-full h-8 px-2 bg-[#D69B42]/10 dark:bg-[#26364B] border border-[#D69B42]/40 rounded-lg text-xs font-bold text-[#B45309] dark:text-[#D69B42] focus:outline-hidden focus:border-[#D69B42]"
                           >
                             <option value="">— شعبة المعيدين —</option>
                             {availableRepeaterSections.map((rs) => (
@@ -1556,21 +1556,21 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
                             ))}
                           </select>
                         ) : (
-                          <span className="text-slate-400 dark:text-slate-500 font-sans text-[11px]">—</span>
+                          <span className="text-[#64748B] dark:text-[#8493A8] font-sans text-[11px]">—</span>
                         )}
                       </td>
 
                       <td className="p-2.5 text-center">
                         {item.isAlreadyMigrated ? (
-                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-50 dark:bg-teal-500/15 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-500/30">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#3156C9]/8 dark:bg-[#2785F5]/12 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/25 dark:border-[#2785F5]/25">
                             مُرحّل مسبقاً
                           </span>
                         ) : isPromoted || isRepeater ? (
-                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#10B981]/12 dark:bg-[#10B981]/15 text-[#059669] dark:text-[#10B981] border border-[#10B981]/30">
                             جاهز للترحيل
                           </span>
                         ) : (
-                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#EDF1F7] dark:bg-[#26364B] text-[#64748B] dark:text-[#8493A8] border border-[#DCE3ED] dark:border-[#2D3B4D]">
                             مستبعد
                           </span>
                         )}
@@ -1586,17 +1586,17 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
 
       {/* SECTION 5: Review & Confirmation Modal */}
       {isReviewModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 dark:bg-black/85 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in" dir="rtl">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl text-slate-900 dark:text-white">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in" dir="rtl">
+          <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[16px] max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl text-[#1E293B] dark:text-[#E2E8F0]">
             {/* Modal Header */}
-            <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <div className="p-5 border-b border-[#DCE3ED] dark:border-[#2D3B4D] flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
+                <div className="w-10 h-10 rounded-xl bg-[#3156C9]/8 dark:bg-[#2785F5]/12 border border-[#3156C9]/25 dark:border-[#2785F5]/25 flex items-center justify-center text-[#3156C9] dark:text-[#60A5FA]">
                   <GraduationCap className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">مراجعة وتأكيد ترحيل الطلاب النهائي</h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <h3 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0]">مراجعة وتأكيد ترحيل الطلاب النهائي</h3>
+                  <p className="text-xs text-[#64748B] dark:text-[#8493A8]">
                     تدقيق ربط صفوف وشُعب السنة الجديدة وتوزيع الطلاب قبل الاعتماد
                   </p>
                 </div>
@@ -1604,7 +1604,7 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsReviewModalOpen(false)}
-                className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer p-1"
+                className="text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] rounded-lg cursor-pointer p-1"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1613,44 +1613,44 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
             {/* Modal Content */}
             <div className="p-5 overflow-y-auto flex flex-col gap-4">
               {/* Summary Specs Card */}
-              <div className="grid grid-cols-2 gap-3 text-xs bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 font-mono">
+              <div className="grid grid-cols-2 gap-3 text-xs bg-[#F8FAFC] dark:bg-[#202E40] p-4 rounded-xl border border-[#DCE3ED] dark:border-[#2D3B4D] font-mono">
                 <div className="flex flex-col gap-1">
-                  <span className="text-slate-500 dark:text-slate-400 font-sans">السنة المنصرمة:</span>
-                  <span className="font-bold text-slate-900 dark:text-slate-100 font-sans">{sourceYearObj?.name}</span>
+                  <span className="text-[#64748B] dark:text-[#8493A8] font-sans">السنة المنصرمة:</span>
+                  <span className="font-bold text-[#1E293B] dark:text-[#E2E8F0] font-sans">{sourceYearObj?.name}</span>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-slate-500 dark:text-slate-400 font-sans">السنة الجديدة المستقبلة:</span>
-                  <span className="font-bold text-emerald-700 dark:text-emerald-400 font-sans">{targetYearObj?.name}</span>
+                  <span className="text-[#64748B] dark:text-[#8493A8] font-sans">السنة الجديدة المستقبلة:</span>
+                  <span className="font-bold text-[#3156C9] dark:text-[#60A5FA] font-sans">{targetYearObj?.name}</span>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-slate-500 dark:text-slate-400 font-sans">الصف المنصرم:</span>
-                  <span className="font-bold text-slate-900 dark:text-slate-100 font-sans">{sourceClassObj?.name}</span>
+                  <span className="text-[#64748B] dark:text-[#8493A8] font-sans">الصف المنصرم:</span>
+                  <span className="font-bold text-[#1E293B] dark:text-[#E2E8F0] font-sans">{sourceClassObj?.name}</span>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-slate-500 dark:text-slate-400 font-sans">الصف الجديد للناجحين:</span>
-                  <span className="font-bold text-emerald-700 dark:text-emerald-400 font-sans">
+                  <span className="text-[#64748B] dark:text-[#8493A8] font-sans">الصف الجديد للناجحين:</span>
+                  <span className="font-bold text-[#059669] dark:text-[#10B981] font-sans">
                     {targetClassId === 'graduated' ? 'خريجون (تخرج)' : targetClassObj?.name}
                   </span>
                 </div>
                 {includeFailingAsRepeaters && (
-                  <div className="flex flex-col gap-1 col-span-2 pt-2 border-t border-slate-200 dark:border-slate-700">
-                    <span className="text-slate-500 dark:text-slate-400 font-sans">صف المعيدين في السنة الجديدة:</span>
-                    <span className="font-bold text-amber-700 dark:text-amber-400 font-sans">
+                  <div className="flex flex-col gap-1 col-span-2 pt-2 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
+                    <span className="text-[#64748B] dark:text-[#8493A8] font-sans">صف المعيدين في السنة الجديدة:</span>
+                    <span className="font-bold text-[#B45309] dark:text-[#D69B42] font-sans">
                       {repeaterTargetClassObj?.name} (ربط بالسنة الجديدة: {targetYearObj?.name})
                     </span>
                   </div>
                 )}
-                <div className="flex flex-col gap-1 col-span-2 pt-2 border-t border-slate-200 dark:border-slate-700">
-                  <span className="text-slate-500 dark:text-slate-400 font-sans">إجمالي الانتسابات التي ستُحدث بالسنة الجديدة:</span>
-                  <span className="text-base font-black text-emerald-700 dark:text-emerald-400">
+                <div className="flex flex-col gap-1 col-span-2 pt-2 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
+                  <span className="text-[#64748B] dark:text-[#8493A8] font-sans">إجمالي الانتسابات التي ستُحدث بالسنة الجديدة:</span>
+                  <span className="text-base font-black text-[#3156C9] dark:text-[#60A5FA] tabular-nums">
                     {stats.pendingEligible + (includeFailingAsRepeaters ? stats.repeating : 0)} طالب
                   </span>
                 </div>
               </div>
 
               {/* Data Safety Notice */}
-              <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs flex items-start gap-2">
-                <ShieldCheck className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0 mt-0.5" />
+              <div className="p-3 rounded-xl bg-[#10B981]/12 dark:bg-[#10B981]/15 border border-[#10B981]/30 text-[#059669] dark:text-[#10B981] text-xs flex items-start gap-2">
+                <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>
                   ضمان السجلات التاريخية: لن تمس درجات أو بيانات العام الماضي {sourceYearObj?.name}. ستُنشأ سجلات جديدة تماماً في السنة الجديدة {targetYearObj?.name} مع إمكانية الوصول للسجلات القديمة عبر الفلاتر دائماً.
                 </span>
@@ -1658,12 +1658,12 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
             </div>
 
             {/* Modal Actions */}
-            <div className="p-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-3">
+            <div className="p-4 border-t border-[#DCE3ED] dark:border-[#2D3B4D] flex items-center justify-end gap-3">
               <button
                 type="button"
                 disabled={isSubmitting}
                 onClick={() => setIsReviewModalOpen(false)}
-                className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
+                className="px-4 py-2 rounded-xl bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] text-xs font-bold transition-colors cursor-pointer disabled:opacity-50"
               >
                 العودة للتعديل (إلغاء)
               </button>
@@ -1671,7 +1671,7 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
                 type="button"
                 disabled={isSubmitting}
                 onClick={handleConfirmAndExecutePromotion}
-                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 text-xs font-black transition-colors shadow-sm cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-5 py-2.5 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white text-xs font-black transition-colors shadow-sm cursor-pointer flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Check className="w-4 h-4" />
                 <span>{isSubmitting ? 'جاري تنفيذ وحفظ الترحيل...' : 'تأكيد وتنفيذ عملية الترحيل نهائياً'}</span>
@@ -1683,11 +1683,11 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
 
       {/* Modal: Inline Add Academic Year */}
       {isAddYearModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in" dir="rtl">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl flex flex-col gap-4 text-slate-900 dark:text-white">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in" dir="rtl">
+          <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[16px] max-w-md w-full p-6 shadow-2xl flex flex-col gap-4 text-[#1E293B] dark:text-[#E2E8F0]">
+            <div className="flex items-center justify-between pb-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
               <h3 className="text-base font-bold flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+                <Calendar className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA]" />
                 <span>إنشاء عام دراسي جديد للترحيل</span>
               </h3>
               <button
@@ -1696,14 +1696,14 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
                   setIsAddYearModalOpen(false);
                   setAddYearError(null);
                 }}
-                className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer p-1"
+                className="text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] rounded-lg cursor-pointer p-1"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">اسم العام الدراسي الجديد (مثال: 2027–2028)</label>
+              <label className="text-xs font-bold text-[#475569] dark:text-[#A8B5C7]">اسم العام الدراسي الجديد (مثال: 2027–2028)</label>
               <input
                 type="text"
                 value={newYearName}
@@ -1712,23 +1712,23 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
                   if (addYearError) setAddYearError(null);
                 }}
                 placeholder="2027–2028"
-                className="w-full h-10 px-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-hidden focus:border-emerald-600 dark:focus:border-emerald-400"
+                className="w-full h-10 px-3 bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-sm font-bold text-[#1E293B] dark:text-[#E2E8F0] placeholder:text-[#64748B] dark:placeholder:text-[#8493A8] focus:outline-hidden focus:border-[#2785F5]"
               />
-              {addYearError && <span className="text-xs text-rose-700 dark:text-rose-400 font-bold">{addYearError}</span>}
+              {addYearError && <span className="text-xs text-[#C83D4B] dark:text-[#E35D6A] font-bold">{addYearError}</span>}
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-2 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex items-center justify-end gap-3 pt-2 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
               <button
                 type="button"
                 onClick={() => setIsAddYearModalOpen(false)}
-                className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] text-xs font-bold transition-colors cursor-pointer"
               >
                 إلغاء
               </button>
               <button
                 type="button"
                 onClick={handleCreateAcademicYear}
-                className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 text-xs font-black transition-colors shadow-sm cursor-pointer"
+                className="px-5 py-2 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white text-xs font-black transition-colors shadow-sm cursor-pointer"
               >
                 إنشاء العام الدراسي
               </button>
@@ -1739,11 +1739,11 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
 
       {/* Modal: Inline Add Section to Target Class */}
       {isAddSectionModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 dark:bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in" dir="rtl">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl flex flex-col gap-4 text-slate-900 dark:text-white">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in" dir="rtl">
+          <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[16px] max-w-md w-full p-6 shadow-2xl flex flex-col gap-4 text-[#1E293B] dark:text-[#E2E8F0]">
+            <div className="flex items-center justify-between pb-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
               <h3 className="text-base font-bold flex items-center gap-2">
-                <Layers className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+                <Layers className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA]" />
                 <span>إضافة شعبة جديدة للصف ({targetClassObj?.name})</span>
               </h3>
               <button
@@ -1752,14 +1752,14 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
                   setIsAddSectionModalOpen(false);
                   setAddSectionError(null);
                 }}
-                className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer p-1"
+                className="text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] rounded-lg cursor-pointer p-1"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">اسم الشعبة (مثال: أ، ب، ج، د)</label>
+              <label className="text-xs font-bold text-[#475569] dark:text-[#A8B5C7]">اسم الشعبة (مثال: أ، ب، ج، د)</label>
               <input
                 type="text"
                 value={newSectionName}
@@ -1768,23 +1768,23 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
                   if (addSectionError) setAddSectionError(null);
                 }}
                 placeholder="أ"
-                className="w-full h-10 px-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-hidden focus:border-emerald-600 dark:focus:border-emerald-400"
+                className="w-full h-10 px-3 bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-sm font-bold text-[#1E293B] dark:text-[#E2E8F0] placeholder:text-[#64748B] dark:placeholder:text-[#8493A8] focus:outline-hidden focus:border-[#2785F5]"
               />
-              {addSectionError && <span className="text-xs text-rose-700 dark:text-rose-400 font-bold">{addSectionError}</span>}
+              {addSectionError && <span className="text-xs text-[#C83D4B] dark:text-[#E35D6A] font-bold">{addSectionError}</span>}
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-2 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex items-center justify-end gap-3 pt-2 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
               <button
                 type="button"
                 onClick={() => setIsAddSectionModalOpen(false)}
-                className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] text-xs font-bold transition-colors cursor-pointer"
               >
                 إلغاء
               </button>
               <button
                 type="button"
                 onClick={handleCreateSection}
-                className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 text-xs font-black transition-colors shadow-sm cursor-pointer"
+                className="px-5 py-2 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white text-xs font-black transition-colors shadow-sm cursor-pointer"
               >
                 إضافة الشعبة
               </button>

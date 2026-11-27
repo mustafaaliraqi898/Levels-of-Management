@@ -150,14 +150,14 @@ export default function App() {
   // Database Error View
   if (dbError) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex items-center justify-center p-6 text-center transition-colors duration-200" dir="rtl">
-        <div className="max-w-md w-full bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-500/30 p-8 rounded-2xl shadow-xl">
-          <div className="w-16 h-16 bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 rounded-full flex items-center justify-center mx-auto mb-6 text-rose-600 dark:text-rose-400 text-2xl font-bold">!</div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-4">خطأ في تهيئة قاعدة البيانات</h1>
-          <p className="text-slate-500 dark:text-slate-400 mb-8">{dbError}</p>
+      <div className="min-h-screen bg-[#F4F6FA] dark:bg-[#111C2A] text-[#1E293B] dark:text-[#E2E8F0] flex items-center justify-center p-6 text-center transition-colors duration-200" dir="rtl">
+        <div className="max-w-md w-full bg-white dark:bg-[#1C2939] border border-[#E35D6A]/40 p-8 rounded-2xl shadow-xl">
+          <div className="w-16 h-16 bg-[#E35D6A]/10 border border-[#E35D6A]/30 rounded-full flex items-center justify-center mx-auto mb-6 text-[#E35D6A] text-2xl font-bold">!</div>
+          <h1 className="text-xl font-bold text-[#1E293B] dark:text-[#E2E8F0] mb-4">خطأ في تهيئة قاعدة البيانات</h1>
+          <p className="text-[#64748B] dark:text-[#A8B5C7] mb-8">{dbError}</p>
           <button 
             onClick={() => window.location.reload()}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 font-bold py-3 rounded-xl transition-all cursor-pointer"
+            className="w-full bg-[#3156C9] hover:bg-[#2749B0] dark:hover:bg-[#3979E6] text-white font-bold py-3 rounded-xl transition-all cursor-pointer"
           >
             إعادة محاولة التشغيل
           </button>
@@ -169,8 +169,8 @@ export default function App() {
   // Loading state
   if (setupRequired === null) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center transition-colors duration-200">
-        <div className="w-10 h-10 border-4 border-emerald-600 dark:border-emerald-400 border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-[#F4F6FA] dark:bg-[#111C2A] flex items-center justify-center transition-colors duration-200">
+        <div className="w-10 h-10 border-4 border-[#3156C9] dark:border-[#60A5FA] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -197,7 +197,7 @@ export default function App() {
 
   return (
     <div
-      className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-row-reverse transition-colors duration-200 print:bg-white print:text-black print:block"
+      className="min-h-screen bg-[#F4F6FA] dark:bg-[#111C2A] text-[#1E293B] dark:text-[#E2E8F0] flex flex-row-reverse transition-colors duration-200 print:bg-white print:text-black print:block"
       dir="rtl"
     >
       {/* Forced Password Change Modal for initial admin login */}

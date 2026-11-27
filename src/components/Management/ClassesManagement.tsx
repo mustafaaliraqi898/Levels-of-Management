@@ -480,10 +480,10 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
         <div
           className={`fixed bottom-6 left-6 z-50 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 border text-sm font-bold animate-in fade-in slide-in-from-bottom duration-200 ${
             toastMessage.type === 'success'
-              ? 'bg-emerald-600 dark:bg-emerald-500 text-white border-emerald-500 dark:border-emerald-400'
+              ? 'bg-[#059669] dark:bg-[#10B981] text-white dark:text-[#0B1420] border-[#10B981]/50'
               : toastMessage.type === 'error'
-              ? 'bg-rose-600 dark:bg-rose-500 text-white border-rose-500 dark:border-rose-400'
-              : 'bg-slate-900 dark:bg-slate-800 text-white border-slate-700'
+              ? 'bg-[#C83D4B] dark:bg-[#E35D6A] text-white dark:text-[#0B1420] border-[#E35D6A]/50'
+              : 'bg-[#1E293B] dark:bg-[#1C2939] text-white border-[#2D3B4D]'
           }`}
         >
           {toastMessage.type === 'success' ? (
@@ -503,22 +503,22 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
       )}
 
       {/* Header Banner */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm dark:shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-5 rounded-2xl shadow-sm dark:shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-50 dark:bg-teal-500/15 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-500/30">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#3156C9]/8 dark:bg-[#2785F5]/12 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/25 dark:border-[#2785F5]/25">
               <Layers className="w-3.5 h-3.5" />
               الهيكل التنظيمي للمدرسة
             </span>
-            <span className="text-slate-500 dark:text-slate-400 text-xs">
-              إجمالي الصفوف: <strong className="text-emerald-700 dark:text-emerald-400 font-mono">{filteredClasses.length}</strong> | إجمالي الشعب: <strong className="text-amber-700 dark:text-amber-400 font-mono">{sections.filter(s => filteredClasses.some(c => c.id === s.classId)).length}</strong>
+            <span className="text-[#64748B] dark:text-[#8493A8] text-xs">
+              إجمالي الصفوف: <strong className="text-[#3156C9] dark:text-[#60A5FA] font-mono tabular-nums">{filteredClasses.length}</strong> | إجمالي الشعب: <strong className="text-[#B45309] dark:text-[#D69B42] font-mono tabular-nums">{sections.filter(s => filteredClasses.some(c => c.id === s.classId)).length}</strong>
             </span>
           </div>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-            <Layers className="w-6 h-6 text-teal-700 dark:text-teal-400" />
+          <h1 className="text-2xl font-black text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2">
+            <Layers className="w-6 h-6 text-[#3156C9] dark:text-[#60A5FA]" />
             إدارة الصفوف والشعب الدراسية
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-1">
             إضافة وإدارة الصفوف والمراحل التعليمية والشعب التابعة لها لكل عام دراسي عبر نافذة منبثقة تفاعلية.
           </p>
         </div>
@@ -530,7 +530,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
               <select
                 value={selectedYearId}
                 onChange={(e) => setSelectedYearId(e.target.value)}
-                className="h-10 px-3 pr-3 pl-8 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-bold focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden appearance-none cursor-pointer"
+                className="h-10 px-3 pr-3 pl-8 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] font-bold focus:border-[#2785F5] focus:outline-hidden appearance-none cursor-pointer"
               >
                 {academicYears.map((y) => (
                   <option key={y.id} value={y.id}>
@@ -538,17 +538,17 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                   </option>
                 ))}
               </select>
-              <ChevronDown className="w-4 h-4 text-slate-500 dark:text-slate-400 absolute left-2.5 top-3 pointer-events-none" />
+              <ChevronDown className="w-4 h-4 text-[#64748B] dark:text-[#8493A8] absolute left-2.5 top-3 pointer-events-none" />
             </div>
           )}
 
           <button
             type="button"
             onClick={() => setIsCopyModalOpen(true)}
-            className="h-10 px-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors shadow-xs"
+            className="h-10 px-3.5 rounded-xl bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors shadow-xs"
             title="نسخ الهيكل التنظيمي للصفوف والمواد من عام دراسي سابق"
           >
-            <Copy className="w-4 h-4 text-teal-700 dark:text-teal-400" />
+            <Copy className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA]" />
             <span>نسخ صفوف من عام سابق</span>
           </button>
 
@@ -563,7 +563,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
               setAddClassError(null);
               setIsAddClassModalOpen(true);
             }}
-            className="h-10 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors shadow-sm"
+            className="h-10 px-4 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors shadow-sm"
           >
             <Plus className="w-4 h-4" />
             <span>إضافة صف دراسي جديد</span>
@@ -572,25 +572,25 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
       </div>
 
       {/* Main Table View: Registered Classes & Sections */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm dark:shadow-lg flex flex-col gap-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-slate-800">
+      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-5 shadow-sm dark:shadow-lg flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
           <div>
-            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <Layers className="w-5 h-5 text-teal-700 dark:text-teal-400" />
+            <h3 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2">
+              <Layers className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" />
               <span>جدول الصفوف والشعب الدراسية المسجلة</span>
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-0.5">
               عرض تفصيلي لصفوف العام الدراسي المحدد مع إمكانية تعديل البيانات، إدارة الشعب، أو الحذف والأرشفة.
             </p>
           </div>
-          <span className="text-xs px-3 py-1 rounded-full bg-teal-50 dark:bg-teal-500/15 border border-teal-200 dark:border-teal-500/30 text-teal-800 dark:text-teal-300 font-mono font-bold self-start sm:self-auto">
+          <span className="text-xs px-3 py-1 rounded-full bg-[#3156C9]/8 dark:bg-[#2785F5]/12 border border-[#3156C9]/25 dark:border-[#2785F5]/25 text-[#3156C9] dark:text-[#60A5FA] font-mono tabular-nums font-bold self-start sm:self-auto">
             {filteredClasses.length} صفوف مسجلة
           </span>
         </div>
 
         {filteredClasses.length === 0 ? (
-          <div className="text-center py-16 text-slate-500 dark:text-slate-400 text-sm flex flex-col items-center justify-center gap-3">
-            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500">
+          <div className="text-center py-16 text-[#64748B] dark:text-[#8493A8] text-sm flex flex-col items-center justify-center gap-3">
+            <div className="p-4 rounded-2xl bg-[#F8FAFC] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[#64748B] dark:text-[#8493A8]">
               <Layers className="w-8 h-8" />
             </div>
             <p>لا توجد صفوف دراسية مسجلة في هذا العام الدراسي.</p>
@@ -605,7 +605,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                 setAddClassError(null);
                 setIsAddClassModalOpen(true);
               }}
-              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors"
+              className="px-4 py-2 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors"
             >
               <Plus className="w-4 h-4" />
               <span>إضافة صف دراسي جديد الآن</span>
@@ -615,7 +615,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
           <div className="overflow-x-auto">
             <table className="w-full text-right border-collapse">
               <thead>
-                <tr className="border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/60">
+                <tr className="border-b border-[#DCE3ED] dark:border-[#2D3B4D] text-xs font-bold text-[#475569] dark:text-[#A8B5C7] bg-[#EDF1F7] dark:bg-[#26364B]">
                   <th className="py-3 px-4 rounded-r-xl">اسم الصف الدراسي</th>
                   <th className="py-3 px-4">المرحلة الدراسية</th>
                   <th className="py-3 px-4">الشعب التابعة</th>
@@ -623,7 +623,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                   <th className="py-3 px-4 text-center rounded-l-xl">الإجراءات</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-xs">
+              <tbody className="divide-y divide-[#DCE3ED] dark:divide-[#2D3B4D] text-xs">
                 {filteredClasses.map((cls) => {
                   const classSections = sections.filter((s) => s.classId === cls.id);
                   const classStudents = students.filter((s) => s.classId === cls.id);
@@ -632,14 +632,14 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                   return (
                     <tr
                       key={cls.id}
-                      className={`hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors ${cls.isArchived ? 'opacity-75 bg-slate-50/70 dark:bg-slate-950/30' : ''}`}
+                      className={`hover:bg-[#F8FAFC] dark:hover:bg-[#202E40] transition-colors ${cls.isArchived ? 'opacity-75 bg-[#F8FAFC] dark:bg-[#111C2A]/40' : ''}`}
                     >
                       {/* Class Name */}
-                      <td className="py-4 px-4 font-black text-slate-900 dark:text-white text-sm">
+                      <td className="py-4 px-4 font-black text-[#1E293B] dark:text-[#E2E8F0] text-sm">
                         <div className="flex items-center gap-2">
                           <span>{cls.name}</span>
                           {cls.isArchived && (
-                            <span className="text-[10px] px-2 py-0.5 rounded font-bold bg-amber-50 dark:bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30 flex items-center gap-1">
+                            <span className="text-[10px] px-2 py-0.5 rounded font-bold bg-[#D69B42]/10 dark:bg-[#D69B42]/15 text-[#B45309] dark:text-[#D69B42] border border-[#D69B42]/30 flex items-center gap-1">
                               <Archive className="w-3 h-3" />
                               مؤرشف
                             </span>
@@ -649,7 +649,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
 
                       {/* Stage */}
                       <td className="py-4 px-4">
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-teal-50 dark:bg-teal-500/15 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-500/30">
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-[#3156C9]/8 dark:bg-[#2785F5]/12 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/25 dark:border-[#2785F5]/25">
                           {cls.stage}
                         </span>
                       </td>
@@ -661,31 +661,31 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                             {classSections.map((sec) => (
                               <span
                                 key={sec.id}
-                                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-mono text-xs"
+                                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-[#EDF1F7] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] font-mono text-xs"
                               >
                                 <span>شعبة {sec.name}</span>
                               </span>
                             ))}
                           </div>
                         ) : (
-                          <span className="text-slate-400 dark:text-slate-500 italic">بدون شعب</span>
+                          <span className="text-[#64748B] dark:text-[#8493A8] italic">بدون شعب</span>
                         )}
                       </td>
 
                       {/* Stats */}
                       <td className="py-4 px-4 text-center">
-                        <div className="flex items-center justify-center gap-3 text-slate-700 dark:text-slate-300 font-medium">
+                        <div className="flex items-center justify-center gap-3 text-[#475569] dark:text-[#A8B5C7] font-medium">
                           <span className="flex items-center gap-1" title="عدد الطلاب">
-                            <Users className="w-3.5 h-3.5 text-teal-700 dark:text-teal-400" />
-                            <span className="font-mono">{classStudents.length}</span>
+                            <Users className="w-3.5 h-3.5 text-[#3156C9] dark:text-[#60A5FA]" />
+                            <span className="font-mono tabular-nums">{classStudents.length}</span>
                           </span>
                           <span className="flex items-center gap-1" title="عدد المواد">
-                            <BookOpen className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
-                            <span className="font-mono">{classSubjects.length}</span>
+                            <BookOpen className="w-3.5 h-3.5 text-[#059669] dark:text-[#10B981]" />
+                            <span className="font-mono tabular-nums">{classSubjects.length}</span>
                           </span>
                           <span className="flex items-center gap-1" title="عدد الشعب">
-                            <FolderPlus className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                            <span className="font-mono">{classSections.length}</span>
+                            <FolderPlus className="w-3.5 h-3.5 text-[#B45309] dark:text-[#D69B42]" />
+                            <span className="font-mono tabular-nums">{classSections.length}</span>
                           </span>
                         </div>
                       </td>
@@ -701,7 +701,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                               setNewSectionNameInput('');
                               setManageSectionError(null);
                             }}
-                            className="px-2.5 py-1.5 rounded-lg bg-teal-50 hover:bg-teal-100 dark:bg-teal-500/15 dark:hover:bg-teal-500/25 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-500/30 font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                            className="px-2.5 py-1.5 rounded-lg bg-[#3156C9]/10 hover:bg-[#3156C9]/15 dark:bg-[#2785F5]/15 dark:hover:bg-[#2785F5]/25 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/25 dark:border-[#2785F5]/30 font-bold flex items-center gap-1 transition-colors cursor-pointer"
                             title="إدارة الشعب التابعة لهذا الصف"
                           >
                             <FolderPlus className="w-3.5 h-3.5" />
@@ -712,7 +712,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                           <button
                             type="button"
                             onClick={() => openEditClassModal(cls)}
-                            className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#475569] dark:text-[#A8B5C7] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] transition-colors cursor-pointer"
                             title="تعديل بيانات الصف"
                           >
                             <Edit3 className="w-4 h-4" />
@@ -722,7 +722,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                           <button
                             type="button"
                             onClick={() => openDeleteClassModal(cls)}
-                            className="p-1.5 rounded-lg bg-slate-100 hover:bg-rose-50 dark:bg-slate-800 dark:hover:bg-rose-500/20 text-slate-600 dark:text-slate-300 hover:text-rose-700 dark:hover:text-rose-400 transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg bg-[#EDF1F7] hover:bg-[#E35D6A]/15 dark:bg-[#26364B] dark:hover:bg-[#E35D6A]/20 text-[#475569] dark:text-[#A8B5C7] hover:text-[#C83D4B] dark:hover:text-[#E35D6A] transition-colors cursor-pointer"
                             title="حذف أو أرشفة الصف"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -743,29 +743,29 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
           ========================================================================= */}
       {isAddClassModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl flex flex-col gap-4 text-slate-900 dark:text-slate-100 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+          <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[16px] w-full max-w-lg p-6 shadow-2xl flex flex-col gap-4 text-[#1E293B] dark:text-[#E2E8F0] max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
               <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400">
+                <div className="p-2 rounded-lg bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border border-[#3156C9]/25 dark:border-[#2785F5]/30 text-[#3156C9] dark:text-[#60A5FA]">
                   <Plus className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">إضافة صف دراسي جديد</h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">أدخل اسم الصف، واسترشد بالتحديد التلقائي أو اختر يدوياً مع تحديد الشعب</p>
+                  <h3 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0]">إضافة صف دراسي جديد</h3>
+                  <p className="text-xs text-[#64748B] dark:text-[#8493A8]">أدخل اسم الصف، واسترشد بالتحديد التلقائي أو اختر يدوياً مع تحديد الشعب</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setIsAddClassModalOpen(false)}
-                className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {addClassError && (
-              <div className="p-3 rounded-lg bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 text-rose-800 dark:text-rose-300 text-xs flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
+              <div className="p-3 rounded-lg bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 border border-[#E35D6A]/30 text-[#C83D4B] dark:text-[#E35D6A] text-xs flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0" />
                 <span>{addClassError}</span>
               </div>
             )}
@@ -773,8 +773,8 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
             <form onSubmit={handleAddClassSubmit} className="flex flex-col gap-4">
               {/* 1. Class Name */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  اسم الصف الدراسي <span className="text-rose-600 dark:text-rose-400">*</span>
+                <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1">
+                  اسم الصف الدراسي <span className="text-[#C83D4B] dark:text-[#E35D6A]">*</span>
                 </label>
                 <input
                   ref={newClassNameInputRef}
@@ -782,20 +782,20 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                   value={newClassName}
                   onChange={(e) => handleNewClassNameChange(e.target.value)}
                   placeholder="مثال: الأول المتوسط، الرابع العلمي، السادس الأدبي"
-                  className="w-full h-10 px-3 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
+                  className="w-full h-10 px-3 text-sm bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] placeholder:text-[#64748B] dark:placeholder:text-[#8493A8] focus:border-[#2785F5] focus:outline-hidden"
                   required
                 />
               </div>
 
               {/* 2. Stage (Auto-detected + 4 Manual Options) */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  المرحلة الدراسية <span className="text-rose-600 dark:text-rose-400">*</span>
+                <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1">
+                  المرحلة الدراسية <span className="text-[#C83D4B] dark:text-[#E35D6A]">*</span>
                 </label>
                 <select
                   value={newClassStage}
                   onChange={(e) => handleNewClassStageChange(e.target.value)}
-                  className="w-full h-10 px-3 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden cursor-pointer font-bold"
+                  className="w-full h-10 px-3 text-sm bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] focus:border-[#2785F5] focus:outline-hidden cursor-pointer font-bold"
                 >
                   {STAGE_OPTIONS.map((opt) => (
                     <option key={opt} value={opt}>
@@ -803,14 +803,14 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                     </option>
                   ))}
                 </select>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                <p className="text-[11px] text-[#64748B] dark:text-[#8493A8] mt-1">
                   يحدد النظام المرحلة تلقائياً بناءً على اسم الصف، ويمكنك تعديلها يدوياً عند الحاجة.
                 </p>
               </div>
 
               {/* 3. Preset Sections Checkboxes */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
+                <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-2">
                   الشعب الدراسية الجاهزة (اختياري)
                 </label>
                 <div className="grid grid-cols-5 gap-2">
@@ -828,11 +828,11 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                         }}
                         className={`h-10 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
                           isChecked
-                            ? 'bg-emerald-50 dark:bg-emerald-500/15 border-emerald-600 dark:border-emerald-400 text-emerald-800 dark:text-emerald-300 shadow-xs'
-                            : 'bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600 hover:text-slate-900 dark:hover:text-white'
+                            ? 'bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border-[#3156C9] dark:border-[#2785F5] text-[#3156C9] dark:text-[#60A5FA] shadow-xs'
+                            : 'bg-[#F8FAFC] dark:bg-[#202E40] border-[#DCE3ED] dark:border-[#2D3B4D] text-[#475569] dark:text-[#A8B5C7] hover:border-[#CBD5E1] dark:hover:border-[#3A4D63] hover:text-[#1E293B] dark:hover:text-[#E2E8F0]'
                         }`}
                       >
-                        {isChecked ? <CheckSquare className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> : <Square className="w-4 h-4 text-slate-400 dark:text-slate-500" />}
+                        {isChecked ? <CheckSquare className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA]" /> : <Square className="w-4 h-4 text-[#64748B] dark:text-[#8493A8]" />}
                         <span>شعبة {sec}</span>
                       </button>
                     );
@@ -842,7 +842,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
 
               {/* 4. Manual Sections Input */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1">
                   إضافة شعب يدوياً (اختياري)
                 </label>
                 <input
@@ -850,25 +850,25 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                   value={manualSectionsInput}
                   onChange={(e) => setManualSectionsInput(e.target.value)}
                   placeholder="مثال: ك، ل، م، شعبة المسائي"
-                  className="w-full h-10 px-3 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
+                  className="w-full h-10 px-3 text-sm bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] placeholder:text-[#64748B] dark:placeholder:text-[#8493A8] focus:border-[#2785F5] focus:outline-hidden"
                 />
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                <p className="text-[11px] text-[#64748B] dark:text-[#8493A8] mt-1">
                   افصل بين أسماء الشعب اليدوية بالفواصل (، أو ,). يمكنك الجمع بين مربعات الاختيار والإدخال اليدوي.
                 </p>
               </div>
 
               {/* 5. Buttons */}
-              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-200 dark:border-slate-800">
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
                 <button
                   type="button"
                   onClick={() => setIsAddClassModalOpen(false)}
-                  className="px-4 py-2 text-xs font-bold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+                  className="px-4 py-2 text-xs font-bold rounded-lg bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] transition-colors cursor-pointer"
                 >
                   إلغاء
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+                  className="px-5 py-2 text-xs font-bold rounded-lg bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
                 >
                   <Plus className="w-4 h-4" />
                   <span>حفظ الصف وإضافة الشعب</span>
@@ -884,38 +884,38 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
           ========================================================================= */}
       {managingClass && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl flex flex-col gap-4 text-slate-900 dark:text-slate-100 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+          <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[16px] w-full max-w-lg p-6 shadow-2xl flex flex-col gap-4 text-[#1E293B] dark:text-[#E2E8F0] max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
               <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-teal-50 dark:bg-teal-500/15 border border-teal-200 dark:border-teal-500/30 text-teal-700 dark:text-teal-400">
+                <div className="p-2 rounded-lg bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border border-[#3156C9]/25 dark:border-[#2785F5]/30 text-[#3156C9] dark:text-[#60A5FA]">
                   <FolderPlus className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">إدارة الشعب الدراسية</h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    الصف: <strong className="text-slate-900 dark:text-white">{managingClass.name}</strong> ({managingClass.stage})
+                  <h3 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0]">إدارة الشعب الدراسية</h3>
+                  <p className="text-xs text-[#64748B] dark:text-[#8493A8]">
+                    الصف: <strong className="text-[#1E293B] dark:text-[#E2E8F0]">{managingClass.name}</strong> ({managingClass.stage})
                   </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setManagingClass(null)}
-                className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Add Section Form inside Modal */}
-            <form onSubmit={handleAddSectionToClass} className="flex flex-col gap-3 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
-              <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                <Plus className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <form onSubmit={handleAddSectionToClass} className="flex flex-col gap-3 p-4 rounded-xl bg-[#F8FAFC] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D]">
+              <h4 className="text-xs font-bold text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-1.5">
+                <Plus className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA]" />
                 <span>إضافة شعبة جديدة لهذا الصف</span>
               </h4>
 
               {manageSectionError && (
-                <div className="p-2.5 rounded-lg bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 text-rose-800 dark:text-rose-300 text-xs flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
+                <div className="p-2.5 rounded-lg bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 border border-[#E35D6A]/30 text-[#C83D4B] dark:text-[#E35D6A] text-xs flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 shrink-0" />
                   <span>{manageSectionError}</span>
                 </div>
               )}
@@ -929,12 +929,12 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                     if (manageSectionError) setManageSectionError(null);
                   }}
                   placeholder="اسم أو رمز الشعبة (مثال: أ، ب، ج)"
-                  className="flex-1 h-10 px-3 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-teal-600 dark:focus:border-teal-400 focus:outline-hidden"
+                  className="flex-1 h-10 px-3 text-xs bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] placeholder:text-[#64748B] dark:placeholder:text-[#8493A8] focus:border-[#2785F5] focus:outline-hidden"
                   required
                 />
                 <button
                   type="submit"
-                  className="h-10 px-4 rounded-lg bg-teal-700 hover:bg-teal-800 text-white dark:bg-teal-400 dark:hover:bg-teal-300 dark:text-slate-950 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm shrink-0"
+                  className="h-10 px-4 rounded-lg bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm shrink-0"
                 >
                   <Plus className="w-4 h-4" />
                   <span>إضافة</span>
@@ -944,9 +944,9 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
 
             {/* Sections List */}
             <div className="flex flex-col gap-2">
-              <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300">الشعب المسجلة حالياً:</h4>
+              <h4 className="text-xs font-bold text-[#475569] dark:text-[#A8B5C7]">الشعب المسجلة حالياً:</h4>
               {sections.filter((s) => s.classId === managingClass.id).length === 0 ? (
-                <div className="p-6 text-center rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-dashed border-slate-300 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400">
+                <div className="p-6 text-center rounded-xl bg-[#F8FAFC] dark:bg-[#202E40] border border-dashed border-[#CBD5E1] dark:border-[#2D3B4D] text-xs text-[#64748B] dark:text-[#8493A8]">
                   لا توجد شعب مسجلة لهذا الصف حتى الآن.
                 </div>
               ) : (
@@ -958,11 +958,11 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                       return (
                         <div
                           key={sec.id}
-                          className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-xs"
+                          className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D] text-xs"
                         >
                           <div className="flex items-center gap-2.5">
-                            <span className="font-black text-slate-900 dark:text-white text-sm">شعبة {sec.name}</span>
-                            <span className="text-[11px] px-2 py-0.5 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-mono">
+                            <span className="font-black text-[#1E293B] dark:text-[#E2E8F0] text-sm">شعبة {sec.name}</span>
+                            <span className="text-[11px] px-2 py-0.5 rounded bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[#475569] dark:text-[#A8B5C7] font-mono tabular-nums">
                               {secStudents.length} طالب
                             </span>
                           </div>
@@ -971,7 +971,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                             <button
                               type="button"
                               onClick={() => openEditSectionModal(sec)}
-                              className="p-1.5 rounded hover:bg-amber-50 dark:hover:bg-amber-500/15 text-slate-500 dark:text-slate-400 hover:text-amber-700 dark:hover:text-amber-300 transition-colors cursor-pointer"
+                              className="p-1.5 rounded hover:bg-[#D69B42]/15 text-[#64748B] dark:text-[#8493A8] hover:text-[#B45309] dark:hover:text-[#D69B42] transition-colors cursor-pointer"
                               title="تعديل اسم الشعبة"
                             >
                               <Edit3 className="w-4 h-4" />
@@ -979,7 +979,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                             <button
                               type="button"
                               onClick={() => openDeleteSectionModal(sec)}
-                              className="p-1.5 rounded hover:bg-rose-50 dark:hover:bg-rose-500/15 text-slate-500 dark:text-slate-400 hover:text-rose-700 dark:hover:text-rose-400 transition-colors cursor-pointer"
+                              className="p-1.5 rounded hover:bg-[#E35D6A]/15 text-[#64748B] dark:text-[#8493A8] hover:text-[#C83D4B] dark:hover:text-[#E35D6A] transition-colors cursor-pointer"
                               title="حذف الشعبة"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -992,11 +992,11 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
               )}
             </div>
 
-            <div className="flex items-center justify-end pt-3 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex items-center justify-end pt-3 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
               <button
                 type="button"
                 onClick={() => setManagingClass(null)}
-                className="px-5 py-2 text-xs font-bold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors cursor-pointer"
+                className="px-5 py-2 text-xs font-bold rounded-lg bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] transition-colors cursor-pointer"
               >
                 إغلاق
               </button>
@@ -1010,51 +1010,51 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
           ========================================================================= */}
       {editingClass && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl flex flex-col gap-4 text-slate-900 dark:text-slate-100">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+          <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[16px] w-full max-w-md p-6 shadow-2xl flex flex-col gap-4 text-[#1E293B] dark:text-[#E2E8F0]">
+            <div className="flex items-center justify-between pb-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
               <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 text-amber-700 dark:text-amber-400">
+                <div className="p-2 rounded-lg bg-[#D69B42]/10 dark:bg-[#D69B42]/15 border border-[#D69B42]/30 text-[#B45309] dark:text-[#D69B42]">
                   <Edit3 className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">تعديل بيانات الصف الدراسي</h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">تحديث اسم الصف والمرحلة الدراسية</p>
+                  <h3 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0]">تعديل بيانات الصف الدراسي</h3>
+                  <p className="text-xs text-[#64748B] dark:text-[#8493A8]">تحديث اسم الصف والمرحلة الدراسية</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setEditingClass(null)}
-                className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {editClassError && (
-              <div className="p-3 rounded-lg bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 text-rose-800 dark:text-rose-300 text-xs flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
+              <div className="p-3 rounded-lg bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 border border-[#E35D6A]/30 text-[#C83D4B] dark:text-[#E35D6A] text-xs flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0" />
                 <span>{editClassError}</span>
               </div>
             )}
 
             <form onSubmit={handleSaveEditClass} className="flex flex-col gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">اسم الصف الدراسي</label>
+                <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1">اسم الصف الدراسي</label>
                 <input
                   type="text"
                   value={editClassName}
                   onChange={(e) => handleEditClassNameChange(e.target.value)}
-                  className="w-full h-10 px-3 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
+                  className="w-full h-10 px-3 text-sm bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] focus:border-[#2785F5] focus:outline-hidden"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">المرحلة الدراسية</label>
+                <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1">المرحلة الدراسية</label>
                 <select
                   value={editClassStage}
                   onChange={(e) => handleEditClassStageChange(e.target.value)}
-                  className="w-full h-10 px-3 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden cursor-pointer font-bold"
+                  className="w-full h-10 px-3 text-sm bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] focus:border-[#2785F5] focus:outline-hidden cursor-pointer font-bold"
                 >
                   {STAGE_OPTIONS.map((opt) => (
                     <option key={opt} value={opt}>
@@ -1064,17 +1064,17 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                 </select>
               </div>
 
-              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-200 dark:border-slate-800">
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
                 <button
                   type="button"
                   onClick={() => setEditingClass(null)}
-                  className="px-4 py-2 text-xs font-bold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+                  className="px-4 py-2 text-xs font-bold rounded-lg bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] transition-colors cursor-pointer"
                 >
                   إلغاء
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+                  className="px-5 py-2 text-xs font-bold rounded-lg bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
                 >
                   <Check className="w-4 h-4" />
                   <span>حفظ التعديلات</span>
@@ -1090,29 +1090,29 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
           ========================================================================= */}
       {deletingClass && deletingClassDetails && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl flex flex-col gap-4 text-slate-900 dark:text-slate-100">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+          <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[16px] w-full max-w-lg p-6 shadow-2xl flex flex-col gap-4 text-[#1E293B] dark:text-[#E2E8F0]">
+            <div className="flex items-center justify-between pb-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
               <div className="flex items-center gap-2">
                 <div
                   className={`p-2 rounded-lg border ${
                     deletingClassDetails.isBlocked
-                      ? 'bg-amber-50 dark:bg-amber-500/15 border-amber-200 dark:border-amber-500/30 text-amber-700 dark:text-amber-400'
-                      : 'bg-rose-50 dark:bg-rose-500/15 border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-400'
+                      ? 'bg-[#D69B42]/10 dark:bg-[#D69B42]/15 border-[#D69B42]/30 text-[#B45309] dark:text-[#D69B42]'
+                      : 'bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 border-[#E35D6A]/30 text-[#C83D4B] dark:text-[#E35D6A]'
                   }`}
                 >
                   <ShieldAlert className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">إدارة حذف وأرشفة الصف الدراسي</h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    الصف: <strong className="text-slate-800 dark:text-slate-200">{deletingClass.name}</strong> ({deletingClass.stage})
+                  <h3 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0]">إدارة حذف وأرشفة الصف الدراسي</h3>
+                  <p className="text-xs text-[#64748B] dark:text-[#8493A8]">
+                    الصف: <strong className="text-[#1E293B] dark:text-[#E2E8F0]">{deletingClass.name}</strong> ({deletingClass.stage})
                   </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setDeletingClass(null)}
-                className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1120,70 +1120,70 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
 
             {deletingClassDetails.isBlocked ? (
               <div className="flex flex-col gap-3">
-                <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs flex flex-col gap-2">
-                  <div className="flex items-center gap-2 font-bold text-amber-800 dark:text-amber-300">
+                <div className="p-4 rounded-xl bg-[#D69B42]/10 dark:bg-[#D69B42]/15 border border-[#D69B42]/30 text-[#1E293B] dark:text-[#E2E8F0] text-xs flex flex-col gap-2">
+                  <div className="flex items-center gap-2 font-bold text-[#B45309] dark:text-[#D69B42]">
                     <ShieldAlert className="w-4 h-4 shrink-0" />
                     <span>يحتوي هذا الصف على سجلات وبيانات مرتبطة بالنظام:</span>
                   </div>
-                  <ul className="list-disc list-inside space-y-1 pr-2 text-slate-700 dark:text-slate-300">
+                  <ul className="list-disc list-inside space-y-1 pr-2 text-[#475569] dark:text-[#A8B5C7]">
                     {deletingClassDetails.sectionsCount > 0 && (
-                      <li>الشعب المسجلة: <strong className="text-amber-800 dark:text-amber-300 font-mono">{deletingClassDetails.sectionsCount}</strong> شعبة</li>
+                      <li>الشعب المسجلة: <strong className="text-[#B45309] dark:text-[#D69B42] font-mono tabular-nums">{deletingClassDetails.sectionsCount}</strong> شعبة</li>
                     )}
                     {deletingClassDetails.studentsCount > 0 && (
-                      <li>الطلاب المقيدون: <strong className="text-amber-800 dark:text-amber-300 font-mono">{deletingClassDetails.studentsCount}</strong> طالب</li>
+                      <li>الطلاب المقيدون: <strong className="text-[#B45309] dark:text-[#D69B42] font-mono tabular-nums">{deletingClassDetails.studentsCount}</strong> طالب</li>
                     )}
                     {deletingClassDetails.subjectsCount > 0 && (
-                      <li>المواد الدراسية: <strong className="text-amber-800 dark:text-amber-300 font-mono">{deletingClassDetails.subjectsCount}</strong> مادة</li>
+                      <li>المواد الدراسية: <strong className="text-[#B45309] dark:text-[#D69B42] font-mono tabular-nums">{deletingClassDetails.subjectsCount}</strong> مادة</li>
                     )}
                     {deletingClassDetails.gradesCount > 0 && (
-                      <li>سجلات الدرجات: <strong className="text-amber-800 dark:text-amber-300 font-mono">{deletingClassDetails.gradesCount}</strong> سجل درجات</li>
+                      <li>سجلات الدرجات: <strong className="text-[#B45309] dark:text-[#D69B42] font-mono tabular-nums">{deletingClassDetails.gradesCount}</strong> سجل درجات</li>
                     )}
                   </ul>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 flex flex-col gap-2">
+                <div className="p-3.5 rounded-xl bg-[#F8FAFC] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D] flex flex-col gap-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
+                    <span className="text-xs font-bold text-[#059669] dark:text-[#10B981] flex items-center gap-1.5">
                       <Archive className="w-4 h-4" />
                       الخيار الأنسب: أرشفة الصف وإغلاقه
                     </span>
                     <button
                       type="button"
                       onClick={handleArchiveClassConfirm}
-                      className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs cursor-pointer transition-colors shadow-xs"
+                      className="px-3 py-1.5 rounded-lg bg-[#D69B42] hover:bg-[#B45309] text-white font-bold text-xs cursor-pointer transition-colors shadow-xs"
                     >
                       أرشفة الصف
                     </button>
                   </div>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                  <p className="text-[11px] text-[#64748B] dark:text-[#8493A8] leading-relaxed">
                     يتم إغلاق الصف وتغيير حالته إلى مؤرشف للمحافظة على التاريخ الأكاديمي وسجلات السنين الماضية دون أي فقدان للبيانات.
                   </p>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 flex flex-col gap-2">
+                <div className="p-3.5 rounded-xl bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 border border-[#E35D6A]/30 flex flex-col gap-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-rose-700 dark:text-rose-400 flex items-center gap-1.5">
+                    <span className="text-xs font-bold text-[#C83D4B] dark:text-[#E35D6A] flex items-center gap-1.5">
                       <Trash2 className="w-4 h-4" />
                       حذف نهائي شامل لكافة البيانات
                     </span>
-                    <label className="flex items-center gap-2 cursor-pointer text-xs text-rose-700 dark:text-rose-300 font-bold">
+                    <label className="flex items-center gap-2 cursor-pointer text-xs text-[#C83D4B] dark:text-[#E35D6A] font-bold">
                       <input
                         type="checkbox"
                         checked={confirmCascadeDelete}
                         onChange={(e) => setConfirmCascadeDelete(e.target.checked)}
-                        className="w-4 h-4 rounded accent-rose-600 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700"
+                        className="w-4 h-4 rounded accent-[#C83D4B] bg-white dark:bg-[#26364B] border-[#DCE3ED] dark:border-[#2D3B4D]"
                       />
                       <span>أنا أتحمل المسؤولية</span>
                     </label>
                   </div>
-                  <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
+                  <p className="text-[11px] text-[#475569] dark:text-[#A8B5C7] leading-relaxed">
                     سيتم حذف الصف وكافة الشعب والطلاب والدرجات والمواد التابعة له نهائياً من قاعدة البيانات داخل معاملة آمنة (Transaction).
                   </p>
                   {confirmCascadeDelete && (
                     <button
                       type="button"
                       onClick={handleCascadeDeleteConfirm}
-                      className="mt-1 w-full py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                      className="mt-1 w-full py-2 rounded-lg bg-[#C83D4B] hover:bg-[#B02E3C] text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-sm"
                     >
                       <Trash2 className="w-4 h-4" />
                       <span>حذف شامل ونهائي لجميع بيانات الصف</span>
@@ -1193,20 +1193,20 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
               </div>
             ) : (
               <div className="flex flex-col gap-3">
-                <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">
-                  هل أنت متأكد من رغبتك في حذف الصف الدراسي «<strong className="text-slate-900 dark:text-white">{deletingClass.name}</strong>» نهائياً من النظام؟
+                <p className="text-sm text-[#475569] dark:text-[#A8B5C7] leading-relaxed">
+                  هل أنت متأكد من رغبتك في حذف الصف الدراسي «<strong className="text-[#1E293B] dark:text-[#E2E8F0]">{deletingClass.name}</strong>» نهائياً من النظام؟
                 </p>
-                <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400">
+                <div className="p-3 rounded-lg bg-[#F8FAFC] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D] text-xs text-[#64748B] dark:text-[#8493A8]">
                   هذا الصف فارغ ولا يحتوي على أي شعب أو طلاب أو مواد مرتبطة به. هذا الإجراء لا يمكن التراجع عنه بعد تنفيذه.
                 </div>
               </div>
             )}
 
-            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
               <button
                 type="button"
                 onClick={() => setDeletingClass(null)}
-                className="px-4 py-2 text-xs font-bold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+                className="px-4 py-2 text-xs font-bold rounded-lg bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] transition-colors cursor-pointer"
               >
                 إلغاء
               </button>
@@ -1215,7 +1215,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                 <button
                   type="button"
                   onClick={handleDeleteClassConfirm}
-                  className="px-5 py-2 text-xs font-bold rounded-lg bg-rose-600 hover:bg-rose-700 text-white flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+                  className="px-5 py-2 text-xs font-bold rounded-lg bg-[#C83D4B] hover:bg-[#B02E3C] text-white flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
                 >
                   <Trash2 className="w-4 h-4" />
                   <span>تأكيد حذف الصف</span>
@@ -1230,37 +1230,37 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
           MODAL 5: Edit Section (تعديل اسم أو رمز الشعبة)
           ========================================================================= */}
       {editingSection && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/70 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl flex flex-col gap-4 text-slate-900 dark:text-slate-100">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[16px] w-full max-w-md p-6 shadow-2xl flex flex-col gap-4 text-[#1E293B] dark:text-[#E2E8F0]">
+            <div className="flex items-center justify-between pb-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
               <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 text-amber-700 dark:text-amber-400">
+                <div className="p-2 rounded-lg bg-[#D69B42]/10 dark:bg-[#D69B42]/15 border border-[#D69B42]/30 text-[#B45309] dark:text-[#D69B42]">
                   <Edit3 className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">تعديل الشعبة</h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">تعديل اسم أو رمز الشعبة الدراسية</p>
+                  <h3 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0]">تعديل الشعبة</h3>
+                  <p className="text-xs text-[#64748B] dark:text-[#8493A8]">تعديل اسم أو رمز الشعبة الدراسية</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setEditingSection(null)}
-                className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {editSectionError && (
-              <div className="p-3 rounded-lg bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 text-rose-800 dark:text-rose-300 text-xs flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
+              <div className="p-3 rounded-lg bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 border border-[#E35D6A]/30 text-[#C83D4B] dark:text-[#E35D6A] text-xs flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0" />
                 <span>{editSectionError}</span>
               </div>
             )}
 
             <form onSubmit={handleSaveEditSection} className="flex flex-col gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">اسم أو رمز الشعبة</label>
+                <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1">اسم أو رمز الشعبة</label>
                 <input
                   type="text"
                   value={editSectionName}
@@ -1268,22 +1268,22 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                     setEditSectionName(e.target.value);
                     if (editSectionError) setEditSectionError(null);
                   }}
-                  className="w-full h-10 px-3 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
+                  className="w-full h-10 px-3 text-sm bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] focus:border-[#2785F5] focus:outline-hidden"
                   required
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-200 dark:border-slate-800">
+              <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
                 <button
                   type="button"
                   onClick={() => setEditingSection(null)}
-                  className="px-4 py-2 text-xs font-bold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+                  className="px-4 py-2 text-xs font-bold rounded-lg bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] transition-colors cursor-pointer"
                 >
                   إلغاء
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+                  className="px-5 py-2 text-xs font-bold rounded-lg bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
                 >
                   <Check className="w-4 h-4" />
                   <span>حفظ التعديل</span>
@@ -1298,15 +1298,15 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
           MODAL 6: Delete Section (حذف الشعبة مع التحقق الآمن)
           ========================================================================= */}
       {deletingSection && deletingSectionDetails && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/70 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl flex flex-col gap-4 text-slate-900 dark:text-slate-100">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[16px] w-full max-w-lg p-6 shadow-2xl flex flex-col gap-4 text-[#1E293B] dark:text-[#E2E8F0]">
+            <div className="flex items-center justify-between pb-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
               <div className="flex items-center gap-2">
                 <div
                   className={`p-2 rounded-lg border ${
                     deletingSectionDetails.isBlocked
-                      ? 'bg-amber-50 dark:bg-amber-500/15 border-amber-200 dark:border-amber-500/30 text-amber-700 dark:text-amber-400'
-                      : 'bg-rose-50 dark:bg-rose-500/15 border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-400'
+                      ? 'bg-[#D69B42]/10 dark:bg-[#D69B42]/15 border-[#D69B42]/30 text-[#B45309] dark:text-[#D69B42]'
+                      : 'bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 border-[#E35D6A]/30 text-[#C83D4B] dark:text-[#E35D6A]'
                   }`}
                 >
                   {deletingSectionDetails.isBlocked ? (
@@ -1316,19 +1316,19 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                   )}
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  <h3 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0]">
                     {deletingSectionDetails.isBlocked ? 'تعذر حذف الشعبة الدراسية' : 'تأكيد حذف الشعبة'}
                   </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    شعبة: <strong className="text-slate-800 dark:text-slate-200">{deletingSection.name}</strong> - صف:{' '}
-                    <strong className="text-slate-800 dark:text-slate-200">{deletingSectionDetails.parentClass?.name || ''}</strong>
+                  <p className="text-xs text-[#64748B] dark:text-[#8493A8]">
+                    شعبة: <strong className="text-[#1E293B] dark:text-[#E2E8F0]">{deletingSection.name}</strong> - صف:{' '}
+                    <strong className="text-[#1E293B] dark:text-[#E2E8F0]">{deletingSectionDetails.parentClass?.name || ''}</strong>
                   </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setDeletingSection(null)}
-                className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1336,18 +1336,18 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
 
             {deletingSectionDetails.isBlocked ? (
               <div className="flex flex-col gap-3">
-                <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs flex flex-col gap-2">
-                  <div className="flex items-center gap-2 font-bold text-amber-800 dark:text-amber-300">
+                <div className="p-4 rounded-xl bg-[#D69B42]/10 dark:bg-[#D69B42]/15 border border-[#D69B42]/30 text-[#1E293B] dark:text-[#E2E8F0] text-xs flex flex-col gap-2">
+                  <div className="flex items-center gap-2 font-bold text-[#B45309] dark:text-[#D69B42]">
                     <ShieldAlert className="w-4 h-4 shrink-0" />
                     <span>لا يمكن حذف هذه الشعبة لوجود طلاب وسجلات مسجلة بها:</span>
                   </div>
-                  <ul className="list-disc list-inside space-y-1 pr-2 text-slate-700 dark:text-slate-300">
+                  <ul className="list-disc list-inside space-y-1 pr-2 text-[#475569] dark:text-[#A8B5C7]">
                     <li>
-                      عدد الطلاب المسجلين حالياً: <strong className="text-amber-800 dark:text-amber-300 font-mono">{deletingSectionDetails.studentsCount}</strong> طالب
+                      عدد الطلاب المسجلين حالياً: <strong className="text-[#B45309] dark:text-[#D69B42] font-mono tabular-nums">{deletingSectionDetails.studentsCount}</strong> طالب
                     </li>
                     {deletingSectionDetails.gradesCount > 0 && (
                       <li>
-                        سجلات الدرجات المسجلة في الشعبة: <strong className="text-amber-800 dark:text-amber-300 font-mono">{deletingSectionDetails.gradesCount}</strong> سجل
+                        سجلات الدرجات المسجلة في الشعبة: <strong className="text-[#B45309] dark:text-[#D69B42] font-mono tabular-nums">{deletingSectionDetails.gradesCount}</strong> سجل
                       </li>
                     )}
                   </ul>
@@ -1355,20 +1355,20 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
               </div>
             ) : (
               <div className="flex flex-col gap-3">
-                <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">
-                  هل أنت متأكد من رغبتك في حذف الشعبة «<strong className="text-slate-900 dark:text-white">{deletingSection.name}</strong>» نهائياً؟
+                <p className="text-sm text-[#475569] dark:text-[#A8B5C7] leading-relaxed">
+                  هل أنت متأكد من رغبتك في حذف الشعبة «<strong className="text-[#1E293B] dark:text-[#E2E8F0]">{deletingSection.name}</strong>» نهائياً؟
                 </p>
-                <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400">
+                <div className="p-3 rounded-lg bg-[#F8FAFC] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D] text-xs text-[#64748B] dark:text-[#8493A8]">
                   هذه الشعبة لا تحتوي على أي طلاب أو درجات مسجلة، ويمكن حذفها بأمان تام.
                 </div>
               </div>
             )}
 
-            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
               <button
                 type="button"
                 onClick={() => setDeletingSection(null)}
-                className="px-4 py-2 text-xs font-bold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+                className="px-4 py-2 text-xs font-bold rounded-lg bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] transition-colors cursor-pointer"
               >
                 {deletingSectionDetails.isBlocked ? 'إغلاق' : 'إلغاء'}
               </button>
@@ -1377,7 +1377,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                 <button
                   type="button"
                   onClick={handleDeleteSectionConfirm}
-                  className="px-5 py-2 text-xs font-bold rounded-lg bg-rose-600 hover:bg-rose-700 text-white flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+                  className="px-5 py-2 text-xs font-bold rounded-lg bg-[#C83D4B] hover:bg-[#B02E3C] text-white flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
                 >
                   <Trash2 className="w-4 h-4" />
                   <span>تأكيد حذف الشعبة</span>

@@ -43,28 +43,28 @@ export const SetupWizard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex items-center justify-center p-4 transition-colors duration-200" dir="rtl">
-      <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-500">
+    <div className="min-h-screen bg-[#F4F6FA] dark:bg-[#111C2A] text-[#1E293B] dark:text-[#E2E8F0] flex items-center justify-center p-4 transition-colors duration-200" dir="rtl">
+      <div className="max-w-md w-full bg-white dark:bg-[#1C2939] rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-500">
         <div className="p-8">
           <div className="flex justify-center mb-6">
-            <div className="bg-emerald-50 dark:bg-emerald-400/15 p-4 rounded-full border border-emerald-200 dark:border-emerald-400/30">
-              <ShieldCheck className="w-12 h-12 text-emerald-600 dark:text-emerald-400" />
+            <div className="bg-[#3156C9]/10 dark:bg-[#60A5FA]/15 p-4 rounded-2xl border border-[#3156C9]/25 dark:border-[#60A5FA]/30">
+              <ShieldCheck className="w-12 h-12 text-[#3156C9] dark:text-[#60A5FA]" />
             </div>
           </div>
 
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 text-center mb-2">إعداد النظام لأول مرة</h1>
-          <p className="text-slate-500 dark:text-slate-400 text-center mb-8">يرجى إنشاء حساب المدير الرئيسي للبدء في استخدام التطبيق.</p>
+          <h1 className="text-2xl font-bold text-[#1E293B] dark:text-[#E2E8F0] text-center mb-2">إعداد النظام لأول مرة</h1>
+          <p className="text-[#64748B] dark:text-[#A8B5C7] text-center mb-8">يرجى إنشاء حساب المدير الرئيسي للبدء في استخدام التطبيق.</p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">اسم المستخدم للمدير</label>
+              <label className="block text-sm font-medium text-[#1E293B] dark:text-[#E2E8F0] mb-2">اسم المستخدم للمدير</label>
               <div className="relative">
-                <User className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
+                <User className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B] dark:text-[#8493A8]" />
                 <input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-3 pr-11 pl-4 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-emerald-600/25 dark:focus:ring-emerald-400/25 focus:border-emerald-600 dark:focus:border-emerald-400 outline-none transition-all"
+                  className="w-full bg-[#EDF1F7] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[10px] py-3 pr-11 pl-4 text-[#1E293B] dark:text-[#E2E8F0] focus:ring-2 focus:ring-[#2785F5]/25 focus:border-[#2785F5] outline-none transition-all"
                   placeholder="مثال: admin"
                   required
                 />
@@ -72,14 +72,14 @@ export const SetupWizard: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">كلمة المرور</label>
+              <label className="block text-sm font-medium text-[#1E293B] dark:text-[#E2E8F0] mb-2">كلمة المرور</label>
               <div className="relative">
-                <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
+                <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B] dark:text-[#8493A8]" />
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-3 pr-11 pl-4 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-emerald-600/25 dark:focus:ring-emerald-400/25 focus:border-emerald-600 dark:focus:border-emerald-400 outline-none transition-all"
+                  className="w-full bg-[#EDF1F7] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[10px] py-3 pr-11 pl-4 text-[#1E293B] dark:text-[#E2E8F0] focus:ring-2 focus:ring-[#2785F5]/25 focus:border-[#2785F5] outline-none transition-all"
                   placeholder="••••••••"
                   required
                 />
@@ -87,14 +87,14 @@ export const SetupWizard: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">تأكيد كلمة المرور</label>
+              <label className="block text-sm font-medium text-[#1E293B] dark:text-[#E2E8F0] mb-2">تأكيد كلمة المرور</label>
               <div className="relative">
-                <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
+                <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B] dark:text-[#8493A8]" />
                 <input
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-3 pr-11 pl-4 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-emerald-600/25 dark:focus:ring-emerald-400/25 focus:border-emerald-600 dark:focus:border-emerald-400 outline-none transition-all"
+                  className="w-full bg-[#EDF1F7] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[10px] py-3 pr-11 pl-4 text-[#1E293B] dark:text-[#E2E8F0] focus:ring-2 focus:ring-[#2785F5]/25 focus:border-[#2785F5] outline-none transition-all"
                   placeholder="••••••••"
                   required
                 />
@@ -102,7 +102,7 @@ export const SetupWizard: React.FC = () => {
             </div>
 
             {error && (
-              <div className="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 rounded-xl p-4 flex items-start gap-3 text-rose-700 dark:text-rose-400 text-sm animate-shake">
+              <div className="bg-[#E35D6A]/10 border border-[#E35D6A]/35 rounded-xl p-4 flex items-start gap-3 text-[#C83D4B] dark:text-[#E35D6A] text-sm animate-shake">
                 <AlertCircle className="w-5 h-5 shrink-0" />
                 <p>{error}</p>
               </div>
@@ -111,7 +111,7 @@ export const SetupWizard: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 disabled:opacity-50 font-bold py-4 rounded-xl shadow-lg shadow-emerald-600/20 dark:shadow-emerald-400/15 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full bg-[#3156C9] hover:bg-[#2749B0] dark:hover:bg-[#3979E6] text-white disabled:opacity-50 font-bold py-3.5 rounded-[10px] shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               {loading ? (
                 <Loader2 className="w-6 h-6 animate-spin" />
@@ -122,8 +122,8 @@ export const SetupWizard: React.FC = () => {
           </form>
         </div>
 
-        <div className="bg-slate-50 dark:bg-slate-950/60 p-6 border-t border-slate-200 dark:border-slate-800">
-          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed text-center">
+        <div className="bg-[#F4F6FA] dark:bg-[#202E40] p-6 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
+          <p className="text-xs text-[#64748B] dark:text-[#A8B5C7] leading-relaxed text-center">
             ملاحظة: هذا الحساب يمتلك كامل الصلاحيات لإدارة النظام، يرجى حفظ بيانات الدخول في مكان آمن.
           </p>
         </div>

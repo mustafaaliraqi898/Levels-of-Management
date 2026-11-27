@@ -428,8 +428,8 @@ export const GradeTable: React.FC<GradeTableProps> = ({
       <div
         className={`h-full transition-all duration-150 ${
           resizingCol === colKey
-            ? 'w-1 bg-emerald-600 dark:bg-emerald-400 shadow-sm shadow-emerald-500/40'
-            : 'w-0.5 bg-slate-300 dark:bg-slate-700 group-hover/handle:w-1 group-hover/handle:bg-emerald-600 dark:group-hover/handle:bg-emerald-400'
+            ? 'w-1 bg-[#3156C9] dark:bg-[#2785F5] shadow-sm shadow-[#2785F5]/40'
+            : 'w-0.5 bg-[#DCE3ED] dark:bg-[#2D3B4D] group-hover/handle:w-1 group-hover/handle:bg-[#3156C9] dark:group-hover/handle:bg-[#2785F5]'
         }`}
       />
     </div>
@@ -718,10 +718,10 @@ export const GradeTable: React.FC<GradeTableProps> = ({
           key={field}
           data-col={widthKey}
           style={cellWidthStyle}
-          className={`p-2 text-center font-sans text-xs border-b border-l border-slate-200 dark:border-slate-800 select-none cursor-not-allowed ${
+          className={`p-2 text-center font-sans text-xs border-b border-l border-[#DCE3ED] dark:border-[#2D3B4D] select-none cursor-not-allowed ${
             exStatus.isGeneral
-              ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300'
-              : 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300'
+              ? 'bg-[#10B981]/10 text-[#059669] dark:text-[#10B981]'
+              : 'bg-[#2785F5]/10 text-[#3156C9] dark:text-[#60A5FA]'
           }`}
           title={
             score !== null && score !== undefined
@@ -730,7 +730,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
           }
         >
           <div className="flex items-center justify-center gap-1.5 font-bold">
-            <Lock className={`w-3.5 h-3.5 shrink-0 ${exStatus.isGeneral ? 'text-emerald-600 dark:text-emerald-400' : 'text-blue-600 dark:text-blue-400'}`} />
+            <Lock className={`w-3.5 h-3.5 shrink-0 ${exStatus.isGeneral ? 'text-[#059669] dark:text-[#10B981]' : 'text-[#3156C9] dark:text-[#60A5FA]'}`} />
             <span className="font-black text-xs">
               {labelText}
             </span>
@@ -744,7 +744,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
         <td
           key={field}
           style={cellWidthStyle}
-          className="p-1 bg-emerald-50/70 dark:bg-slate-800 ring-2 ring-emerald-600 dark:ring-emerald-400 relative z-[15] border-b border-l border-slate-200 dark:border-slate-800"
+          className="p-1 bg-[#2785F5]/10 ring-2 ring-[#2785F5] relative z-[15] border-b border-l border-[#DCE3ED] dark:border-[#2D3B4D]"
         >
           <div className="relative">
             <input
@@ -765,12 +765,12 @@ export const GradeTable: React.FC<GradeTableProps> = ({
                   await handleSave('none');
                 }
               }}
-              className="w-full h-10 px-3 text-center font-mono text-base font-bold bg-white dark:bg-slate-900 border border-emerald-600 dark:border-emerald-400 rounded text-emerald-700 dark:text-emerald-300 focus:outline-hidden"
+              className="w-full h-10 px-3 text-center font-mono tabular-nums text-base font-bold bg-white dark:bg-[#111C2A] border border-[#2785F5] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] focus:outline-hidden"
               placeholder={`0 - ${maxScore}`}
               dir="ltr"
             />
             {inputError && (
-              <div className="absolute top-full right-0 mt-1 z-30 bg-rose-50 dark:bg-rose-950 text-rose-700 dark:text-rose-300 text-xs px-2.5 py-1.5 rounded border border-rose-300 dark:border-rose-700 shadow-xl whitespace-nowrap flex items-center gap-1.5 animate-in fade-in">
+              <div className="absolute top-full right-0 mt-1 z-30 bg-[#E35D6A]/15 backdrop-blur-xs text-[#C83D4B] dark:text-[#E35D6A] text-xs px-2.5 py-1.5 rounded-lg border border-[#E35D6A]/40 shadow-xl whitespace-nowrap flex items-center gap-1.5 animate-in fade-in">
                 <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                 <span>{inputError}</span>
               </div>
@@ -789,11 +789,11 @@ export const GradeTable: React.FC<GradeTableProps> = ({
             key={field}
             data-col={widthKey}
             style={cellWidthStyle}
-            className="p-2 text-center font-mono text-xs border-b border-l border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-950/60 text-slate-400 dark:text-slate-500 select-none cursor-not-allowed"
+            className="p-2 text-center font-mono text-xs border-b border-l border-[#DCE3ED] dark:border-[#2D3B4D] bg-[#F8FAFC] dark:bg-[#111C2A]/60 text-[#64748B] dark:text-[#8493A8] select-none cursor-not-allowed"
             title={eligibility.reason}
           >
-            <div className="flex items-center justify-center gap-1.5 opacity-75">
-              <Lock className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
+            <div className="flex items-center justify-center gap-1.5 opacity-80">
+              <Lock className="w-3.5 h-3.5 text-[#64748B] dark:text-[#8493A8] shrink-0" />
               <span className="text-[11px] font-sans truncate max-w-[110px]">
                 {eligibility.reason.replace('مغلق: ', '')}
               </span>
@@ -812,14 +812,14 @@ export const GradeTable: React.FC<GradeTableProps> = ({
         data-empty={isEmpty ? "true" : undefined}
         style={cellWidthStyle}
         onClick={() => startEditing(studentIndex, field)}
-        className={`p-2.5 text-center font-mono text-sm transition-all duration-150 cursor-pointer select-none relative group border-b border-l border-slate-200 dark:border-slate-800 ${
+        className={`p-2.5 text-center font-mono tabular-nums text-sm transition-all duration-150 cursor-pointer select-none relative group border-b border-l border-[#DCE3ED] dark:border-[#2D3B4D] ${
           isEmpty
-            ? 'bg-rose-50/80 dark:bg-rose-950/30 text-rose-700 dark:text-rose-400 hover:bg-rose-100/80 dark:hover:bg-rose-950/50 font-semibold'
+            ? 'bg-[#E35D6A]/10 text-[#C83D4B] dark:text-[#E35D6A] hover:bg-[#E35D6A]/18 font-semibold'
             : isPrimaryForStage
-            ? 'bg-white dark:bg-slate-900 hover:bg-emerald-50/50 dark:hover:bg-slate-800 text-slate-900 dark:text-slate-100 font-bold'
+            ? 'bg-white dark:bg-[#1C2939] hover:bg-[#3156C9]/[0.06] dark:hover:bg-[#2785F5]/12 text-[#1E293B] dark:text-[#E2E8F0] font-bold'
             : isPrevious
-            ? 'bg-slate-50/80 dark:bg-slate-950/40 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/70 font-bold'
-            : 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-bold'
+            ? 'bg-[#F8FAFC] dark:bg-[#202E40]/70 text-[#475569] dark:text-[#A8B5C7] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] font-bold'
+            : 'bg-white dark:bg-[#1C2939] text-[#1E293B] dark:text-[#E2E8F0] font-bold'
         }`}
         title={
           isEmpty
@@ -831,12 +831,12 @@ export const GradeTable: React.FC<GradeTableProps> = ({
       >
         <div className="flex items-center justify-center gap-1.5">
           {isSaved ? (
-            <span className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400 text-xs font-bold animate-pulse">
+            <span className="flex items-center gap-1 text-[#059669] dark:text-[#10B981] text-xs font-bold">
               <Check className="w-4 h-4" />
               <span>{formatScore(score)}</span>
             </span>
           ) : isEmpty ? (
-            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-700/50">
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[#E35D6A]/15 text-[#C83D4B] dark:text-[#E35D6A] border border-[#E35D6A]/30">
               غير مدخلة
             </span>
           ) : (
@@ -844,10 +844,10 @@ export const GradeTable: React.FC<GradeTableProps> = ({
           )}
 
           {isPrevious && !isEmpty && (
-            <Lock className="w-3 h-3 text-slate-400 dark:text-slate-500 opacity-60 group-hover:opacity-100" />
+            <Lock className="w-3 h-3 text-[#64748B] dark:text-[#8493A8] opacity-60 group-hover:opacity-100" />
           )}
           {isPrimaryForStage && (
-            <Edit3 className="w-3 h-3 text-emerald-600 dark:text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <Edit3 className="w-3 h-3 text-[#3156C9] dark:text-[#60A5FA] opacity-0 group-hover:opacity-100 transition-opacity" />
           )}
         </div>
       </td>
@@ -877,10 +877,10 @@ export const GradeTable: React.FC<GradeTableProps> = ({
           key={keySuffix}
           data-col={widthKey}
           style={cellWidthStyle}
-          className="p-2.5 text-center font-sans text-xs font-black border-b border-l border-slate-200 dark:border-slate-800 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300"
+          className="p-2.5 text-center font-sans text-xs font-black border-b border-l border-[#DCE3ED] dark:border-[#2D3B4D] bg-[#10B981]/10 text-[#059669] dark:text-[#10B981]"
           title="معفى عام (لا يتطلب امتحاناً نهائياً)"
         >
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30">
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-[#10B981]/15 text-[#059669] dark:text-[#10B981] border border-[#10B981]/30">
             إعفاء عام
           </span>
         </td>
@@ -893,10 +893,10 @@ export const GradeTable: React.FC<GradeTableProps> = ({
           key={keySuffix}
           data-col={widthKey}
           style={cellWidthStyle}
-          className="p-2.5 text-center font-sans text-xs font-black border-b border-l border-slate-200 dark:border-slate-800 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300"
+          className="p-2.5 text-center font-sans text-xs font-black border-b border-l border-[#DCE3ED] dark:border-[#2D3B4D] bg-[#2785F5]/10 text-[#3156C9] dark:text-[#60A5FA]"
           title="معفى فردي في هذه المادة (لا يتطلب امتحاناً نهائياً)"
         >
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-blue-100 dark:bg-blue-500/20 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-500/30">
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-[#2785F5]/15 text-[#3156C9] dark:text-[#60A5FA] border border-[#2785F5]/30">
             معفى
           </span>
         </td>
@@ -904,10 +904,10 @@ export const GradeTable: React.FC<GradeTableProps> = ({
     }
 
     const colorClasses = isMissing
-      ? 'bg-amber-50/60 dark:bg-amber-950/15 text-amber-700 dark:text-amber-400'
+      ? 'bg-[#D69B42]/10 text-[#B45309] dark:text-[#D69B42]'
       : (decisionGrantInfo?.isGranted ? decisionGrantInfo.scoreAfterDecision : (score ?? 0)) >= settings.passScoreDefault
-      ? 'bg-emerald-50/70 dark:bg-emerald-950/25 text-emerald-700 dark:text-emerald-400'
-      : 'bg-rose-50/70 dark:bg-rose-950/30 text-rose-700 dark:text-rose-400';
+      ? 'bg-[#10B981]/10 text-[#059669] dark:text-[#10B981]'
+      : 'bg-[#E35D6A]/10 text-[#C83D4B] dark:text-[#E35D6A]';
 
     const effectiveScore = decisionGrantInfo?.isGranted ? decisionGrantInfo.scoreAfterDecision : score;
     const isMissingEffective = effectiveScore === null || effectiveScore === undefined;
@@ -918,7 +918,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
         data-col={widthKey}
         data-empty={isMissingEffective ? "true" : undefined}
         style={cellWidthStyle}
-        className={`p-2.5 text-center font-mono text-sm font-bold border-b border-l border-slate-200 dark:border-slate-800 ${colorClasses}`}
+        className={`p-2.5 text-center font-mono tabular-nums text-sm font-bold border-b border-l border-[#DCE3ED] dark:border-[#2D3B4D] ${colorClasses}`}
         title={
           isMissingEffective
             ? `في انتظار اكتمال الدرجات لحساب ${label}`
@@ -928,16 +928,16 @@ export const GradeTable: React.FC<GradeTableProps> = ({
         }
       >
         {isMissingEffective ? (
-          <span className="text-xs text-amber-700 dark:text-amber-400/80 font-sans">
+          <span className="text-xs text-[#B45309] dark:text-[#D69B42] font-sans">
             — ناقصة —
           </span>
         ) : decisionGrantInfo?.isGranted && decisionGrantInfo.originalScore !== effectiveScore ? (
           <div className="relative w-full h-full flex items-center justify-center min-h-[28px]">
-            <span className="text-base font-black text-emerald-700 dark:text-emerald-400 tracking-wide">
+            <span className="text-base font-black text-[#059669] dark:text-[#10B981] tracking-wide">
               {effectiveScore}
             </span>
             <span
-              className="absolute text-[9px] text-rose-700 dark:text-rose-400 font-mono font-bold leading-none select-none bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-800 px-1 rounded"
+              className="absolute text-[9px] text-[#C83D4B] dark:text-[#E35D6A] font-mono font-bold leading-none select-none bg-white dark:bg-[#1C2939] border border-[#E35D6A]/35 px-1 rounded"
               style={{ right: '5px', bottom: '3px' }}
               title={`الدرجة الأصلية قبل القرار: ${decisionGrantInfo.originalScore}`}
             >
@@ -956,9 +956,9 @@ export const GradeTable: React.FC<GradeTableProps> = ({
   return (
     <div className="w-full flex flex-col gap-2">
       {/* Table Helper & Reset Column Widths Bar */}
-      <div className="flex flex-wrap items-center justify-between text-xs text-slate-500 dark:text-slate-400 px-1 py-1">
-        <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
-          <MoveHorizontal className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+      <div className="flex flex-wrap items-center justify-between text-xs text-[#64748B] dark:text-[#8493A8] px-1 py-1">
+        <div className="flex items-center gap-1.5 text-[11px] text-[#64748B] dark:text-[#8493A8]">
+          <MoveHorizontal className="w-3.5 h-3.5 text-[#3156C9] dark:text-[#60A5FA] shrink-0" />
           <span>
             اسحب حواف أي عمود لتغيير عرضه يدوياً كما في Excel (نقر مزدوج على الحافة للضبط التلقائي).
           </span>
@@ -967,16 +967,16 @@ export const GradeTable: React.FC<GradeTableProps> = ({
         <button
           type="button"
           onClick={handleResetAllWidths}
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-[11px] font-bold transition-colors cursor-pointer shadow-xs"
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#EDF1F7] hover:bg-[#DCE3ED] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[11px] font-bold transition-colors cursor-pointer"
           title="استعادة عرض جميع الأعمدة إلى المقاسات القياسية"
         >
-          <RotateCcw className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+          <RotateCcw className="w-3 h-3 text-[#B45309] dark:text-[#D69B42]" />
           <span>إعادة ضبط أبعاد الأعمدة</span>
         </button>
       </div>
 
       {/* Excel Table */}
-      <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+      <div className="overflow-x-auto rounded-xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] shadow-sm">
         <table ref={tableRef} className="w-full border-separate border-spacing-0 text-right select-none">
           {/* Explicit colgroup to enforce dynamic widths */}
           <colgroup>
@@ -1008,7 +1008,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
           </colgroup>
 
           <thead>
-            <tr className="bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
+            <tr className="bg-[#EDF1F7] dark:bg-[#26364B] border-b border-[#DCE3ED] dark:border-[#2D3B4D] text-xs font-bold text-[#1E293B] dark:text-[#E2E8F0] tracking-wide">
               {/* Sticky Column 1: ت (التسلسل) */}
               <th
                 style={{
@@ -1018,7 +1018,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
                   minWidth: `${colWidths.index}px`,
                   maxWidth: `${colWidths.index}px`,
                 }}
-                className="relative p-3 text-center border-b border-l border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold z-[35]"
+                className="relative p-3 text-center border-b border-l border-[#DCE3ED] dark:border-[#2D3B4D] bg-[#EDF1F7] dark:bg-[#26364B] text-[#1E293B] dark:text-[#E2E8F0] font-bold z-[35]"
               >
                 <span>ت</span>
                 {renderResizeHandle('index')}
@@ -1033,11 +1033,11 @@ export const GradeTable: React.FC<GradeTableProps> = ({
                   minWidth: `${colWidths.studentName}px`,
                   maxWidth: `${colWidths.studentName}px`,
                 }}
-                className="relative p-3 text-right border-b border-l-2 border-l-slate-300 dark:border-l-slate-700 border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-bold z-[35] shadow-[-4px_0_10px_-4px_rgba(15,23,42,0.12)] dark:shadow-[-4px_0_10px_-2px_rgba(0,0,0,0.5)]"
+                className="relative p-3 text-right border-b border-l-2 border-l-[#DCE3ED] dark:border-l-[#2D3B4D] border-[#DCE3ED] dark:border-[#2D3B4D] bg-[#EDF1F7] dark:bg-[#26364B] text-[#1E293B] dark:text-[#E2E8F0] font-bold z-[35] shadow-[-4px_0_10px_-4px_rgba(15,23,42,0.12)] dark:shadow-[-4px_0_10px_-2px_rgba(0,0,0,0.5)]"
               >
                 <div className="flex items-center justify-between">
                   <span>اسم الطالب</span>
-                  <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono font-normal">
+                  <span className="text-[10px] text-[#64748B] dark:text-[#8493A8] font-mono font-normal">
                     {colWidths.studentName}px
                   </span>
                 </div>
@@ -1051,14 +1051,14 @@ export const GradeTable: React.FC<GradeTableProps> = ({
                   minWidth: `${colWidths.term1}px`,
                   maxWidth: `${colWidths.term1}px`,
                 }}
-                className={`relative p-3 text-center border-b border-l border-slate-200 dark:border-slate-700 ${
+                className={`relative p-3 text-center border-b border-l border-[#DCE3ED] dark:border-[#2D3B4D] ${
                   currentStage === 'term1'
-                    ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-b-2 border-b-emerald-600 dark:border-b-emerald-400'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                    ? 'bg-[#3156C9]/10 dark:bg-[#2785F5]/20 text-[#3156C9] dark:text-[#60A5FA] border-b-2 border-b-[#3156C9] dark:border-b-[#2785F5]'
+                    : 'bg-[#EDF1F7] dark:bg-[#26364B] text-[#475569] dark:text-[#A8B5C7]'
                 }`}
               >
                 <span>درجة الفصل الأول</span>
-                {currentStage === 'term1' && <span className="block text-[10px] text-emerald-600 dark:text-emerald-400 font-normal">● قيد الإدخال</span>}
+                {currentStage === 'term1' && <span className="block text-[10px] text-[#3156C9] dark:text-[#60A5FA] font-normal">قيد الإدخال</span>}
                 {renderResizeHandle('term1')}
               </th>
 
@@ -1070,14 +1070,14 @@ export const GradeTable: React.FC<GradeTableProps> = ({
                     minWidth: `${colWidths.midterm}px`,
                     maxWidth: `${colWidths.midterm}px`,
                   }}
-                  className={`relative p-3 text-center border-b border-l border-slate-200 dark:border-slate-700 ${
+                  className={`relative p-3 text-center border-b border-l border-[#DCE3ED] dark:border-[#2D3B4D] ${
                     currentStage === 'midterm'
-                      ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-b-2 border-b-emerald-600 dark:border-b-emerald-400'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                      ? 'bg-[#3156C9]/10 dark:bg-[#2785F5]/20 text-[#3156C9] dark:text-[#60A5FA] border-b-2 border-b-[#3156C9] dark:border-b-[#2785F5]'
+                      : 'bg-[#EDF1F7] dark:bg-[#26364B] text-[#475569] dark:text-[#A8B5C7]'
                   }`}
                 >
                   <span>درجة نصف السنة</span>
-                  {currentStage === 'midterm' && <span className="block text-[10px] text-emerald-600 dark:text-emerald-400 font-normal">● قيد الإدخال</span>}
+                  {currentStage === 'midterm' && <span className="block text-[10px] text-[#3156C9] dark:text-[#60A5FA] font-normal">قيد الإدخال</span>}
                   {renderResizeHandle('midterm')}
                 </th>
               )}
@@ -1090,14 +1090,14 @@ export const GradeTable: React.FC<GradeTableProps> = ({
                     minWidth: `${colWidths.term2}px`,
                     maxWidth: `${colWidths.term2}px`,
                   }}
-                  className={`relative p-3 text-center border-b border-l border-slate-200 dark:border-slate-700 ${
+                  className={`relative p-3 text-center border-b border-l border-[#DCE3ED] dark:border-[#2D3B4D] ${
                     currentStage === 'term2'
-                      ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-b-2 border-b-emerald-600 dark:border-b-emerald-400'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                      ? 'bg-[#3156C9]/10 dark:bg-[#2785F5]/20 text-[#3156C9] dark:text-[#60A5FA] border-b-2 border-b-[#3156C9] dark:border-b-[#2785F5]'
+                      : 'bg-[#EDF1F7] dark:bg-[#26364B] text-[#475569] dark:text-[#A8B5C7]'
                   }`}
                 >
                   <span>درجة الفصل الثاني</span>
-                  {currentStage === 'term2' && <span className="block text-[10px] text-emerald-600 dark:text-emerald-400 font-normal">● قيد الإدخال</span>}
+                  {currentStage === 'term2' && <span className="block text-[10px] text-[#3156C9] dark:text-[#60A5FA] font-normal">قيد الإدخال</span>}
                   {renderResizeHandle('term2')}
                 </th>
               )}
@@ -1110,11 +1110,11 @@ export const GradeTable: React.FC<GradeTableProps> = ({
                     minWidth: `${colWidths.termYearly}px`,
                     maxWidth: `${colWidths.termYearly}px`,
                   }}
-                  className="relative p-3 text-center border-b border-l border-slate-200 dark:border-slate-700 bg-teal-50/70 dark:bg-teal-950/30 text-teal-800 dark:text-teal-300"
+                  className="relative p-3 text-center border-b border-l border-[#DCE3ED] dark:border-[#2D3B4D] bg-[#3156C9]/[0.06] dark:bg-[#202E40] text-[#3156C9] dark:text-[#60A5FA]"
                 >
                   <div className="flex flex-col items-center">
                     <span>درجة السعي السنوي</span>
-                    <span className="text-[10px] text-teal-600 dark:text-teal-400 font-normal">(محسوبة تلقائياً ÷3)</span>
+                    <span className="text-[10px] text-[#475569] dark:text-[#A8B5C7] font-normal">(محسوبة تلقائياً ÷3)</span>
                   </div>
                   {renderResizeHandle('termYearly')}
                 </th>
@@ -1128,14 +1128,14 @@ export const GradeTable: React.FC<GradeTableProps> = ({
                     minWidth: `${colWidths.finalExam}px`,
                     maxWidth: `${colWidths.finalExam}px`,
                   }}
-                  className={`relative p-3 text-center border-b border-l border-slate-200 dark:border-slate-700 ${
+                  className={`relative p-3 text-center border-b border-l border-[#DCE3ED] dark:border-[#2D3B4D] ${
                     currentStage === 'final'
-                      ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-b-2 border-b-emerald-600 dark:border-b-emerald-400'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                      ? 'bg-[#3156C9]/10 dark:bg-[#2785F5]/20 text-[#3156C9] dark:text-[#60A5FA] border-b-2 border-b-[#3156C9] dark:border-b-[#2785F5]'
+                      : 'bg-[#EDF1F7] dark:bg-[#26364B] text-[#475569] dark:text-[#A8B5C7]'
                   }`}
                 >
                   <span>درجة الامتحان النهائي</span>
-                  {currentStage === 'final' && <span className="block text-[10px] text-emerald-600 dark:text-emerald-400 font-normal">● قيد الإدخال</span>}
+                  {currentStage === 'final' && <span className="block text-[10px] text-[#3156C9] dark:text-[#60A5FA] font-normal">قيد الإدخال</span>}
                   {renderResizeHandle('finalExam')}
                 </th>
               )}
@@ -1148,11 +1148,11 @@ export const GradeTable: React.FC<GradeTableProps> = ({
                     minWidth: `${colWidths.finalScore}px`,
                     maxWidth: `${colWidths.finalScore}px`,
                   }}
-                  className="relative p-3 text-center border-b border-l border-slate-200 dark:border-slate-700 bg-emerald-50/70 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 font-black"
+                  className="relative p-3 text-center border-b border-l border-[#DCE3ED] dark:border-[#2D3B4D] bg-[#3156C9]/[0.06] dark:bg-[#202E40] text-[#3156C9] dark:text-[#60A5FA] font-black"
                 >
                   <div className="flex flex-col items-center">
                     <span>الدرجة النهائية</span>
-                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-normal">(محسوبة تلقائياً ÷2)</span>
+                    <span className="text-[10px] text-[#475569] dark:text-[#A8B5C7] font-normal">(محسوبة تلقائياً ÷2)</span>
                   </div>
                   {renderResizeHandle('finalScore')}
                 </th>
@@ -1166,10 +1166,10 @@ export const GradeTable: React.FC<GradeTableProps> = ({
                     minWidth: `${colWidths.secondRound}px`,
                     maxWidth: `${colWidths.secondRound}px`,
                   }}
-                  className="relative p-3 text-center border-b border-l border-slate-200 dark:border-slate-700 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-b-2 border-b-emerald-600 dark:border-b-emerald-400"
+                  className="relative p-3 text-center border-b border-l border-[#DCE3ED] dark:border-[#2D3B4D] bg-[#3156C9]/10 dark:bg-[#2785F5]/20 text-[#3156C9] dark:text-[#60A5FA] border-b-2 border-b-[#3156C9] dark:border-b-[#2785F5]"
                 >
                   <span>درجة الإكمال</span>
-                  <span className="block text-[10px] text-emerald-600 dark:text-emerald-400 font-normal">● الدور الثاني</span>
+                  <span className="block text-[10px] text-[#3156C9] dark:text-[#60A5FA] font-normal">الدور الثاني</span>
                   {renderResizeHandle('secondRound')}
                 </th>
               )}
@@ -1182,11 +1182,11 @@ export const GradeTable: React.FC<GradeTableProps> = ({
                     minWidth: `${colWidths.secondRoundFinal}px`,
                     maxWidth: `${colWidths.secondRoundFinal}px`,
                   }}
-                  className="relative p-3 text-center border-b border-l border-slate-200 dark:border-slate-700 bg-purple-50/70 dark:bg-purple-950/30 text-purple-800 dark:text-purple-300 font-black"
+                  className="relative p-3 text-center border-b border-l border-[#DCE3ED] dark:border-[#2D3B4D] bg-[#3156C9]/[0.06] dark:bg-[#202E40] text-[#3156C9] dark:text-[#60A5FA] font-black"
                 >
                   <div className="flex flex-col items-center">
                     <span>النهائية بعد الإكمال</span>
-                    <span className="text-[10px] text-purple-600 dark:text-purple-400 font-normal">(السعي + الإكمال ÷2)</span>
+                    <span className="text-[10px] text-[#475569] dark:text-[#A8B5C7] font-normal">(السعي + الإكمال ÷2)</span>
                   </div>
                   {renderResizeHandle('secondRoundFinal')}
                 </th>
@@ -1199,7 +1199,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
                   minWidth: `${colWidths.notes}px`,
                   maxWidth: `${colWidths.notes}px`,
                 }}
-                className="relative p-3 text-center border-b border-l border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold"
+                className="relative p-3 text-center border-b border-l border-[#DCE3ED] dark:border-[#2D3B4D] bg-[#EDF1F7] dark:bg-[#26364B] text-[#1E293B] dark:text-[#E2E8F0] font-bold"
               >
                 <span>الملاحظات</span>
                 {renderResizeHandle('notes')}
@@ -1210,7 +1210,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
           <tbody>
             {filteredStudents.length === 0 ? (
               <tr>
-                <td colSpan={12} className="text-center py-12 text-slate-500 dark:text-slate-400 text-sm border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                <td colSpan={12} className="text-center py-12 text-[#64748B] dark:text-[#8493A8] text-sm border-b border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939]">
                   {searchQuery ? 'لا توجد نتائج مطابقة لاسم الطالب المبحوث عنه.' : 'لا يوجد طلاب مسجلون في هذه الشعبة.'}
                 </td>
               </tr>
@@ -1274,8 +1274,8 @@ export const GradeTable: React.FC<GradeTableProps> = ({
                 return (
                   <tr
                     key={student.id}
-                    className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group ${
-                      isGeneralExempt ? 'bg-emerald-50/40 dark:bg-emerald-950/20 hover:bg-emerald-50/70 dark:hover:bg-emerald-950/30' : ''
+                    className={`hover:bg-[#3156C9]/[0.04] dark:hover:bg-[#2785F5]/[0.08] transition-colors group ${
+                      isGeneralExempt ? 'bg-[#10B981]/[0.04] hover:bg-[#10B981]/[0.08]' : ''
                     }`}
                   >
                     {/* Sticky Column 1: Index */}
@@ -1287,7 +1287,7 @@ export const GradeTable: React.FC<GradeTableProps> = ({
                         minWidth: `${colWidths.index}px`,
                         maxWidth: `${colWidths.index}px`,
                       }}
-                      className="p-2.5 text-center text-xs text-slate-500 dark:text-slate-400 font-mono border-b border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 group-hover:bg-slate-50 dark:group-hover:bg-slate-800 z-[25] transition-colors"
+                      className="p-2.5 text-center text-xs text-[#64748B] dark:text-[#8493A8] font-mono tabular-nums border-b border-l border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] group-hover:bg-[#F4F6FA] dark:group-hover:bg-[#26364B] z-[25] transition-colors"
                     >
                       {sIdx + 1}
                     </td>
@@ -1301,25 +1301,25 @@ export const GradeTable: React.FC<GradeTableProps> = ({
                         minWidth: `${colWidths.studentName}px`,
                         maxWidth: `${colWidths.studentName}px`,
                       }}
-                      className="p-2.5 border-b border-l-2 border-l-slate-300 dark:border-l-slate-700 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 group-hover:bg-slate-50 dark:group-hover:bg-slate-800 z-[25] shadow-[-4px_0_10px_-4px_rgba(15,23,42,0.12)] dark:shadow-[-4px_0_10px_-2px_rgba(0,0,0,0.5)] transition-colors overflow-hidden"
+                      className="p-2.5 border-b border-l-2 border-l-[#DCE3ED] dark:border-l-[#2D3B4D] border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] group-hover:bg-[#F4F6FA] dark:group-hover:bg-[#26364B] z-[25] shadow-[-4px_0_10px_-4px_rgba(15,23,42,0.12)] dark:shadow-[-4px_0_10px_-2px_rgba(0,0,0,0.5)] transition-colors overflow-hidden"
                     >
                       <div className="flex items-center justify-between gap-2 overflow-hidden">
                         <div className="flex items-center gap-2 truncate flex-1">
                           <span
-                            className="font-bold text-slate-900 dark:text-slate-100 text-sm group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors truncate block"
+                            className="font-bold text-[#1E293B] dark:text-[#E2E8F0] text-sm group-hover:text-[#3156C9] dark:group-hover:text-[#60A5FA] transition-colors truncate block"
                             title={student.name}
                           >
                             {student.name}
                           </span>
                           <StudentStatusBadge status={student.status} />
                           {isGeneralExempt && (
-                            <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30 shrink-0">
+                            <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-[#10B981]/10 text-[#059669] dark:text-[#10B981] border border-[#10B981]/30 shrink-0">
                               إعفاء عام
                             </span>
                           )}
                         </div>
                         <span
-                          className="text-[11px] text-slate-500 font-mono shrink-0"
+                          className="text-[11px] text-[#64748B] dark:text-[#8493A8] font-mono shrink-0"
                           title={`رقم القيد: ${student.registrationNumber || student.seatNumber}`}
                         >
                           {student.registrationNumber ? `قيد: ${student.registrationNumber}` : `#${student.seatNumber}`}
@@ -1418,18 +1418,18 @@ export const GradeTable: React.FC<GradeTableProps> = ({
                             minWidth: `${colWidths.notes}px`,
                             maxWidth: `${colWidths.notes}px`,
                           }}
-                          className="p-2.5 text-center text-xs border-b border-l border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/60 overflow-hidden"
+                          className="p-2.5 text-center text-xs border-b border-l border-[#DCE3ED] dark:border-[#2D3B4D] bg-[#F8FAFC] dark:bg-[#202E40]/60 overflow-hidden"
                         >
                           {notesInfo.isExempt ? (
-                            <span className="font-bold text-emerald-700 dark:text-emerald-400 text-xs px-2 py-1 rounded bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 inline-block truncate max-w-full" title={notesInfo.text}>
+                            <span className="font-bold text-[#059669] dark:text-[#10B981] text-xs px-2 py-1 rounded bg-[#10B981]/10 border border-[#10B981]/30 inline-block truncate max-w-full" title={notesInfo.text}>
                               {notesInfo.text}
                             </span>
                           ) : notesInfo.text ? (
-                            <span className="text-slate-700 dark:text-slate-300 text-xs font-sans truncate block" title={notesInfo.text}>
+                            <span className="text-[#475569] dark:text-[#A8B5C7] text-xs font-sans truncate block" title={notesInfo.text}>
                               {notesInfo.text}
                             </span>
                           ) : (
-                            <span className="text-slate-400 dark:text-slate-600 font-mono">—</span>
+                            <span className="text-[#64748B] dark:text-[#8493A8] font-mono">—</span>
                           )}
                         </td>
                       );

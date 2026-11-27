@@ -595,10 +595,10 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
         <div
           className={`fixed bottom-6 left-6 z-50 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 border text-sm font-bold animate-in fade-in slide-in-from-bottom duration-200 ${
             toastMessage.type === 'success'
-              ? 'bg-emerald-600 dark:bg-emerald-500 text-white border-emerald-500 dark:border-emerald-400'
+              ? 'bg-[#059669] dark:bg-[#10B981] text-white dark:text-[#0B1420] border-[#10B981]/50'
               : toastMessage.type === 'error'
-              ? 'bg-rose-600 dark:bg-rose-500 text-white border-rose-500 dark:border-rose-400'
-              : 'bg-slate-900 dark:bg-slate-800 text-white border-slate-700'
+              ? 'bg-[#C83D4B] dark:bg-[#E35D6A] text-white dark:text-[#0B1420] border-[#E35D6A]/50'
+              : 'bg-[#1C2939] text-[#E2E8F0] border-[#2D3B4D]'
           }`}
         >
           {toastMessage.type === 'success' ? (
@@ -618,22 +618,22 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
       )}
 
       {/* Header Banner & Main Actions */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm dark:shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-5 rounded-2xl shadow-sm dark:shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-50 dark:bg-teal-500/15 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-500/30">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#3156C9]/8 dark:bg-[#2785F5]/12 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/25 dark:border-[#2785F5]/25">
               <Sparkles className="w-3.5 h-3.5" />
               سجل قيد وشؤون الطلاب
             </span>
-            <span className="text-slate-500 dark:text-slate-400 text-xs">
-              إجمالي الطلاب المسجلين: <strong className="text-emerald-700 dark:text-emerald-400 font-mono">{students.length}</strong>
+            <span className="text-[#475569] dark:text-[#A8B5C7] text-xs">
+              إجمالي الطلاب المسجلين: <strong className="text-[#059669] dark:text-[#10B981] font-mono tabular-nums">{students.length}</strong>
             </span>
           </div>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-            <Users className="w-6 h-6 text-teal-700 dark:text-teal-400" />
+          <h1 className="text-2xl font-black text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2">
+            <Users className="w-6 h-6 text-[#3156C9] dark:text-[#60A5FA]" />
             إدارة وسجل الطلاب
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-1">
             إضافة وتعديل بيانات الطلاب، رقم القيد، هاتف الأب، نقل الطلاب بين الشعب، واستيراد القوائم عبر Excel.
           </p>
         </div>
@@ -645,10 +645,10 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
             <button
               type="button"
               onClick={onNavigateToPromotion}
-              className="px-3.5 py-2.5 rounded-xl bg-teal-50 hover:bg-teal-100 dark:bg-teal-500/15 dark:hover:bg-teal-500/25 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-500/30 font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors shadow-xs"
+              className="px-3.5 py-2.5 rounded-xl bg-[#3156C9]/8 hover:bg-[#3156C9]/15 dark:bg-[#2785F5]/12 dark:hover:bg-[#2785F5]/20 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/25 dark:border-[#2785F5]/25 font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors shadow-xs"
               title="ترحيل الطلاب من صف إلى الصف الأعلى للسنة الدراسية الجديدة"
             >
-              <GraduationCap className="w-4 h-4 text-teal-700 dark:text-teal-400" />
+              <GraduationCap className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA]" />
               <span>ترحيل الطلاب للعام الجديد</span>
             </button>
           )}
@@ -657,10 +657,10 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
           <button
             type="button"
             onClick={downloadStudentTemplate}
-            className="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors shadow-xs"
+            className="px-3.5 py-2.5 rounded-xl bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] border border-[#DCE3ED] dark:border-[#2D3B4D] font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors shadow-xs"
             title="تنزيل قالب Excel جاهز ومفرغ لإدخال بيانات الطلاب"
           >
-            <Download className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+            <Download className="w-4 h-4 text-[#059669] dark:text-[#10B981]" />
             <span>تنزيل قالب Excel</span>
           </button>
 
@@ -672,10 +672,10 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
               setParseResult(null);
               setImportedFileName('');
             }}
-            className="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors shadow-xs"
+            className="px-3.5 py-2.5 rounded-xl bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] border border-[#DCE3ED] dark:border-[#2D3B4D] font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors shadow-xs"
             title="استيراد قائمة الطلاب من ملف Excel خارجي"
           >
-            <Upload className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <Upload className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA]" />
             <span>استيراد الطلاب من Excel</span>
           </button>
 
@@ -686,7 +686,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
               setIsAddModalOpen(true);
               setAddError(null);
             }}
-            className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 font-bold text-xs flex items-center gap-2 shadow-sm cursor-pointer transition-colors"
+            className="px-4 py-2.5 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white font-bold text-xs flex items-center gap-2 shadow-sm cursor-pointer transition-colors"
           >
             <Plus className="w-4 h-4" />
             <span>إضافة طالب جديد</span>
@@ -697,17 +697,17 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
             <button
               type="button"
               onClick={() => setIsBulkDeleteModalOpen(true)}
-              className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs flex items-center gap-2 shadow-sm cursor-pointer transition-colors animate-in fade-in zoom-in duration-200"
+              className="px-4 py-2.5 rounded-xl bg-[#C83D4B] hover:bg-[#B02E3C] text-white font-bold text-xs flex items-center gap-2 shadow-sm cursor-pointer transition-colors animate-in fade-in zoom-in duration-200"
             >
               <Trash2 className="w-4 h-4" />
-              <span>حذف المحدّد ({selectedStudentIds.length})</span>
+              <span>حذف المحدّد (<span className="font-mono tabular-nums">{selectedStudentIds.length}</span>)</span>
             </button>
           )}
         </div>
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
+      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-4 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
         {/* Dropdowns */}
         <div className="flex flex-wrap items-center gap-3">
           {/* Academic Year */}
@@ -715,7 +715,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
             <select
               value={selectedYearId}
               onChange={(e) => setSelectedYearId(e.target.value)}
-              className="h-10 px-3 pr-3 pl-8 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-bold focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden appearance-none cursor-pointer"
+              className="h-10 px-3 pr-3 pl-8 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] font-bold focus:border-[#2785F5] focus:outline-hidden appearance-none cursor-pointer"
             >
               {academicYears.map((y) => (
                 <option key={y.id} value={y.id}>
@@ -723,7 +723,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                 </option>
               ))}
             </select>
-            <ChevronDown className="w-4 h-4 text-slate-500 dark:text-slate-400 absolute left-2.5 top-3 pointer-events-none" />
+            <ChevronDown className="w-4 h-4 text-[#64748B] dark:text-[#8493A8] absolute left-2.5 top-3 pointer-events-none" />
           </div>
 
           {/* Class Filter */}
@@ -734,7 +734,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                 setFilterClassId(e.target.value);
                 setFilterSectionId('all');
               }}
-              className="h-10 px-3 pr-3 pl-8 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-bold focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden appearance-none cursor-pointer"
+              className="h-10 px-3 pr-3 pl-8 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] font-bold focus:border-[#2785F5] focus:outline-hidden appearance-none cursor-pointer"
             >
               <option value="all">كل الصفوف الدراسية</option>
               {availableClasses.map((c) => (
@@ -743,7 +743,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                 </option>
               ))}
             </select>
-            <ChevronDown className="w-4 h-4 text-slate-500 dark:text-slate-400 absolute left-2.5 top-3 pointer-events-none" />
+            <ChevronDown className="w-4 h-4 text-[#64748B] dark:text-[#8493A8] absolute left-2.5 top-3 pointer-events-none" />
           </div>
 
           {/* Section Filter */}
@@ -751,7 +751,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
             <select
               value={filterSectionId}
               onChange={(e) => setFilterSectionId(e.target.value)}
-              className="h-10 px-3 pr-3 pl-8 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-bold focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden appearance-none cursor-pointer"
+              className="h-10 px-3 pr-3 pl-8 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] font-bold focus:border-[#2785F5] focus:outline-hidden appearance-none cursor-pointer"
             >
               <option value="all">كل الشعب</option>
               {filterClassId !== 'all' && sections.filter((s) => s.classId === filterClassId).length === 0 && (
@@ -769,7 +769,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                 );
               })}
             </select>
-            <ChevronDown className="w-4 h-4 text-slate-500 dark:text-slate-400 absolute left-2.5 top-3 pointer-events-none" />
+            <ChevronDown className="w-4 h-4 text-[#64748B] dark:text-[#8493A8] absolute left-2.5 top-3 pointer-events-none" />
           </div>
 
           {/* Status Filter */}
@@ -777,13 +777,13 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value as 'all' | 'regular' | 'affiliated')}
-              className="h-10 px-3 pr-3 pl-8 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-bold focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden appearance-none cursor-pointer"
+              className="h-10 px-3 pr-3 pl-8 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] font-bold focus:border-[#2785F5] focus:outline-hidden appearance-none cursor-pointer"
             >
               <option value="all">كل الحالات (الكل)</option>
               <option value="regular">منتظم فقط</option>
               <option value="affiliated">انتساب فقط</option>
             </select>
-            <ChevronDown className="w-4 h-4 text-slate-500 dark:text-slate-400 absolute left-2.5 top-3 pointer-events-none" />
+            <ChevronDown className="w-4 h-4 text-[#64748B] dark:text-[#8493A8] absolute left-2.5 top-3 pointer-events-none" />
           </div>
         </div>
 
@@ -794,14 +794,14 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="بحث بالاسم أو رقم القيد أو هاتف الأب..."
-            className="w-full h-10 pr-9 pl-4 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
+            className="w-full h-10 pr-9 pl-4 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] placeholder:text-[#64748B] dark:placeholder:text-[#8493A8] focus:border-[#2785F5] focus:outline-hidden"
           />
-          <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute right-3 top-3 pointer-events-none" />
+          <Search className="w-4 h-4 text-[#64748B] dark:text-[#8493A8] absolute right-3 top-3 pointer-events-none" />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
-              className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white absolute left-3 top-3 cursor-pointer"
+              className="text-xs text-[#475569] dark:text-[#A8B5C7] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] absolute left-3 top-3 cursor-pointer"
             >
               إلغاء
             </button>
@@ -810,31 +810,31 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
       </div>
 
       {/* Students Data Table */}
-      <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm dark:shadow-xl">
+      <div className="overflow-x-auto rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] shadow-sm dark:shadow-xl">
         <table className="w-full border-collapse text-right text-xs">
           <thead>
-            <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-bold">
-              <th className="p-3 text-center w-12 border-l border-slate-200 dark:border-slate-800">
+            <tr className="bg-[#EDF1F7] dark:bg-[#26364B] border-b border-[#DCE3ED] dark:border-[#2D3B4D] text-[#475569] dark:text-[#A8B5C7] font-bold">
+              <th className="p-3 text-center w-12 border-l border-[#DCE3ED] dark:border-[#2D3B4D]">
                 <input
                   type="checkbox"
                   checked={filteredStudents.length > 0 && selectedStudentIds.length === filteredStudents.length}
                   onChange={handleSelectAll}
-                  className="w-4 h-4 rounded-sm border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 accent-emerald-600 dark:accent-emerald-400 focus:ring-0 cursor-pointer"
+                  className="w-4 h-4 rounded-sm border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#26364B] accent-[#3156C9] dark:accent-[#2785F5] focus:ring-0 cursor-pointer"
                 />
               </th>
-              <th className="p-3 text-center w-14 border-l border-slate-200 dark:border-slate-800">ت</th>
-              <th className="p-3 min-w-[200px] border-l border-slate-200 dark:border-slate-800">اسم الطالب</th>
-              <th className="p-3 w-36 border-l border-slate-200 dark:border-slate-800 font-mono">رقم القيد</th>
-              <th className="p-3 w-40 border-l border-slate-200 dark:border-slate-800 font-mono">رقم هاتف الأب</th>
-              <th className="p-3 w-32 border-l border-slate-200 dark:border-slate-800">الصف</th>
-              <th className="p-3 w-28 border-l border-slate-200 dark:border-slate-800">الشعبة</th>
+              <th className="p-3 text-center w-14 border-l border-[#DCE3ED] dark:border-[#2D3B4D]">ت</th>
+              <th className="p-3 min-w-[200px] border-l border-[#DCE3ED] dark:border-[#2D3B4D]">اسم الطالب</th>
+              <th className="p-3 w-36 border-l border-[#DCE3ED] dark:border-[#2D3B4D] font-mono">رقم القيد</th>
+              <th className="p-3 w-40 border-l border-[#DCE3ED] dark:border-[#2D3B4D] font-mono">رقم هاتف الأب</th>
+              <th className="p-3 w-32 border-l border-[#DCE3ED] dark:border-[#2D3B4D]">الصف</th>
+              <th className="p-3 w-28 border-l border-[#DCE3ED] dark:border-[#2D3B4D]">الشعبة</th>
               <th className="p-3 text-center w-36">الإجراءات</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+          <tbody className="divide-y divide-[#DCE3ED] dark:divide-[#2D3B4D]">
             {filteredStudents.length === 0 ? (
               <tr>
-                <td colSpan={7} className="text-center py-12 text-slate-500 dark:text-slate-400 text-sm">
+                <td colSpan={7} className="text-center py-12 text-[#64748B] dark:text-[#8493A8] text-sm">
                   {searchQuery
                     ? 'لا توجد نتائج مطابقة لمعايير البحث الحالية.'
                     : 'لا يوجد طلاب مسجلون في هذا الصف أو الشعبة. يمكنك إضافة طلاب أو استيرادهم من Excel.'}
@@ -848,60 +848,60 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                 const isSelected = selectedStudentIds.includes(stu.id);
 
                 return (
-                  <tr key={stu.id} className={`hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors group ${isSelected ? 'bg-emerald-50/70 dark:bg-emerald-500/10' : ''}`}>
+                  <tr key={stu.id} className={`hover:bg-[#F8FAFC] dark:hover:bg-[#202E40] transition-colors group ${isSelected ? 'bg-[#3156C9]/8 dark:bg-[#2785F5]/12' : ''}`}>
                     {/* Checkbox */}
-                    <td className="p-3 text-center border-l border-slate-200 dark:border-slate-800">
+                    <td className="p-3 text-center border-l border-[#DCE3ED] dark:border-[#2D3B4D]">
                       <input
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => handleSelectStudent(stu.id)}
-                        className="w-4 h-4 rounded-sm border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 accent-emerald-600 dark:accent-emerald-400 focus:ring-0 cursor-pointer"
+                        className="w-4 h-4 rounded-sm border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#26364B] accent-[#3156C9] dark:accent-[#2785F5] focus:ring-0 cursor-pointer"
                       />
                     </td>
 
                     {/* Index */}
-                    <td className="p-3 text-center font-mono text-slate-500 dark:text-slate-400 border-l border-slate-200 dark:border-slate-800">
+                    <td className="p-3 text-center font-mono tabular-nums text-[#64748B] dark:text-[#8493A8] border-l border-[#DCE3ED] dark:border-[#2D3B4D]">
                       {idx + 1}
                     </td>
 
                     {/* Student Name */}
-                    <td className="p-3 font-bold text-slate-900 dark:text-slate-100 text-sm border-l border-slate-200 dark:border-slate-800">
+                    <td className="p-3 font-bold text-[#1E293B] dark:text-[#E2E8F0] text-sm border-l border-[#DCE3ED] dark:border-[#2D3B4D]">
                       <div className="flex items-center gap-2">
-                        <span className="group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">{stu.name}</span>
+                        <span className="group-hover:text-[#3156C9] dark:group-hover:text-[#60A5FA] transition-colors">{stu.name}</span>
                         <StudentStatusBadge status={stu.status} />
                       </div>
                     </td>
 
                     {/* Registration Number (رقم القيد) */}
-                    <td className="p-3 font-mono font-bold text-amber-700 dark:text-amber-400 border-l border-slate-200 dark:border-slate-800">
+                    <td className="p-3 font-mono tabular-nums font-bold text-[#B45309] dark:text-[#D69B42] border-l border-[#DCE3ED] dark:border-[#2D3B4D]">
                       {stu.registrationNumber || '—'}
                     </td>
 
                     {/* Father Phone (رقم هاتف الأب) */}
-                    <td className="p-3 font-mono text-slate-700 dark:text-slate-300 border-l border-slate-200 dark:border-slate-800">
+                    <td className="p-3 font-mono tabular-nums text-[#475569] dark:text-[#A8B5C7] border-l border-[#DCE3ED] dark:border-[#2D3B4D]">
                       {stu.fatherPhone ? (
                         <div className="flex items-center gap-1.5" dir="ltr">
-                          <Phone className="w-3 h-3 text-slate-400 dark:text-slate-500 shrink-0" />
+                          <Phone className="w-3 h-3 text-[#64748B] dark:text-[#8493A8] shrink-0" />
                           <span>{stu.fatherPhone}</span>
                         </div>
                       ) : (
-                        <span className="text-slate-400 dark:text-slate-500">—</span>
+                        <span className="text-[#64748B] dark:text-[#8493A8]">—</span>
                       )}
                     </td>
 
                     {/* Class */}
-                    <td className="p-3 text-slate-700 dark:text-slate-300 border-l border-slate-200 dark:border-slate-800 font-medium">
+                    <td className="p-3 text-[#475569] dark:text-[#A8B5C7] border-l border-[#DCE3ED] dark:border-[#2D3B4D] font-medium">
                       {studentClass?.name || '—'}
                     </td>
 
                     {/* Section */}
-                    <td className="p-3 text-slate-700 dark:text-slate-300 border-l border-slate-200 dark:border-slate-800">
+                    <td className="p-3 text-[#475569] dark:text-[#A8B5C7] border-l border-[#DCE3ED] dark:border-[#2D3B4D]">
                       {studentSection?.name ? (
-                        <span className="inline-flex px-2 py-0.5 rounded bg-teal-50 dark:bg-teal-500/15 border border-teal-200 dark:border-teal-500/30 text-teal-800 dark:text-teal-300 font-bold">
+                        <span className="inline-flex px-2 py-0.5 rounded bg-[#3156C9]/8 dark:bg-[#2785F5]/12 border border-[#3156C9]/25 dark:border-[#2785F5]/25 text-[#3156C9] dark:text-[#60A5FA] font-bold">
                           شعبة {studentSection.name}
                         </span>
                       ) : (
-                        <span className="inline-flex px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 font-medium text-[11px]">
+                        <span className="inline-flex px-2 py-0.5 rounded bg-[#EDF1F7] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[#64748B] dark:text-[#8493A8] font-medium text-[11px]">
                           بدون شعبة
                         </span>
                       )}
@@ -914,10 +914,10 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                         <button
                           type="button"
                           onClick={() => openEditModal(stu)}
-                          className="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                          className="px-2.5 py-1.5 rounded-lg bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] border border-[#DCE3ED] dark:border-[#2D3B4D] text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors"
                           title="تعديل معلومات الطالب"
                         >
-                          <Edit className="w-3.5 h-3.5 text-teal-700 dark:text-teal-400" />
+                          <Edit className="w-3.5 h-3.5 text-[#3156C9] dark:text-[#60A5FA]" />
                           <span>تعديل</span>
                         </button>
 
@@ -925,10 +925,10 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                         <button
                           type="button"
                           onClick={() => openTransferModal(stu)}
-                          className="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                          className="px-2.5 py-1.5 rounded-lg bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] border border-[#DCE3ED] dark:border-[#2D3B4D] text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors"
                           title="نقل الطالب إلى شعبة أو صف آخر"
                         >
-                          <ArrowRightLeft className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                          <ArrowRightLeft className="w-3.5 h-3.5 text-[#B45309] dark:text-[#D69B42]" />
                           <span>نقل</span>
                         </button>
 
@@ -936,7 +936,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                         <button
                           type="button"
                           onClick={() => openDeleteModal(stu)}
-                          className="p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 transition-colors cursor-pointer"
+                          className="p-1.5 rounded-lg hover:bg-[#E35D6A]/12 text-[#C83D4B] dark:text-[#E35D6A] transition-colors cursor-pointer"
                           title="حذف الطالب وسجلاته"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -957,32 +957,32 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs p-4 animate-in fade-in duration-150">
           <div
-            className="w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-6 text-slate-900 dark:text-slate-100 flex flex-col gap-5"
+            className="w-full max-w-lg bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[16px] shadow-2xl p-6 text-[#1E293B] dark:text-[#E2E8F0] flex flex-col gap-5"
             role="dialog"
             aria-modal="true"
           >
-            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+            <div className="flex items-center justify-between border-b border-[#DCE3ED] dark:border-[#2D3B4D] pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400">
+                <div className="p-2.5 rounded-xl bg-[#3156C9]/8 dark:bg-[#2785F5]/12 border border-[#3156C9]/25 dark:border-[#2785F5]/25 text-[#3156C9] dark:text-[#60A5FA]">
                   <Plus className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-slate-900 dark:text-white">إضافة طالب جديد</h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">تسجيل طالب جديد وربطه بالصف والشعبة ورقم القيد</p>
+                  <h3 className="text-base font-black text-[#1E293B] dark:text-[#E2E8F0]">إضافة طالب جديد</h3>
+                  <p className="text-xs text-[#64748B] dark:text-[#8493A8]">تسجيل طالب جديد وربطه بالصف والشعبة ورقم القيد</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setIsAddModalOpen(false)}
-                className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer"
+                className="p-2 text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] rounded-lg cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {addError && (
-              <div className="bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 text-rose-800 dark:text-rose-300 p-3 rounded-xl text-xs flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
+              <div className="bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 border border-[#E35D6A]/30 text-[#C83D4B] dark:text-[#E35D6A] p-3 rounded-xl text-xs flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0" />
                 <span>{addError}</span>
               </div>
             )}
@@ -990,15 +990,15 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
             <form onSubmit={handleAddStudentSubmit} className="flex flex-col gap-4">
               {/* 1. Student Name */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                  1. اسم الطالب الرباعي واللقب <span className="text-rose-600 dark:text-rose-400">*</span>
+                <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1.5">
+                  1. اسم الطالب الرباعي واللقب <span className="text-[#C83D4B] dark:text-[#E35D6A]">*</span>
                 </label>
                 <input
                   type="text"
                   value={addName}
                   onChange={(e) => setAddName(e.target.value)}
                   placeholder="مثال: حسين علي عبد الزهرة الخفاجي"
-                  className="w-full h-10 px-3 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
+                  className="w-full h-10 px-3 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] placeholder:text-[#64748B] dark:placeholder:text-[#8493A8] focus:border-[#2785F5] focus:outline-hidden"
                   required
                   autoFocus
                 />
@@ -1007,8 +1007,8 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
               {/* 2. Registration Number & Father Phone */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1.5">
-                    <FileText className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                  <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1.5 flex items-center gap-1.5">
+                    <FileText className="w-3.5 h-3.5 text-[#B45309] dark:text-[#D69B42]" />
                     <span>2. رقم القيد</span>
                   </label>
                   <input
@@ -1016,16 +1016,16 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                     value={addRegNumber}
                     onChange={(e) => setAddRegNumber(e.target.value)}
                     placeholder="مثال: 1045"
-                    className="w-full h-10 px-3 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-mono focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
+                    className="w-full h-10 px-3 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] placeholder:text-[#64748B] dark:placeholder:text-[#8493A8] font-mono focus:border-[#2785F5] focus:outline-hidden"
                   />
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 block">
+                  <span className="text-[10px] text-[#64748B] dark:text-[#8493A8] mt-1 block">
                     يجب أن يكون رقم القيد فريداً وغير مكرر
                   </span>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1.5">
-                    <Phone className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
+                  <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1.5 flex items-center gap-1.5">
+                    <Phone className="w-3.5 h-3.5 text-[#3156C9] dark:text-[#60A5FA]" />
                     <span>3. رقم هاتف الأب</span>
                   </label>
                   <input
@@ -1033,21 +1033,21 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                     value={addFatherPhone}
                     onChange={(e) => setAddFatherPhone(e.target.value)}
                     placeholder="07701234567"
-                    className="w-full h-10 px-3 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-mono focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
+                    className="w-full h-10 px-3 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] placeholder:text-[#64748B] dark:placeholder:text-[#8493A8] font-mono focus:border-[#2785F5] focus:outline-hidden"
                     dir="ltr"
                   />
                 </div>
               </div>
 
               {/* Academic Organization: Class & Section */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-[#F8FAFC] dark:bg-[#202E40] p-3.5 rounded-xl border border-[#DCE3ED] dark:border-[#2D3B4D]">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">الصف الدراسي</label>
+                  <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1.5">الصف الدراسي</label>
                   <div className="relative">
                     <select
                       value={addClassId}
                       onChange={(e) => setAddClassId(e.target.value)}
-                      className="w-full h-9 px-3 pr-3 pl-8 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-bold appearance-none cursor-pointer focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
+                      className="w-full h-9 px-3 pr-3 pl-8 text-xs bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] font-bold appearance-none cursor-pointer focus:border-[#2785F5] focus:outline-hidden"
                     >
                       {availableClasses.map((c) => (
                         <option key={c.id} value={c.id}>
@@ -1055,21 +1055,21 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                         </option>
                       ))}
                     </select>
-                    <ChevronDown className="w-4 h-4 text-slate-500 dark:text-slate-400 absolute left-2 top-2.5 pointer-events-none" />
+                    <ChevronDown className="w-4 h-4 text-[#64748B] dark:text-[#8493A8] absolute left-2 top-2.5 pointer-events-none" />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                    الشعبة {addAvailableSections.length > 0 && <span className="text-rose-600 dark:text-rose-400">*</span>}
+                  <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1.5">
+                    الشعبة {addAvailableSections.length > 0 && <span className="text-[#C83D4B] dark:text-[#E35D6A]">*</span>}
                   </label>
                   <div className="relative">
                     <select
                       value={addSectionId}
                       disabled={addAvailableSections.length === 0}
                       onChange={(e) => setAddSectionId(e.target.value)}
-                      className={`w-full h-9 px-3 pr-3 pl-8 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-bold appearance-none cursor-pointer focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden ${
-                        addAvailableSections.length === 0 ? 'opacity-60 cursor-not-allowed bg-slate-100 dark:bg-slate-900' : ''
+                      className={`w-full h-9 px-3 pr-3 pl-8 text-xs bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] font-bold appearance-none cursor-pointer focus:border-[#2785F5] focus:outline-hidden ${
+                        addAvailableSections.length === 0 ? 'opacity-60 cursor-not-allowed bg-[#EDF1F7] dark:bg-[#1C2939]' : ''
                       }`}
                     >
                       {addAvailableSections.length === 0 ? (
@@ -1087,14 +1087,14 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                         </>
                       )}
                     </select>
-                    <ChevronDown className="w-4 h-4 text-slate-500 dark:text-slate-400 absolute left-2 top-2.5 pointer-events-none" />
+                    <ChevronDown className="w-4 h-4 text-[#64748B] dark:text-[#8493A8] absolute left-2 top-2.5 pointer-events-none" />
                   </div>
                   {addAvailableSections.length === 0 ? (
-                    <span className="text-[10px] text-emerald-700 dark:text-emerald-400 mt-1 block">
+                    <span className="text-[10px] text-[#059669] dark:text-[#10B981] mt-1 block">
                       ✓ صف بدون شُعب: سيُسجّل الطالب في الصف مباشرة
                     </span>
                   ) : addAvailableSections.length === 1 ? (
-                    <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 block">
+                    <span className="text-[10px] text-[#64748B] dark:text-[#8493A8] mt-1 block">
                       ✓ تم اختيار الشعبة الوحيدة تلقائياً
                     </span>
                   ) : null}
@@ -1103,35 +1103,35 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
 
               {/* حالة الطالب (منتظم / انتساب) */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
+                <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1.5 flex items-center justify-between">
                   <span>حالة الطالب</span>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal">الافتراضي: منتظم</span>
+                  <span className="text-[10px] text-[#64748B] dark:text-[#8493A8] font-normal">الافتراضي: منتظم</span>
                 </label>
                 <div className="relative">
                   <select
                     value={addStatus}
                     onChange={(e) => setAddStatus(e.target.value as StudentStatus)}
-                    className="w-full h-10 px-3 pr-3 pl-8 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-bold appearance-none cursor-pointer focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
+                    className="w-full h-10 px-3 pr-3 pl-8 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] font-bold appearance-none cursor-pointer focus:border-[#2785F5] focus:outline-hidden"
                   >
                     <option value="regular">منتظم</option>
                     <option value="affiliated">انتساب</option>
                   </select>
-                  <ChevronDown className="w-4 h-4 text-slate-500 dark:text-slate-400 absolute left-2 top-3 pointer-events-none" />
+                  <ChevronDown className="w-4 h-4 text-[#64748B] dark:text-[#8493A8] absolute left-2 top-3 pointer-events-none" />
                 </div>
               </div>
 
               {/* Modal Buttons */}
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-800 mt-2">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#DCE3ED] dark:border-[#2D3B4D] mt-2">
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+                  className="px-4 py-2 text-xs font-bold rounded-xl bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] transition-colors cursor-pointer"
                 >
                   إلغاء
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 shadow-sm flex items-center gap-2 transition-colors cursor-pointer"
+                  className="px-5 py-2 text-xs font-bold rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white shadow-sm flex items-center gap-2 transition-colors cursor-pointer"
                 >
                   <Check className="w-4 h-4" />
                   <span>حفظ وإضافة الطالب</span>
@@ -1148,32 +1148,32 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
       {editingStudent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs p-4 animate-in fade-in duration-150">
           <div
-            className="w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-6 text-slate-900 dark:text-slate-100 flex flex-col gap-5"
+            className="w-full max-w-lg bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[16px] shadow-2xl p-6 text-[#1E293B] dark:text-[#E2E8F0] flex flex-col gap-5"
             role="dialog"
             aria-modal="true"
           >
-            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+            <div className="flex items-center justify-between border-b border-[#DCE3ED] dark:border-[#2D3B4D] pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="p-2.5 rounded-xl bg-teal-50 dark:bg-teal-500/15 border border-teal-200 dark:border-teal-500/30 text-teal-700 dark:text-teal-400">
+                <div className="p-2.5 rounded-xl bg-[#3156C9]/8 dark:bg-[#2785F5]/12 border border-[#3156C9]/25 dark:border-[#2785F5]/25 text-[#3156C9] dark:text-[#60A5FA]">
                   <Edit className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-slate-900 dark:text-white">تعديل معلومات الطالب</h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">تعديل بيانات السجل مع الحفاظ على درجات الطالب</p>
+                  <h3 className="text-base font-black text-[#1E293B] dark:text-[#E2E8F0]">تعديل معلومات الطالب</h3>
+                  <p className="text-xs text-[#64748B] dark:text-[#8493A8]">تعديل بيانات السجل مع الحفاظ على درجات الطالب</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setEditingStudent(null)}
-                className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer"
+                className="p-2 text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] rounded-lg cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {editError && (
-              <div className="bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 text-rose-800 dark:text-rose-300 p-3 rounded-xl text-xs flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
+              <div className="bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 border border-[#E35D6A]/30 text-[#C83D4B] dark:text-[#E35D6A] p-3 rounded-xl text-xs flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0" />
                 <span>{editError}</span>
               </div>
             )}
@@ -1181,14 +1181,14 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
             <form onSubmit={handleSaveEditSubmit} className="flex flex-col gap-4">
               {/* 1. Student Name */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                  1. اسم الطالب الرباعي واللقب <span className="text-rose-600 dark:text-rose-400">*</span>
+                <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1.5">
+                  1. اسم الطالب الرباعي واللقب <span className="text-[#C83D4B] dark:text-[#E35D6A]">*</span>
                 </label>
                 <input
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="w-full h-10 px-3 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
+                  className="w-full h-10 px-3 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] focus:border-[#2785F5] focus:outline-hidden"
                   required
                 />
               </div>
@@ -1196,42 +1196,42 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
               {/* 2. Registration Number & Father Phone */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1.5">
-                    <FileText className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                  <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1.5 flex items-center gap-1.5">
+                    <FileText className="w-3.5 h-3.5 text-[#B45309] dark:text-[#D69B42]" />
                     <span>2. رقم القيد</span>
                   </label>
                   <input
                     type="text"
                     value={editRegNumber}
                     onChange={(e) => setEditRegNumber(e.target.value)}
-                    className="w-full h-10 px-3 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-mono focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
+                    className="w-full h-10 px-3 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] font-mono focus:border-[#2785F5] focus:outline-hidden"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center gap-1.5">
-                    <Phone className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
+                  <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1.5 flex items-center gap-1.5">
+                    <Phone className="w-3.5 h-3.5 text-[#3156C9] dark:text-[#60A5FA]" />
                     <span>3. رقم هاتف الأب</span>
                   </label>
                   <input
                     type="text"
                     value={editFatherPhone}
                     onChange={(e) => setEditFatherPhone(e.target.value)}
-                    className="w-full h-10 px-3 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-mono focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
+                    className="w-full h-10 px-3 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] font-mono focus:border-[#2785F5] focus:outline-hidden"
                     dir="ltr"
                   />
                 </div>
               </div>
 
               {/* Class & Section */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-[#F8FAFC] dark:bg-[#202E40] p-3.5 rounded-xl border border-[#DCE3ED] dark:border-[#2D3B4D]">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">الصف الدراسي</label>
+                  <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1.5">الصف الدراسي</label>
                   <div className="relative">
                     <select
                       value={editClassId}
                       onChange={(e) => setEditClassId(e.target.value)}
-                      className="w-full h-9 px-3 pr-3 pl-8 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-bold appearance-none cursor-pointer focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
+                      className="w-full h-9 px-3 pr-3 pl-8 text-xs bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] font-bold appearance-none cursor-pointer focus:border-[#2785F5] focus:outline-hidden"
                     >
                       {classes.map((c) => (
                         <option key={c.id} value={c.id}>
@@ -1239,21 +1239,21 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                         </option>
                       ))}
                     </select>
-                    <ChevronDown className="w-4 h-4 text-slate-500 dark:text-slate-400 absolute left-2 top-2.5 pointer-events-none" />
+                    <ChevronDown className="w-4 h-4 text-[#64748B] dark:text-[#8493A8] absolute left-2 top-2.5 pointer-events-none" />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                    الشعبة {editAvailableSections.length > 0 && <span className="text-rose-600 dark:text-rose-400">*</span>}
+                  <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1.5">
+                    الشعبة {editAvailableSections.length > 0 && <span className="text-[#C83D4B] dark:text-[#E35D6A]">*</span>}
                   </label>
                   <div className="relative">
                     <select
                       value={editSectionId}
                       disabled={editAvailableSections.length === 0}
                       onChange={(e) => setEditSectionId(e.target.value)}
-                      className={`w-full h-9 px-3 pr-3 pl-8 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-bold appearance-none cursor-pointer focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden ${
-                        editAvailableSections.length === 0 ? 'opacity-60 cursor-not-allowed bg-slate-100 dark:bg-slate-900' : ''
+                      className={`w-full h-9 px-3 pr-3 pl-8 text-xs bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] font-bold appearance-none cursor-pointer focus:border-[#2785F5] focus:outline-hidden ${
+                        editAvailableSections.length === 0 ? 'opacity-60 cursor-not-allowed bg-[#EDF1F7] dark:bg-[#1C2939]' : ''
                       }`}
                     >
                       {editAvailableSections.length === 0 ? (
@@ -1271,14 +1271,14 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                         </>
                       )}
                     </select>
-                    <ChevronDown className="w-4 h-4 text-slate-500 dark:text-slate-400 absolute left-2 top-2.5 pointer-events-none" />
+                    <ChevronDown className="w-4 h-4 text-[#64748B] dark:text-[#8493A8] absolute left-2 top-2.5 pointer-events-none" />
                   </div>
                   {editAvailableSections.length === 0 ? (
-                    <span className="text-[10px] text-emerald-700 dark:text-emerald-400 mt-1 block">
+                    <span className="text-[10px] text-[#059669] dark:text-[#10B981] mt-1 block">
                       ✓ صف بدون شُعب: الطالب مسجل في الصف مباشرة
                     </span>
                   ) : editAvailableSections.length === 1 ? (
-                    <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 block">
+                    <span className="text-[10px] text-[#64748B] dark:text-[#8493A8] mt-1 block">
                       ✓ تم اختيار الشعبة الوحيدة تلقائياً
                     </span>
                   ) : null}
@@ -1287,40 +1287,40 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
 
               {/* حالة الطالب (منتظم / انتساب) */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
+                <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1.5 flex items-center justify-between">
                   <span>حالة الطالب</span>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal">الحالة الحالية قابلة للتعديل</span>
+                  <span className="text-[10px] text-[#64748B] dark:text-[#8493A8] font-normal">الحالة الحالية قابلة للتعديل</span>
                 </label>
                 <div className="relative">
                   <select
                     value={editStatus}
                     onChange={(e) => setEditStatus(e.target.value as StudentStatus)}
-                    className="w-full h-10 px-3 pr-3 pl-8 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-bold appearance-none cursor-pointer focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
+                    className="w-full h-10 px-3 pr-3 pl-8 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] font-bold appearance-none cursor-pointer focus:border-[#2785F5] focus:outline-hidden"
                   >
                     <option value="regular">منتظم</option>
                     <option value="affiliated">انتساب</option>
                   </select>
-                  <ChevronDown className="w-4 h-4 text-slate-500 dark:text-slate-400 absolute left-2 top-3 pointer-events-none" />
+                  <ChevronDown className="w-4 h-4 text-[#64748B] dark:text-[#8493A8] absolute left-2 top-3 pointer-events-none" />
                 </div>
               </div>
 
-              <div className="text-[11px] text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 flex items-center gap-2">
-                <Info className="w-4 h-4 text-teal-700 dark:text-teal-400 shrink-0" />
+              <div className="text-[11px] text-[#475569] dark:text-[#A8B5C7] bg-[#F8FAFC] dark:bg-[#202E40] p-2.5 rounded-lg border border-[#DCE3ED] dark:border-[#2D3B4D] flex items-center gap-2">
+                <Info className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA] shrink-0" />
                 <span>سيتم تحديث اسم الطالب ورقم قيده وحالته في جميع الجداول وكشوفات الدرجات تلقائياً.</span>
               </div>
 
               {/* Modal Buttons */}
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-800 mt-2">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#DCE3ED] dark:border-[#2D3B4D] mt-2">
                 <button
                   type="button"
                   onClick={() => setEditingStudent(null)}
-                  className="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+                  className="px-4 py-2 text-xs font-bold rounded-xl bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] transition-colors cursor-pointer"
                 >
                   إلغاء
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 shadow-sm flex items-center gap-2 transition-colors cursor-pointer"
+                  className="px-5 py-2 text-xs font-bold rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white shadow-sm flex items-center gap-2 transition-colors cursor-pointer"
                 >
                   <Check className="w-4 h-4" />
                   <span>حفظ التعديلات</span>
@@ -1337,44 +1337,44 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
       {transferringStudent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs p-4 animate-in fade-in duration-150">
           <div
-            className="w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-6 text-slate-900 dark:text-slate-100 flex flex-col gap-5"
+            className="w-full max-w-lg bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[16px] shadow-2xl p-6 text-[#1E293B] dark:text-[#E2E8F0] flex flex-col gap-5"
             role="dialog"
             aria-modal="true"
           >
-            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+            <div className="flex items-center justify-between border-b border-[#DCE3ED] dark:border-[#2D3B4D] pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 text-amber-700 dark:text-amber-400">
+                <div className="p-2.5 rounded-xl bg-[#D69B42]/10 dark:bg-[#D69B42]/15 border border-[#D69B42]/30 text-[#B45309] dark:text-[#D69B42]">
                   <ArrowRightLeft className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-slate-900 dark:text-white">نقل الطالب بين الشعب</h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">نقل الطالب لشعبة أو صف آخر مع الحفاظ الكامل على درجاته</p>
+                  <h3 className="text-base font-black text-[#1E293B] dark:text-[#E2E8F0]">نقل الطالب بين الشعب</h3>
+                  <p className="text-xs text-[#64748B] dark:text-[#8493A8]">نقل الطالب لشعبة أو صف آخر مع الحفاظ الكامل على درجاته</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setTransferringStudent(null)}
-                className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer"
+                className="p-2 text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] rounded-lg cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Current Student Info Card */}
-            <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col gap-2">
+            <div className="bg-[#F8FAFC] dark:bg-[#202E40] p-4 rounded-xl border border-[#DCE3ED] dark:border-[#2D3B4D] flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-500 dark:text-slate-400">اسم الطالب:</span>
-                <span className="text-sm font-black text-slate-900 dark:text-white">{transferringStudent.name}</span>
+                <span className="text-xs text-[#64748B] dark:text-[#8493A8]">اسم الطالب:</span>
+                <span className="text-sm font-black text-[#1E293B] dark:text-[#E2E8F0]">{transferringStudent.name}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-500 dark:text-slate-400">رقم القيد:</span>
-                <span className="text-xs font-mono font-bold text-amber-700 dark:text-amber-400">
+                <span className="text-xs text-[#64748B] dark:text-[#8493A8]">رقم القيد:</span>
+                <span className="text-xs font-mono tabular-nums font-bold text-[#B45309] dark:text-[#D69B42]">
                   {transferringStudent.registrationNumber || 'غير محدد'}
                 </span>
               </div>
-              <div className="flex items-center justify-between border-t border-slate-200 dark:border-slate-700 pt-2 mt-1">
-                <span className="text-xs text-slate-500 dark:text-slate-400">الموقع الحالي:</span>
-                <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
+              <div className="flex items-center justify-between border-t border-[#DCE3ED] dark:border-[#2D3B4D] pt-2 mt-1">
+                <span className="text-xs text-[#64748B] dark:text-[#8493A8]">الموقع الحالي:</span>
+                <span className="text-xs font-bold text-[#059669] dark:text-[#10B981]">
                   {classes.find((c) => c.id === transferringStudent.classId)?.name} — شعبة{' '}
                   {sections.find((s) => s.id === transferringStudent.sectionId)?.name}
                 </span>
@@ -1382,14 +1382,14 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
             </div>
 
             {/* Target Selectors */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-[#F8FAFC] dark:bg-[#202E40] p-4 rounded-xl border border-[#DCE3ED] dark:border-[#2D3B4D]">
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">الصف الجديد</label>
+                <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1.5">الصف الجديد</label>
                 <div className="relative">
                   <select
                     value={transferTargetClassId}
                     onChange={(e) => setTransferTargetClassId(e.target.value)}
-                    className="w-full h-9 px-3 pr-3 pl-8 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-bold appearance-none cursor-pointer focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
+                    className="w-full h-9 px-3 pr-3 pl-8 text-xs bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] font-bold appearance-none cursor-pointer focus:border-[#2785F5] focus:outline-hidden"
                   >
                     {classes.map((c) => (
                       <option key={c.id} value={c.id}>
@@ -1397,21 +1397,21 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                       </option>
                     ))}
                   </select>
-                  <ChevronDown className="w-4 h-4 text-slate-500 dark:text-slate-400 absolute left-2 top-2.5 pointer-events-none" />
+                  <ChevronDown className="w-4 h-4 text-[#64748B] dark:text-[#8493A8] absolute left-2 top-2.5 pointer-events-none" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                  الشعبة الجديدة {transferAvailableSections.length > 0 && <span className="text-rose-600 dark:text-rose-400">*</span>}
+                <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1.5">
+                  الشعبة الجديدة {transferAvailableSections.length > 0 && <span className="text-[#C83D4B] dark:text-[#E35D6A]">*</span>}
                 </label>
                 <div className="relative">
                   <select
                     value={transferTargetSectionId}
                     disabled={transferAvailableSections.length === 0}
                     onChange={(e) => setTransferTargetSectionId(e.target.value)}
-                    className={`w-full h-9 px-3 pr-3 pl-8 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-bold appearance-none cursor-pointer focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden ${
-                      transferAvailableSections.length === 0 ? 'opacity-60 cursor-not-allowed bg-slate-100 dark:bg-slate-900' : ''
+                    className={`w-full h-9 px-3 pr-3 pl-8 text-xs bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] font-bold appearance-none cursor-pointer focus:border-[#2785F5] focus:outline-hidden ${
+                      transferAvailableSections.length === 0 ? 'opacity-60 cursor-not-allowed bg-[#EDF1F7] dark:bg-[#1C2939]' : ''
                     }`}
                   >
                     {transferAvailableSections.length === 0 ? (
@@ -1429,10 +1429,10 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                       </>
                     )}
                   </select>
-                  <ChevronDown className="w-4 h-4 text-slate-500 dark:text-slate-400 absolute left-2 top-2.5 pointer-events-none" />
+                  <ChevronDown className="w-4 h-4 text-[#64748B] dark:text-[#8493A8] absolute left-2 top-2.5 pointer-events-none" />
                 </div>
                 {transferAvailableSections.length === 0 && (
-                  <span className="text-[10px] text-emerald-700 dark:text-emerald-400 mt-1 block">
+                  <span className="text-[10px] text-[#059669] dark:text-[#10B981] mt-1 block">
                     ✓ سيتم نقل الطالب إلى الصف مباشرة دون ربطه بشعبة
                   </span>
                 )}
@@ -1440,40 +1440,40 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
             </div>
 
             {/* Confirmation Alert Box */}
-            <div className="bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 p-3.5 rounded-xl text-xs flex items-start gap-2.5 text-amber-800 dark:text-amber-300">
-              <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+            <div className="bg-[#D69B42]/10 dark:bg-[#D69B42]/15 border border-[#D69B42]/30 p-3.5 rounded-xl text-xs flex items-start gap-2.5 text-[#B45309] dark:text-[#D69B42]">
+              <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
               <div className="leading-relaxed">
                 <strong>تأكيد نقل الطالب:</strong> سيتم نقل الطالب «{transferringStudent.name}» إلى (
                 {classes.find((c) => c.id === transferTargetClassId)?.name} - شعبة{' '}
                 {sections.find((s) => s.id === transferTargetSectionId)?.name}).
-                <span className="block mt-1 text-slate-700 dark:text-slate-300">
+                <span className="block mt-1 text-[#475569] dark:text-[#A8B5C7]">
                   سيتم الحفاظ على درجات الطالب السابقة تلقائياً تحت صفه الأصلي لتفادي خلط الدرجات بين الصفوف.
                 </span>
               </div>
             </div>
 
             {/* Correction Checkbox Option */}
-            <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
-              <label className="flex items-center gap-2.5 cursor-pointer text-xs text-slate-800 dark:text-slate-200 font-bold">
+            <div className="bg-[#F8FAFC] dark:bg-[#202E40] p-3 rounded-xl border border-[#DCE3ED] dark:border-[#2D3B4D]">
+              <label className="flex items-center gap-2.5 cursor-pointer text-xs text-[#1E293B] dark:text-[#E2E8F0] font-bold">
                 <input
                   type="checkbox"
                   checked={isTransferCorrection}
                   onChange={(e) => setIsTransferCorrection(e.target.checked)}
-                  className="w-4 h-4 rounded accent-amber-600 dark:accent-amber-400 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700"
+                  className="w-4 h-4 rounded accent-[#D69B42] bg-white dark:bg-[#26364B] border-[#DCE3ED] dark:border-[#2D3B4D]"
                 />
                 <span>تصحيح خطأ إدخال (تحويل سجلات الدرجات الحالية للصف الجديد)</span>
               </label>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 pr-6">
+              <p className="text-[11px] text-[#64748B] dark:text-[#8493A8] mt-1 pr-6">
                 فعّل هذا الخيار فقط إذا كان الطالب قد سُجِّل بالخطأ في صف غير صفه الحقيقي، وتريد تصحيح درجة السجل الحالية وتغيير صفها للصف المستهدف.
               </p>
             </div>
 
             {/* Modal Buttons */}
-            <div className="flex items-center justify-end gap-3 pt-2 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex items-center justify-end gap-3 pt-2 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
               <button
                 type="button"
                 onClick={() => setTransferringStudent(null)}
-                className="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+                className="px-4 py-2 text-xs font-bold rounded-xl bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] transition-colors cursor-pointer"
               >
                 إلغاء
               </button>
@@ -1484,7 +1484,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                   transferTargetClassId === transferringStudent.classId &&
                   transferTargetSectionId === transferringStudent.sectionId
                 }
-                className="px-5 py-2 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center gap-2 transition-colors cursor-pointer"
+                className="px-5 py-2 text-xs font-bold rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center gap-2 transition-colors cursor-pointer"
               >
                 <Check className="w-4 h-4" />
                 <span>تأكيد وتنفيذ النقل</span>
@@ -1500,19 +1500,19 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
       {isImportModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs p-4 animate-in fade-in duration-150">
           <div
-            className="w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-6 text-slate-900 dark:text-slate-100 flex flex-col gap-5 max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-2xl bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[16px] shadow-2xl p-6 text-[#1E293B] dark:text-[#E2E8F0] flex flex-col gap-5 max-h-[90vh] overflow-y-auto"
             role="dialog"
             aria-modal="true"
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+            <div className="flex items-center justify-between border-b border-[#DCE3ED] dark:border-[#2D3B4D] pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="p-2.5 rounded-xl bg-teal-50 dark:bg-teal-500/15 border border-teal-200 dark:border-teal-500/30 text-teal-700 dark:text-teal-400">
+                <div className="p-2.5 rounded-xl bg-[#3156C9]/8 dark:bg-[#2785F5]/12 border border-[#3156C9]/25 dark:border-[#2785F5]/25 text-[#3156C9] dark:text-[#60A5FA]">
                   <FileSpreadsheet className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-slate-900 dark:text-white">استيراد الطلاب من ملف Excel</h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <h3 className="text-base font-black text-[#1E293B] dark:text-[#E2E8F0]">استيراد الطلاب من ملف Excel</h3>
+                  <p className="text-xs text-[#64748B] dark:text-[#8493A8]">
                     قالب موحّد لكل الصفوف والشعب؛ يحدد البرنامج موقع كل طالب تلقائياً من ملف Excel
                   </p>
                 </div>
@@ -1520,38 +1520,38 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
               <button
                 type="button"
                 onClick={() => setIsImportModalOpen(false)}
-                className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer"
+                className="p-2 text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] rounded-lg cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Step 1: Choose year; classes and sections are assigned from each Excel row. */}
-            <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col gap-2.5">
-              <span className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                <span className="w-5 h-5 rounded-full bg-teal-700 dark:bg-teal-400 text-white dark:text-slate-950 font-black flex items-center justify-center text-[10px]">١</span>
+            <div className="bg-[#F8FAFC] dark:bg-[#202E40] p-4 rounded-xl border border-[#DCE3ED] dark:border-[#2D3B4D] flex flex-col gap-2.5">
+              <span className="text-xs font-bold text-[#475569] dark:text-[#A8B5C7] flex items-center gap-2">
+                <span className="w-5 h-5 rounded-full bg-[#3156C9] text-white font-black flex items-center justify-center text-[10px]">١</span>
                 <span>حدد العام الدراسي فقط؛ الصف والشعبة سيُحددان تلقائياً من بيانات كل طالب.</span>
               </span>
               <div className="mt-1 max-w-sm">
-                <label className="block text-[11px] text-slate-500 dark:text-slate-400 mb-1">العام الدراسي</label>
+                <label className="block text-[11px] text-[#64748B] dark:text-[#8493A8] mb-1">العام الدراسي</label>
                 <div className="relative">
                   <select
                     value={importYearId}
                     onChange={(e) => setImportYearId(e.target.value)}
-                    className="w-full h-9 px-2.5 pr-2.5 pl-7 text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 font-bold appearance-none cursor-pointer focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden"
+                    className="w-full h-9 px-2.5 pr-2.5 pl-7 text-xs bg-white dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg text-[#1E293B] dark:text-[#E2E8F0] font-bold appearance-none cursor-pointer focus:border-[#2785F5] focus:outline-hidden"
                   >
                     {academicYears.map((y) => <option key={y.id} value={y.id}>{y.name}</option>)}
                   </select>
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 absolute left-2 top-3 pointer-events-none" />
+                  <ChevronDown className="w-3.5 h-3.5 text-[#64748B] dark:text-[#8493A8] absolute left-2 top-3 pointer-events-none" />
                 </div>
               </div>
             </div>
 
             {/* Step 2: File Picker */}
             <div className="flex flex-col gap-2">
-              <span className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+              <span className="text-xs font-bold text-[#475569] dark:text-[#A8B5C7] flex items-center justify-between">
                 <span className="flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-full bg-teal-700 dark:bg-teal-400 text-white dark:text-slate-950 font-black flex items-center justify-center text-[10px]">
+                  <span className="w-5 h-5 rounded-full bg-[#3156C9] text-white font-black flex items-center justify-center text-[10px]">
                     ٢
                   </span>
                   <span>اختيار ملف Excel (.xlsx أو .xls):</span>
@@ -1559,7 +1559,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                 <button
                   type="button"
                   onClick={downloadStudentTemplate}
-                  className="text-xs text-emerald-700 dark:text-emerald-400 hover:underline font-medium cursor-pointer flex items-center gap-1"
+                  className="text-xs text-[#3156C9] dark:text-[#60A5FA] hover:underline font-medium cursor-pointer flex items-center gap-1"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>تنزيل القالب الرسمي الفارغ</span>
@@ -1568,7 +1568,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
 
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-emerald-600 dark:hover:border-emerald-400 bg-slate-50 dark:bg-slate-800/40 hover:bg-emerald-50/40 dark:hover:bg-slate-800/70 p-6 rounded-xl flex flex-col items-center justify-center text-center cursor-pointer transition-colors group"
+                className="border-2 border-dashed border-[#DCE3ED] dark:border-[#2D3B4D] hover:border-[#2785F5] bg-[#F8FAFC] dark:bg-[#202E40] hover:bg-[#3156C9]/5 dark:hover:bg-[#2785F5]/10 p-6 rounded-xl flex flex-col items-center justify-center text-center cursor-pointer transition-colors group"
               >
                 <input
                   ref={fileInputRef}
@@ -1577,13 +1577,13 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                   onChange={handleFileChange}
                   className="hidden"
                 />
-                <div className="w-12 h-12 rounded-xl bg-slate-200/70 dark:bg-slate-800 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-500/15 flex items-center justify-center text-slate-500 dark:text-slate-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 mb-2 transition-colors">
+                <div className="w-12 h-12 rounded-xl bg-[#EDF1F7] dark:bg-[#26364B] group-hover:bg-[#3156C9]/12 dark:group-hover:bg-[#2785F5]/20 flex items-center justify-center text-[#64748B] dark:text-[#8493A8] group-hover:text-[#3156C9] dark:group-hover:text-[#60A5FA] mb-2 transition-colors">
                   <Upload className="w-6 h-6" />
                 </div>
-                <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
+                <p className="text-sm font-bold text-[#1E293B] dark:text-[#E2E8F0]">
                   {importedFileName ? importedFileName : 'انقر لاختيار ملف Excel من جهازك'}
                 </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-1">
                   يدعم أعمدة: اسم الطالب، الصف، الشعبة (إن وجدت)، رقم القيد، رقم هاتف الأب
                 </p>
               </div>
@@ -1591,8 +1591,8 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
 
             {/* Loading state */}
             {isParsingExcel && (
-              <div className="text-center py-6 text-sm text-slate-600 dark:text-slate-400 flex items-center justify-center gap-2">
-                <span className="w-4 h-4 border-2 border-emerald-600 dark:border-emerald-400 border-t-transparent rounded-full animate-spin" />
+              <div className="text-center py-6 text-sm text-[#475569] dark:text-[#A8B5C7] flex items-center justify-center gap-2">
+                <span className="w-4 h-4 border-2 border-[#3156C9] dark:border-[#60A5FA] border-t-transparent rounded-full animate-spin" />
                 <span>جاري قراءة الملف والتحقق من الأسماء وأرقام القيد...</span>
               </div>
             )}
@@ -1602,31 +1602,31 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
               <div className="flex flex-col gap-3">
                 {/* Parse Error on File level */}
                 {!parseResult.success ? (
-                  <div className="bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 text-rose-800 dark:text-rose-300 p-4 rounded-xl text-xs flex items-center gap-2.5">
-                    <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0" />
+                  <div className="bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 border border-[#E35D6A]/30 text-[#C83D4B] dark:text-[#E35D6A] p-4 rounded-xl text-xs flex items-center gap-2.5">
+                    <AlertTriangle className="w-5 h-5 shrink-0" />
                     <span>{parseResult.errorMessage}</span>
                   </div>
                 ) : (
                   <>
                     {/* Summary Cards */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                      <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-200 dark:border-slate-700 text-center">
-                        <span className="text-[11px] text-slate-500 dark:text-slate-400">إجمالي السجلات</span>
-                        <div className="text-base font-black text-slate-900 dark:text-white font-mono mt-0.5">
+                      <div className="bg-[#F8FAFC] dark:bg-[#202E40] p-3 rounded-lg border border-[#DCE3ED] dark:border-[#2D3B4D] text-center">
+                        <span className="text-[11px] text-[#64748B] dark:text-[#8493A8]">إجمالي السجلات</span>
+                        <div className="text-base font-black text-[#1E293B] dark:text-[#E2E8F0] font-mono tabular-nums mt-0.5">
                           {parseResult.totalRows}
                         </div>
                       </div>
 
-                      <div className="bg-emerald-50 dark:bg-emerald-500/15 p-3 rounded-lg border border-emerald-200 dark:border-emerald-500/30 text-center">
-                        <span className="text-[11px] text-emerald-700 dark:text-emerald-400">صالحة للاستيراد</span>
-                        <div className="text-base font-black text-emerald-700 dark:text-emerald-400 font-mono mt-0.5">
+                      <div className="bg-[#10B981]/12 dark:bg-[#10B981]/15 p-3 rounded-lg border border-[#10B981]/30 text-center">
+                        <span className="text-[11px] text-[#059669] dark:text-[#10B981]">صالحة للاستيراد</span>
+                        <div className="text-base font-black text-[#059669] dark:text-[#10B981] font-mono tabular-nums mt-0.5">
                           {parseResult.validRows.length}
                         </div>
                       </div>
 
-                      <div className="bg-rose-50 dark:bg-rose-500/15 p-3 rounded-lg border border-rose-200 dark:border-rose-500/30 text-center">
-                        <span className="text-[11px] text-rose-700 dark:text-rose-400">مرفوضة لوجود أخطاء</span>
-                        <div className="text-base font-black text-rose-700 dark:text-rose-400 font-mono mt-0.5">
+                      <div className="bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 p-3 rounded-lg border border-[#E35D6A]/30 text-center">
+                        <span className="text-[11px] text-[#C83D4B] dark:text-[#E35D6A]">مرفوضة لوجود أخطاء</span>
+                        <div className="text-base font-black text-[#C83D4B] dark:text-[#E35D6A] font-mono tabular-nums mt-0.5">
                           {parseResult.invalidRows.length}
                         </div>
                       </div>
@@ -1634,15 +1634,15 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
 
                     {/* Rejected Rows Alerts */}
                     {parseResult.invalidRows.length > 0 && (
-                      <div className="bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 p-3.5 rounded-xl text-xs flex flex-col gap-1.5">
-                        <div className="flex items-center gap-1.5 text-rose-700 dark:text-rose-400 font-bold mb-1">
+                      <div className="bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 border border-[#E35D6A]/30 p-3.5 rounded-xl text-xs flex flex-col gap-1.5">
+                        <div className="flex items-center gap-1.5 text-[#C83D4B] dark:text-[#E35D6A] font-bold mb-1">
                           <AlertTriangle className="w-4 h-4 shrink-0" />
                           <span>
                             تم رصد أخطاء في {parseResult.invalidRows.length} سجل (لن يتم استيرادها لمنع التكرار
                             أو الأخطاء):
                           </span>
                         </div>
-                        <ul className="list-disc list-inside space-y-1 text-rose-800 dark:text-rose-300 font-medium">
+                        <ul className="list-disc list-inside space-y-1 text-[#C83D4B] dark:text-[#E35D6A] font-medium">
                           {parseResult.invalidRows.slice(0, 5).map((row, i) => (
                             <li key={i}>
                               صف Excel {row.rowNumber}: {row.name || '«بدون اسم»'} —{' '}
@@ -1650,7 +1650,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                             </li>
                           ))}
                           {parseResult.invalidRows.length > 5 && (
-                            <li className="text-slate-500 dark:text-slate-400">
+                            <li className="text-[#64748B] dark:text-[#8493A8]">
                               ... بالإضافة إلى {parseResult.invalidRows.length - 5} سجل آخر يحتوي على أخطاء.
                             </li>
                           )}
@@ -1661,12 +1661,12 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                     {/* Preview Table of Valid Rows */}
                     {parseResult.validRows.length > 0 && (
                       <div className="flex flex-col gap-1.5">
-                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                          معاينة الطلاب الجاهزين للاستيراد ({parseResult.validRows.length} طالب):
+                        <span className="text-xs font-bold text-[#475569] dark:text-[#A8B5C7]">
+                          معاينة الطلاب الجاهزين للاستيراد (<span className="font-mono tabular-nums">{parseResult.validRows.length}</span> طالب):
                         </span>
-                        <div className="max-h-44 overflow-y-auto border border-slate-200 dark:border-slate-800 rounded-lg">
+                        <div className="max-h-44 overflow-y-auto border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg">
                           <table className="w-full text-xs text-right border-collapse">
-                            <thead className="bg-slate-50 dark:bg-slate-800 sticky top-0 border-b border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">
+                            <thead className="bg-[#EDF1F7] dark:bg-[#26364B] sticky top-0 border-b border-[#DCE3ED] dark:border-[#2D3B4D] text-[#475569] dark:text-[#A8B5C7]">
                               <tr>
                                 <th className="p-2 w-10 text-center">#</th>
                                 <th className="p-2">اسم الطالب</th>
@@ -1676,17 +1676,17 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                                 <th className="p-2 w-32">هاتف الأب</th>
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-200 dark:divide-slate-800 bg-white dark:bg-slate-900">
+                            <tbody className="divide-y divide-[#DCE3ED] dark:divide-[#2D3B4D] bg-white dark:bg-[#1C2939]">
                               {parseResult.validRows.map((r, i) => (
-                                <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
-                                  <td className="p-2 text-center text-slate-500 dark:text-slate-400 font-mono">{i + 1}</td>
-                                  <td className="p-2 font-bold text-slate-900 dark:text-slate-200">{r.name}</td>
-                                  <td className="p-2 text-slate-700 dark:text-slate-300">{r.className}</td>
-                                  <td className="p-2 text-slate-700 dark:text-slate-300">{r.sectionName || '—'}</td>
-                                  <td className="p-2 font-mono text-amber-700 dark:text-amber-400">
+                                <tr key={i} className="hover:bg-[#F8FAFC] dark:hover:bg-[#202E40]">
+                                  <td className="p-2 text-center text-[#64748B] dark:text-[#8493A8] font-mono tabular-nums">{i + 1}</td>
+                                  <td className="p-2 font-bold text-[#1E293B] dark:text-[#E2E8F0]">{r.name}</td>
+                                  <td className="p-2 text-[#475569] dark:text-[#A8B5C7]">{r.className}</td>
+                                  <td className="p-2 text-[#475569] dark:text-[#A8B5C7]">{r.sectionName || '—'}</td>
+                                  <td className="p-2 font-mono tabular-nums text-[#B45309] dark:text-[#D69B42]">
                                     {r.registrationNumber || '—'}
                                   </td>
-                                  <td className="p-2 font-mono text-slate-700 dark:text-slate-300">
+                                  <td className="p-2 font-mono tabular-nums text-[#475569] dark:text-[#A8B5C7]">
                                     {r.fatherPhone || '—'}
                                   </td>
                                 </tr>
@@ -1702,11 +1702,11 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
             )}
 
             {/* Modal Buttons */}
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
               <button
                 type="button"
                 onClick={() => setIsImportModalOpen(false)}
-                className="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+                className="px-4 py-2 text-xs font-bold rounded-xl bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] transition-colors cursor-pointer"
               >
                 إلغاء
               </button>
@@ -1714,7 +1714,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                 type="button"
                 onClick={handleConfirmBatchImport}
                 disabled={!parseResult || parseResult.validRows.length === 0}
-                className="px-5 py-2 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center gap-2 transition-colors cursor-pointer"
+                className="px-5 py-2 text-xs font-bold rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center gap-2 transition-colors cursor-pointer"
               >
                 <Check className="w-4 h-4" />
                 <span>
@@ -1732,51 +1732,51 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
       {deletingStudent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs p-4 animate-in fade-in duration-150">
           <div
-            className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-6 text-slate-900 dark:text-slate-100 flex flex-col gap-5"
+            className="w-full max-w-md bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[16px] shadow-2xl p-6 text-[#1E293B] dark:text-[#E2E8F0] flex flex-col gap-5"
             role="dialog"
             aria-modal="true"
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+            <div className="flex items-center justify-between border-b border-[#DCE3ED] dark:border-[#2D3B4D] pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-400">
+                <div className="p-2.5 rounded-xl bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 border border-[#E35D6A]/30 text-[#C83D4B] dark:text-[#E35D6A]">
                   <Trash2 className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-slate-900 dark:text-white">تأكيد حذف الطالب</h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">إجراء نهائي لا يمكن التراجع عنه</p>
+                  <h3 className="text-base font-black text-[#1E293B] dark:text-[#E2E8F0]">تأكيد حذف الطالب</h3>
+                  <p className="text-xs text-[#64748B] dark:text-[#8493A8]">إجراء نهائي لا يمكن التراجع عنه</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => !isDeleting && setDeletingStudent(null)}
                 disabled={isDeleting}
-                className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer disabled:opacity-50"
+                className="p-2 text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] rounded-lg cursor-pointer disabled:opacity-50"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Warning Message */}
-            <div className="bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 p-4 rounded-xl text-xs flex flex-col gap-2.5 text-rose-900 dark:text-rose-200">
+            <div className="bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 border border-[#E35D6A]/30 p-4 rounded-xl text-xs flex flex-col gap-2.5 text-[#C83D4B] dark:text-[#E35D6A]">
               <div className="flex items-start gap-2.5">
-                <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
-                <div className="leading-relaxed font-medium">
-                  هل أنت متأكد من رغبتك في حذف الطالب <strong className="text-slate-900 dark:text-white underline font-bold px-1">{deletingStudent.name}</strong>؟
+                <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
+                <div className="leading-relaxed font-medium text-[#1E293B] dark:text-[#E2E8F0]">
+                  هل أنت متأكد من رغبتك في حذف الطالب <strong className="underline font-bold px-1">{deletingStudent.name}</strong>؟
                 </div>
               </div>
-              <div className="text-[11px] text-rose-800 dark:text-rose-300 bg-white/70 dark:bg-rose-950/50 p-2.5 rounded-lg border border-rose-200 dark:border-rose-800/50 leading-normal">
+              <div className="text-[11px] text-[#C83D4B] dark:text-[#E35D6A] bg-white/80 dark:bg-[#202E40] p-2.5 rounded-lg border border-[#E35D6A]/30 leading-normal">
                 ⚠️ <strong>تنبيه هام:</strong> سيؤدي تأكيد الحذف إلى مسح سجل الطالب وجميع درجاته المحفوظة في كافة المواد والمراحل، والقرارات الوزارية المرتبطة به نهائياً من قاعدة البيانات.
               </div>
             </div>
 
             {/* Modal Buttons */}
-            <div className="flex items-center justify-end gap-3 pt-2 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex items-center justify-end gap-3 pt-2 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
               <button
                 type="button"
                 onClick={() => setDeletingStudent(null)}
                 disabled={isDeleting}
-                className="px-4 py-2.5 text-xs font-bold rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer disabled:opacity-50"
+                className="px-4 py-2.5 text-xs font-bold rounded-xl bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] transition-colors cursor-pointer disabled:opacity-50"
               >
                 إلغاء
               </button>
@@ -1784,7 +1784,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                 type="button"
                 onClick={handleConfirmDelete}
                 disabled={isDeleting}
-                className="px-5 py-2.5 text-xs font-bold rounded-xl bg-rose-600 hover:bg-rose-700 text-white shadow-sm flex items-center gap-2 transition-colors cursor-pointer disabled:opacity-50"
+                className="px-5 py-2.5 text-xs font-bold rounded-xl bg-[#C83D4B] hover:bg-[#B02E3C] text-white shadow-sm flex items-center gap-2 transition-colors cursor-pointer disabled:opacity-50"
               >
                 {isDeleting ? (
                   <>
@@ -1806,39 +1806,39 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
           MODAL 6: BULK DELETE CONFIRMATION
           ========================================================================= */}
       {isBulkDeleteModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-500/30 rounded-2xl shadow-2xl p-6 text-slate-900 dark:text-slate-100 flex flex-col gap-4">
-            <div className="flex items-center gap-3 text-rose-700 dark:text-rose-400 border-b border-slate-200 dark:border-slate-800 pb-3">
-              <div className="p-2 rounded-lg bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-black/75 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-md bg-white dark:bg-[#1C2939] border border-[#E35D6A]/40 rounded-[16px] shadow-2xl p-6 text-[#1E293B] dark:text-[#E2E8F0] flex flex-col gap-4">
+            <div className="flex items-center gap-3 text-[#C83D4B] dark:text-[#E35D6A] border-b border-[#DCE3ED] dark:border-[#2D3B4D] pb-3">
+              <div className="p-2 rounded-lg bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 border border-[#E35D6A]/30">
                 <AlertTriangle className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-black text-slate-900 dark:text-white">تأكيد الحذف الجماعي</h3>
+              <h3 className="text-lg font-black text-[#1E293B] dark:text-[#E2E8F0]">تأكيد الحذف الجماعي</h3>
             </div>
 
             <div className="space-y-3">
-              <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
-                هل أنت متأكد من رغبتك في حذف <span className="text-rose-700 dark:text-rose-400 underline">{selectedStudentIds.length}</span> طلاب دفعة واحدة؟
+              <p className="text-sm font-bold text-[#1E293B] dark:text-[#E2E8F0]">
+                هل أنت متأكد من رغبتك في حذف <span className="text-[#C83D4B] dark:text-[#E35D6A] underline font-mono tabular-nums">{selectedStudentIds.length}</span> طلاب دفعة واحدة؟
               </p>
-              <div className="p-3 bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 rounded-xl space-y-2">
-                <p className="text-xs text-rose-800 dark:text-rose-300 leading-relaxed font-bold">
+              <div className="p-3 bg-[#E35D6A]/10 dark:bg-[#E35D6A]/15 border border-[#E35D6A]/30 rounded-xl space-y-2">
+                <p className="text-xs text-[#C83D4B] dark:text-[#E35D6A] leading-relaxed font-bold">
                   تحذير نهائي: هذا الإجراء سيؤدي إلى مسح الطلاب المحددّين وكافة سجلات درجاتهم وتقاريرهم من قاعدة البيانات بصورة نهائية ولا يمكن التراجع عن ذلك.
                 </p>
               </div>
               
               {isBulkDeleting && (
-                <div className="flex items-center gap-2 text-xs text-amber-700 dark:text-amber-400 font-bold animate-pulse">
-                  <div className="w-4 h-4 border-2 border-amber-600 dark:border-amber-400 border-t-transparent rounded-full animate-spin" />
+                <div className="flex items-center gap-2 text-xs text-[#B45309] dark:text-[#D69B42] font-bold">
+                  <div className="w-4 h-4 border-2 border-[#B45309] dark:border-[#D69B42] border-t-transparent rounded-full animate-spin" />
                   جاري معالجة الحذف الجماعي... يرجى الانتظار
                 </div>
               )}
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-2 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex items-center justify-end gap-3 pt-2 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
               <button
                 type="button"
                 disabled={isBulkDeleting}
                 onClick={() => setIsBulkDeleteModalOpen(false)}
-                className="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer disabled:opacity-50"
+                className="px-4 py-2 text-xs font-bold rounded-xl bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] transition-colors cursor-pointer disabled:opacity-50"
               >
                 إلغاء
               </button>
@@ -1846,7 +1846,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
                 type="button"
                 disabled={isBulkDeleting}
                 onClick={handleBulkDelete}
-                className="px-6 py-2 text-xs font-black rounded-xl bg-rose-600 hover:bg-rose-700 text-white shadow-sm transition-all cursor-pointer disabled:opacity-50 flex items-center gap-2"
+                className="px-6 py-2 text-xs font-black rounded-xl bg-[#C83D4B] hover:bg-[#B02E3C] text-white shadow-sm transition-all cursor-pointer disabled:opacity-50 flex items-center gap-2"
               >
                 {isBulkDeleting ? 'جاري الحذف...' : 'نعم، احذف الكل نهائياً'}
               </button>

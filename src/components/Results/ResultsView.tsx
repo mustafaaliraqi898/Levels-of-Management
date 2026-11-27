@@ -56,43 +56,43 @@ export const GRADE_TYPE_CONFIG: Record<
     label: 'درجة الفصل الأول',
     shortLabel: 'الفصل الأول',
     description: 'درجات تقييم الفصل الدراسي الأول',
-    badgeColor: 'text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/15 border-blue-200 dark:border-blue-500/30',
+    badgeColor: 'text-[#3156C9] dark:text-[#60A5FA] bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border-[#3156C9]/25 dark:border-[#2785F5]/30',
   },
   midtermScore: {
     label: 'درجة نصف السنة',
     shortLabel: 'نصف السنة',
     description: 'درجات امتحانات نصف السنة الدراسية',
-    badgeColor: 'text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/15 border-amber-200 dark:border-amber-500/30',
+    badgeColor: 'text-[#B45309] dark:text-[#D69B42] bg-[#D69B42]/10 border-[#D69B42]/30',
   },
   term2Score: {
     label: 'درجة الفصل الثاني',
     shortLabel: 'الفصل الثاني',
     description: 'درجات تقييم الفصل الدراسي الثاني',
-    badgeColor: 'text-indigo-700 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/15 border-indigo-200 dark:border-indigo-500/30',
+    badgeColor: 'text-[#3156C9] dark:text-[#60A5FA] bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border-[#3156C9]/25 dark:border-[#2785F5]/30',
   },
   termYearlyScore: {
     label: 'درجة السعي السنوي',
     shortLabel: 'السعي السنوي',
     description: 'معدل درجات السعي السنوي المحسوبة وفق القواعد المعتمدة',
-    badgeColor: 'text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-500/15 border-purple-200 dark:border-purple-500/30',
+    badgeColor: 'text-[#7C3AED] dark:text-[#A78BFA] bg-[#A78BFA]/12 border-[#A78BFA]/30',
   },
   finalExamScore: {
     label: 'درجة الامتحان النهائي',
     shortLabel: 'الامتحان النهائي',
     description: 'درجات الدور الأول للامتحان النهائي',
-    badgeColor: 'text-teal-700 dark:text-teal-400 bg-teal-50 dark:bg-teal-500/15 border-teal-200 dark:border-teal-500/30',
+    badgeColor: 'text-[#3156C9] dark:text-[#60A5FA] bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border-[#3156C9]/25 dark:border-[#2785F5]/30',
   },
   finalScore: {
     label: 'الدرجة النهائية',
     shortLabel: 'الدرجة النهائية',
     description: 'النتيجة العامة والدرجة النهائية المحسوبة آلياً',
-    badgeColor: 'text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/15 border-emerald-200 dark:border-emerald-500/30',
+    badgeColor: 'text-[#059669] dark:text-[#10B981] bg-[#10B981]/10 border-[#10B981]/30',
   },
   secondRoundFinalScore: {
     label: 'الدرجة النهائية بعد الإكمال',
     shortLabel: 'بعد الإكمال',
     description: 'الدرجة النهائية بعد احتساب امتحان الدور الثاني للمكمّلين',
-    badgeColor: 'text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-500/15 border-purple-200 dark:border-purple-500/30',
+    badgeColor: 'text-[#7C3AED] dark:text-[#A78BFA] bg-[#A78BFA]/12 border-[#A78BFA]/30',
   },
 };
 
@@ -739,23 +739,23 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
   return (
     <div className="flex flex-col gap-6 pb-16" dir="rtl">
       {/* Main Header & Filter Control Bar */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl shadow-sm flex flex-col gap-4 no-print">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-5 rounded-[14px] shadow-xs flex flex-col gap-4 no-print">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border flex items-center gap-1.5 ${activeGradeConfig.badgeColor}`}>
+              <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-lg border flex items-center gap-1.5 ${activeGradeConfig.badgeColor}`}>
                 <Sparkles className="w-3 h-3" />
                 <span>النوع المعروض: {activeGradeConfig.label}</span>
               </span>
-              <span className="text-slate-500 dark:text-slate-400 text-xs hidden sm:inline">
+              <span className="text-[#64748B] dark:text-[#A8B5C7] text-xs hidden sm:inline">
                 {activeGradeConfig.description}
               </span>
             </div>
-            <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100 flex items-center gap-2.5">
-              <Trophy className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+            <h1 className="text-2xl font-black text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2.5">
+              <Trophy className="w-6 h-6 text-[#3156C9] dark:text-[#60A5FA]" />
               <span>عرض وتدقيق نتائج وتقييم الطلاب</span>
             </h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            <p className="text-xs text-[#64748B] dark:text-[#A8B5C7] mt-1">
               اختر نوع الدرجة المطلوب لعرض كشف الدرجات الشامل، مع حساب المجموع والمعدل والترتيب آلياً.
             </p>
           </div>
@@ -765,20 +765,20 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
             <button
               type="button"
               onClick={handleExportExcel}
-              className="h-10 px-3.5 text-xs font-bold rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center gap-2 cursor-pointer transition-colors"
+              className="h-10 px-3.5 text-xs font-bold rounded-[10px] bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] border border-[#DCE3ED] dark:border-[#2D3B4D] hover:border-[#2785F5]/60 flex items-center gap-2 cursor-pointer transition-colors"
               title={`تصدير كشف ${activeGradeConfig.label} إلى ملف Excel`}
             >
-              <FileSpreadsheet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <FileSpreadsheet className="w-4 h-4 text-[#059669] dark:text-[#10B981]" />
               <span>تصدير Excel</span>
             </button>
 
             <button
               type="button"
               onClick={() => setShowPrintPreview(true)}
-              className="h-10 px-3.5 text-xs font-bold rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center gap-2 cursor-pointer transition-colors"
+              className="h-10 px-3.5 text-xs font-bold rounded-[10px] bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] border border-[#DCE3ED] dark:border-[#2D3B4D] hover:border-[#2785F5]/60 flex items-center gap-2 cursor-pointer transition-colors"
               title="معاينة شكل ورقة الطباعة A4 على الشاشة قبل الطباعة"
             >
-              <Eye className="w-4 h-4 text-teal-700 dark:text-teal-400" />
+              <Eye className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA]" />
               <span>معاينة الطباعة</span>
             </button>
 
@@ -786,7 +786,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
               type="button"
               disabled={isPrinting}
               onClick={handlePrint}
-              className="h-10 px-4 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-400 dark:hover:bg-emerald-300 dark:text-slate-950 flex items-center gap-2 cursor-pointer shadow-sm transition-colors disabled:opacity-50"
+              className="h-10 px-4 text-xs font-bold rounded-[10px] bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white flex items-center gap-2 cursor-pointer shadow-xs transition-colors disabled:opacity-50"
               title="طباعة النتائج المعروضة حالياً على ورق A4"
             >
               {isPrinting ? (
@@ -803,12 +803,12 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           {/* Filter 1: Academic Year */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">1. العام الدراسي</label>
+            <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1.5">1. العام الدراسي</label>
             <div className="relative">
               <select
                 value={selectedYearId}
                 onChange={(e) => setSelectedYearId(e.target.value)}
-                className="w-full h-10 px-3 pr-3 pl-8 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-bold focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden appearance-none cursor-pointer"
+                className="w-full h-10 px-3 pr-3 pl-8 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[10px] text-[#1E293B] dark:text-[#E2E8F0] font-bold focus:border-[#2785F5] focus:outline-hidden appearance-none cursor-pointer"
               >
                 {academicYears.map((y) => (
                   <option key={y.id} value={y.id}>
@@ -816,18 +816,18 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                   </option>
                 ))}
               </select>
-              <ChevronDown className="w-4 h-4 text-slate-400 absolute left-2.5 top-3 pointer-events-none" />
+              <ChevronDown className="w-4 h-4 text-[#64748B] dark:text-[#8493A8] absolute left-2.5 top-3 pointer-events-none" />
             </div>
           </div>
 
           {/* Filter 2: School Class */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">2. الصف الدراسي</label>
+            <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1.5">2. الصف الدراسي</label>
             <div className="relative">
               <select
                 value={selectedClassId}
                 onChange={(e) => setSelectedClassId(e.target.value)}
-                className="w-full h-10 px-3 pr-3 pl-8 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-bold focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden appearance-none cursor-pointer"
+                className="w-full h-10 px-3 pr-3 pl-8 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[10px] text-[#1E293B] dark:text-[#E2E8F0] font-bold focus:border-[#2785F5] focus:outline-hidden appearance-none cursor-pointer"
               >
                 {availableClasses.length === 0 ? (
                   <option value="">(لا توجد صفوف مسجلة لهذا العام)</option>
@@ -839,19 +839,19 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                   ))
                 )}
               </select>
-              <ChevronDown className="w-4 h-4 text-slate-400 absolute left-2.5 top-3 pointer-events-none" />
+              <ChevronDown className="w-4 h-4 text-[#64748B] dark:text-[#8493A8] absolute left-2.5 top-3 pointer-events-none" />
             </div>
           </div>
 
           {/* Filter 3: Section */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">3. الشعبة</label>
+            <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-1.5">3. الشعبة</label>
             <div className="relative">
               <select
                 value={selectedSectionId}
                 disabled={availableSections.length === 0}
                 onChange={(e) => setSelectedSectionId(e.target.value)}
-                className={`w-full h-10 px-3 pr-3 pl-8 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-slate-100 font-bold focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden appearance-none cursor-pointer ${
+                className={`w-full h-10 px-3 pr-3 pl-8 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[10px] text-[#1E293B] dark:text-[#E2E8F0] font-bold focus:border-[#2785F5] focus:outline-hidden appearance-none cursor-pointer ${
                   availableSections.length === 0 ? 'opacity-60 cursor-not-allowed' : ''
                 }`}
               >
@@ -865,13 +865,13 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                   ))
                 )}
               </select>
-              <ChevronDown className="w-4 h-4 text-slate-400 absolute left-2.5 top-3 pointer-events-none" />
+              <ChevronDown className="w-4 h-4 text-[#64748B] dark:text-[#8493A8] absolute left-2.5 top-3 pointer-events-none" />
             </div>
           </div>
 
           {/* Filter 4: Grade Type */}
           <div>
-            <label className="block text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1.5 flex items-center gap-1.5">
+            <label className="block text-xs font-bold text-[#3156C9] dark:text-[#60A5FA] mb-1.5 flex items-center gap-1.5">
               <Filter className="w-3.5 h-3.5" />
               <span>4. نوع الدرجة المعروضة</span>
             </label>
@@ -879,7 +879,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
               <select
                 value={selectedGradeType}
                 onChange={(e) => setSelectedGradeType(e.target.value as ResultGradeType)}
-                className="w-full h-10 px-3 pr-3 pl-8 text-xs bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-300 dark:border-emerald-500/40 rounded-xl text-emerald-800 dark:text-emerald-300 font-bold focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden appearance-none cursor-pointer shadow-xs"
+                className="w-full h-10 px-3 pr-3 pl-8 text-xs bg-[#3156C9]/8 dark:bg-[#2785F5]/15 border border-[#3156C9]/35 dark:border-[#2785F5]/40 rounded-[10px] text-[#3156C9] dark:text-[#60A5FA] font-bold focus:border-[#2785F5] focus:outline-hidden appearance-none cursor-pointer shadow-xs"
               >
                 <option value="term1Score">درجة الفصل الأول</option>
                 <option value="midtermScore">درجة نصف السنة</option>
@@ -888,7 +888,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                 <option value="finalExamScore">درجة الامتحان النهائي</option>
                 <option value="finalScore">الدرجة النهائية</option>
               </select>
-              <ChevronDown className="w-4 h-4 text-emerald-600 dark:text-emerald-400 absolute left-2.5 top-3 pointer-events-none" />
+              <ChevronDown className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA] absolute left-2.5 top-3 pointer-events-none" />
             </div>
           </div>
         </div>
@@ -896,36 +896,36 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
 
       {/* Summary KPI Cards for the chosen Grade Type */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 no-print">
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-xl flex flex-col shadow-xs">
-          <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">إجمالي طلاب الشعبة</span>
-          <span className="text-xl font-bold font-mono text-slate-900 dark:text-slate-100 mt-1">{classStats.total}</span>
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-3.5 rounded-[12px] flex flex-col shadow-xs">
+          <span className="text-[11px] font-medium text-[#64748B] dark:text-[#A8B5C7]">إجمالي طلاب الشعبة</span>
+          <span className="text-xl font-bold font-mono tabular-nums text-[#1E293B] dark:text-[#E2E8F0] mt-1">{classStats.total}</span>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-xl flex flex-col shadow-xs">
-          <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">الدرجات المكتملة</span>
-          <span className="text-xl font-bold font-mono text-blue-700 dark:text-blue-400 mt-1">
-            {classStats.completed} <span className="text-xs text-slate-400 dark:text-slate-500">من {classStats.total}</span>
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-3.5 rounded-[12px] flex flex-col shadow-xs">
+          <span className="text-[11px] font-medium text-[#64748B] dark:text-[#A8B5C7]">الدرجات المكتملة</span>
+          <span className="text-xl font-bold font-mono tabular-nums text-[#3156C9] dark:text-[#60A5FA] mt-1">
+            {classStats.completed} <span className="text-xs text-[#64748B] dark:text-[#8493A8]">من {classStats.total}</span>
           </span>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-xl flex flex-col shadow-xs">
-          <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">عدد الناجحين</span>
-          <span className="text-xl font-bold font-mono text-emerald-700 dark:text-emerald-400 mt-1">{classStats.passed}</span>
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-3.5 rounded-[12px] flex flex-col shadow-xs">
+          <span className="text-[11px] font-medium text-[#64748B] dark:text-[#A8B5C7]">عدد الناجحين</span>
+          <span className="text-xl font-bold font-mono tabular-nums text-[#059669] dark:text-[#10B981] mt-1">{classStats.passed}</span>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-xl flex flex-col shadow-xs">
-          <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">المكملون (1-2 مادة)</span>
-          <span className="text-xl font-bold font-mono text-amber-600 dark:text-amber-400 mt-1">{classStats.supplementary}</span>
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-3.5 rounded-[12px] flex flex-col shadow-xs">
+          <span className="text-[11px] font-medium text-[#64748B] dark:text-[#A8B5C7]">المكملون (1-2 مادة)</span>
+          <span className="text-xl font-bold font-mono tabular-nums text-[#B45309] dark:text-[#D69B42] mt-1">{classStats.supplementary}</span>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-xl flex flex-col shadow-xs">
-          <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">الراسبون (3 فأكثر)</span>
-          <span className="text-xl font-bold font-mono text-rose-600 dark:text-rose-400 mt-1">{classStats.failed}</span>
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-3.5 rounded-[12px] flex flex-col shadow-xs">
+          <span className="text-[11px] font-medium text-[#64748B] dark:text-[#A8B5C7]">الراسبون (3 فأكثر)</span>
+          <span className="text-xl font-bold font-mono tabular-nums text-[#C83D4B] dark:text-[#E35D6A] mt-1">{classStats.failed}</span>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-xl flex flex-col shadow-xs">
-          <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">نسبة النجاح للمكتملين</span>
-          <span className="text-xl font-bold font-mono text-teal-700 dark:text-teal-400 mt-1">
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-3.5 rounded-[12px] flex flex-col shadow-xs">
+          <span className="text-[11px] font-medium text-[#64748B] dark:text-[#A8B5C7]">نسبة النجاح للمكتملين</span>
+          <span className="text-xl font-bold font-mono tabular-nums text-[#3156C9] dark:text-[#60A5FA] mt-1">
             {classStats.completed > 0 ? `${classStats.passRate}%` : '—'}
           </span>
         </div>
@@ -933,15 +933,15 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
 
       {/* Top 5 Honors Cards for this Selected Grade Type */}
       {topStudents.length > 0 && (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm no-print">
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[14px] p-5 shadow-xs no-print">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Award className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-              <h3 className="font-bold text-base text-slate-900 dark:text-slate-100">
+              <Award className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" />
+              <h3 className="font-bold text-base text-[#1E293B] dark:text-[#E2E8F0]">
                 لوحة الشرف — المتفوقون في {activeGradeConfig.label} ({activeClass?.name} - شعبة {activeSection?.name})
               </h3>
             </div>
-            <span className="text-xs text-teal-700 dark:text-teal-400 font-bold font-mono bg-teal-50 dark:bg-teal-400/10 px-2.5 py-1 rounded-lg border border-teal-200 dark:border-teal-400/30">
+            <span className="text-xs text-[#3156C9] dark:text-[#60A5FA] font-bold font-mono tabular-nums bg-[#3156C9]/10 dark:bg-[#2785F5]/15 px-2.5 py-1 rounded-lg border border-[#3156C9]/25 dark:border-[#2785F5]/30">
               أعلى معدل: {classStats.highestAvg !== null ? `${classStats.highestAvg}%` : '—'}
             </span>
           </div>
@@ -950,20 +950,20 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
             {topStudents.slice(0, 5).map((rankItem, idx) => (
               <div
                 key={rankItem.student.id}
-                className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 p-3.5 rounded-xl flex flex-col justify-between hover:border-emerald-500 dark:hover:border-emerald-400 transition-colors"
+                className="bg-[#F8FAFC] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D] p-3.5 rounded-[12px] flex flex-col justify-between hover:border-[#2785F5] transition-colors"
               >
                 <div className="flex items-center justify-between">
-                  <span className="w-6 h-6 rounded-full bg-emerald-600 text-white dark:bg-emerald-400 dark:text-slate-950 font-black text-xs flex items-center justify-center font-mono">
+                  <span className="w-6 h-6 rounded-full bg-[#3156C9] dark:bg-[#2785F5] text-white font-black text-xs flex items-center justify-center font-mono tabular-nums">
                     {idx + 1}
                   </span>
-                  <span className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400">
+                  <span className="text-xs font-mono tabular-nums font-bold text-[#3156C9] dark:text-[#60A5FA]">
                     معدل: {rankItem.average}%
                   </span>
                 </div>
-                <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100 mt-2 line-clamp-1">
+                <h4 className="font-bold text-sm text-[#1E293B] dark:text-[#E2E8F0] mt-2 line-clamp-1">
                   {rankItem.student.name}
                 </h4>
-                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-1">
+                <span className="text-[11px] text-[#64748B] dark:text-[#A8B5C7] font-mono tabular-nums mt-1">
                   المجموع: {rankItem.totalScore}
                 </span>
               </div>
@@ -980,56 +980,56 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="بحث باسم الطالب أو رقم القيد..."
-            className="w-full h-10 pr-9 pl-3 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-emerald-600 dark:focus:border-emerald-400 focus:outline-hidden shadow-2xs"
+            className="w-full h-10 pr-9 pl-3 text-xs bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[10px] text-[#1E293B] dark:text-[#E2E8F0] placeholder-[#64748B] dark:placeholder-[#8493A8] focus:border-[#2785F5] focus:outline-hidden shadow-2xs"
           />
-          <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute right-3 top-3 pointer-events-none" />
+          <Search className="w-4 h-4 text-[#64748B] dark:text-[#8493A8] absolute right-3 top-3 pointer-events-none" />
         </div>
 
-        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+        <div className="flex items-center gap-2 text-xs text-[#64748B] dark:text-[#A8B5C7]">
           <span>عرض</span>
-          <strong className="text-slate-900 dark:text-slate-100 font-mono">{filteredResults.length}</strong>
+          <strong className="text-[#1E293B] dark:text-[#E2E8F0] font-mono tabular-nums">{filteredResults.length}</strong>
           <span>من إجمالي</span>
-          <strong className="text-slate-900 dark:text-slate-100 font-mono">{studentResults.length}</strong>
+          <strong className="text-[#1E293B] dark:text-[#E2E8F0] font-mono tabular-nums">{studentResults.length}</strong>
           <span>طالباً في الشعبة</span>
         </div>
       </div>
 
       {/* Complete Student Ledger Table */}
-      <div className="no-print overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+      <div className="no-print overflow-x-auto rounded-[14px] border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] shadow-xs">
         <table className="w-full border-collapse text-right select-none">
           <thead>
-            <tr className="bg-slate-100 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300">
-              <th className="p-3 text-center w-12 border-l border-slate-200 dark:border-slate-800">ت</th>
-              <th className="p-3 min-w-[220px] border-l border-slate-200 dark:border-slate-800">اسم الطالب</th>
+            <tr className="bg-[#EDF1F7] dark:bg-[#26364B] border-b border-[#DCE3ED] dark:border-[#2D3B4D] text-xs font-bold text-[#475569] dark:text-[#A8B5C7]">
+              <th className="p-3 text-center w-12 border-l border-[#DCE3ED] dark:border-[#2D3B4D]">ت</th>
+              <th className="p-3 min-w-[220px] border-l border-[#DCE3ED] dark:border-[#2D3B4D]">اسم الطالب</th>
               {classSubjects.map((sub) => (
-                <th key={sub.id} className="p-2.5 text-center min-w-[95px] border-l border-slate-200 dark:border-slate-800 text-[11px]">
+                <th key={sub.id} className="p-2.5 text-center min-w-[95px] border-l border-[#DCE3ED] dark:border-[#2D3B4D] text-[11px]">
                   <div>{sub.name}</div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono font-normal">
+                  <div className="text-[10px] text-[#64748B] dark:text-[#8493A8] font-mono tabular-nums font-normal">
                     (ع: {sub.maxScore} | ن: {sub.passScore})
                   </div>
                 </th>
               ))}
-              <th className="p-3 text-center min-w-[90px] border-l border-slate-200 dark:border-slate-800 bg-slate-100/80 dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-mono">
+              <th className="p-3 text-center min-w-[90px] border-l border-[#DCE3ED] dark:border-[#2D3B4D] bg-[#EDF1F7] dark:bg-[#26364B] text-[#1E293B] dark:text-[#E2E8F0] font-mono">
                 المجموع
               </th>
-              <th className="p-3 text-center min-w-[90px] border-l border-slate-200 dark:border-slate-800 bg-slate-100/80 dark:bg-slate-800 text-emerald-700 dark:text-emerald-400 font-mono">
+              <th className="p-3 text-center min-w-[90px] border-l border-[#DCE3ED] dark:border-[#2D3B4D] bg-[#EDF1F7] dark:bg-[#26364B] text-[#3156C9] dark:text-[#60A5FA] font-mono">
                 المعدل
               </th>
-              <th className="p-3 text-center min-w-[100px] bg-slate-100/80 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border-l border-slate-200 dark:border-slate-800">
+              <th className="p-3 text-center min-w-[100px] bg-[#EDF1F7] dark:bg-[#26364B] text-[#1E293B] dark:text-[#E2E8F0] border-l border-[#DCE3ED] dark:border-[#2D3B4D]">
                 النتيجة
               </th>
-              <th className="p-3 text-center min-w-[140px] bg-slate-100/80 dark:bg-slate-800 text-slate-900 dark:text-slate-100">
+              <th className="p-3 text-center min-w-[140px] bg-[#EDF1F7] dark:bg-[#26364B] text-[#1E293B] dark:text-[#E2E8F0]">
                 الملاحظات
               </th>
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+          <tbody className="divide-y divide-[#DCE3ED] dark:divide-[#2D3B4D]">
             {filteredResults.length === 0 ? (
               <tr>
-                <td colSpan={classSubjects.length + 6} className="py-12 text-center text-slate-500 dark:text-slate-400">
-                  <p className="text-sm font-bold text-slate-700 dark:text-slate-300">لا توجد نتائج مطابقة للشروط أو البحث الحالي</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                <td colSpan={classSubjects.length + 6} className="py-12 text-center text-[#64748B] dark:text-[#A8B5C7]">
+                  <p className="text-sm font-bold text-[#1E293B] dark:text-[#E2E8F0]">لا توجد نتائج مطابقة للشروط أو البحث الحالي</p>
+                  <p className="text-xs text-[#64748B] dark:text-[#A8B5C7] mt-1">
                     تأكد من اختيار العام الدراسي والصف والشعبة الصحيحة، أو تحقق من عبارة البحث.
                   </p>
                 </td>
@@ -1041,24 +1041,24 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                 return (
                   <tr
                     key={r.student.id}
-                    className={`hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors ${
-                      isGeneralExempt ? 'bg-emerald-50/50 dark:bg-emerald-950/25 hover:bg-emerald-50 dark:hover:bg-emerald-950/35' : ''
+                    className={`hover:bg-[#F8FAFC] dark:hover:bg-[#202E40] transition-colors ${
+                      isGeneralExempt ? 'bg-[#10B981]/8 dark:bg-[#10B981]/10 hover:bg-[#10B981]/12' : ''
                     }`}
                   >
-                    <td className="p-2.5 text-center text-xs text-slate-500 dark:text-slate-400 font-mono border-l border-slate-200 dark:border-slate-800">
+                    <td className="p-2.5 text-center text-xs text-[#64748B] dark:text-[#8493A8] font-mono tabular-nums border-l border-[#DCE3ED] dark:border-[#2D3B4D]">
                       {idx + 1}
                     </td>
-                    <td className="p-2.5 border-l border-slate-200 dark:border-slate-800">
+                    <td className="p-2.5 border-l border-[#DCE3ED] dark:border-[#2D3B4D]">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-slate-900 dark:text-slate-100">{r.student.name}</span>
+                        <span className="font-bold text-sm text-[#1E293B] dark:text-[#E2E8F0]">{r.student.name}</span>
                         {isGeneralExempt && (
-                          <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30">
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#10B981]/12 text-[#059669] dark:text-[#10B981] border border-[#10B981]/30">
                             إعفاء عام
                           </span>
                         )}
                       </div>
                       {r.student.registrationNumber && (
-                        <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                        <div className="text-[11px] text-[#64748B] dark:text-[#8493A8] font-mono tabular-nums">
                           قيد: {r.student.registrationNumber}
                         </div>
                       )}
@@ -1092,16 +1092,16 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                           key={sub.id}
                           title={tooltip}
                           style={{ position: 'relative' }}
-                          className={`relative p-2.5 text-center font-mono text-sm border-l border-slate-200 dark:border-slate-800 ${
+                          className={`relative p-2.5 text-center font-mono tabular-nums text-sm border-l border-[#DCE3ED] dark:border-[#2D3B4D] ${
                             isExemptInFinal
-                              ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 font-bold'
+                              ? 'bg-[#10B981]/10 text-[#059669] dark:text-[#10B981] font-bold'
                               : isIndivExempt
-                              ? 'bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 font-bold'
+                              ? 'bg-[#2785F5]/10 text-[#3156C9] dark:text-[#60A5FA] font-bold'
                               : isNull
-                              ? 'text-slate-400 dark:text-slate-500 bg-slate-50/60 dark:bg-slate-900/40'
+                              ? 'text-[#64748B] dark:text-[#8493A8] bg-[#F8FAFC] dark:bg-[#202E40]/60'
                               : isPass
-                              ? 'text-slate-800 dark:text-slate-200 font-medium'
-                              : 'text-rose-700 dark:text-rose-400 font-bold bg-rose-50/70 dark:bg-rose-950/30'
+                              ? 'text-[#1E293B] dark:text-[#E2E8F0] font-medium'
+                              : 'text-[#C83D4B] dark:text-[#E35D6A] font-bold bg-[#E35D6A]/10'
                           }`}
                         >
                           <div
@@ -1109,14 +1109,14 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                             style={{ position: 'relative' }}
                           >
                             {isExemptInFinal ? (
-                              <span className="px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30">
+                              <span className="px-2 py-0.5 rounded text-xs font-bold bg-[#10B981]/15 text-[#059669] dark:text-[#10B981] border border-[#10B981]/30">
                                 {exemptLabel}
                               </span>
                             ) : assistance > 0 && rawScore !== null && rawScore !== score ? (
                               <>
-                                <span className="font-extrabold text-emerald-700 dark:text-emerald-400">{score}</span>
+                                <span className="font-extrabold text-[#059669] dark:text-[#10B981]">{score}</span>
                                 <span
-                                  className="absolute text-[9px] text-rose-600 dark:text-rose-400 font-mono font-bold leading-none select-none bg-white dark:bg-slate-950/90 border border-rose-200 dark:border-rose-500/30 px-0.5 rounded"
+                                  className="absolute text-[9px] text-[#C83D4B] dark:text-[#E35D6A] font-mono font-bold leading-none select-none bg-white dark:bg-[#1C2939] border border-[#E35D6A]/35 px-0.5 rounded"
                                   style={{ position: 'absolute', right: '5px', bottom: '3px' }}
                                   title={`الدرجة الأصلية قبل القرار: ${rawScore}`}
                                 >
@@ -1132,42 +1132,42 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                     })}
 
                     {/* Total Score */}
-                    <td className="p-2.5 text-center font-mono font-bold text-slate-900 dark:text-slate-100 border-l border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40">
+                    <td className="p-2.5 text-center font-mono tabular-nums font-bold text-[#1E293B] dark:text-[#E2E8F0] border-l border-[#DCE3ED] dark:border-[#2D3B4D] bg-[#F8FAFC] dark:bg-[#202E40]">
                       {isGeneralExempt && selectedGradeType === 'finalScore' ? (
-                        <span className="text-emerald-700 dark:text-emerald-400 font-bold text-xs">إعفاء عام</span>
+                        <span className="text-[#059669] dark:text-[#10B981] font-bold text-xs">إعفاء عام</span>
                       ) : r.isComplete ? (
                         r.totalScore
                       ) : r.countedSubjects > 0 ? (
-                        <span className="text-slate-500 dark:text-slate-400 text-xs" title="مجموع جزئي - توجد درجات غير مكتملة">
+                        <span className="text-[#64748B] dark:text-[#A8B5C7] text-xs" title="مجموع جزئي - توجد درجات غير مكتملة">
                           {r.totalScore}*
                         </span>
                       ) : (
-                        <span className="text-slate-400 dark:text-slate-500">—</span>
+                        <span className="text-[#64748B] dark:text-[#8493A8]">—</span>
                       )}
                     </td>
 
                     {/* Average */}
-                    <td className="p-2.5 text-center font-mono font-bold text-emerald-700 dark:text-emerald-400 border-l border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40">
+                    <td className="p-2.5 text-center font-mono tabular-nums font-bold text-[#3156C9] dark:text-[#60A5FA] border-l border-[#DCE3ED] dark:border-[#2D3B4D] bg-[#F8FAFC] dark:bg-[#202E40]">
                       {isGeneralExempt && selectedGradeType === 'finalScore' ? (
-                        <span className="text-emerald-700 dark:text-emerald-400 font-bold text-xs">إعفاء عام</span>
+                        <span className="text-[#059669] dark:text-[#10B981] font-bold text-xs">إعفاء عام</span>
                       ) : r.average !== null ? (
                         `${r.average}%`
                       ) : (
-                        <span className="text-slate-400 dark:text-slate-500 font-normal">—</span>
+                        <span className="text-[#64748B] dark:text-[#8493A8] font-normal">—</span>
                       )}
                     </td>
 
                     {/* Status Badge */}
-                    <td className="p-2.5 text-center border-l border-slate-200 dark:border-slate-800">
+                    <td className="p-2.5 text-center border-l border-[#DCE3ED] dark:border-[#2D3B4D]">
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-bold border ${
                           r.status === 'ناجح' || r.status === 'ناجح — إعفاء عام' || r.status === 'معفى عام'
-                            ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30'
+                            ? 'bg-[#10B981]/12 text-[#059669] dark:text-[#10B981] border-[#10B981]/30'
                             : r.status === 'مكمّل' || (r.status as string) === 'مكمل'
-                            ? 'bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30'
+                            ? 'bg-[#D69B42]/12 text-[#B45309] dark:text-[#D69B42] border-[#D69B42]/30'
                             : r.status === 'راسب'
-                            ? 'bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-500/30'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700'
+                            ? 'bg-[#E35D6A]/12 text-[#C83D4B] dark:text-[#E35D6A] border-[#E35D6A]/30'
+                            : 'bg-[#EDF1F7] dark:bg-[#26364B] text-[#475569] dark:text-[#A8B5C7] border-[#DCE3ED] dark:border-[#2D3B4D]'
                         }`}
                       >
                         {r.status}
@@ -1178,23 +1178,23 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                     <td className="p-2.5 text-center">
                       <div className="flex flex-col items-center gap-1">
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-bold border ${
                             r.notes === 'ناجح — إعفاء عام'
-                              ? 'bg-emerald-50 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/30 shadow-2xs'
+                              ? 'bg-[#10B981]/15 text-[#047857] dark:text-[#10B981] border-[#10B981]/30 shadow-2xs'
                               : r.notes === 'ناجح'
-                              ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30'
+                              ? 'bg-[#10B981]/12 text-[#059669] dark:text-[#10B981] border-[#10B981]/30'
                               : r.notes === 'مكمّل'
-                              ? 'bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-500/30'
+                              ? 'bg-[#D69B42]/12 text-[#B45309] dark:text-[#D69B42] border-[#D69B42]/30'
                               : r.notes === 'راسب'
-                              ? 'bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-500/30'
-                              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700'
+                              ? 'bg-[#E35D6A]/12 text-[#C83D4B] dark:text-[#E35D6A] border-[#E35D6A]/30'
+                              : 'bg-[#EDF1F7] dark:bg-[#26364B] text-[#475569] dark:text-[#A8B5C7] border-[#DCE3ED] dark:border-[#2D3B4D]'
                           }`}
                         >
                           {r.notes}
                         </span>
 
                         {(r.evaluation.primaryAssistanceUsed > 0 || r.evaluation.secondRoundAssistanceUsed > 0) && (
-                          <span className="text-[10px] text-amber-700 dark:text-amber-400 font-mono">
+                          <span className="text-[10px] text-[#B45309] dark:text-[#D69B42] font-mono tabular-nums">
                             (+{r.evaluation.primaryAssistanceUsed + r.evaluation.secondRoundAssistanceUsed} درجات مساعدة)
                           </span>
                         )}
@@ -1209,8 +1209,8 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
       </div>
 
       {/* Informative Guidance Footer Note */}
-      <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 flex items-center gap-3 text-xs text-slate-600 dark:text-slate-400 no-print shadow-2xs">
-        <Info className="w-4 h-4 text-teal-700 dark:text-teal-400 shrink-0" />
+      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[12px] p-3.5 flex items-center gap-3 text-xs text-[#475569] dark:text-[#A8B5C7] no-print shadow-2xs">
+        <Info className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA] shrink-0" />
         <div>
           <span>ملاحظة: علامة الشرطة (—) تعني أن الدرجة غير مدخلة بعد ولم تُحتسب صفراً. </span>
           <span>المجموع والمعدل يُحسبان بصورة نهائية فور اكتمال رصد جميع المواد لهذا النوع من الدرجات.</span>

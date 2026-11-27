@@ -20,7 +20,7 @@ export const StudentStatusBadge: React.FC<StudentStatusBadgeProps> = ({
 
   return (
     <span
-      className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold leading-none select-none shrink-0 border transition-colors bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-500/30 print:bg-purple-100 print:text-purple-900 print:border-purple-300 ${className}`}
+      className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold leading-none select-none shrink-0 border transition-colors bg-[#A78BFA]/15 text-[#7C3AED] dark:text-[#A78BFA] border-[#A78BFA]/35 print:bg-purple-100 print:text-purple-900 print:border-purple-300 ${className}`}
       title="حالة الطالب: انتساب"
     >
       انتساب
