@@ -550,7 +550,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
             setManualSectionsInput('');
             setAddClassError(null);
             setIsAddClassModalOpen(true);
-          }} className="h-11 px-5 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] text-white text-sm font-bold inline-flex items-center justify-center gap-2 shadow-sm transition-colors shrink-0">
+          }} className="h-11 px-5 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] text-white text-sm font-bold inline-flex items-center justify-center gap-2 shadow-sm transition-colors shrink-0 cursor-pointer">
             <Plus className="w-4 h-4" /> إضافة صف دراسي جديد
           </button>
         </div>
@@ -596,7 +596,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
         </div>
         <div className="flex items-center gap-2">
           <button type="button" onClick={() => scrollClassTabs('right')} disabled={filteredClasses.length < 2} aria-label="تمرير الصفوف إلى اليمين"
-            className="w-9 h-9 shrink-0 rounded-lg border border-[#DCE3ED] dark:border-[#3B4D66] bg-[#F8FAFC] dark:bg-[#26364B] text-[#475569] dark:text-[#A8B5C7] hover:text-[#3156C9] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center"><ChevronRight className="w-4 h-4" /></button>
+            className="w-9 h-9 shrink-0 rounded-lg border border-[#DCE3ED] dark:border-[#3B4D66] bg-[#F8FAFC] dark:bg-[#26364B] text-[#475569] dark:text-[#A8B5C7] hover:text-[#3156C9] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"><ChevronRight className="w-4 h-4" /></button>
           <div ref={classTabsRef} className="flex-1 min-w-0 overflow-x-auto flex items-center gap-2.5 py-1 scroll-smooth [scrollbar-width:thin] [scrollbar-color:#B8C7E2_transparent]">
             {filteredClasses.map((cls) => {
               const isActive = selectedClassId === cls.id;
