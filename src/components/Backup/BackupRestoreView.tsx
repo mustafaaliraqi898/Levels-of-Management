@@ -120,14 +120,14 @@ export const BackupRestoreView: React.FC = () => {
         <div className="border-[#BFD5FF] dark:border-[#365681] bg-gradient-to-br from-[#F1F6FF] via-white to-[#E5EFFF] dark:from-[#1B2D46] dark:via-[#1C2939] dark:to-[#203657] p-6 rounded-2xl shadow-sm dark:shadow-xl relative overflow-hidden">
           <span aria-hidden="true" className="pointer-events-none absolute -left-8 -top-8 h-32 w-32 rounded-full bg-[#3976DB]/[0.07] dark:bg-[#60A5FA]/[0.08]" />
           {!isElectron && (
-            <div className="mb-3 md:mb-0 md:absolute md:top-3 md:left-4 z-10 inline-block">
+            <div className="mb-4 relative z-10 inline-block">
               <div className="bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border border-[#3156C9]/25 dark:border-[#2785F5]/30 text-[#3156C9] dark:text-[#60A5FA] px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-xs">
                 <ShieldCheck className="w-3 h-3" />
                 <span>ميزة حصرية لنسخة الكمبيوتر</span>
               </div>
             </div>
           )}
-          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-[12px] bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border border-[#3156C9]/25 dark:border-[#2785F5]/30 text-[#3156C9] dark:text-[#60A5FA] flex items-center justify-center shrink-0">
                 <HardDrive className="w-6 h-6" />
