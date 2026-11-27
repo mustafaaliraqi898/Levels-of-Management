@@ -26,6 +26,12 @@ interface SubjectsManagementProps {
   academicYears?: AcademicYear[];
 }
 
+const DEFAULT_SUBJECT_CATALOG = [
+  'التربية الإسلامية', 'اللغة العربية', 'اللغة الإنكليزية', 'الرياضيات',
+  'الأحياء', 'الكيمياء', 'الفيزياء', 'الحاسوب', 'التاريخ', 'الجغرافية',
+  'الاقتصاد', 'التربية الرياضية', 'الفنية', 'الوطنية', 'اللغة الفرنسية',
+];
+
 export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
   subjects,
   classes,
@@ -66,11 +72,6 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
   const [deletingSubject, setDeletingSubject] = useState<Subject | null>(null);
 
   // Multi-subject setup workflow and reusable custom subject catalog
-  const DEFAULT_SUBJECT_CATALOG = [
-    'التربية الإسلامية', 'اللغة العربية', 'اللغة الإنكليزية', 'الرياضيات',
-    'الأحياء', 'الكيمياء', 'الفيزياء', 'الحاسوب', 'التاريخ', 'الجغرافية',
-    'الاقتصاد', 'التربية الرياضية', 'الفنية', 'الوطنية', 'اللغة الفرنسية',
-  ];
   const [isAddPageOpen, setIsAddPageOpen] = useState(false);
   const [addStep, setAddStep] = useState<1 | 2>(1);
   const [catalogSubjects, setCatalogSubjects] = useState<string[]>(DEFAULT_SUBJECT_CATALOG);
@@ -139,7 +140,7 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
     const invalid = selectedNewSubjects.find((name) => {
       const grade = bulkGrades[name] || { maxScore: 100, passScore: 50 };
       return !Number.isFinite(grade.maxScore) || !Number.isFinite(grade.passScore) ||
-        grade.maxScore < 1 || grade.passScore < 0 || grade.passScore > grade.maxScore;
+        grade.maxScore < 1 || grade.passScore < 1 || grade.passScore > grade.maxScore;
     });
     if (invalid) {
       setSaveSuccessNotification(`تحقق من درجات مادة «${invalid}»: درجة النجاح يجب ألا تتجاوز النهاية العظمى.`);
@@ -546,7 +547,7 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
                         const grade = bulkGrades[name] || { maxScore: 100, passScore: 50 };
                         return <tr key={name}><td className="p-3 font-bold text-[#1E293B] dark:text-[#E2E8F0]">{name}</td>
                           <td className="p-2"><input type="number" min={1} value={grade.maxScore} onChange={(e) => setBulkGrades((old) => ({ ...old, [name]: { ...grade, maxScore: Number(e.target.value) } }))} className="w-full h-9 rounded-lg border border-[#DCE3ED] dark:border-[#2D3B4D] bg-[#F8FAFC] dark:bg-[#26364B] px-3 font-mono text-center text-[#1E293B] dark:text-[#E2E8F0]" /></td>
-                          <td className="p-2"><input type="number" min={0} max={grade.maxScore} value={grade.passScore} onChange={(e) => setBulkGrades((old) => ({ ...old, [name]: { ...grade, passScore: Number(e.target.value) } }))} className="w-full h-9 rounded-lg border border-[#DCE3ED] dark:border-[#2D3B4D] bg-[#F8FAFC] dark:bg-[#26364B] px-3 font-mono text-center text-[#1E293B] dark:text-[#E2E8F0]" /></td>
+                          <td className="p-2"><input type="number" min={1} max={grade.maxScore} value={grade.passScore} onChange={(e) => setBulkGrades((old) => ({ ...old, [name]: { ...grade, passScore: Number(e.target.value) } }))} className="w-full h-9 rounded-lg border border-[#DCE3ED] dark:border-[#2D3B4D] bg-[#F8FAFC] dark:bg-[#26364B] px-3 font-mono text-center text-[#1E293B] dark:text-[#E2E8F0]" /></td>
                         </tr>;
                       })}
                     </tbody>
