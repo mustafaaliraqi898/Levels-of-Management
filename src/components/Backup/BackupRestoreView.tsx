@@ -84,7 +84,7 @@ export const BackupRestoreView: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-6 pb-16 text-right" dir="rtl">
-      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-5 rounded-[14px] shadow-xs flex items-center justify-between">
+      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-5 rounded-[14px] shadow-xs flex items-center justify-between app-card-surface">
         <div>
           <h1 className="text-2xl font-black text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2.5">
             <span className="p-2 rounded-[10px] bg-[#3156C9]/10 dark:bg-[#2785F5]/15 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/20 dark:border-[#2785F5]/30">
@@ -117,7 +117,7 @@ export const BackupRestoreView: React.FC = () => {
 
       {/* Automated Backup Status & Location Settings */}
       <div className="flex flex-col gap-5">
-        <div className="border-[#BFD5FF] dark:border-[#365681] bg-gradient-to-br from-[#F1F6FF] via-white to-[#E5EFFF] dark:from-[#1B2D46] dark:via-[#1C2939] dark:to-[#203657] p-6 rounded-2xl shadow-sm dark:shadow-xl relative overflow-hidden">
+        <div className="border-[#BFD5FF] dark:border-[#365681] bg-gradient-to-br from-[#F1F6FF] via-white to-[#E5EFFF] dark:from-[#1B2D46] dark:via-[#1C2939] dark:to-[#203657] p-6 rounded-2xl shadow-sm dark:shadow-xl relative overflow-hidden app-card-surface">
           <span aria-hidden="true" className="pointer-events-none absolute -left-8 -top-8 h-32 w-32 rounded-full bg-[#3976DB]/[0.07] dark:bg-[#60A5FA]/[0.08]" />
           {!isElectron && (
             <div className="mb-4 relative z-10 inline-block">
@@ -178,7 +178,7 @@ export const BackupRestoreView: React.FC = () => {
           </div>
         </div>
 
-        <div className="border-[#BFE8D7] dark:border-[#326B58] bg-gradient-to-br from-[#EDFBF5] via-white to-[#E1F7EC] dark:from-[#193B34] dark:via-[#1C2939] dark:to-[#1B4038] p-6 rounded-2xl shadow-sm dark:shadow-xl relative overflow-hidden">
+        <div className="border-[#BFE8D7] dark:border-[#326B58] bg-gradient-to-br from-[#EDFBF5] via-white to-[#E1F7EC] dark:from-[#193B34] dark:via-[#1C2939] dark:to-[#1B4038] p-6 rounded-2xl shadow-sm dark:shadow-xl relative overflow-hidden app-card-surface">
           <span aria-hidden="true" className="pointer-events-none absolute -left-8 -top-8 h-32 w-32 rounded-full bg-[#15966B]/[0.07] dark:bg-[#54D6A6]/[0.08]" />
           {!isElectron && (
             <div className="mb-3 md:mb-0 md:absolute md:top-3 md:left-4 z-10 inline-block">
@@ -236,7 +236,7 @@ export const BackupRestoreView: React.FC = () => {
       </div>
 
       {/* Restore database */}
-      <div className="border-[#F4D9AD] dark:border-[#76552D] bg-gradient-to-br from-[#FFF8EC] via-white to-[#FFF0D8] dark:from-[#3A2D1B] dark:via-[#1C2939] dark:to-[#332817] p-6 rounded-2xl shadow-sm dark:shadow-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-5">
+      <div className="border-[#F4D9AD] dark:border-[#76552D] bg-gradient-to-br from-[#FFF8EC] via-white to-[#FFF0D8] dark:from-[#3A2D1B] dark:via-[#1C2939] dark:to-[#332817] p-6 rounded-2xl shadow-sm dark:shadow-xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-5 app-card-surface">
         <span aria-hidden="true" className="pointer-events-none absolute -left-8 -top-8 h-32 w-32 rounded-full bg-[#D69B42]/[0.07] dark:bg-[#E8B968]/[0.08]" />
         <div className="relative z-10 flex items-start gap-4">
           <div className="w-12 h-12 rounded-[12px] bg-[#D69B42]/12 dark:bg-[#D69B42]/15 border border-[#D69B42]/30 text-[#B45309] dark:text-[#D69B42] flex items-center justify-center shrink-0">
