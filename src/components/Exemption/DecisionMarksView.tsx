@@ -32,6 +32,7 @@ import {
   Calendar,
   Layers,
   Users,
+  BookOpen,
   Printer,
   X,
   FileCheck,
