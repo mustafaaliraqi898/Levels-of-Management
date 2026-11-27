@@ -548,7 +548,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
   return (
     <div className="flex flex-col gap-6 pb-16">
       {/* Configuration & Actions Bar (Hidden during print) */}
-      <div className="no-print bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-5 rounded-[14px] shadow-xs flex flex-col gap-4">
+      <div className="no-print bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-5 rounded-[14px] shadow-xs flex flex-col gap-4 app-card-surface">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-black text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2">
