@@ -120,7 +120,7 @@ export const YearsManagement: React.FC<YearsManagementProps> = ({ years }) => {
   return (
     <div className="flex flex-col gap-6 pb-12" dir="rtl">
       {/* 1. Header Bar */}
-      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-5 rounded-[14px] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-5 rounded-[14px] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 app-card-surface">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-[#1E293B] dark:text-[#E2E8F0] flex flex-wrap items-center gap-2.5">
             <span className="p-2 rounded-[10px] bg-[#3156C9]/10 dark:bg-[#2785F5]/15 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/20 dark:border-[#2785F5]/30">
@@ -139,7 +139,7 @@ export const YearsManagement: React.FC<YearsManagementProps> = ({ years }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* 2. Add Year Form */}
-        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-5 rounded-[14px] shadow-xs h-fit">
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-5 rounded-[14px] shadow-xs h-fit app-card-surface">
           <h3 className="text-sm font-bold text-[#1E293B] dark:text-[#E2E8F0] mb-4 flex items-center gap-2">
             <Plus className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA]" />
             <span>إضافة عام دراسي جديد</span>
@@ -194,7 +194,7 @@ export const YearsManagement: React.FC<YearsManagementProps> = ({ years }) => {
         </div>
 
         {/* 3. Existing Years List */}
-        <div className="md:col-span-2 bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[14px] p-5 shadow-xs">
+        <div className="md:col-span-2 bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-[14px] p-5 shadow-xs app-card-surface">
           <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
             <h3 className="text-sm font-bold text-[#1E293B] dark:text-[#E2E8F0]">
               قائمة الأعوام المسجلة في قاعدة البيانات
