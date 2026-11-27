@@ -509,9 +509,6 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
             <h1 className="text-base font-black text-slate-900 px-4 py-1 border border-black/40 rounded-lg bg-slate-100/90 shadow-2xs">
               كشف نتائج وتدقيق درجات الطلاب — {activeGradeConfig.label}
             </h1>
-            <div className="text-[11px] font-bold text-slate-600 mt-1">
-              {activeGradeConfig.description}
-            </div>
           </div>
 
           {/* Left: Meta details */}
