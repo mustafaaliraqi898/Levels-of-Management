@@ -24,8 +24,6 @@ import {
   AlertCircle,
   FileSpreadsheet,
   ArrowLeft,
-  ShieldCheck,
-  HardDrive,
   ChevronDown,
   ChevronUp,
   Clock,
@@ -97,8 +95,8 @@ const DonutChart: React.FC<DonutChartProps> = ({
         </span>
       </div>
 
-      <div className="flex flex-col items-center gap-3">
-        <div className="relative h-36 w-36 shrink-0 sm:h-40 sm:w-40">
+      <div className="flex flex-col items-center gap-2">
+        <div className="relative h-32 w-32 shrink-0">
           <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90" role="img" aria-label={`نسبة ${title}: ${percentage}%`}>
             <circle cx="60" cy="60" r="47" fill="none" stroke={safeTotal > 0 ? secondaryColor : "currentColor"} className={safeTotal > 0 ? "" : "text-slate-200 dark:text-slate-700"} strokeWidth="12" />
             {safeTotal > 0 && (
@@ -355,15 +353,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   const statCards = [
     {
-      label: 'العام الدراسي',
-      value: currentYear?.name || 'غير محدد',
-      detail: 'العام الحالي',
-      icon: <Calendar className="h-5 w-5" />,
-      color: 'from-teal-600 to-cyan-700',
-      action: 'years' as ActiveTab,
-      compact: true,
-    },
-    {
       label: 'الصفوف الدراسية',
       value: activeClasses.length,
       detail: 'صفوف مسجلة',
@@ -416,12 +405,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </span>
             <h1 className="text-xl font-black text-slate-900 dark:text-slate-100 sm:text-2xl">لوحة التحكم والإحصائيات العامة</h1>
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            {settings.schoolName} · متابعة العام الدراسي وحالة رصد الدرجات
-          </p>
-          <div className="mt-2 flex flex-wrap items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400">
-            <span className="inline-flex items-center gap-1"><ShieldCheck className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" /> نظام مدرسي محلي</span>
-            <span className="inline-flex items-center gap-1"><HardDrive className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" /> يعمل دون اتصال بالإنترنت</span>
+          <div className="mt-1 flex flex-wrap items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400">
             {settings.directorName && <span>مدير المدرسة: {settings.directorName}</span>}
           </div>
         </div>
@@ -445,7 +429,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       </div>
 
       {/* Six colorful KPI cards inspired by the Absence dashboard */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
         {statCards.map((card) => (
           <button
             key={card.label}
@@ -458,7 +442,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <span className="text-[11px] font-bold text-white/90">{card.label}</span>
               <span className="rounded-lg bg-white/15 p-1.5 text-white">{card.icon}</span>
             </div>
-            <div className={`relative font-black tracking-tight ${card.compact ? 'text-base sm:text-lg' : 'text-2xl sm:text-3xl'}`} dir="auto">
+            <div className="relative text-2xl font-black tracking-tight sm:text-3xl" dir="auto">
               {typeof card.value === 'number' ? card.value.toLocaleString('en-US') : card.value}
             </div>
             <span className="relative text-[10px] font-semibold text-white/85">{card.detail}</span>
@@ -468,7 +452,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       {/* Main analytics area: class completion and two donut charts */}
       <div className="grid min-w-0 grid-cols-1 gap-4 2xl:grid-cols-12">
-        <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 2xl:col-span-6">
+        <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 2xl:col-span-8">
           <div className="mb-4 flex flex-col gap-3 border-b border-slate-200 pb-3 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
               <span className="rounded-xl bg-emerald-50 p-2 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400"><Layers className="h-5 w-5" /></span>
@@ -494,9 +478,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 {STAGE_LABELS[stage]}
               </button>
             ))}
-            <span className="mr-auto rounded-lg bg-slate-50 px-2.5 py-1.5 text-[10px] font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
-              {hierarchyStats.overallPercent}% إجمالي الإنجاز
-            </span>
           </div>
 
           {hierarchyStats.classes.length === 0 ? (
@@ -652,7 +633,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           )}
         </section>
 
-        <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 2xl:col-span-6 2xl:grid-cols-2">
+        <div className="grid min-w-0 grid-cols-1 gap-3 2xl:col-span-4 2xl:grid-cols-1">
           <DonutChart
             title="حالة رصد الدرجات"
             subtitle={`حسب ${STAGE_LABELS[selectedStage]}`}
