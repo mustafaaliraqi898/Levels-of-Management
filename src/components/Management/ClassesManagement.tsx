@@ -134,6 +134,16 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
     return filterClassesByAcademicYear(classes, selectedYearId, currentYear?.id);
   }, [classes, selectedYearId, currentYear?.id]);
 
+  const visibleClassIds = useMemo(() => new Set(filteredClasses.map((cls) => cls.id)), [filteredClasses]);
+  const visibleSectionCount = useMemo(
+    () => sections.filter((section) => visibleClassIds.has(section.classId)).length,
+    [sections, visibleClassIds]
+  );
+  const visibleStudentCount = useMemo(
+    () => students.filter((student) => visibleClassIds.has(student.classId)).length,
+    [students, visibleClassIds]
+  );
+
   // Auto-dismiss toast after 4 seconds
   useEffect(() => {
     if (toastMessage) {
@@ -502,56 +512,75 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
         </div>
       )}
 
-      {/* Header Banner */}
-      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-5 rounded-2xl shadow-sm dark:shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#3156C9]/8 dark:bg-[#2785F5]/12 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/25 dark:border-[#2785F5]/25">
-              <Layers className="w-3.5 h-3.5" />
-              الهيكل التنظيمي للمدرسة
+      {/* Professional page banner */}
+      <section className="relative overflow-hidden rounded-[22px] border border-[#BFD2FF] dark:border-[#31517E] bg-gradient-to-l from-[#2455D6] via-[#3269E8] to-[#4C83F2] p-4 sm:p-5 shadow-[0_10px_28px_rgba(37,84,190,0.16)]">
+        <div aria-hidden="true" className="pointer-events-none absolute -left-12 -top-16 h-56 w-56 rounded-full bg-white/10 blur-2xl" />
+        <div aria-hidden="true" className="pointer-events-none absolute left-[38%] -bottom-24 h-52 w-52 rounded-full bg-[#9CC0FF]/20 blur-3xl" />
+        <div className="relative flex flex-col xl:flex-row xl:items-center justify-between gap-5">
+          <div className="flex items-center gap-3 shrink-0 text-white">
+            <span className="w-12 h-12 rounded-2xl bg-white/15 border border-white/25 flex items-center justify-center shadow-inner">
+              <Layers className="w-7 h-7" />
             </span>
-            <span className="text-[#64748B] dark:text-[#8493A8] text-xs">
-              إجمالي الصفوف: <strong className="text-[#3156C9] dark:text-[#60A5FA] font-mono tabular-nums">{filteredClasses.length}</strong> | إجمالي الشعب: <strong className="text-[#B45309] dark:text-[#D69B42] font-mono tabular-nums">{sections.filter(s => filteredClasses.some(c => c.id === s.classId)).length}</strong>
-            </span>
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight">إدارة الصفوف والشعب</h1>
           </div>
-          <h1 className="text-2xl font-black text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2">
-            <Layers className="w-6 h-6 text-[#3156C9] dark:text-[#60A5FA]" />
-            إدارة الصفوف والشعب الدراسية
-          </h1>
-          <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-1">
-            إضافة وإدارة الصفوف والمراحل التعليمية والشعب التابعة لها لكل عام دراسي عبر نافذة منبثقة تفاعلية.
-          </p>
-        </div>
 
-        {/* Academic Year Filter, Copy Structure & Add Class Button */}
-        <div className="flex flex-wrap items-center gap-3">
-          {academicYears.length > 0 && (
-            <div className="relative">
-              <select
-                value={selectedYearId}
-                onChange={(e) => setSelectedYearId(e.target.value)}
-                className="h-10 px-3 pr-3 pl-8 text-xs bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] font-bold focus:border-[#2785F5] focus:outline-hidden appearance-none cursor-pointer"
-              >
-                {academicYears.map((y) => (
-                  <option key={y.id} value={y.id}>
-                    العام الدراسي {y.name} {y.isCurrent ? '(الحالي)' : ''}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="w-4 h-4 text-[#64748B] dark:text-[#8493A8] absolute left-2.5 top-3 pointer-events-none" />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 w-full xl:max-w-[760px]">
+            <div className="min-h-[78px] rounded-2xl border border-white/70 bg-white/95 dark:bg-[#1C2939]/95 p-3 flex items-center justify-between gap-3 shadow-sm">
+              <div>
+                <p className="text-[11px] font-bold text-[#526174] dark:text-[#A8B5C7]">إجمالي الصفوف</p>
+                <p className="mt-1 text-2xl font-black tabular-nums text-[#185B9D] dark:text-[#A8D5FF]">{filteredClasses.length}</p>
+              </div>
+              <span className="w-11 h-11 rounded-xl bg-[#E4EEFF] dark:bg-[#24476B] text-[#2563EB] dark:text-[#8FC8FF] flex items-center justify-center"><Layers className="w-6 h-6" /></span>
             </div>
-          )}
+            <div className="min-h-[78px] rounded-2xl border border-white/70 bg-white/95 dark:bg-[#1C2939]/95 p-3 flex items-center justify-between gap-3 shadow-sm">
+              <div>
+                <p className="text-[11px] font-bold text-[#526174] dark:text-[#A8B5C7]">إجمالي الشُعب</p>
+                <p className="mt-1 text-2xl font-black tabular-nums text-[#087E59] dark:text-[#70E0B7]">{visibleSectionCount}</p>
+              </div>
+              <span className="w-11 h-11 rounded-xl bg-[#DDF5EA] dark:bg-[#205344] text-[#087E59] dark:text-[#70E0B7] flex items-center justify-center"><FolderPlus className="w-6 h-6" /></span>
+            </div>
+            <div className="min-h-[78px] rounded-2xl border border-white/70 bg-white/95 dark:bg-[#1C2939]/95 p-3 flex items-center justify-between gap-3 shadow-sm">
+              <div>
+                <p className="text-[11px] font-bold text-[#526174] dark:text-[#A8B5C7]">إجمالي الطلاب</p>
+                <p className="mt-1 text-2xl font-black tabular-nums text-[#7045B5] dark:text-[#C5A9FF]">{visibleStudentCount}</p>
+              </div>
+              <span className="w-11 h-11 rounded-xl bg-[#EEE7FF] dark:bg-[#49366D] text-[#7045B5] dark:text-[#C5A9FF] flex items-center justify-center"><Users className="w-6 h-6" /></span>
+            </div>
+          </div>
+        </div>
+      </section>
 
-          <button
-            type="button"
-            onClick={() => setIsCopyModalOpen(true)}
-            className="h-10 px-3.5 rounded-xl bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors shadow-xs"
-            title="نسخ الهيكل التنظيمي للصفوف والمواد من عام دراسي سابق"
-          >
-            <Copy className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA]" />
-            <span>نسخ صفوف من عام سابق</span>
-          </button>
-
+      {/* Academic year and class actions */}
+      <section className="rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] p-3.5 sm:p-4 shadow-sm">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
+            {academicYears.length > 0 && (
+              <div className="relative">
+                <select
+                  value={selectedYearId}
+                  onChange={(e) => setSelectedYearId(e.target.value)}
+                  aria-label="العام الدراسي"
+                  className="h-11 min-w-[210px] px-3 pr-3 pl-9 text-xs bg-[#F5F8FD] dark:bg-[#26364B] border border-[#D5E0F0] dark:border-[#3B4D66] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] font-bold focus:border-[#3976DB] focus:ring-2 focus:ring-[#3976DB]/15 focus:outline-none appearance-none cursor-pointer"
+                >
+                  {academicYears.map((y) => (
+                    <option key={y.id} value={y.id}>
+                      العام الدراسي {y.name} {y.isCurrent ? '(الحالي)' : ''}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="w-4 h-4 text-[#64748B] dark:text-[#A8B5C7] absolute left-3 top-3.5 pointer-events-none" />
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={() => setIsCopyModalOpen(true)}
+              className="h-11 px-4 rounded-xl bg-[#F1F5FB] hover:bg-[#E5EDF8] dark:bg-[#26364B] dark:hover:bg-[#30435C] border border-[#D8E2F0] dark:border-[#3B4D66] text-[#263B5A] dark:text-[#D8E4F4] font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors"
+              title="نسخ الهيكل التنظيمي للصفوف والمواد من عام دراسي سابق"
+            >
+              <Copy className="w-4 h-4 text-[#3156C9] dark:text-[#8DB5FF]" />
+              <span>نسخ صفوف من عام سابق</span>
+            </button>
+          </div>
           <button
             type="button"
             onClick={() => {
@@ -563,28 +592,20 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
               setAddClassError(null);
               setIsAddClassModalOpen(true);
             }}
-            className="h-10 px-4 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors shadow-sm"
+            className="h-11 px-5 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3979E6] dark:hover:bg-[#4B8CF0] text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-all shadow-[0_5px_14px_rgba(49,86,201,0.2)] hover:-translate-y-0.5"
           >
             <Plus className="w-4 h-4" />
             <span>إضافة صف دراسي جديد</span>
           </button>
         </div>
-      </div>
+      </section>
 
       {/* Main Table View: Registered Classes & Sections */}
-      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-5 shadow-sm dark:shadow-lg flex flex-col gap-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
-          <div>
-            <h3 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2">
-              <Layers className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" />
-              <span>جدول الصفوف والشعب الدراسية المسجلة</span>
-            </h3>
-            <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-0.5">
-              عرض تفصيلي لصفوف العام الدراسي المحدد مع إمكانية تعديل البيانات، إدارة الشعب، أو الحذف والأرشفة.
-            </p>
-          </div>
-          <span className="text-xs px-3 py-1 rounded-full bg-[#3156C9]/8 dark:bg-[#2785F5]/12 border border-[#3156C9]/25 dark:border-[#2785F5]/25 text-[#3156C9] dark:text-[#60A5FA] font-mono tabular-nums font-bold self-start sm:self-auto">
-            {filteredClasses.length} صفوف مسجلة
+      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-4 sm:p-5 shadow-sm dark:shadow-lg flex flex-col gap-4">
+        <div className="flex items-center justify-between gap-3 pb-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
+          <h3 className="text-sm font-black text-[#263B5A] dark:text-[#E2E8F0]">الصفوف والشُعب المسجلة</h3>
+          <span className="text-[11px] px-3 py-1.5 rounded-lg bg-[#EEF3FF] dark:bg-[#263B63] border border-[#D5E0FF] dark:border-[#3B4D78] text-[#3156C9] dark:text-[#A9C3FF] font-bold tabular-nums">
+            {filteredClasses.length} صفوف
           </span>
         </div>
 
@@ -615,7 +636,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
           <div className="overflow-x-auto">
             <table className="w-full text-right border-collapse">
               <thead>
-                <tr className="border-b border-[#DCE3ED] dark:border-[#2D3B4D] text-xs font-bold text-[#475569] dark:text-[#A8B5C7] bg-[#EDF1F7] dark:bg-[#26364B]">
+                <tr className="border-b border-[#D5E0F0] dark:border-[#3B4D66] text-xs font-black text-[#334B6D] dark:text-[#C1D0E3] bg-[#EAF0FC] dark:bg-[#26364B]">
                   <th className="py-3 px-4 rounded-r-xl">اسم الصف الدراسي</th>
                   <th className="py-3 px-4">المرحلة الدراسية</th>
                   <th className="py-3 px-4">الشعب التابعة</th>
