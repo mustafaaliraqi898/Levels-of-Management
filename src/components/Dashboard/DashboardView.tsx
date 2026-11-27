@@ -100,7 +100,7 @@ const DonutChart: React.FC<DonutChartProps> = ({
       <div className="flex flex-col items-center gap-3">
         <div className="relative h-36 w-36 shrink-0 sm:h-40 sm:w-40">
           <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90" role="img" aria-label={`نسبة ${title}: ${percentage}%`}>
-            <circle cx="60" cy="60" r="47" fill="none" stroke="currentColor" className="text-slate-200 dark:text-slate-700" strokeWidth="12" />
+            <circle cx="60" cy="60" r="47" fill="none" stroke={safeTotal > 0 ? secondaryColor : "currentColor"} className={safeTotal > 0 ? "" : "text-slate-200 dark:text-slate-700"} strokeWidth="12" />
             {safeTotal > 0 && (
               <circle
                 cx="60"
