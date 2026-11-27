@@ -462,9 +462,9 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
   };
 
   return (
-    <div className="space-y-6 pb-12" dir="rtl">
+    <div className="space-y-4 pb-8" dir="rtl">
       {/* 1. Header Bar */}
-      <div className="no-print bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="no-print bg-white dark:bg-[#172235] border border-[#DCE5F2] dark:border-[#2B3B52] rounded-2xl px-4 py-3.5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-xl bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border border-[#3156C9]/25 dark:border-[#2785F5]/30 flex items-center justify-center text-[#3156C9] dark:text-[#60A5FA] shadow-xs">
@@ -524,8 +524,8 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
       )}
 
       {/* 3. Settings Section: "إعدادات شروط الإعفاء" */}
-      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl overflow-hidden shadow-sm">
-        <div className="p-4 sm:p-5 bg-[#F8FAFC] dark:bg-[#202E40] border-b border-[#DCE3ED] dark:border-[#2D3B4D] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <div className="bg-white dark:bg-[#172235] border border-[#DCE5F2] dark:border-[#2B3B52] rounded-2xl overflow-hidden shadow-sm">
+        <div className="px-4 py-3 bg-[#F5F8FD] dark:bg-[#1B2A40] border-b border-[#DCE5F2] dark:border-[#2B3B52] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <Sliders className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" />
             <h2 className="font-bold text-base sm:text-lg text-[#1E293B] dark:text-[#E2E8F0]">
@@ -571,10 +571,10 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
           </div>
         )}
 
-        <div className="p-5 sm:p-6 space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="p-3 sm:p-4 space-y-3">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
             {/* أ. شروط الإعفاء العام */}
-            <div className="bg-[#F8FAFC] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl p-5 space-y-4">
+            <div className="bg-gradient-to-br from-[#F0FAF6] to-[#F8FCFA] dark:from-[#18352F] dark:to-[#1B2A38] border border-[#BFE8D7] dark:border-[#326B58] rounded-xl p-4 space-y-3 shadow-sm">
               <div className="flex items-center justify-between border-b border-[#DCE3ED] dark:border-[#2D3B4D] pb-3">
                 <div className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-[#D69B42]" />
@@ -646,7 +646,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
               </div>
 
               {/* 3. مربع اختيار: تفعيل جبر كسر المعدل العام */}
-              <div className="pt-2 border-t border-[#DCE3ED] dark:border-[#2D3B4D] space-y-3">
+              <div className="mt-2 rounded-xl border border-[#D5C7F3] dark:border-[#554477] bg-[#F6F2FF] dark:bg-[#2A2540] p-3 space-y-3 shadow-[inset_3px_0_0_0_#8056C7]">
                 <label className="flex items-start gap-3 cursor-pointer group select-none">
                   <div className="pt-0.5">
                     <input
@@ -694,7 +694,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                       </span>
                     </div>
 
-                    <div className="mt-2 text-[11px] text-[#475569] dark:text-[#A8B5C7] leading-relaxed bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-lg p-2.5">
+                    <div className="mt-2 text-[11px] text-[#475569] dark:text-[#C5D1E2] leading-relaxed bg-white/90 dark:bg-[#172235] border border-[#D9D0EF] dark:border-[#51436F] rounded-lg p-2.5">
                       <div className="font-semibold text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-1.5 mb-1">
                         <Info className="w-3.5 h-3.5 text-[#B45309] dark:text-[#D69B42] shrink-0" />
                         نظام الجبر المعتمد في إعدادات مدرستك حالياً:
@@ -724,7 +724,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
             </div>
 
             {/* ب. شروط الإعفاء الفردي وملاحظات النظام */}
-            <div className="bg-[#F8FAFC] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl p-5 space-y-4 flex flex-col justify-between">
+            <div className="bg-gradient-to-br from-[#F1F6FF] to-[#FAFBFF] dark:from-[#1B2D49] dark:to-[#1B293B] border border-[#C9D9FA] dark:border-[#365681] rounded-xl p-4 space-y-3 flex flex-col justify-between shadow-sm">
               <div>
                 <div className="flex items-center justify-between border-b border-[#DCE3ED] dark:border-[#2D3B4D] pb-3">
                   <div className="flex items-center gap-2">
@@ -784,7 +784,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
               </div>
 
               {/* ملاحظة رسمية واضحة كما طلب المستخدم */}
-              <div className="bg-[#D69B42]/10 border border-[#D69B42]/25 rounded-xl p-3.5 text-[11px] text-[#475569] dark:text-[#A8B5C7] leading-relaxed">
+              <div className="bg-[#FFF7E8] dark:bg-[#3A3021] border border-[#F0D7A5] dark:border-[#76572D] rounded-xl p-3 text-[11px] text-[#6B5737] dark:text-[#E5D2AE] leading-relaxed">
                 <div className="font-bold text-[#B45309] dark:text-[#D69B42] flex items-center gap-1.5 mb-1">
                   <Sparkles className="w-3.5 h-3.5" />
                   ملاحظة تنظيمية هامة:
@@ -797,8 +797,12 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
       </div>
 
       {/* 4. Filter Toolbar: Year, Class, Section, and Quick Search */}
-      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+      <div className="bg-white dark:bg-[#172235] border border-[#DCE5F2] dark:border-[#2B3B52] rounded-2xl p-3 sm:p-4 shadow-sm space-y-3">
+        <div className="flex items-center gap-2">
+          <Filter className="w-4 h-4 text-[#3156C9] dark:text-[#83A5FF]" />
+          <h3 className="text-xs font-black text-[#29466F] dark:text-[#D9E6FA]">تحديد بيانات البحث</h3>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {/* Year Filter */}
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-[#475569] dark:text-[#A8B5C7] flex items-center gap-1.5">
@@ -890,7 +894,11 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
         </div>
 
         {/* 5. Quick Stats Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
+        <div className="flex items-center gap-2 pt-2 border-t border-[#DCE5F2] dark:border-[#2B3B52]">
+          <Award className="w-4 h-4 text-[#3156C9] dark:text-[#83A5FF]" />
+          <h3 className="text-xs font-black text-[#29466F] dark:text-[#D9E6FA]">ملخص نتائج الشعبة</h3>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="bg-[#F8FAFC] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl p-3 flex items-center justify-between">
             <div>
               <p className="text-[11px] text-[#64748B] dark:text-[#8493A8]">إجمالي طلاب الشعبة</p>
@@ -899,7 +907,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
             <Users className="w-6 h-6 text-[#64748B] dark:text-[#8493A8]" />
           </div>
 
-          <div className="bg-[#D69B42]/10 border border-[#D69B42]/30 rounded-xl p-3 flex items-center justify-between">
+          <div className="bg-[#FFF5E5] dark:bg-[#3A3021] border border-[#F0D7A5] dark:border-[#76572D] rounded-xl p-3 flex items-center justify-between shadow-sm">
             <div>
               <p className="text-[11px] text-[#B45309] dark:text-[#D69B42] font-semibold">المعفون عاماً</p>
               <div className="flex items-baseline gap-1.5">
@@ -912,7 +920,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
             <Award className="w-6 h-6 text-[#B45309] dark:text-[#D69B42]" />
           </div>
 
-          <div className="bg-[#2785F5]/10 border border-[#2785F5]/30 rounded-xl p-3 flex items-center justify-between">
+          <div className="bg-[#EDF4FF] dark:bg-[#1D3150] border border-[#C9D8FF] dark:border-[#35558B] rounded-xl p-3 flex items-center justify-between shadow-sm">
             <div>
               <p className="text-[11px] text-[#3156C9] dark:text-[#60A5FA] font-semibold">مستحقون لإعفاء فردي</p>
               <div className="flex items-baseline gap-1.5">
@@ -936,7 +944,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
       </div>
 
       {/* 6. Tabs to Switch Between General Exemption & Individual Exemption */}
-      <div className="flex items-center gap-2 border-b border-[#DCE3ED] dark:border-[#2D3B4D] pb-2">
+      <div className="flex items-center gap-2 border-b border-[#DCE5F2] dark:border-[#2B3B52] pb-2">
         <button
           onClick={() => setActiveTab('general')}
           className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
