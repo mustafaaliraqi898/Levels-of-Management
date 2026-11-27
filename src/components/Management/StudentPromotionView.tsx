@@ -811,13 +811,7 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
           <div>
             <h1 className="text-xl font-black text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2 flex-wrap">
               <span>ترحيل الطلاب وترقيتهم للسنة الدراسية الجديدة</span>
-              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#3156C9]/8 dark:bg-[#2785F5]/12 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/25 dark:border-[#2785F5]/25">
-                ربط دقيق بين صفوف وشُعب كل سنة
-              </span>
             </h1>
-            <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-1">
-              ترقية الناجحين والمعفين وتأطير المعيدين في صفوف وشُعب السنة الجديدة الحصرية، مع حماية تامة وغير قابلة للتعديل للدرجات السابقة.
-            </p>
           </div>
         </div>
 
@@ -878,7 +872,7 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
               ١
             </div>
             <h2 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0]">
-              تحديد الأعوام الدراسية والصفوف المخصصة بكل سنة
+              تحديد الأعوام والصفوف الدراسية
             </h2>
           </div>
           <button
@@ -891,86 +885,28 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
           </button>
         </div>
 
-        {/* 1. Academic Years */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
-          {/* Source Academic Year */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-bold text-[#475569] dark:text-[#A8B5C7] flex items-center gap-1.5">
-              <Calendar className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA]" />
-              <span>1. السنة الدراسية المنصرمة (المصدر)</span>
-            </label>
-            <select
-              value={sourceYearId}
-              onChange={(e) => setSourceYearId(e.target.value)}
-              className="w-full h-10 px-3 bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] text-sm font-bold focus:border-[#2785F5] focus:outline-hidden"
-            >
-              {academicYears.map((y) => (
-                <option key={y.id} value={y.id}>
-                  {y.name} {y.isCurrent ? '(العام الحالي)' : ''}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Direction Arrow */}
-          <div className="hidden lg:flex items-center justify-center pb-2 text-[#3156C9] dark:text-[#60A5FA]">
-            <ArrowRightLeft className="w-6 h-6" />
-          </div>
-
-          {/* Target Academic Year */}
-          <div className="flex flex-col gap-1.5">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-[#475569] dark:text-[#A8B5C7] flex items-center gap-1.5">
-                <Calendar className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA]" />
-                <span>2. السنة الدراسية الجديدة (الوجهة)</span>
-              </label>
-              <button
-                type="button"
-                onClick={() => setIsAddYearModalOpen(true)}
-                className="text-[11px] font-bold text-[#3156C9] dark:text-[#60A5FA] hover:underline flex items-center gap-1 cursor-pointer"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>+ إنشاء عام جديد</span>
-              </button>
+        {/* Source and destination selection cards */}
+        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-3 items-stretch">
+          <section className="relative overflow-hidden rounded-2xl border border-[#BFD5FF] dark:border-[#365681] bg-gradient-to-br from-[#F1F6FF] via-white to-[#E5EFFF] dark:from-[#1B2D46] dark:via-[#1C2939] dark:to-[#203657] p-4 sm:p-5 shadow-sm flex flex-col gap-4">
+            <div className="absolute -left-8 -top-8 w-32 h-32 rounded-full bg-[#3976DB]/[0.07] dark:bg-[#60A5FA]/[0.08] pointer-events-none" />
+            <div className="relative flex items-center justify-between gap-2 pb-3 border-b border-[#C9D9F2] dark:border-[#344D6E]">
+              <div className="flex items-center gap-2.5">
+                <span className="w-8 h-8 rounded-xl bg-[#DCE9FF] dark:bg-[#24466F] text-[#3156C9] dark:text-[#A9C3FF] flex items-center justify-center"><Calendar className="w-4 h-4" /></span>
+                <div>
+                  <h3 className="text-sm font-black text-[#23477F] dark:text-[#C9DCFF]">السنة والصف المصدر</h3>
+                  <p className="text-[10px] text-[#6B82A5] dark:text-[#91A9CA]">البيانات الحالية للطلبة</p>
+                </div>
+              </div>
+              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#DCE9FF] dark:bg-[#24466F] text-[#3156C9] dark:text-[#B7D0FF] border border-[#BFD5FF] dark:border-[#365681]">المصدر</span>
             </div>
-            <select
-              value={targetYearId}
-              onChange={(e) => setTargetYearId(e.target.value)}
-              className="w-full h-10 px-3 bg-[#F8FAFC] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] text-sm font-bold focus:border-[#2785F5] focus:outline-hidden"
-            >
-              {academicYears.map((y) => (
-                <option key={y.id} value={y.id} disabled={y.id === sourceYearId}>
-                  {y.name} {y.id === sourceYearId ? '(غير مسموح - نفس العام)' : ''}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Warning if target year has no classes */}
-        {availableTargetClasses.length === 0 && targetYearId && (
-          <div className="p-4 rounded-xl bg-[#D69B42]/10 dark:bg-[#D69B42]/15 border border-[#D69B42]/30 text-[#B45309] dark:text-[#D69B42] text-xs flex items-center justify-between gap-3 flex-wrap">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 shrink-0" />
-              <span>
-                السنة الدراسية الجديدة ({targetYearObj?.name}) لا تحتوي على أي صفوف معرّفة بعد.
-              </span>
+            <div className="relative flex flex-col gap-1.5">
+              <label className="text-[11px] font-bold text-[#526987] dark:text-[#A8BBD5]">السنة الدراسية المنصرمة</label>
+              <select value={sourceYearId} onChange={(e) => setSourceYearId(e.target.value)} className="w-full h-11 px-3 bg-white/90 dark:bg-[#26364B] border border-[#C7D7EF] dark:border-[#3B5577] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] text-sm font-bold shadow-xs focus:border-[#3976DB] focus:ring-2 focus:ring-[#3976DB]/15 focus:outline-none">
+                {academicYears.map((y) => <option key={y.id} value={y.id}>{y.name} {y.isCurrent ? '(العام الحالي)' : ''}</option>)}
+              </select>
             </div>
-            <button
-              type="button"
-              onClick={handleCopyClassStructure}
-              className="px-3.5 py-1.5 rounded-lg bg-[#D69B42] hover:bg-[#B45309] text-white font-black text-xs cursor-pointer flex items-center gap-1.5 shadow-xs"
-            >
-              <Copy className="w-4 h-4" />
-              <span>نسخ هيكل الصفوف والشُعب من السنة المنصرمة فورياً</span>
-            </button>
-          </div>
-        )}
-
-        {/* 2. Source Class & Target Class Selection */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
           {/* Source Class (تُعرض فقط صفوف السنة المنصرمة) */}
-          <div className="bg-[#F8FAFC] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl p-4 flex flex-col gap-3">
+          <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between pb-2 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
               <label className="text-xs font-bold text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2">
                 <Layers className="w-4 h-4 text-[#3156C9] dark:text-[#60A5FA]" />
@@ -1060,8 +996,36 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
             </div>
           </div>
 
+
+          </section>
+
+          <div className="hidden xl:flex items-center justify-center px-1">
+            <span className="w-12 h-12 rounded-full bg-white dark:bg-[#26364B] border border-[#D7E2F1] dark:border-[#3B5577] shadow-sm text-[#3156C9] dark:text-[#8DB5FF] flex items-center justify-center"><ArrowRightLeft className="w-6 h-6" /></span>
+          </div>
+
+          <section className="relative overflow-hidden rounded-2xl border border-[#BFE8D7] dark:border-[#326B58] bg-gradient-to-br from-[#EDFBF5] via-white to-[#E1F7EC] dark:from-[#193B34] dark:via-[#1C2939] dark:to-[#1B4038] p-4 sm:p-5 shadow-sm flex flex-col gap-4">
+            <div className="absolute -left-8 -top-8 w-32 h-32 rounded-full bg-[#15966B]/[0.07] dark:bg-[#54D6A6]/[0.08] pointer-events-none" />
+            <div className="relative flex items-center justify-between gap-2 pb-3 border-b border-[#C8E8D9] dark:border-[#326B58]">
+              <div className="flex items-center gap-2.5">
+                <span className="w-8 h-8 rounded-xl bg-[#DDF5EA] dark:bg-[#205344] text-[#087E59] dark:text-[#70E0B7] flex items-center justify-center"><GraduationCap className="w-4 h-4" /></span>
+                <div>
+                  <h3 className="text-sm font-black text-[#176447] dark:text-[#B8F0D8]">السنة والصف الوجهة</h3>
+                  <p className="text-[10px] text-[#668E7D] dark:text-[#91BBA9]">الوجهة الجديدة للطلبة</p>
+                </div>
+              </div>
+              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#DDF5EA] dark:bg-[#205344] text-[#087E59] dark:text-[#70E0B7] border border-[#BFE8D7] dark:border-[#326B58]">الوجهة</span>
+            </div>
+            <div className="relative flex flex-col gap-1.5">
+              <div className="flex items-center justify-between gap-2">
+                <label className="text-[11px] font-bold text-[#527969] dark:text-[#A8CBBB]">السنة الدراسية الجديدة</label>
+                <button type="button" onClick={() => setIsAddYearModalOpen(true)} className="text-[10px] font-bold text-[#087E59] dark:text-[#70E0B7] hover:underline flex items-center gap-1 cursor-pointer"><Plus className="w-3 h-3" /> إنشاء عام</button>
+              </div>
+              <select value={targetYearId} onChange={(e) => setTargetYearId(e.target.value)} className="w-full h-11 px-3 bg-white/90 dark:bg-[#26364B] border border-[#BFE0D0] dark:border-[#326B58] rounded-xl text-[#1E293B] dark:text-[#E2E8F0] text-sm font-bold shadow-xs focus:border-[#15966B] focus:ring-2 focus:ring-[#15966B]/15 focus:outline-none">
+                {academicYears.map((y) => <option key={y.id} value={y.id} disabled={y.id === sourceYearId}>{y.name} {y.id === sourceYearId ? '(نفس العام)' : ''}</option>)}
+              </select>
+            </div>
           {/* Target Class (تُعرض فقط صفوف السنة الجديدة) */}
-          <div className="bg-[#F8FAFC] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-xl p-4 flex flex-col gap-3">
+          <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between pb-2 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
               <label className="text-xs font-bold text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2">
                 <GraduationCap className="w-4 h-4 text-[#059669] dark:text-[#10B981]" />
@@ -1146,7 +1110,22 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
               </div>
             )}
           </div>
+          </section>
         </div>
+
+        {/* Warning if target year has no classes */}
+        {availableTargetClasses.length === 0 && targetYearId && (
+          <div className="p-4 rounded-xl bg-[#D69B42]/10 dark:bg-[#D69B42]/15 border border-[#D69B42]/30 text-[#B45309] dark:text-[#D69B42] text-xs flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 shrink-0" />
+              <span>السنة الدراسية الجديدة ({targetYearObj?.name}) لا تحتوي على أي صفوف معرّفة بعد.</span>
+            </div>
+            <button type="button" onClick={handleCopyClassStructure} className="px-3.5 py-1.5 rounded-lg bg-[#D69B42] hover:bg-[#B45309] text-white font-black text-xs cursor-pointer flex items-center gap-1.5 shadow-xs">
+              <Copy className="w-4 h-4" />
+              <span>نسخ هيكل الصفوف والشُعب من السنة المنصرمة</span>
+            </button>
+          </div>
+        )}
 
         {/* Options Row: Repeater Students Handling */}
         <div className="flex flex-col gap-3 p-4 rounded-xl bg-[#F8FAFC] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D]">
@@ -1226,7 +1205,7 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
               </div>
               <div>
                 <h2 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0]">
-                  توزيع الناجحين والمعيدين على شُعب السنة الجديدة ({targetYearObj?.name})
+                  توزيع الطلبة على شُعب السنة الجديدة
                 </h2>
                 <p className="text-xs text-[#64748B] dark:text-[#8493A8]">
                   اختر بين التوزيع التلقائي المتوازن بالتساوي، أو التوزيع اليدوي لكل طالب
@@ -1234,38 +1213,55 @@ export const StudentPromotionView: React.FC<StudentPromotionViewProps> = ({
               </div>
             </div>
 
-            {/* Method Tabs */}
-            <div className="flex items-center gap-2 bg-[#EDF1F7] dark:bg-[#26364B] p-1.5 rounded-xl border border-[#DCE3ED] dark:border-[#2D3B4D]">
+            {/* Distribution method cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full lg:max-w-[720px]">
               <button
                 type="button"
+                aria-pressed={distributionMethod === 'manual'}
                 onClick={() => setDistributionMethod('manual')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors ${
+                className={`group relative min-h-[104px] rounded-2xl border-2 p-4 flex items-center gap-4 text-right transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#3976DB]/25 ${
                   distributionMethod === 'manual'
-                    ? 'bg-[#3156C9] text-white shadow-xs'
-                    : 'text-[#475569] dark:text-[#A8B5C7] hover:text-[#1E293B] dark:hover:text-[#E2E8F0]'
+                    ? 'border-[#8B5CF6] bg-gradient-to-br from-[#F6F1FF] to-white dark:from-[#33264D] dark:to-[#202B3C] shadow-md shadow-[#8B5CF6]/10'
+                    : 'border-[#DCE3ED] dark:border-[#3B4D66] bg-white dark:bg-[#202E40] hover:border-[#B7A0EA] dark:hover:border-[#7058A5]'
                 }`}
               >
-                <Sliders className="w-3.5 h-3.5" />
-                <span>التوزيع اليدوي</span>
+                <span className={`w-12 h-12 shrink-0 rounded-xl flex items-center justify-center transition-colors ${distributionMethod === 'manual' ? 'bg-[#E9DDFF] dark:bg-[#49366D] text-[#7045B5] dark:text-[#C5A9FF]' : 'bg-[#F1F5F9] dark:bg-[#2B3B52] text-[#71819A] dark:text-[#A8B5C7]'}`}>
+                  <Sliders className="w-6 h-6" />
+                </span>
+                <span className="flex-1 min-w-0">
+                  <span className="block text-sm font-black text-[#263B5A] dark:text-[#E2E8F0]">التوزيع اليدوي</span>
+                  <span className="block mt-1 text-[11px] leading-5 text-[#71819A] dark:text-[#A8B5C7]">تحديد شعبة كل طالب من جدول المعاينة بشكل مستقل</span>
+                </span>
+                <span className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center ${distributionMethod === 'manual' ? 'border-[#8B5CF6]' : 'border-[#B8C4D3] dark:border-[#60738C]'}`}>
+                  {distributionMethod === 'manual' && <span className="w-2.5 h-2.5 rounded-full bg-[#8B5CF6]" />}
+                </span>
               </button>
 
               <button
                 type="button"
+                aria-pressed={distributionMethod === 'auto_balanced'}
                 onClick={() => {
                   setDistributionMethod('auto_balanced');
                   executeBalancedDistribution();
                 }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors ${
+                className={`group relative min-h-[104px] rounded-2xl border-2 p-4 flex items-center gap-4 text-right transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#3976DB]/25 ${
                   distributionMethod === 'auto_balanced'
-                    ? 'bg-[#3156C9] text-white shadow-xs'
-                    : 'text-[#475569] dark:text-[#A8B5C7] hover:text-[#1E293B] dark:hover:text-[#E2E8F0]'
+                    ? 'border-[#3976DB] bg-gradient-to-br from-[#EAF2FF] to-white dark:from-[#203D67] dark:to-[#202B3C] shadow-md shadow-[#3976DB]/10'
+                    : 'border-[#DCE3ED] dark:border-[#3B4D66] bg-white dark:bg-[#202E40] hover:border-[#9BB9EE] dark:hover:border-[#4D79B8]'
                 }`}
               >
-                <Shuffle className="w-3.5 h-3.5" />
-                <span>التوزيع التلقائي المتوازن</span>
+                <span className={`w-12 h-12 shrink-0 rounded-xl flex items-center justify-center transition-colors ${distributionMethod === 'auto_balanced' ? 'bg-[#D7E6FF] dark:bg-[#2B5288] text-[#245BC5] dark:text-[#A9C3FF]' : 'bg-[#F1F5F9] dark:bg-[#2B3B52] text-[#71819A] dark:text-[#A8B5C7]'}`}>
+                  <Shuffle className="w-6 h-6" />
+                </span>
+                <span className="flex-1 min-w-0">
+                  <span className="block text-sm font-black text-[#263B5A] dark:text-[#E2E8F0]">التوزيع التلقائي المتوازن</span>
+                  <span className="block mt-1 text-[11px] leading-5 text-[#71819A] dark:text-[#A8B5C7]">توزيع الطلبة بالتتابع على الشُعب المحددة لتحقيق تقارب في الأعداد</span>
+                </span>
+                <span className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center ${distributionMethod === 'auto_balanced' ? 'border-[#3976DB]' : 'border-[#B8C4D3] dark:border-[#60738C]'}`}>
+                  {distributionMethod === 'auto_balanced' && <span className="w-2.5 h-2.5 rounded-full bg-[#3976DB]" />}
+                </span>
               </button>
             </div>
-          </div>
 
           {/* Live Section Balancer Counters */}
           <div className="flex flex-col gap-2 pt-1">
