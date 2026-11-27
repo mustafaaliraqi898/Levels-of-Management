@@ -16,20 +16,17 @@ import {
   filterStudentsByAcademicYear,
 } from '../../utils/academicYearUtils';
 import {
-  Calendar,
   Layers,
   Users,
   BookOpen,
   CheckCircle2,
   AlertCircle,
-  FileSpreadsheet,
   ArrowLeft,
   ChevronDown,
   ChevronUp,
   Clock,
   GraduationCap,
   PieChart,
-  BarChart3,
 } from 'lucide-react';
 
 interface DashboardViewProps {
@@ -393,11 +390,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       value: hierarchyStats.completedCount,
       detail: 'مواد مكتملة حسب الشعب',
       icon: <BookOpen className="h-5 w-5" />,
-      surfaceTone: 'border-[#D2EEE4] bg-gradient-to-br from-white via-[#F3FBF7] to-[#E8F7EF] dark:border-[#285B4D] dark:from-[#152C29] dark:via-[#18342F] dark:to-[#142A26]',
-      iconTone: 'bg-[#DDF8EC] text-[#059669] dark:bg-[#1D5145] dark:text-[#6EE7B7]',
-      valueTone: 'text-[#087A59] dark:text-[#6EE7B7]',
-      accentTone: 'bg-[#10B981]',
-      glowTone: 'bg-[#34D399]/20 dark:bg-[#10B981]/15',
+      surfaceTone: 'border-[#DDD6FE] bg-gradient-to-br from-white via-[#F8F6FF] to-[#EEE9FF] dark:border-[#514078] dark:from-[#241F36] dark:via-[#29233F] dark:to-[#211B34]',
+      iconTone: 'bg-[#EDE7FF] text-[#7C3AED] dark:bg-[#49366D] dark:text-[#C4A5FF]',
+      valueTone: 'text-[#5B21B6] dark:text-[#D8C4FF]',
+      accentTone: 'bg-[#8B5CF6]',
+      glowTone: 'bg-[#A78BFA]/20 dark:bg-[#8B5CF6]/15',
       action: 'grade_entry' as ActiveTab,
     },
     {
@@ -407,53 +404,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       icon: <AlertCircle className="h-5 w-5" />,
       surfaceTone: totalGradeSlotsMissing > 0
         ? 'border-[#F4D6D9] bg-gradient-to-br from-white via-[#FFF8F8] to-[#FCEAEC] dark:border-[#69404A] dark:from-[#302127] dark:via-[#35232B] dark:to-[#2B1D25]'
-        : 'border-[#CDEFE3] bg-gradient-to-br from-white via-[#F2FCF8] to-[#E4F7EF] dark:border-[#285B4D] dark:from-[#152C2B] dark:via-[#17332F] dark:to-[#142A28]',
+        : 'border-[#CFE2F5] bg-gradient-to-br from-white via-[#F5FAFF] to-[#E8F3FF] dark:border-[#315477] dark:from-[#192A3D] dark:via-[#1B3048] dark:to-[#17283D]',
       iconTone: totalGradeSlotsMissing > 0
         ? 'bg-[#FCE7E9] text-[#D14352] dark:bg-[#65313D] dark:text-[#FDA4AF]'
-        : 'bg-[#DDF8EC] text-[#059669] dark:bg-[#1D5145] dark:text-[#6EE7B7]',
+        : 'bg-[#DCEEFF] text-[#2474C8] dark:bg-[#24476B] dark:text-[#8FC8FF]',
       valueTone: totalGradeSlotsMissing > 0
         ? 'text-[#B42332] dark:text-[#FDA4AF]'
-        : 'text-[#087A59] dark:text-[#6EE7B7]',
-      accentTone: totalGradeSlotsMissing > 0 ? 'bg-[#E35D6A]' : 'bg-[#10B981]',
-      glowTone: totalGradeSlotsMissing > 0 ? 'bg-[#FB7185]/20 dark:bg-[#E35D6A]/15' : 'bg-[#34D399]/20 dark:bg-[#10B981]/15',
+        : 'text-[#185B9D] dark:text-[#A8D5FF]',
+      accentTone: totalGradeSlotsMissing > 0 ? 'bg-[#E35D6A]' : 'bg-[#3B91E8]',
+      glowTone: totalGradeSlotsMissing > 0 ? 'bg-[#FB7185]/20 dark:bg-[#E35D6A]/15' : 'bg-[#60A5FA]/20 dark:bg-[#3B91E8]/15',
       action: 'grade_entry' as ActiveTab,
     },
   ];
 
   return (
     <div className="flex min-w-0 flex-col gap-5 pb-10">
-      {/* Dashboard heading and filters */}
-      <div className="flex flex-col gap-4 relative overflow-hidden rounded-2xl border border-[#DCE3ED] bg-white p-5 shadow-sm dark:border-[#2D3B4D] dark:bg-[#1C2939] dark:shadow-[0_8px_24px_rgba(0,0,0,0.2)] lg:flex-row lg:items-center lg:justify-between">
-        <div className="min-w-0">
-          <div className="mb-1 flex items-center gap-2.5">
-            <span className="rounded-xl bg-[#3156C9]/10 p-2 text-[#3156C9] dark:bg-[#26364B] dark:text-[#60A5FA]">
-              <BarChart3 className="h-5 w-5" />
-            </span>
-            <h1 className="text-xl font-black text-[#1E293B] dark:text-[#E2E8F0] sm:text-2xl">لوحة التحكم والإحصائيات العامة</h1>
-          </div>
-          <div className="mt-1 flex flex-wrap items-center gap-3 text-[11px] text-[#64748B] dark:text-[#A8B5C7]">
-            {settings.directorName && <span>مدير المدرسة: {settings.directorName}</span>}
-          </div>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <label className="flex items-center gap-2 rounded-[10px] border border-[#DCE3ED] bg-[#F4F6FA] px-3 py-2 text-xs font-bold text-[#1E293B] dark:border-[#2D3B4D] dark:bg-[#26364B] dark:text-[#E2E8F0]">
-            <Calendar className="h-4 w-4 text-[#3156C9] dark:text-[#60A5FA]" />
-            <span>العام الدراسي</span>
-            <span className="font-mono tabular-nums">{currentYear?.name || 'غير محدد'}</span>
-          </label>
-          <button
-            type="button"
-            onClick={() => onNavigate('grade_entry')}
-            className="inline-flex items-center justify-center gap-2 rounded-[10px] bg-[#3156C9] px-4 py-2.5 text-xs font-black text-white shadow-sm transition-all hover:bg-[#2749B0] dark:hover:bg-[#3979E6] cursor-pointer"
-          >
-            <FileSpreadsheet className="h-4 w-4" />
-            بدء رصد الدرجات
-            <ArrowLeft className="h-3.5 w-3.5" />
-          </button>
-        </div>
-      </div>
-
       {/* Unified Fluent KPI cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
         {statCards.map((card) => (
