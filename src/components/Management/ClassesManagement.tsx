@@ -624,7 +624,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                 <p className="text-[11px] text-[#64748B] dark:text-[#8493A8] mt-1">{selectedClassSections.length} شعبة تابعة لهذا الصف</p>
               </div>
               <button type="button" onClick={() => { setManagingClass(selectedClass); setNewSectionNameInput(''); setManageSectionError(null); }}
-                className="h-9 px-3 rounded-lg bg-[#3156C9]/10 hover:bg-[#3156C9]/15 dark:bg-[#2785F5]/15 dark:hover:bg-[#2785F5]/25 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/25 dark:border-[#2785F5]/30 font-bold text-xs flex items-center gap-1.5 transition-colors">
+                className="h-9 px-3 rounded-lg bg-[#3156C9]/10 hover:bg-[#3156C9]/15 dark:bg-[#2785F5]/15 dark:hover:bg-[#2785F5]/25 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/25 dark:border-[#2785F5]/30 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer">
                 <Plus className="w-4 h-4" /> إضافة شعبة جديدة
               </button>
             </div>
@@ -652,9 +652,9 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                         <td className="py-3.5 px-4 text-center"><span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900 px-3 py-1 text-emerald-700 dark:text-emerald-300 font-bold tabular-nums"><Users className="w-3.5 h-3.5" />{count}</span></td>
                         <td className="py-3.5 px-4">
                           <div className="flex items-center justify-center gap-1.5">
-                            <button type="button" onClick={() => { setManagingClass(selectedClass); setNewSectionNameInput(''); setManageSectionError(null); }} className="h-8 px-2.5 rounded-lg bg-[#3156C9]/10 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/20 font-bold text-[11px] inline-flex items-center gap-1"><FolderPlus className="w-3.5 h-3.5" /> إدارة الشعبة</button>
-                            <button type="button" onClick={() => openEditSectionModal(section)} title="تعديل الشعبة" className="p-2 rounded-lg bg-[#EDF1F7] dark:bg-[#26364B] text-[#475569] dark:text-[#A8B5C7] hover:text-[#3156C9]"><Edit3 className="w-4 h-4" /></button>
-                            <button type="button" onClick={() => openDeleteSectionModal(section)} title="حذف الشعبة" className="p-2 rounded-lg bg-[#EDF1F7] dark:bg-[#26364B] text-[#475569] dark:text-[#A8B5C7] hover:text-[#C83D4B]"><Trash2 className="w-4 h-4" /></button>
+                            <button type="button" onClick={() => { setManagingClass(selectedClass); setNewSectionNameInput(''); setManageSectionError(null); }} className="h-8 px-2.5 rounded-lg bg-[#3156C9]/10 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/20 font-bold text-[11px] inline-flex items-center gap-1 cursor-pointer hover:bg-[#3156C9]/15 transition-colors"><FolderPlus className="w-3.5 h-3.5" /> إدارة الشعبة</button>
+                            <button type="button" onClick={() => openEditSectionModal(section)} title="تعديل الشعبة" className="p-2 rounded-lg bg-[#EDF1F7] dark:bg-[#26364B] text-[#3156C9] dark:text-[#60A5FA] hover:bg-[#DCE8FF] dark:hover:bg-[#30435C] transition-colors cursor-pointer"><Edit3 className="w-4 h-4" /></button>
+                            <button type="button" onClick={() => openDeleteSectionModal(section)} title="حذف الشعبة" className="p-2 rounded-lg bg-[#FDEBEC] dark:bg-[#4A252D] text-[#C83D4B] dark:text-[#FF7B86] hover:bg-[#FBD5D8] dark:hover:bg-[#60303A] transition-colors cursor-pointer"><Trash2 className="w-4 h-4" /></button>
                           </div>
                         </td>
                       </tr>;
@@ -692,8 +692,8 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
               </div>
             </div>
             <div className="flex flex-col gap-2 mt-4 pt-3 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
-              <button type="button" onClick={() => openEditClassModal(selectedClass)} className="h-9 rounded-lg bg-[#3156C9]/10 hover:bg-[#3156C9]/15 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/20 font-bold text-xs flex items-center justify-center gap-2"><Edit3 className="w-4 h-4" /> تعديل بيانات الصف</button>
-              <button type="button" onClick={() => openDeleteClassModal(selectedClass)} className="h-9 rounded-lg bg-[#EDF1F7] hover:bg-red-50 dark:bg-[#26364B] dark:hover:bg-red-950/30 text-[#475569] dark:text-[#A8B5C7] hover:text-red-600 border border-[#DCE3ED] dark:border-[#2D3B4D] font-bold text-xs flex items-center justify-center gap-2"><Settings2 className="w-4 h-4" /> أرشفة أو حذف الصف</button>
+              <button type="button" onClick={() => openEditClassModal(selectedClass)} className="h-9 rounded-lg bg-[#3156C9]/10 hover:bg-[#3156C9]/15 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/20 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"><Edit3 className="w-4 h-4" /> تعديل بيانات الصف</button>
+              <button type="button" onClick={() => openDeleteClassModal(selectedClass)} className="h-9 rounded-lg bg-[#EDF1F7] hover:bg-red-50 dark:bg-[#26364B] dark:hover:bg-red-950/30 text-[#475569] dark:text-[#A8B5C7] hover:text-red-600 border border-[#DCE3ED] dark:border-[#2D3B4D] font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"><Settings2 className="w-4 h-4" /> أرشفة أو حذف الصف</button>
             </div>
           </aside>
         </div>
