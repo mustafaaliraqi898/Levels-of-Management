@@ -459,7 +459,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
   return (
     <div className="space-y-4 pb-8" dir="rtl">
       {/* 1. Header Bar */}
-      <div className="no-print bg-white dark:bg-[#172235] border border-[#DCE5F2] dark:border-[#2B3B52] rounded-2xl px-4 py-3.5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+      <div className="no-print bg-white dark:bg-[#172235] border border-[#DCE5F2] dark:border-[#2B3B52] rounded-2xl px-4 py-3.5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-3 app-card-surface">
         <div>
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-xl bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border border-[#3156C9]/25 dark:border-[#2785F5]/30 flex items-center justify-center text-[#3156C9] dark:text-[#60A5FA] shadow-xs">
@@ -526,7 +526,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
             onClick={(e) => e.stopPropagation()}
           >
 
-      <div className="bg-white dark:bg-[#172235] border border-[#DCE5F2] dark:border-[#2B3B52] rounded-2xl overflow-hidden shadow-sm">
+      <div className="bg-white dark:bg-[#172235] border border-[#DCE5F2] dark:border-[#2B3B52] rounded-2xl overflow-hidden shadow-sm app-card-surface">
         <div className="px-4 py-3 bg-[#F5F8FD] dark:bg-[#1B2A40] border-b border-[#DCE5F2] dark:border-[#2B3B52] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <Sliders className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" />
@@ -768,7 +768,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
         </div>
       )}
       {/* 4. Filter Toolbar: Year, Class, Section, and Quick Search */}
-      <div className="bg-white dark:bg-[#172235] border border-[#DCE5F2] dark:border-[#2B3B52] rounded-2xl p-3 sm:p-4 shadow-sm space-y-3">
+      <div className="bg-white dark:bg-[#172235] border border-[#DCE5F2] dark:border-[#2B3B52] rounded-2xl p-3 sm:p-4 shadow-sm space-y-3 app-card-surface">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {/* Year Filter */}
           <div className="space-y-1.5">
@@ -959,7 +959,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
 
       {/* 7. SECTION A: RESULTS OF GENERAL EXEMPTION (نتائج الإعفاء العام) */}
       {activeTab === 'general' && (
-        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl overflow-hidden shadow-sm">
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl overflow-hidden shadow-sm app-card-surface">
           <div className="px-4 py-3.5 bg-[#F5F8FD] dark:bg-[#1B2A40] border-b border-[#DCE5F2] dark:border-[#2B3B52] flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
             <div>
               <h3 className="font-bold text-[#1E293B] dark:text-[#E2E8F0] text-base sm:text-lg flex items-center gap-2">
@@ -1254,7 +1254,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
 
       {/* 8. SECTION B: RESULTS OF INDIVIDUAL EXEMPTION (نتائج الإعفاء الفردي) */}
       {activeTab === 'individual' && (
-        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl overflow-hidden shadow-sm space-y-0">
+        <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl overflow-hidden shadow-sm space-y-0 app-card-surface">
           <div className="px-4 py-3.5 bg-[#F5F8FD] dark:bg-[#1B2A40] border-b border-[#DCE5F2] dark:border-[#2B3B52] flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
             <div>
               <h3 className="font-bold text-[#1E293B] dark:text-[#E2E8F0] text-base sm:text-lg flex items-center gap-2">
