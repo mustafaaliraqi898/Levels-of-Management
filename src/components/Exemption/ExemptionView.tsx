@@ -1297,9 +1297,6 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                   ({activeClassObj?.name} - شعبة {activeSectionObj?.name})
                 </span>
               </h3>
-              <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-0.5">
-
-              </p>
             </div>
 
             {/* Diagnostic Actions & Filters */}
