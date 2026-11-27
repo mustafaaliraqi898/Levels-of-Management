@@ -392,7 +392,7 @@ export const SubjectsManagement: React.FC<SubjectsManagementProps> = ({
                   const active = selectedClassId === cl.id;
                   return (
                     <button key={cl.id} type="button" onClick={() => setSelectedClassId(cl.id)}
-                      className={`w-full rounded-xl px-3 py-3 text-right flex items-center justify-between gap-2 transition-colors ${active ? 'bg-[#3156C9]/10 dark:bg-[#2785F5]/15 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/20 dark:border-[#2785F5]/25' : 'text-[#475569] dark:text-[#A8B5C7] hover:bg-[#F4F7FC] dark:hover:bg-[#26364B] border border-transparent'}`} className="cursor-pointer disabled:cursor-not-allowed">
+                      className={`w-full rounded-xl px-3 py-3 text-right flex items-center justify-between gap-2 transition-colors cursor-pointer disabled:cursor-not-allowed ${active ? 'bg-[#3156C9]/10 dark:bg-[#2785F5]/15 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/20 dark:border-[#2785F5]/25' : 'text-[#475569] dark:text-[#A8B5C7] hover:bg-[#F4F7FC] dark:hover:bg-[#26364B] border border-transparent'}`}>
                       <span className="text-xs font-bold">{cl.name}</span>
                       <span className={`text-[10px] rounded-full px-2 py-0.5 font-bold ${active ? 'bg-white/80 dark:bg-[#1C2939]' : 'bg-[#EDF1F7] dark:bg-[#26364B]'}`}>{count}</span>
                     </button>
