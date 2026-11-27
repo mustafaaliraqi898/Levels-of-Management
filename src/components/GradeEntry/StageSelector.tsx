@@ -70,8 +70,10 @@ export const StageSelector: React.FC<StageSelectorProps> = ({
   onChangeStage,
 }) => {
   return (
-    <section className="rounded-2xl border border-[#DCE5F2] bg-white p-3.5 shadow-sm dark:border-[#2B3B52] dark:bg-[#172235] sm:p-4">
-      <div className="mb-3 flex items-center justify-between gap-2">
+    <section className="relative isolate overflow-hidden rounded-[22px] border border-[#B9D1E8] bg-gradient-to-br from-[#FFFFFF] via-[#F1F7FF] to-[#E8F1FC] p-3.5 shadow-sm dark:border-[#344B64] dark:from-[#1C2939] dark:via-[#1D3048] dark:to-[#17283D] dark:shadow-[0_10px_28px_rgba(0,0,0,0.20)] sm:p-4">
+      <div aria-hidden="true" className="pointer-events-none absolute -left-16 -top-24 h-64 w-64 rounded-full border border-[#3156C9]/15 dark:border-[#60A5FA]/15" />
+      <div aria-hidden="true" className="pointer-events-none absolute -left-4 -top-10 h-44 w-44 rounded-full border border-[#3156C9]/15 dark:border-[#60A5FA]/15" />
+      <div className="relative z-10 mb-3 flex items-center justify-between gap-2">
         <div>
           <h2 className="text-sm font-black text-[#1E3356] dark:text-[#E7F0FF]">المرحلة الدراسية</h2>
           <p className="mt-0.5 text-[10px] font-medium text-[#71819A] dark:text-[#9EADC3]">اختر المرحلة المطلوبة لإدخال وتدقيق الدرجات</p>
@@ -81,7 +83,7 @@ export const StageSelector: React.FC<StageSelectorProps> = ({
         </span>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
+      <div className="relative z-10 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
         {STAGES_CONFIG.map((stage) => {
           const isSelected = currentStage === stage.id;
           const Icon = stage.icon;
