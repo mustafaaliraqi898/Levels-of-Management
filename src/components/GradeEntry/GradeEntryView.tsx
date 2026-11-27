@@ -292,11 +292,14 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
       )}
 
       {/* Compact title bar */}
-      <div className="flex flex-col gap-3 rounded-2xl border border-[#DCE5F2] bg-white px-4 py-3 shadow-sm dark:border-[#2B3B52] dark:bg-[#172235] sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-xl font-black tracking-tight text-[#172B4D] dark:text-[#F1F5FC] sm:text-2xl">
+      <div className="relative isolate overflow-hidden flex flex-col gap-3 rounded-[22px] border border-[#B9D1E8] bg-gradient-to-br from-[#FFFFFF] via-[#F1F7FF] to-[#E5F0FF] px-4 py-4 shadow-sm dark:border-[#344B64] dark:bg-gradient-to-br dark:from-[#1C2939] dark:via-[#1D3048] dark:to-[#14283D] dark:shadow-[0_12px_32px_rgba(0,0,0,0.24)] sm:flex-row sm:items-center sm:justify-between sm:px-5">
+        <div aria-hidden="true" className="pointer-events-none absolute -left-16 -top-24 h-64 w-64 rounded-full border border-[#2785F5]/15 dark:border-[#60A5FA]/15" />
+        <div aria-hidden="true" className="pointer-events-none absolute -left-5 -top-12 h-44 w-44 rounded-full border border-[#2785F5]/15 dark:border-[#60A5FA]/15" />
+        <div aria-hidden="true" className="pointer-events-none absolute -left-8 -top-8 h-56 w-56 rounded-full bg-[#2785F5]/10 dark:bg-[#60A5FA]/[0.08] blur-3xl" />
+        <h1 className="relative z-10 text-xl font-black tracking-tight text-[#172B4D] dark:text-[#F1F5FC] sm:text-2xl">
           إدخال وتدقيق درجات الطلاب
         </h1>
-        <div className="flex items-center gap-2">
+        <div className="relative z-10 flex flex-wrap items-center gap-2">
           <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#A7E6CF] bg-[#E9F8F1] px-3 py-2 text-[11px] font-bold text-[#087A59] dark:border-[#246B58] dark:bg-[#123A34] dark:text-[#54D6A6]">
             <CheckCircle2 className="h-4 w-4" />
             حفظ لحظي مباشر
@@ -324,8 +327,11 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
       </div>
 
       {/* Primary selection panel: class, section and subject are the main focus */}
-      <section className="relative overflow-hidden rounded-2xl border border-[#8EAEFF] bg-gradient-to-br from-[#F7FAFF] via-white to-[#EDF3FF] p-4 shadow-[0_8px_26px_rgba(49,91,210,0.09)] ring-1 ring-[#315BD2]/10 dark:border-[#315A9A] dark:from-[#14233A] dark:via-[#17263D] dark:to-[#142239] dark:shadow-[0_10px_30px_rgba(0,0,0,0.22)] dark:ring-[#5D8BFF]/15 sm:p-5">
-        <div className="mb-3 flex items-center justify-between gap-2">
+      <section className="relative isolate overflow-hidden rounded-[24px] border border-[#72B9D2] bg-gradient-to-br from-[#F1FBFF] via-[#EAF6FC] to-[#E2F0FA] p-4 shadow-[0_10px_30px_rgba(20,110,150,0.10)] ring-1 ring-[#2785F5]/10 dark:border-[#326B83] dark:from-[#142B3D] dark:via-[#153247] dark:to-[#14283D] dark:shadow-[0_12px_34px_rgba(0,0,0,0.24)] dark:ring-[#39A9D1]/15 sm:p-5">
+        <div aria-hidden="true" className="pointer-events-none absolute -left-20 -top-28 h-80 w-80 rounded-full border border-[#2785F5]/15 dark:border-[#60A5FA]/15" />
+        <div aria-hidden="true" className="pointer-events-none absolute -left-4 -top-10 h-56 w-56 rounded-full border border-[#2785F5]/15 dark:border-[#60A5FA]/15" />
+        <div aria-hidden="true" className="pointer-events-none absolute -left-10 -top-6 h-64 w-64 rounded-full bg-[#2785F5]/10 dark:bg-[#60A5FA]/[0.08] blur-3xl" />
+        <div className="relative z-10 mb-4 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#315BD2] text-white shadow-sm dark:bg-[#3975F2]">
               <Layers className="h-4 w-4" />
@@ -340,9 +346,9 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
           </span>
         </div>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="relative z-10 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-2">
           {/* Academic Year - secondary emphasis */}
-          <div className="rounded-xl border border-[#DCE3ED] bg-[#F7F9FC] p-3 dark:border-[#35465E] dark:bg-[#1A293E]">
+          <div className="rounded-xl border border-[#B7D2ED] bg-gradient-to-br from-[#EAF3FF] to-[#F7FAFF] p-3 shadow-sm dark:border-[#385B7C] dark:bg-gradient-to-br dark:from-[#1B3550] dark:to-[#1A2B40]">
             <label className="mb-2 flex items-center gap-2 text-xs font-bold text-[#64748B] dark:text-[#A8B8CE]">
               <Calendar className="h-4 w-4" />
               العام الدراسي
@@ -446,9 +452,10 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
       />
 
       {/* Status & Completeness Indicator Bar */}
-      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="relative isolate overflow-hidden bg-gradient-to-br from-[#F0FBF8] via-white to-[#E7F6F2] dark:from-[#15332F] dark:via-[#1C2939] dark:to-[#172F35] border border-[#B8DDD4] dark:border-[#326B65] rounded-[22px] p-4 shadow-sm dark:shadow-[0_10px_28px_rgba(0,0,0,0.20)] flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div aria-hidden="true" className="pointer-events-none absolute -left-12 -top-20 h-52 w-52 rounded-full border border-[#0D9488]/15 dark:border-[#4BC5B7]/15" />
         {/* Status Indicator */}
-        <div className="flex items-center gap-3">
+        <div className="relative z-10 flex items-center gap-3">
           <div
             className={`w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 ${
               completionStats.isComplete
@@ -484,7 +491,7 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
         </div>
 
         {/* Student Search Box */}
-        <div className="flex items-center gap-3 w-full md:w-auto">
+        <div className="relative z-10 flex items-center gap-3 w-full md:w-auto">
           <div className="relative w-full md:w-72">
             <input
               type="text"
