@@ -1,5 +1,8 @@
 const { app, BrowserWindow, Menu, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
+// Give this app its own stable Windows data directory before loading database.cjs.
+app.setName('SchoolGrades');
+app.setPath('userData', path.join(app.getPath('appData'), 'SchoolGrades'));
 const url = require('url');
 const crypto = require('crypto');
 const db = require('./database.cjs');

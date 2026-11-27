@@ -124,12 +124,19 @@ function getDatabasePath() {
 
   const targetDbPath = path.join(targetDir, 'school-grades.db');
   const legacyPublicDbPath = path.join('/tmp', 'school-app', 'school-grades.db');
+  // Preserve databases created by earlier builds that used Electron's default react-example folder.
+  const legacyUserDataPath = app && typeof app.getPath === 'function'
+    ? path.join(app.getPath('appData'), 'react-example', 'school-grades.db')
+    : null;
 
-  if (!fs.existsSync(targetDbPath) && fs.existsSync(legacyPublicDbPath)) {
+  const legacySourcePath = legacyUserDataPath && fs.existsSync(legacyUserDataPath)
+    ? legacyUserDataPath
+    : legacyPublicDbPath;
+  if (!fs.existsSync(targetDbPath) && fs.existsSync(legacySourcePath)) {
     try {
       console.log('Migrating legacy database from public temp directory to user data folder...');
-      fs.copyFileSync(legacyPublicDbPath, targetDbPath);
-      verifyDatabaseMigrationSync(legacyPublicDbPath, targetDbPath);
+      fs.copyFileSync(legacySourcePath, targetDbPath);
+      verifyDatabaseMigrationSync(legacySourcePath, targetDbPath);
       console.log('Legacy database migrated and verified successfully.');
     } catch (migErr) {
       if (fs.existsSync(targetDbPath)) {
