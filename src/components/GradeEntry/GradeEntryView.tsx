@@ -341,6 +341,27 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {/* Academic Year - secondary emphasis */}
+          <div className="rounded-xl border border-[#DCE3ED] bg-[#F7F9FC] p-3 dark:border-[#35465E] dark:bg-[#1A293E]">
+            <label className="mb-2 flex items-center gap-2 text-xs font-bold text-[#64748B] dark:text-[#A8B8CE]">
+              <Calendar className="h-4 w-4" />
+              العام الدراسي
+            </label>
+            <div className="relative">
+              <select
+                value={selectedYearId}
+                onChange={(e) => setSelectedYearId(e.target.value)}
+                className="h-11 w-full appearance-none rounded-lg border border-[#E0E6EF] bg-white px-3 pl-9 text-sm font-bold text-[#334155] outline-none transition-colors focus:border-[#8AA5D8] dark:border-[#3A4A61] dark:bg-[#172235] dark:text-[#DCE6F5] dark:focus:border-[#7893C7] cursor-pointer"
+              >
+                {academicYears.map((y) => (
+                  <option key={y.id} value={y.id}>
+                    {y.name} {y.isCurrent ? '(الحالي)' : ''}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-[#7B8DA8] dark:text-[#9AAAC2]" />
+            </div>
+          </div>
           {/* School Class */}
           <div className="rounded-xl border border-[#AFC5F5] bg-white/90 p-3 shadow-sm transition-all focus-within:border-[#315BD2] focus-within:ring-2 focus-within:ring-[#315BD2]/15 dark:border-[#3C5C89] dark:bg-[#1D304B] dark:focus-within:border-[#79A0FF] dark:focus-within:ring-[#79A0FF]/15">
             <label className="mb-2 flex items-center gap-2 text-xs font-black text-[#3156A6] dark:text-[#A9C3FF]">
@@ -394,8 +415,8 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
           </div>
 
           {/* Subject */}
-          <div className="rounded-xl border border-[#D5C5F4] bg-white/90 p-3 shadow-sm transition-all focus-within:border-[#8056C7] focus-within:ring-2 focus-within:ring-[#8056C7]/15 dark:border-[#5A4780] dark:bg-[#2A2540] dark:focus-within:border-[#B79AFF] dark:focus-within:ring-[#B79AFF]/15">
-            <label className="mb-2 flex items-center gap-2 text-xs font-black text-[#7045B5] dark:text-[#C6AEFF]">
+          <div className="rounded-xl border border-[#8B5CF6] bg-gradient-to-br from-[#7C3AED] via-[#8B35D9] to-[#6D28D9] p-3 shadow-[0_8px_20px_rgba(124,58,237,0.24)] ring-1 ring-[#A78BFA]/35 transition-all focus-within:ring-2 focus-within:ring-[#C4B5FD]/60 dark:border-[#A78BFA] dark:from-[#6D28D9] dark:via-[#5B21B6] dark:to-[#4C1D95] dark:shadow-[0_8px_22px_rgba(0,0,0,0.3)]">
+            <label className="mb-2 flex items-center gap-2 text-xs font-black text-white dark:text-white">
               <BookOpen className="h-4 w-4" />
               المادة الدراسية
             </label>
@@ -403,7 +424,7 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
               <select
                 value={selectedSubjectId}
                 onChange={(e) => setSelectedSubjectId(e.target.value)}
-                className="h-11 w-full appearance-none rounded-lg border border-[#E2D8F4] bg-[#F8F5FE] px-3 pl-9 text-sm font-black text-[#422B70] outline-none transition-colors focus:border-[#8056C7] dark:border-[#5A4B7C] dark:bg-[#211F35] dark:text-[#F3ECFF] dark:focus:border-[#B79AFF] cursor-pointer"
+                className="h-11 w-full appearance-none rounded-lg border border-white/70 bg-white px-3 pl-9 text-sm font-black text-[#5521A8] outline-none transition-colors focus:border-white focus:ring-2 focus:ring-white/40 dark:border-[#C4B5FD] dark:bg-[#F5F0FF] dark:text-[#4C1D95] dark:focus:border-white cursor-pointer"
               >
                 {availableSubjects.map((sub) => (
                   <option key={sub.id} value={sub.id}>
@@ -411,31 +432,10 @@ export const GradeEntryView: React.FC<GradeEntryViewProps> = ({
                   </option>
                 ))}
               </select>
-              <ChevronDown className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-[#8056C7] dark:text-[#C6AEFF]" />
+              <ChevronDown className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-[#7C3AED] dark:text-[#6D28D9]" />
             </div>
           </div>
 
-          {/* Academic Year - secondary emphasis */}
-          <div className="rounded-xl border border-[#DCE3ED] bg-[#F7F9FC] p-3 dark:border-[#35465E] dark:bg-[#1A293E]">
-            <label className="mb-2 flex items-center gap-2 text-xs font-bold text-[#64748B] dark:text-[#A8B8CE]">
-              <Calendar className="h-4 w-4" />
-              العام الدراسي
-            </label>
-            <div className="relative">
-              <select
-                value={selectedYearId}
-                onChange={(e) => setSelectedYearId(e.target.value)}
-                className="h-11 w-full appearance-none rounded-lg border border-[#E0E6EF] bg-white px-3 pl-9 text-sm font-bold text-[#334155] outline-none transition-colors focus:border-[#8AA5D8] dark:border-[#3A4A61] dark:bg-[#172235] dark:text-[#DCE6F5] dark:focus:border-[#7893C7] cursor-pointer"
-              >
-                {academicYears.map((y) => (
-                  <option key={y.id} value={y.id}>
-                    {y.name} {y.isCurrent ? '(الحالي)' : ''}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-[#7B8DA8] dark:text-[#9AAAC2]" />
-            </div>
-          </div>
         </div>
       </section>
 
