@@ -347,7 +347,7 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
   return (
     <div className="w-full flex flex-col gap-6 pb-12">
       {/* Header */}
-      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl px-5 py-4 shadow-sm flex items-center gap-3">
+      <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl px-5 py-4 shadow-sm flex items-center gap-3 app-card-surface">
         <div className="w-11 h-11 rounded-xl bg-[#3156C9]/10 dark:bg-[#2785F5]/15 border border-[#3156C9]/25 dark:border-[#2785F5]/30 flex items-center justify-center text-[#3156C9] dark:text-[#60A5FA] shrink-0">
           <ShieldCheck className="w-5 h-5" />
         </div>
@@ -355,7 +355,7 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
       </div>
 
       {/* Summary Statistics */}
-      <div className="rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white/90 dark:bg-[#1C2939] p-3 shadow-sm">
+      <div className="rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white/90 dark:bg-[#1C2939] p-3 shadow-sm app-card-surface">
         <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
           {[
             { label: 'الطلاب المستحقون', value: eligibleStudentsList.length, icon: Users, tone: 'blue' },
@@ -418,7 +418,7 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
       )}
 
       {/* Filter Controls Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-4 shadow-sm">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-4 shadow-sm app-card-surface">
         {/* 1. Academic Year */}
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-bold text-[#475569] dark:text-[#A8B5C7] flex items-center gap-1.5">
@@ -540,7 +540,7 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
               return (
                 <div
                   key={student.id}
-                  className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-5 shadow-sm flex flex-col gap-4 transition-all hover:border-[#2785F5]/40"
+                  className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-5 shadow-sm flex flex-col gap-4 transition-all hover:border-[#2785F5]/40 app-card-surface"
                 >
                   {/* Student Top Bar */}
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
