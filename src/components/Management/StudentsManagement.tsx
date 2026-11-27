@@ -618,8 +618,12 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
       )}
 
       {/* Header Banner & Main Actions */}
-      <div className="relative overflow-hidden bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-5 sm:p-6 rounded-[22px] shadow-sm dark:shadow-xl flex flex-col xl:flex-row xl:items-center justify-between gap-5 before:absolute before:inset-y-0 before:right-0 before:w-1 before:bg-[#3156C9] dark:before:bg-[#3979E6]">
-        <div>
+      <div className="relative isolate overflow-hidden bg-gradient-to-br from-[#FFFFFF] via-[#F4F7FF] to-[#EAF0FF] dark:from-[#1C2939] dark:via-[#1D3048] dark:to-[#17283D] border border-[#DCE3ED] dark:border-[#34465D] p-5 sm:p-6 rounded-[22px] shadow-sm dark:shadow-[0_12px_32px_rgba(0,0,0,0.24)] flex flex-col xl:flex-row xl:items-center justify-between gap-5 before:absolute before:inset-y-0 before:right-0 before:w-1 before:bg-[#3156C9] dark:before:bg-[#60A5FA]">
+        {/* Soft circular background motif — decorative only */}
+        <div aria-hidden="true" className="pointer-events-none absolute -left-20 -top-28 h-80 w-80 rounded-full border border-[#3156C9]/15 dark:border-[#60A5FA]/15" />
+        <div aria-hidden="true" className="pointer-events-none absolute -left-5 -top-12 h-52 w-52 rounded-full border border-[#3156C9]/15 dark:border-[#60A5FA]/15" />
+        <div aria-hidden="true" className="pointer-events-none absolute -left-12 -top-8 h-64 w-64 rounded-full bg-[#60A5FA]/10 dark:bg-[#60A5FA]/[0.08] blur-3xl" />
+        <div className="relative z-10 min-w-0">
           <div className="flex flex-wrap items-center gap-2.5 mb-1.5">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#3156C9]/8 dark:bg-[#2785F5]/12 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/25 dark:border-[#2785F5]/25">
               <Sparkles className="w-3.5 h-3.5" />
@@ -637,7 +641,7 @@ export const StudentsManagement: React.FC<StudentsManagementProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="relative z-10 flex flex-wrap items-center gap-2">
           {/* Student Promotion Button */}
           {onNavigateToPromotion && (
             <button
