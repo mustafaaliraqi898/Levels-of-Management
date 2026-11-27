@@ -531,7 +531,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
         </div>
       )}
 
-      <section className="rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] p-5 sm:p-6 shadow-sm">
+      <section className="rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] p-5 sm:p-6 shadow-sm app-card-surface">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-[#3156C9]/20 bg-[#3156C9]/8 dark:bg-[#2785F5]/12 px-3 py-1 text-[11px] font-bold text-[#3156C9] dark:text-[#60A5FA] mb-2">
@@ -577,7 +577,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
         })}
       </div>
 
-      <section className="rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] p-3.5 sm:p-4 shadow-sm">
+      <section className="rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] p-3.5 sm:p-4 shadow-sm app-card-surface">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
           <h2 className="text-sm font-black text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2"><GraduationCap className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" /> الصفوف الدراسية</h2>
           <div className="flex flex-wrap items-center gap-2">
@@ -617,7 +617,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
 
       {selectedClass ? (
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-4 items-start">
-          <section className="min-w-0 rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] p-4 sm:p-5 shadow-sm">
+          <section className="min-w-0 rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] p-4 sm:p-5 shadow-sm app-card-surface">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
               <div>
                 <h3 className="text-sm font-black text-[#263B5A] dark:text-[#E2E8F0]">الصفوف والشُعب المسجلة: {selectedClass.name}</h3>
@@ -665,7 +665,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
             )}
           </section>
 
-          <aside className="rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] p-4 shadow-sm">
+          <aside className="rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white dark:bg-[#1C2939] p-4 shadow-sm app-card-surface">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-black text-[#1E293B] dark:text-[#E2E8F0]">معلومات الصف</h3>
               <Layers className="w-5 h-5 text-[#3156C9] dark:text-[#60A5FA]" />
@@ -698,7 +698,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
           </aside>
         </div>
       ) : (
-        <section className="rounded-2xl border border-dashed border-[#CBD5E1] dark:border-[#3B4D66] bg-white dark:bg-[#1C2939] p-12 text-center text-sm text-[#64748B] dark:text-[#8493A8]">
+        <section className="rounded-2xl border border-dashed border-[#CBD5E1] dark:border-[#3B4D66] bg-white dark:bg-[#1C2939] p-12 text-center text-sm text-[#64748B] dark:text-[#8493A8] app-card-surface">
           <Layers className="w-10 h-10 mx-auto mb-3 opacity-50" />لا توجد صفوف دراسية لعرضها في العام المحدد.
         </section>
       )}
@@ -796,7 +796,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                 </div>
               </section>
 
-              <section className="rounded-2xl border border-[#E0E8F5] dark:border-[#33465F] bg-white dark:bg-[#202E40] p-4">
+              <section className="rounded-2xl border border-[#E0E8F5] dark:border-[#33465F] bg-white dark:bg-[#202E40] p-4 app-card-surface">
                 <label className="block text-xs font-bold text-[#475569] dark:text-[#A8B5C7] mb-2">
                   إضافة شُعب أخرى <span className="font-medium text-[#8493A8]">(اختياري)</span>
                 </label>
