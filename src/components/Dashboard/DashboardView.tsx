@@ -81,7 +81,7 @@ const DonutChart: React.FC<DonutChartProps> = ({
   const dashLength = circumference * (percentage / 100);
 
   return (
-    <section className="min-w-0 rounded-2xl border border-[#DCE3ED] bg-white p-4 shadow-sm transition-all duration-200 dark:border-[#2D3B4D] dark:bg-[#1C2939] dark:shadow-[0_8px_24px_rgba(0,0,0,0.16)]">
+    <section className="min-w-0 rounded-2xl border border-[#DCE3ED] bg-white p-4 shadow-sm transition-all duration-200 dark:border-[#2D3B4D] dark:bg-[#1C2939] dark:shadow-[0_8px_24px_rgba(0,0,0,0.16)] app-card-surface">
       <div className="mb-3 flex items-start justify-between gap-2">
         <div>
           <h3 className="text-sm font-black text-[#1E293B] dark:text-[#E2E8F0]">{title}</h3>
@@ -439,7 +439,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       {/* Main analytics area: class completion and two donut charts */}
       <div className="grid min-w-0 grid-cols-1 gap-4 2xl:grid-cols-12">
-        <section className="min-w-0 rounded-2xl border border-[#DCE3ED] bg-white p-4 shadow-sm dark:border-[#2D3B4D] dark:bg-[#1C2939] dark:shadow-[0_8px_24px_rgba(0,0,0,0.16)] 2xl:col-span-8">
+        <section className="min-w-0 rounded-2xl border border-[#DCE3ED] bg-white p-4 shadow-sm dark:border-[#2D3B4D] dark:bg-[#1C2939] dark:shadow-[0_8px_24px_rgba(0,0,0,0.16)] 2xl:col-span-8 app-card-surface">
           <div className="mb-4 flex flex-col gap-3 border-b border-[#DCE3ED] pb-3 dark:border-[#2D3B4D] sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
               <span className="rounded-xl bg-[#3156C9]/10 p-2 text-[#3156C9] dark:bg-[#26364B] dark:text-[#60A5FA]"><Layers className="h-5 w-5" /></span>
