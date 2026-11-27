@@ -18,6 +18,10 @@ import {
   Sparkles,
   KeyRound,
   Lock,
+  Users,
+  Mail,
+  Award,
+  ArrowRight,
 } from 'lucide-react';
 import { UserManagementSection } from './UserManagementSection';
 import { AdminDecisionSettingsSection } from './AdminDecisionSettingsSection';
@@ -37,6 +41,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   userRole = 'admin',
   currentAcademicYearId,
 }) => {
+  const [activeSection, setActiveSection] = useState<'home' | 'school' | 'grades' | 'ministerial' | 'users' | 'security' | 'email'>('home');
   const [formData, setFormData] = useState<AppSettings>(settings);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [logoProcessing, setLogoProcessing] = useState(false);
@@ -212,13 +217,42 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         <div>
           <h1 className="text-2xl font-black text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2">
             <Settings className="w-6 h-6 text-[#3156C9] dark:text-[#60A5FA]" />
-            إعدادات النظام والتقريب ومعادلات الدرجات
+            {activeSection === 'home' ? 'إعدادات النظام' : ({ school: 'بيانات المدرسة والهوية', grades: 'إعدادات الدرجات والتقريب', ministerial: 'الضوابط الوزارية والإكمال', users: 'إدارة المستخدمين والصلاحيات', security: 'الأمان ورمز الدخول', email: 'البريد الإلكتروني والاستعادة' } as const)[activeSection]}
           </h1>
           <p className="text-xs text-[#64748B] dark:text-[#8493A8] mt-1">
-            تخصيص قواعد التقريب الحسابي لدرجة السعي والنهائي، بيانات المدرسة الرسمية، وضوابط الأمان
+            {activeSection === 'home' ? 'اختر القسم الذي تريد ضبط إعداداته' : 'إدارة إعدادات هذا القسم وحفظ التغييرات'}
           </p>
+          {activeSection !== 'home' && (
+            <button type="button" onClick={() => setActiveSection('home')} className="px-4 py-2 rounded-xl bg-[#EDF1F7] dark:bg-[#26364B] hover:bg-[#E2E8F0] dark:hover:bg-[#2D3B4D] border border-[#DCE3ED] dark:border-[#2D3B4D] text-[#3156C9] dark:text-[#60A5FA] text-xs font-bold flex items-center gap-2 shrink-0">
+              <ArrowRight className="w-4 h-4" /> العودة إلى الإعدادات
+            </button>
+          )}
         </div>
       </div>
+
+      {activeSection === 'home' && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          {[
+            { id: 'school' as const, title: 'بيانات المدرسة والهوية', description: 'اسم المدرسة والشعارات والترويسة الرسمية', Icon: School, tone: 'text-[#3156C9] dark:text-[#60A5FA]', bg: 'bg-[#3156C9]/10 dark:bg-[#2785F5]/15' },
+            { id: 'grades' as const, title: 'إعدادات الدرجات', description: 'قواعد التقريب وحماية الدرجات السابقة', Icon: Calculator, tone: 'text-[#059669] dark:text-[#10B981]', bg: 'bg-[#10B981]/10 dark:bg-[#10B981]/15' },
+            { id: 'ministerial' as const, title: 'الضوابط الوزارية والإكمال', description: 'درجات المساعدة وحدود الرسوب لكل عام', Icon: Award, tone: 'text-[#8B5CF6] dark:text-[#A78BFA]', bg: 'bg-[#8B5CF6]/10 dark:bg-[#8B5CF6]/15' },
+            { id: 'users' as const, title: 'المستخدمون والصلاحيات', description: 'إدارة الحسابات والأدوار وحالة المستخدم', Icon: Users, tone: 'text-[#D69B42] dark:text-[#D69B42]', bg: 'bg-[#D69B42]/10 dark:bg-[#D69B42]/15', adminOnly: true },
+            { id: 'security' as const, title: 'الأمان ورمز الدخول', description: 'تحديث رمز الدخول وحماية النظام', Icon: Lock, tone: 'text-[#0D9488] dark:text-[#2DD4BF]', bg: 'bg-[#0D9488]/10 dark:bg-[#0D9488]/15', adminOnly: true },
+            { id: 'email' as const, title: 'البريد الإلكتروني والاستعادة', description: 'إعداد Gmail لإرسال رموز استعادة كلمة المرور', Icon: Mail, tone: 'text-[#DB2777] dark:text-[#F472B6]', bg: 'bg-[#DB2777]/10 dark:bg-[#DB2777]/15', adminOnly: true },
+          ].filter((item) => !item.adminOnly || userRole === 'admin').map(({ id, title, description, Icon, tone, bg }) => (
+            <button key={id} type="button" onClick={() => setActiveSection(id)} className="group text-right bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-[#3156C9]/50 dark:hover:border-[#60A5FA]/50 transition-all app-card-surface">
+              <div className="flex items-center gap-3">
+                <span className={`w-12 h-12 rounded-xl ${bg} ${tone} flex items-center justify-center shrink-0`}><Icon className="w-6 h-6" /></span>
+                <span className="flex-1 min-w-0">
+                  <span className="block text-sm font-black text-[#1E293B] dark:text-[#E2E8F0]">{title}</span>
+                  <span className="block text-xs text-[#64748B] dark:text-[#8493A8] mt-1 leading-relaxed">{description}</span>
+                </span>
+                <ArrowRight className="w-4 h-4 text-[#94A3B8] group-hover:text-[#3156C9] dark:group-hover:text-[#60A5FA] transition-colors" />
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
 
       {savedSuccess && (
         <div className="p-4 rounded-xl bg-[#10B981]/12 dark:bg-[#10B981]/15 border border-[#10B981]/30 text-[#059669] dark:text-[#10B981] text-sm font-bold flex items-center gap-2 animate-in fade-in">
@@ -227,7 +261,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
       )}
 
+      {(activeSection === 'school' || activeSection === 'grades') && (
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+        {activeSection === 'school' && <>
         {/* 1. School Official Information */}
         <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-6 shadow-sm dark:shadow-lg app-card-surface">
           <h3 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0] mb-4 flex items-center gap-2">
@@ -526,6 +562,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           )}
         </div>
 
+        </>}
+        {activeSection === 'grades' && <>
         {/* 4. Rounding Rules */}
         <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-6 shadow-sm dark:shadow-lg app-card-surface">
           <div className="flex items-center gap-2 mb-2">
@@ -612,13 +650,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             <span>حفظ جميع الإعدادات وتطبيقها فوراً</span>
           </button>
         </div>
+        </>}
       </form>
+      )}
 
       {/* Administrative Decision Settings */}
-      <AdminDecisionSettingsSection currentAcademicYearId={currentAcademicYearId} />
+      {activeSection === 'ministerial' && <AdminDecisionSettingsSection currentAcademicYearId={currentAcademicYearId} />}
 
       {/* 6. System Access Code & Security Section */}
-      {userRole === 'admin' && (
+      {activeSection === 'security' && userRole === 'admin' && (
         <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-6 shadow-sm app-card-surface">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -770,8 +810,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       )}
 
       {/* 7. User Accounts & Access Control (Admin-Only Section) */}
-      {userRole === 'admin' && (
-        <UserManagementSection currentUserId={currentUserId || ''} />
+      {activeSection === 'users' && userRole === 'admin' && (
+        <UserManagementSection currentUserId={currentUserId || ''} section="users" />
+      )}
+      {activeSection === 'email' && userRole === 'admin' && (
+        <UserManagementSection currentUserId={currentUserId || ''} section="email" />
       )}
     </div>
   );
