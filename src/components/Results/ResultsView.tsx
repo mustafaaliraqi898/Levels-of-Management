@@ -739,12 +739,6 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
       <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] p-5 rounded-[14px] shadow-xs flex flex-col gap-4 no-print">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#DCE3ED] dark:border-[#2D3B4D]">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-lg border flex items-center gap-1.5 ${activeGradeConfig.badgeColor}`}>
-                <Sparkles className="w-3 h-3" />
-                <span>النوع المعروض: {activeGradeConfig.label}</span>
-              </span>
-            </div>
             <h1 className="text-2xl font-black text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2.5">
               <Trophy className="w-6 h-6 text-[#3156C9] dark:text-[#60A5FA]" />
               <span>عرض وتدقيق نتائج وتقييم الطلاب</span>
