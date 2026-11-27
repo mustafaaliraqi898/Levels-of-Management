@@ -477,9 +477,6 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                   ضوابط واستحقاق الطلبة
                 </span>
               </h1>
-              <p className="text-xs sm:text-sm text-[#64748B] dark:text-[#8493A8] mt-1">
-                تحديد الطلبة المشمولين بالإعفاء العام والإعفاء الفردي في المواد الدراسية استناداً إلى درجات السعي السنوي
-              </p>
             </div>
           </div>
         </div>
@@ -574,8 +571,8 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
         <div className="p-3 sm:p-4 space-y-3">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
             {/* أ. شروط الإعفاء العام */}
-            <div className="bg-gradient-to-br from-[#F0FAF6] to-[#F8FCFA] dark:from-[#18352F] dark:to-[#1B2A38] border border-[#BFE8D7] dark:border-[#326B58] rounded-xl p-4 space-y-3 shadow-sm">
-              <div className="flex items-center justify-between border-b border-[#DCE3ED] dark:border-[#2D3B4D] pb-3">
+            <div className="bg-gradient-to-br from-[#F0FAF6] to-[#F8FCFA] dark:from-[#18352F] dark:to-[#1B2A38] border border-[#BFE8D7] dark:border-[#326B58] rounded-xl p-4 space-y-3 shadow-md">
+              <div className="-mx-4 -mt-4 mb-1 px-4 py-3 rounded-t-xl bg-[#DDF5EA] dark:bg-[#174A3A] border-b border-[#B7E4D0] dark:border-[#326B58] flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-[#15966B]" />
                   <h3 className="font-bold text-sm sm:text-base text-[#1E293B] dark:text-[#E2E8F0]">
@@ -611,9 +608,6 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                     />
                     <span className="absolute left-3 top-2.5 text-xs text-[#64748B] dark:text-[#8493A8]">%</span>
                   </div>
-                  <p className="text-[11px] text-[#64748B] dark:text-[#8493A8]">
-                    الحد الأدنى لمعدل السعي السنوي لجميع المواد.
-                  </p>
                 </div>
 
                 {/* 2. أقل درجة مسموحة في أي مادة */}
@@ -639,9 +633,6 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                     />
                     <span className="absolute left-3 top-2.5 text-xs text-[#64748B] dark:text-[#8493A8]">درجة</span>
                   </div>
-                  <p className="text-[11px] text-[#64748B] dark:text-[#8493A8]">
-                    لا يجوز أن تقل درجة السعي السنوي لأي مادة عن هذا الحد.
-                  </p>
                 </div>
               </div>
 
@@ -694,30 +685,6 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                       </span>
                     </div>
 
-                    <div className="mt-2 text-[11px] text-[#475569] dark:text-[#C5D1E2] leading-relaxed bg-white/90 dark:bg-[#172235] border border-[#D9D0EF] dark:border-[#51436F] rounded-lg p-2.5">
-                      <div className="font-semibold text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-1.5 mb-1">
-                        <Info className="w-3.5 h-3.5 text-[#B45309] dark:text-[#D69B42] shrink-0" />
-                        نظام الجبر المعتمد في إعدادات مدرستك حالياً:
-                        <span className="text-[#B45309] dark:text-[#D69B42] font-bold">
-                          {ROUNDING_RULE_LABELS[settings.roundingRule]?.title || 'التقريب الرياضي'}
-                        </span>
-                      </div>
-                      <p>
-                        {draftSettings.enableGeneralJabr ? (
-                          <>
-                            عند التفعيل، يُطبّق نظام التقريب المعتمد أعلاه على معدل الطالب لتقييم استحقاق الإعفاء العام.
-                            <br />
-                            <strong>مثال:</strong> إذا كان الحد 85 والمعدل الأصلي 84.5، فإن المعدل بعد الجبر يصبح 85 ويُعتبر الطالب مستحقاً للإعفاء العام (بشرط استيفاء بقية المواد).
-                          </>
-                        ) : (
-                          <>
-                            عند إلغاء التفعيل، يُقارن المعدل الدقيق دون أي جبر بالحد الأدنى المطلوب.
-                            <br />
-                            <strong>مثال:</strong> إذا كان الحد 85 وكان المعدل الأصلي 84.5، لا يُعد الطالب مستحقاً لأن 84.5 &lt; 85.
-                          </>
-                        )}
-                      </p>
-                    </div>
                   </div>
                 </label>
               </div>
@@ -726,7 +693,7 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
             {/* ب. شروط الإعفاء الفردي وملاحظات النظام */}
             <div className="bg-gradient-to-br from-[#F1F6FF] to-[#FAFBFF] dark:from-[#1B2D49] dark:to-[#1B293B] border border-[#C9D9FA] dark:border-[#365681] rounded-xl p-4 space-y-3 flex flex-col justify-between shadow-sm">
               <div>
-                <div className="flex items-center justify-between border-b border-[#DCE3ED] dark:border-[#2D3B4D] pb-3">
+                <div className="-mx-4 -mt-4 mb-1 px-4 py-3 rounded-t-xl bg-[#E2ECFF] dark:bg-[#203D67] border-b border-[#C4D6FA] dark:border-[#365681] flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-2.5 h-2.5 rounded-full bg-[#2785F5]" />
                     <h3 className="font-bold text-sm sm:text-base text-[#1E293B] dark:text-[#E2E8F0]">
@@ -760,9 +727,6 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                     />
                     <span className="absolute left-3 top-2.5 text-xs text-[#64748B] dark:text-[#8493A8]">درجة</span>
                   </div>
-                  <p className="text-[11px] text-[#64748B] dark:text-[#8493A8] leading-relaxed">
-                    تُقيّم كل مادة دراسية بصورة مستقلة، ويُعد الطالب مستحقاً للإعفاء الفردي في المادة إذا بلغت درجة سعيها السنوي هذا الحد أو تجاوزته.
-                  </p>
 
                   <label className="flex items-start gap-3 cursor-pointer group select-none pt-4 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
                     <div className="pt-0.5">
@@ -783,14 +747,6 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
                 </div>
               </div>
 
-              {/* ملاحظة رسمية واضحة كما طلب المستخدم */}
-              <div className="bg-[#FFF7E8] dark:bg-[#3A3021] border border-[#F0D7A5] dark:border-[#76572D] rounded-xl p-3 text-[11px] text-[#6B5737] dark:text-[#E5D2AE] leading-relaxed">
-                <div className="font-bold text-[#B45309] dark:text-[#D69B42] flex items-center gap-1.5 mb-1">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  ملاحظة تنظيمية هامة:
-                </div>
-                القيم المذكورة أعلاه (85 للمعدل، 75 لأقل مادة، 90 للإعفاء الفردي) هي قيم افتراضية مقترحة ومتاح للمدير تعديلها وحفظها وفق الضوابط والتعليمات الوزارية المعتمدة للعام الدراسي الحالي.
-              </div>
             </div>
           </div>
         </div>
@@ -798,10 +754,6 @@ export const ExemptionView: React.FC<ExemptionViewProps> = ({
 
       {/* 4. Filter Toolbar: Year, Class, Section, and Quick Search */}
       <div className="bg-white dark:bg-[#172235] border border-[#DCE5F2] dark:border-[#2B3B52] rounded-2xl p-3 sm:p-4 shadow-sm space-y-3">
-        <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-[#3156C9] dark:text-[#83A5FF]" />
-          <h3 className="text-xs font-black text-[#29466F] dark:text-[#D9E6FA]">تحديد بيانات البحث</h3>
-        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {/* Year Filter */}
           <div className="space-y-1.5">
