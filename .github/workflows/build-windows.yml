@@ -6,6 +6,7 @@ on:
     branches:
       - main
       - build/isolate-school-grades-data
+      - feature/dashboard-professional-redesign
 
 permissions:
   contents: read
