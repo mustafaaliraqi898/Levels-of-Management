@@ -527,7 +527,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
         <div className={`fixed bottom-6 left-6 z-50 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 border text-sm font-bold animate-in fade-in slide-in-from-bottom duration-200 ${toastMessage.type === 'success' ? 'bg-[#059669] dark:bg-[#10B981] text-white dark:text-[#0B1420] border-[#10B981]/50' : toastMessage.type === 'error' ? 'bg-[#C83D4B] dark:bg-[#E35D6A] text-white dark:text-[#0B1420] border-[#E35D6A]/50' : 'bg-[#1E293B] dark:bg-[#1C2939] text-white border-[#2D3B4D]'}`}>
           {toastMessage.type === 'success' ? <CheckCircle2 className="w-5 h-5 shrink-0" /> : <AlertTriangle className="w-5 h-5 shrink-0" />}
           <span>{toastMessage.text}</span>
-          <button type="button" onClick={() => setToastMessage(null)} className="p-1 hover:bg-black/20 rounded cursor-pointer mr-2"><X className="w-4 h-4" /></button>
+          <button type="button" onClick={() => setToastMessage(null)} className="p-1 hover:bg-black/20 rounded cursor-pointer mr-2 disabled:cursor-not-allowed"><X className="w-4 h-4" /></button>
         </div>
       )}
 
@@ -550,7 +550,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
             setManualSectionsInput('');
             setAddClassError(null);
             setIsAddClassModalOpen(true);
-          }} className="h-11 px-5 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] text-white text-sm font-bold inline-flex items-center justify-center gap-2 shadow-sm transition-colors shrink-0 cursor-pointer">
+          }} className="h-11 px-5 rounded-xl bg-[#3156C9] hover:bg-[#2749B0] text-white text-sm font-bold inline-flex items-center justify-center gap-2 shadow-sm transition-colors shrink-0 cursor-pointer disabled:cursor-not-allowed">
             <Plus className="w-4 h-4" /> إضافة صف دراسي جديد
           </button>
         </div>
@@ -589,7 +589,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
               <ChevronDown className="w-4 h-4 text-[#64748B] dark:text-[#A8B5C7] absolute left-3 top-3 pointer-events-none" />
             </div>
             <button type="button" onClick={() => setIsCopyModalOpen(true)}
-              className="h-10 px-4 rounded-xl bg-[#F1F5FB] hover:bg-[#E5EDF8] dark:bg-[#26364B] dark:hover:bg-[#30435C] border border-[#D8E2F0] dark:border-[#3B4D66] text-[#263B5A] dark:text-[#D8E4F4] font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors">
+              className="h-10 px-4 rounded-xl bg-[#F1F5FB] hover:bg-[#E5EDF8] dark:bg-[#26364B] dark:hover:bg-[#30435C] border border-[#D8E2F0] dark:border-[#3B4D66] text-[#263B5A] dark:text-[#D8E4F4] font-bold text-xs flex items-center gap-2 cursor-pointer transition-colors disabled:cursor-not-allowed">
               <Copy className="w-4 h-4 text-[#3156C9] dark:text-[#8DB5FF]" /> نسخ صفوف من عام سابق
             </button>
           </div>
@@ -603,7 +603,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
               const count = sections.filter((section) => section.classId === cls.id).length;
               return <button key={cls.id} type="button" onClick={() => setSelectedClassId(cls.id)}
                 aria-pressed={isActive}
-                className={`shrink-0 min-w-[170px] h-12 px-4 rounded-xl border flex items-center justify-between gap-3 transition-all ${isActive ? 'bg-[#3156C9] border-[#3156C9] text-white shadow-[0_4px_12px_rgba(49,86,201,0.2)]' : 'bg-[#F8FAFC] dark:bg-[#26364B] border-[#DCE3ED] dark:border-[#3B4D66] text-[#334155] dark:text-[#C1D0E3] hover:border-[#9DB7F5] dark:hover:border-[#5278BA]'}`}>
+                className={`shrink-0 min-w-[170px] h-12 px-4 rounded-xl border flex items-center justify-between gap-3 transition-all ${isActive ? 'bg-[#3156C9] border-[#3156C9] text-white shadow-[0_4px_12px_rgba(49,86,201,0.2)]' : 'bg-[#F8FAFC] dark:bg-[#26364B] border-[#DCE3ED] dark:border-[#3B4D66] text-[#334155] dark:text-[#C1D0E3] hover:border-[#9DB7F5] dark:hover:border-[#5278BA]'}`} className="cursor-pointer disabled:cursor-not-allowed">
                 <span className="text-xs font-black whitespace-nowrap">{cls.name}</span>
                 <span className={`text-[10px] font-bold rounded-full px-2 py-1 ${isActive ? 'bg-white/20 text-white' : 'bg-[#E8EEF8] dark:bg-[#1C2939] text-[#64748B] dark:text-[#A8B5C7]'}`}>{count} شُعب</span>
               </button>;
@@ -611,7 +611,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
             {filteredClasses.length === 0 && <p className="text-xs text-[#64748B] dark:text-[#8493A8] py-3 px-2">لا توجد صفوف مسجلة في هذا العام الدراسي.</p>}
           </div>
           <button type="button" onClick={() => scrollClassTabs('left')} disabled={filteredClasses.length < 2} aria-label="تمرير الصفوف إلى اليسار"
-            className="w-9 h-9 shrink-0 rounded-lg border border-[#DCE3ED] dark:border-[#3B4D66] bg-[#F8FAFC] dark:bg-[#26364B] text-[#475569] dark:text-[#A8B5C7] hover:text-[#3156C9] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center"><ChevronLeft className="w-4 h-4" /></button>
+            className="w-9 h-9 shrink-0 rounded-lg border border-[#DCE3ED] dark:border-[#3B4D66] bg-[#F8FAFC] dark:bg-[#26364B] text-[#475569] dark:text-[#A8B5C7] hover:text-[#3156C9] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"><ChevronLeft className="w-4 h-4" /></button>
         </div>
       </section>
 
@@ -624,7 +624,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                 <p className="text-[11px] text-[#64748B] dark:text-[#8493A8] mt-1">{selectedClassSections.length} شعبة تابعة لهذا الصف</p>
               </div>
               <button type="button" onClick={() => { setManagingClass(selectedClass); setNewSectionNameInput(''); setManageSectionError(null); }}
-                className="h-9 px-3 rounded-lg bg-[#3156C9]/10 hover:bg-[#3156C9]/15 dark:bg-[#2785F5]/15 dark:hover:bg-[#2785F5]/25 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/25 dark:border-[#2785F5]/30 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer">
+                className="h-9 px-3 rounded-lg bg-[#3156C9]/10 hover:bg-[#3156C9]/15 dark:bg-[#2785F5]/15 dark:hover:bg-[#2785F5]/25 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/25 dark:border-[#2785F5]/30 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer disabled:cursor-not-allowed">
                 <Plus className="w-4 h-4" /> إضافة شعبة جديدة
               </button>
             </div>
@@ -652,9 +652,9 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                         <td className="py-3.5 px-4 text-center"><span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900 px-3 py-1 text-emerald-700 dark:text-emerald-300 font-bold tabular-nums"><Users className="w-3.5 h-3.5" />{count}</span></td>
                         <td className="py-3.5 px-4">
                           <div className="flex items-center justify-center gap-1.5">
-                            <button type="button" onClick={() => { setManagingClass(selectedClass); setNewSectionNameInput(''); setManageSectionError(null); }} className="h-8 px-2.5 rounded-lg bg-[#3156C9]/10 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/20 font-bold text-[11px] inline-flex items-center gap-1 cursor-pointer hover:bg-[#3156C9]/15 transition-colors"><FolderPlus className="w-3.5 h-3.5" /> إدارة الشعبة</button>
-                            <button type="button" onClick={() => openEditSectionModal(section)} title="تعديل الشعبة" className="p-2 rounded-lg bg-[#EDF1F7] dark:bg-[#26364B] text-[#3156C9] dark:text-[#60A5FA] hover:bg-[#DCE8FF] dark:hover:bg-[#30435C] transition-colors cursor-pointer"><Edit3 className="w-4 h-4" /></button>
-                            <button type="button" onClick={() => openDeleteSectionModal(section)} title="حذف الشعبة" className="p-2 rounded-lg bg-[#FDEBEC] dark:bg-[#4A252D] text-[#C83D4B] dark:text-[#FF7B86] hover:bg-[#FBD5D8] dark:hover:bg-[#60303A] transition-colors cursor-pointer"><Trash2 className="w-4 h-4" /></button>
+                            <button type="button" onClick={() => { setManagingClass(selectedClass); setNewSectionNameInput(''); setManageSectionError(null); }} className="h-8 px-2.5 rounded-lg bg-[#3156C9]/10 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/20 font-bold text-[11px] inline-flex items-center gap-1 cursor-pointer hover:bg-[#3156C9]/15 transition-colors disabled:cursor-not-allowed"><FolderPlus className="w-3.5 h-3.5" /> إدارة الشعبة</button>
+                            <button type="button" onClick={() => openEditSectionModal(section)} title="تعديل الشعبة" className="p-2 rounded-lg bg-[#EDF1F7] dark:bg-[#26364B] text-[#3156C9] dark:text-[#60A5FA] hover:bg-[#DCE8FF] dark:hover:bg-[#30435C] transition-colors cursor-pointer disabled:cursor-not-allowed"><Edit3 className="w-4 h-4" /></button>
+                            <button type="button" onClick={() => openDeleteSectionModal(section)} title="حذف الشعبة" className="p-2 rounded-lg bg-[#FDEBEC] dark:bg-[#4A252D] text-[#C83D4B] dark:text-[#FF7B86] hover:bg-[#FBD5D8] dark:hover:bg-[#60303A] transition-colors cursor-pointer disabled:cursor-not-allowed"><Trash2 className="w-4 h-4" /></button>
                           </div>
                         </td>
                       </tr>;
@@ -692,8 +692,8 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
               </div>
             </div>
             <div className="flex flex-col gap-2 mt-4 pt-3 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
-              <button type="button" onClick={() => openEditClassModal(selectedClass)} className="h-9 rounded-lg bg-[#3156C9]/10 hover:bg-[#3156C9]/15 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/20 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"><Edit3 className="w-4 h-4" /> تعديل بيانات الصف</button>
-              <button type="button" onClick={() => openDeleteClassModal(selectedClass)} className="h-9 rounded-lg bg-[#EDF1F7] hover:bg-red-50 dark:bg-[#26364B] dark:hover:bg-red-950/30 text-[#475569] dark:text-[#A8B5C7] hover:text-red-600 border border-[#DCE3ED] dark:border-[#2D3B4D] font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"><Settings2 className="w-4 h-4" /> أرشفة أو حذف الصف</button>
+              <button type="button" onClick={() => openEditClassModal(selectedClass)} className="h-9 rounded-lg bg-[#3156C9]/10 hover:bg-[#3156C9]/15 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/20 font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors disabled:cursor-not-allowed"><Edit3 className="w-4 h-4" /> تعديل بيانات الصف</button>
+              <button type="button" onClick={() => openDeleteClassModal(selectedClass)} className="h-9 rounded-lg bg-[#EDF1F7] hover:bg-red-50 dark:bg-[#26364B] dark:hover:bg-red-950/30 text-[#475569] dark:text-[#A8B5C7] hover:text-red-600 border border-[#DCE3ED] dark:border-[#2D3B4D] font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors disabled:cursor-not-allowed"><Settings2 className="w-4 h-4" /> أرشفة أو حذف الصف</button>
             </div>
           </aside>
         </div>
@@ -717,7 +717,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                 type="button"
                 onClick={() => setIsAddClassModalOpen(false)}
                 aria-label="إغلاق"
-                className="p-2 rounded-xl text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] transition-colors cursor-pointer"
+                className="p-2 rounded-xl text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] transition-colors cursor-pointer disabled:cursor-not-allowed"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -787,7 +787,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                             ? 'bg-[#E8EFFF] dark:bg-[#263B63] border-[#8EAAEF] dark:border-[#5277C8] text-[#244DB5] dark:text-[#A9C3FF] shadow-sm'
                             : 'bg-white dark:bg-[#26364B] border-[#DCE5F1] dark:border-[#3B4D66] text-[#475569] dark:text-[#B8C6D8] hover:border-[#9CB5E8] dark:hover:border-[#5877A5]'
                         }`}
-                      >
+                       className="cursor-pointer disabled:cursor-not-allowed">
                         <span>شعبة {sec}</span>
                         {isChecked ? <CheckSquare className="w-4 h-4 shrink-0" /> : <Square className="w-4 h-4 shrink-0 text-[#94A3B8]" />}
                       </button>
@@ -812,7 +812,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
               <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-start gap-2.5 pt-4 border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
                 <button
                   type="submit"
-                  className="px-5 h-11 text-xs font-bold rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3979E6] dark:hover:bg-[#4B8CF0] text-white flex items-center justify-center gap-2 transition-all cursor-pointer shadow-[0_5px_14px_rgba(49,86,201,0.2)]"
+                  className="px-5 h-11 text-xs font-bold rounded-xl bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3979E6] dark:hover:bg-[#4B8CF0] text-white flex items-center justify-center gap-2 transition-all cursor-pointer shadow-[0_5px_14px_rgba(49,86,201,0.2)] disabled:cursor-not-allowed"
                 >
                   <Plus className="w-4 h-4" />
                   <span>حفظ الصف وإضافة الشُعب</span>
@@ -820,7 +820,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsAddClassModalOpen(false)}
-                  className="px-5 h-11 text-xs font-bold rounded-xl bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#334155] dark:text-[#E2E8F0] transition-colors cursor-pointer"
+                  className="px-5 h-11 text-xs font-bold rounded-xl bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#334155] dark:text-[#E2E8F0] transition-colors cursor-pointer disabled:cursor-not-allowed"
                 >
                   إلغاء
                 </button>
@@ -851,7 +851,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
               <button
                 type="button"
                 onClick={() => setManagingClass(null)}
-                className="p-1.5 rounded-lg text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] transition-colors cursor-pointer disabled:cursor-not-allowed"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -885,7 +885,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                 />
                 <button
                   type="submit"
-                  className="h-10 px-4 rounded-lg bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm shrink-0"
+                  className="h-10 px-4 rounded-lg bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm shrink-0 disabled:cursor-not-allowed"
                 >
                   <Plus className="w-4 h-4" />
                   <span>إضافة</span>
@@ -922,7 +922,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                             <button
                               type="button"
                               onClick={() => openEditSectionModal(sec)}
-                              className="p-1.5 rounded hover:bg-[#D69B42]/15 text-[#64748B] dark:text-[#8493A8] hover:text-[#B45309] dark:hover:text-[#D69B42] transition-colors cursor-pointer"
+                              className="p-1.5 rounded hover:bg-[#D69B42]/15 text-[#64748B] dark:text-[#8493A8] hover:text-[#B45309] dark:hover:text-[#D69B42] transition-colors cursor-pointer disabled:cursor-not-allowed"
                               title="تعديل اسم الشعبة"
                             >
                               <Edit3 className="w-4 h-4" />
@@ -930,7 +930,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                             <button
                               type="button"
                               onClick={() => openDeleteSectionModal(sec)}
-                              className="p-1.5 rounded hover:bg-[#E35D6A]/15 text-[#64748B] dark:text-[#8493A8] hover:text-[#C83D4B] dark:hover:text-[#E35D6A] transition-colors cursor-pointer"
+                              className="p-1.5 rounded hover:bg-[#E35D6A]/15 text-[#64748B] dark:text-[#8493A8] hover:text-[#C83D4B] dark:hover:text-[#E35D6A] transition-colors cursor-pointer disabled:cursor-not-allowed"
                               title="حذف الشعبة"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -947,7 +947,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
               <button
                 type="button"
                 onClick={() => setManagingClass(null)}
-                className="px-5 py-2 text-xs font-bold rounded-lg bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] transition-colors cursor-pointer"
+                className="px-5 py-2 text-xs font-bold rounded-lg bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] transition-colors cursor-pointer disabled:cursor-not-allowed"
               >
                 إغلاق
               </button>
@@ -975,7 +975,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
               <button
                 type="button"
                 onClick={() => setEditingClass(null)}
-                className="p-1.5 rounded-lg text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] transition-colors cursor-pointer disabled:cursor-not-allowed"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1019,13 +1019,13 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                 <button
                   type="button"
                   onClick={() => setEditingClass(null)}
-                  className="px-4 py-2 text-xs font-bold rounded-lg bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] transition-colors cursor-pointer"
+                  className="px-4 py-2 text-xs font-bold rounded-lg bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] transition-colors cursor-pointer disabled:cursor-not-allowed"
                 >
                   إلغاء
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 text-xs font-bold rounded-lg bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+                  className="px-5 py-2 text-xs font-bold rounded-lg bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm disabled:cursor-not-allowed"
                 >
                   <Check className="w-4 h-4" />
                   <span>حفظ التعديلات</span>
@@ -1063,7 +1063,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
               <button
                 type="button"
                 onClick={() => setDeletingClass(null)}
-                className="p-1.5 rounded-lg text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] transition-colors cursor-pointer disabled:cursor-not-allowed"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1101,7 +1101,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                     <button
                       type="button"
                       onClick={handleArchiveClassConfirm}
-                      className="px-3 py-1.5 rounded-lg bg-[#D69B42] hover:bg-[#B45309] text-white font-bold text-xs cursor-pointer transition-colors shadow-xs"
+                      className="px-3 py-1.5 rounded-lg bg-[#D69B42] hover:bg-[#B45309] text-white font-bold text-xs cursor-pointer transition-colors shadow-xs disabled:cursor-not-allowed"
                     >
                       أرشفة الصف
                     </button>
@@ -1134,7 +1134,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                     <button
                       type="button"
                       onClick={handleCascadeDeleteConfirm}
-                      className="mt-1 w-full py-2 rounded-lg bg-[#C83D4B] hover:bg-[#B02E3C] text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                      className="mt-1 w-full py-2 rounded-lg bg-[#C83D4B] hover:bg-[#B02E3C] text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-sm disabled:cursor-not-allowed"
                     >
                       <Trash2 className="w-4 h-4" />
                       <span>حذف شامل ونهائي لجميع بيانات الصف</span>
@@ -1157,7 +1157,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
               <button
                 type="button"
                 onClick={() => setDeletingClass(null)}
-                className="px-4 py-2 text-xs font-bold rounded-lg bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] transition-colors cursor-pointer"
+                className="px-4 py-2 text-xs font-bold rounded-lg bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] transition-colors cursor-pointer disabled:cursor-not-allowed"
               >
                 إلغاء
               </button>
@@ -1166,7 +1166,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                 <button
                   type="button"
                   onClick={handleDeleteClassConfirm}
-                  className="px-5 py-2 text-xs font-bold rounded-lg bg-[#C83D4B] hover:bg-[#B02E3C] text-white flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+                  className="px-5 py-2 text-xs font-bold rounded-lg bg-[#C83D4B] hover:bg-[#B02E3C] text-white flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm disabled:cursor-not-allowed"
                 >
                   <Trash2 className="w-4 h-4" />
                   <span>تأكيد حذف الصف</span>
@@ -1196,7 +1196,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
               <button
                 type="button"
                 onClick={() => setEditingSection(null)}
-                className="p-1.5 rounded-lg text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] transition-colors cursor-pointer disabled:cursor-not-allowed"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1228,13 +1228,13 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                 <button
                   type="button"
                   onClick={() => setEditingSection(null)}
-                  className="px-4 py-2 text-xs font-bold rounded-lg bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] transition-colors cursor-pointer"
+                  className="px-4 py-2 text-xs font-bold rounded-lg bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] transition-colors cursor-pointer disabled:cursor-not-allowed"
                 >
                   إلغاء
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 text-xs font-bold rounded-lg bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+                  className="px-5 py-2 text-xs font-bold rounded-lg bg-[#3156C9] hover:bg-[#2749B0] dark:bg-[#3156C9] dark:hover:bg-[#3979E6] text-white flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm disabled:cursor-not-allowed"
                 >
                   <Check className="w-4 h-4" />
                   <span>حفظ التعديل</span>
@@ -1279,7 +1279,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
               <button
                 type="button"
                 onClick={() => setDeletingSection(null)}
-                className="p-1.5 rounded-lg text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-[#64748B] dark:text-[#8493A8] hover:text-[#1E293B] dark:hover:text-[#E2E8F0] hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] transition-colors cursor-pointer disabled:cursor-not-allowed"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1319,7 +1319,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
               <button
                 type="button"
                 onClick={() => setDeletingSection(null)}
-                className="px-4 py-2 text-xs font-bold rounded-lg bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] transition-colors cursor-pointer"
+                className="px-4 py-2 text-xs font-bold rounded-lg bg-[#EDF1F7] hover:bg-[#E2E8F0] dark:bg-[#26364B] dark:hover:bg-[#2D3B4D] text-[#1E293B] dark:text-[#E2E8F0] transition-colors cursor-pointer disabled:cursor-not-allowed"
               >
                 {deletingSectionDetails.isBlocked ? 'إغلاق' : 'إلغاء'}
               </button>
@@ -1328,7 +1328,7 @@ export const ClassesManagement: React.FC<ClassesManagementProps> = ({
                 <button
                   type="button"
                   onClick={handleDeleteSectionConfirm}
-                  className="px-5 py-2 text-xs font-bold rounded-lg bg-[#C83D4B] hover:bg-[#B02E3C] text-white flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+                  className="px-5 py-2 text-xs font-bold rounded-lg bg-[#C83D4B] hover:bg-[#B02E3C] text-white flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm disabled:cursor-not-allowed"
                 >
                   <Trash2 className="w-4 h-4" />
                   <span>تأكيد حذف الشعبة</span>
