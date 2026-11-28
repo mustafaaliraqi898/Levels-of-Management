@@ -443,7 +443,7 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
       <div className="rounded-2xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-white/90 dark:bg-[#1C2939] p-3 shadow-sm app-card-surface">
         <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
           {[
-            { label: 'الطلاب المستحقون', value: eligibleStudentsList.length, icon: Users, tone: 'blue' },
+            { label: 'الطلاب المستحقون', value: qualifiedStudentsList.length, icon: Users, tone: 'blue' },
             { label: 'المواد المستحقة', value: eligibleSubjectCount, icon: BookOpen, tone: 'amber' },
             { label: 'القرارات الممنوحة', value: grantedDecisionCount, icon: CheckCircle2, tone: 'green' },
             { label: 'الرصيد المتبقي', value: totalRemainingMarks, suffix: 'درجة', icon: Sparkles, tone: 'violet' },
@@ -605,7 +605,7 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
             <button type="button" onClick={() => setStudentDisplayFilter('all')} className={`rounded-xl px-3 py-2 text-xs font-bold border transition-colors ${studentDisplayFilter === 'all' ? 'bg-[#3156C9] text-white border-[#3156C9]' : 'bg-white dark:bg-[#202E40] text-[#475569] dark:text-[#A8B5C7] border-[#DCE3ED] dark:border-[#2D3B4D]'}`}>جميع الطلبة ({eligibleStudentsList.length})</button>
           </div>
           <h2 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2">
-            <span>الطلبة المستحقون والمشمولون بالقرار</span>
+            <span>{studentDisplayFilter === 'eligible' ? 'الطلبة المستحقون والمشمولون بالقرار' : 'جميع طلبة الصف والشعبة'}</span>
             <span className="px-2.5 py-0.5 rounded-full bg-[#3156C9]/10 dark:bg-[#2785F5]/15 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/25 dark:border-[#2785F5]/30 font-mono tabular-nums text-xs">
               {displayedStudentsList.length} طالب
             </span>
