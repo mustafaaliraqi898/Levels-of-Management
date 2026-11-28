@@ -173,10 +173,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   );
 
   const [selectedStage, setSelectedStage] = useState<GradeStage>('term1');
-  const [expandedClassIds, setExpandedClassIds] = useState<Set<string>>(() => {
-    const firstClass = [...activeClasses].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))[0];
-    return new Set(firstClass ? [firstClass.id] : []);
-  });
+  // Keep the overview compact: classes start collapsed and reveal sections on demand.
+  const [expandedClassIds, setExpandedClassIds] = useState<Set<string>>(new Set());
   const [expandedSectionKeys, setExpandedSectionKeys] = useState<Set<string>>(new Set());
 
   const toggleClass = (classId: string) => {
@@ -476,7 +474,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               لا توجد صفوف دراسية مسجلة في العام الدراسي الحالي.
             </div>
           ) : (
-            <div className="flex flex-col gap-2.5">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3">
               {hierarchyStats.classes.map((classItem) => {
                 const isExpanded = expandedClassIds.has(classItem.schoolClass.id);
                 const statusTone = classItem.status === 'مكتمل'
@@ -488,12 +486,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       : 'bg-[#EDF1F7] text-[#64748B] dark:bg-[#26364B] dark:text-[#A8B5C7]';
 
                 return (
-                  <div key={classItem.schoolClass.id} className="overflow-hidden rounded-xl border border-[#DCE3ED] bg-[#F4F6FA] dark:border-[#2D3B4D] dark:bg-[#202E40]">
+                  <div key={classItem.schoolClass.id} className={`relative overflow-hidden rounded-2xl border border-[#DCE3ED] bg-[#F4F6FA] shadow-sm transition-all dark:border-[#2D3B4D] dark:bg-[#202E40] app-card-surface ${isExpanded ? 'md:col-span-2 2xl:col-span-3' : ''}`}>
                     <button
                       type="button"
                       onClick={() => toggleClass(classItem.schoolClass.id)}
                       aria-expanded={isExpanded}
-                      className="flex w-full flex-col gap-3 p-3 text-right transition-colors hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] sm:flex-row sm:items-center sm:justify-between cursor-pointer"
+                      className="relative z-10 flex w-full flex-col gap-3 p-4 text-right transition-colors hover:bg-[#EDF1F7]/80 dark:hover:bg-[#26364B]/80 sm:flex-row sm:items-center sm:justify-between cursor-pointer"
                     >
                       <div className="flex min-w-0 items-center gap-2.5">
                         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#3156C9] text-white shadow-xs"><GraduationCap className="h-5 w-5" /></span>
@@ -525,11 +523,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     </button>
 
                     {isExpanded && (
-                      <div className="border-t border-[#DCE3ED] p-3 dark:border-[#2D3B4D]">
+                      <div className="relative z-10 border-t border-[#DCE3ED] bg-white/55 p-3 dark:border-[#2D3B4D] dark:bg-[#172333]/45">
                         {classItem.sections.length === 0 ? (
                           <p className="py-4 text-center text-xs text-[#64748B] dark:text-[#A8B5C7]">لا توجد شعب مسجلة لهذا الصف.</p>
                         ) : (
-                          <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
+                          <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
                             {classItem.sections.map((sectionItem) => {
                               const sectionKey = `${classItem.schoolClass.id}_${sectionItem.section.id}`;
                               const sectionExpanded = expandedSectionKeys.has(sectionKey);
@@ -542,12 +540,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                                     : 'text-[#64748B] dark:text-[#A8B5C7]';
 
                               return (
-                                <div key={sectionItem.section.id || 'no-section'} className="min-w-0 overflow-hidden rounded-xl border border-[#DCE3ED] bg-white dark:border-[#2D3B4D] dark:bg-[#1C2939]">
+                                <div key={sectionItem.section.id || 'no-section'} className="relative min-w-0 overflow-hidden rounded-2xl border border-[#DCE3ED] bg-white shadow-sm dark:border-[#2D3B4D] dark:bg-[#1C2939] app-card-surface">
                                   <button
                                     type="button"
                                     onClick={() => toggleSection(classItem.schoolClass.id, sectionItem.section.id)}
                                     aria-expanded={sectionExpanded}
-                                    className="flex w-full items-center gap-2.5 p-3 text-right transition-colors hover:bg-[#EDF1F7] dark:hover:bg-[#26364B] cursor-pointer"
+                                    className="relative z-10 flex w-full items-center gap-2.5 p-3 text-right transition-colors hover:bg-[#EDF1F7]/80 dark:hover:bg-[#26364B]/80 cursor-pointer"
                                   >
                                     <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-black ${sectionExpanded ? 'bg-[#3156C9] text-white' : 'bg-[#EDF1F7] text-[#1E293B] dark:bg-[#26364B] dark:text-[#E2E8F0]'}`}>{sectionItem.section.name}</span>
                                     <span className="min-w-0 flex-1">
@@ -559,45 +557,38 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                                   </button>
 
                                   {sectionExpanded && (
-                                    <div className="border-t border-[#DCE3ED] dark:border-[#2D3B4D]">
+                                    <div className="relative z-10 border-t border-[#DCE3ED] bg-white/60 p-3 dark:border-[#2D3B4D] dark:bg-[#172333]/50">
                                       {sectionItem.subjects.length === 0 ? (
                                         <p className="p-4 text-center text-[10px] text-[#64748B] dark:text-[#A8B5C7]">لا توجد مواد مضافة لهذا الصف.</p>
                                       ) : (
-                                        <div className="overflow-x-auto">
-                                          <table className="w-full min-w-[330px] text-right text-[10px]">
-                                            <thead className="bg-[#F4F6FA] text-[#64748B] dark:bg-[#26364B] dark:text-[#A8B5C7]">
-                                              <tr>
-                                                <th className="px-3 py-2 font-bold">المادة</th>
-                                                <th className="px-2 py-2 text-center font-bold">الرصد</th>
-                                                <th className="px-3 py-2 text-left font-bold">الإنجاز</th>
-                                              </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-[#DCE3ED] dark:divide-[#2D3B4D]">
-                                              {sectionItem.subjects.map((subjectItem) => (
-                                                <tr
-                                                  key={subjectItem.subject.id}
-                                                  onClick={() => onNavigate('grade_entry')}
-                                                  className="cursor-pointer transition-colors hover:bg-[#3156C9]/6 dark:hover:bg-[#2785F5]/12"
-                                                  title="الانتقال إلى شاشة رصد الدرجات"
-                                                >
-                                                  <td className="px-3 py-2 font-bold text-[#1E293B] dark:text-[#E2E8F0]">{subjectItem.subject.name}</td>
-                                                  <td className="px-2 py-2 text-center">
-                                                    <span className={`inline-flex rounded-md px-2 py-0.5 font-bold ${subjectItem.isComplete ? 'bg-[#10B981]/12 text-[#059669] dark:text-[#10B981]' : subjectItem.enteredCount > 0 ? 'bg-[#D69B42]/12 text-[#B47A20] dark:text-[#D69B42]' : 'bg-[#E35D6A]/12 text-[#C83D4B] dark:text-[#E35D6A]'}`}>
-                                                      {subjectItem.isComplete ? 'مكتمل' : subjectItem.enteredCount > 0 ? 'قيد الرصد' : 'غير مكتمل'}
-                                                    </span>
-                                                  </td>
-                                                  <td className="px-3 py-2">
-                                                    <div className="flex items-center justify-end gap-2">
-                                                      <span className="font-mono tabular-nums font-bold text-[#1E293B] dark:text-[#E2E8F0]" dir="ltr">{subjectItem.percent}%</span>
-                                                      <span className="h-1.5 w-16 overflow-hidden rounded-full bg-[#DCE3ED] dark:bg-[#111C2A]">
-                                                        <span className={`block h-full rounded-full ${subjectItem.isComplete ? 'bg-[#10B981]' : subjectItem.enteredCount > 0 ? 'bg-[#D69B42]' : 'bg-[#E35D6A]'}`} style={{ width: `${subjectItem.percent}%` }} />
-                                                      </span>
-                                                    </div>
-                                                  </td>
-                                                </tr>
-                                              ))}
-                                            </tbody>
-                                          </table>
+                                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                                          {sectionItem.subjects.map((subjectItem) => (
+                                            <button
+                                              key={subjectItem.subject.id}
+                                              type="button"
+                                              onClick={() => onNavigate('grade_entry')}
+                                              title="الانتقال إلى شاشة رصد الدرجات"
+                                              className="group relative overflow-hidden rounded-xl border border-[#DCE3ED] bg-[#F8FAFD] p-3 text-right shadow-sm transition-all hover:-translate-y-0.5 hover:border-[#9BB7EA] hover:shadow-md dark:border-[#2D3B4D] dark:bg-[#202E40] dark:hover:border-[#4D76B8] app-card-surface"
+                                            >
+                                              <span className="relative z-10 flex items-center justify-between gap-2">
+                                                <span className="min-w-0 text-xs font-black text-[#1E293B] dark:text-[#E2E8F0]">{subjectItem.subject.name}</span>
+                                                <span className={`shrink-0 rounded-lg px-2 py-1 text-[9px] font-bold ${subjectItem.isComplete ? 'bg-[#10B981]/12 text-[#059669] dark:text-[#10B981]' : subjectItem.enteredCount > 0 ? 'bg-[#D69B42]/12 text-[#B47A20] dark:text-[#D69B42]' : 'bg-[#E35D6A]/12 text-[#C83D4B] dark:text-[#E35D6A]'}`}>
+                                                  {subjectItem.isComplete ? 'مكتمل' : subjectItem.enteredCount > 0 ? 'قيد الرصد' : 'غير مكتمل'}
+                                                </span>
+                                              </span>
+                                              <span className="relative z-10 mt-3 flex items-center justify-between gap-3">
+                                                <span className="text-[10px] font-semibold text-[#64748B] dark:text-[#A8B5C7]">الإنجاز</span>
+                                                <span className="font-mono text-xs font-black tabular-nums text-[#1E293B] dark:text-[#E2E8F0]" dir="ltr">{subjectItem.percent}%</span>
+                                              </span>
+                                              <span className="relative z-10 mt-1.5 block h-2 overflow-hidden rounded-full bg-[#DCE3ED] dark:bg-[#111C2A]">
+                                                <span className={`block h-full rounded-full transition-all ${subjectItem.isComplete ? 'bg-[#10B981]' : subjectItem.enteredCount > 0 ? 'bg-[#D69B42]' : 'bg-[#E35D6A]'}`} style={{ width: `${subjectItem.percent}%` }} />
+                                              </span>
+                                              <span className="relative z-10 mt-2 flex items-center justify-between text-[9px] text-[#64748B] dark:text-[#A8B5C7]">
+                                                <span>الرصد</span>
+                                                <span>{subjectItem.enteredCount} / {subjectItem.studentsCount} طالب</span>
+                                              </span>
+                                            </button>
+                                          ))}
                                         </div>
                                       )}
                                       <button
