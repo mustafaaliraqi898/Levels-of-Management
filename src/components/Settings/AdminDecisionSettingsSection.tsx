@@ -129,6 +129,35 @@ export const AdminDecisionSettingsSection: React.FC<AdminDecisionSettingsSection
       )}
 
       <form onSubmit={handleSave} className="space-y-6">
+        <div className="rounded-xl border border-[#DCE3ED] dark:border-[#2D3B4D] bg-[#F8FAFC] dark:bg-[#202E40] p-4 space-y-3">
+          <div>
+            <label className="block text-sm font-black text-[#1E293B] dark:text-[#E2E8F0]">المفاضلة عند تساوي درجات المواد</label>
+            <p className="mt-1 text-xs text-[#64748B] dark:text-[#A8B5C7]">تُستخدم عند تساوي الدرجة النهائية لمادتين مؤهلتين للقرار.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+            {[
+              { value: 'higherYearly', title: 'السعي الأعلى', description: 'تقديم المادة ذات السعي السنوي الأعلى' },
+              { value: 'lowerYearly', title: 'السعي الأقل', description: 'تقديم المادة ذات السعي السنوي الأقل' },
+              { value: 'manual', title: 'اختيار يدوي', description: 'ترك المفاضلة للمدير عند كل حالة' },
+            ].map((option) => (
+              <label key={option.value} className={`flex cursor-pointer items-start gap-2 rounded-xl border p-3 transition-colors ${(decisionSettings.tieBreakPreference || 'higherYearly') === option.value ? 'border-[#3156C9] bg-[#3156C9]/8 dark:border-[#60A5FA] dark:bg-[#3156C9]/15' : 'border-[#DCE3ED] bg-white dark:border-[#2D3B4D] dark:bg-[#26364B]'}`}>
+                <input
+                  type="radio"
+                  name="decisionTieBreakPreference"
+                  value={option.value}
+                  checked={(decisionSettings.tieBreakPreference || 'higherYearly') === option.value}
+                  onChange={() => setDecisionSettings({ ...decisionSettings, tieBreakPreference: option.value as 'higherYearly' | 'lowerYearly' | 'manual' })}
+                  className="mt-1 accent-[#3156C9]"
+                />
+                <span className="min-w-0">
+                  <span className="block text-xs font-black text-[#1E293B] dark:text-[#E2E8F0]">{option.title}</span>
+                  <span className="mt-1 block text-[10px] text-[#64748B] dark:text-[#A8B5C7]">{option.description}</span>
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {/* 1. Max Failed Subjects */}
           <div className="bg-[#F8FAFC] dark:bg-[#202E40] p-4 rounded-[12px] border border-[#DCE3ED] dark:border-[#2D3B4D] flex flex-col justify-between">
