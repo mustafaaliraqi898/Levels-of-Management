@@ -491,34 +491,57 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       type="button"
                       onClick={() => toggleClass(classItem.schoolClass.id)}
                       aria-expanded={isExpanded}
-                      className="relative z-10 flex w-full flex-col gap-3 p-4 text-right transition-colors hover:bg-[#EDF1F7]/80 dark:hover:bg-[#26364B]/80 sm:flex-row sm:items-center sm:justify-between cursor-pointer"
+                      className="relative z-10 flex w-full flex-col gap-3 p-4 text-right transition-colors hover:bg-[#EDF1F7]/80 dark:hover:bg-[#26364B]/80 cursor-pointer"
                     >
-                      <div className="flex min-w-0 items-center gap-2.5">
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#3156C9] text-white shadow-xs"><GraduationCap className="h-5 w-5" /></span>
-                        <span className="min-w-0">
-                          <span className="flex flex-wrap items-center gap-2">
-                            <span className="text-sm font-black text-[#1E293B] dark:text-[#E2E8F0]">{classItem.schoolClass.name}</span>
-                            <span className="rounded-md bg-[#3156C9]/10 px-2 py-0.5 text-[9px] font-bold text-[#3156C9] dark:bg-[#60A5FA]/15 dark:text-[#60A5FA]">{classItem.schoolClass.stage}</span>
+                      <div className="flex w-full items-center justify-between gap-3">
+                        <div className="flex min-w-0 items-center gap-2.5">
+                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#3156C9] text-white shadow-xs"><GraduationCap className="h-5 w-5" /></span>
+                          <span className="min-w-0">
+                            <span className="flex flex-wrap items-center gap-2">
+                              <span className="text-sm font-black text-[#1E293B] dark:text-[#E2E8F0]">{classItem.schoolClass.name}</span>
+                              <span className="rounded-md bg-[#3156C9]/10 px-2 py-0.5 text-[9px] font-bold text-[#3156C9] dark:bg-[#60A5FA]/15 dark:text-[#60A5FA]">{classItem.schoolClass.stage}</span>
+                            </span>
+                            <span className="mt-1 block text-[10px] text-[#64748B] dark:text-[#A8B5C7]">اضغط لعرض الشعب والمواد</span>
                           </span>
-                          <span className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-[#64748B] dark:text-[#A8B5C7]">
-                            <span className="inline-flex items-center gap-1"><Layers className="h-3 w-3 text-[#3156C9] dark:text-[#60A5FA]" />{classItem.totalSections} شعبة</span>
-                            <span className="inline-flex items-center gap-1"><Users className="h-3 w-3 text-[#3156C9] dark:text-[#60A5FA]" />{classItem.totalStudents} طالب</span>
-                            <span className="inline-flex items-center gap-1"><BookOpen className="h-3 w-3 text-[#3156C9] dark:text-[#60A5FA]" />{classItem.totalSubjects} مادة</span>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-2">
+                          <span className={`rounded-lg px-2.5 py-1 text-[9px] font-bold ${statusTone}`}>{classItem.status}</span>
+                          {isExpanded ? <ChevronUp className="h-4 w-4 text-[#3156C9] dark:text-[#60A5FA]" /> : <ChevronDown className="h-4 w-4 text-[#64748B] dark:text-[#8493A8]" />}
+                        </div>
+                      </div>
+
+                      <div className="grid w-full grid-cols-3 gap-2">
+                        <span className="app-card-surface relative overflow-hidden rounded-xl border border-[#DCE3ED] bg-[#EEF3FF] p-2.5 text-center dark:border-[#2D3B4D] dark:bg-[#263750]">
+                          <span className="relative z-10 flex flex-col items-center gap-1">
+                            <Layers className="h-4 w-4 text-[#4775D5] dark:text-[#78A5FF]" />
+                            <span className="font-mono text-lg font-black tabular-nums text-[#3156C9] dark:text-[#8DB4FF]">{classItem.totalSections}</span>
+                            <span className="text-[10px] font-semibold text-[#64748B] dark:text-[#A8B5C7]">الشعب</span>
+                          </span>
+                        </span>
+                        <span className="app-card-surface relative overflow-hidden rounded-xl border border-[#DCE3ED] bg-[#EAF8F2] p-2.5 text-center dark:border-[#2D3B4D] dark:bg-[#203B36]">
+                          <span className="relative z-10 flex flex-col items-center gap-1">
+                            <Users className="h-4 w-4 text-[#15966B] dark:text-[#4DD5A3]" />
+                            <span className="font-mono text-lg font-black tabular-nums text-[#0F8B63] dark:text-[#4DD5A3]">{classItem.totalStudents}</span>
+                            <span className="text-[10px] font-semibold text-[#64748B] dark:text-[#A8B5C7]">الطلاب</span>
+                          </span>
+                        </span>
+                        <span className="app-card-surface relative overflow-hidden rounded-xl border border-[#DCE3ED] bg-[#FFF5E5] p-2.5 text-center dark:border-[#2D3B4D] dark:bg-[#3B3327]">
+                          <span className="relative z-10 flex flex-col items-center gap-1">
+                            <BookOpen className="h-4 w-4 text-[#C58A2B] dark:text-[#E8B75D]" />
+                            <span className="font-mono text-lg font-black tabular-nums text-[#A86F17] dark:text-[#E8B75D]">{classItem.totalSubjects}</span>
+                            <span className="text-[10px] font-semibold text-[#64748B] dark:text-[#A8B5C7]">المواد</span>
                           </span>
                         </span>
                       </div>
-                      <div className="flex items-center gap-3 sm:min-w-[190px]">
-                        <div className="min-w-0 flex-1">
-                          <div className="mb-1 flex items-center justify-between text-[10px]">
-                            <span className={`font-black font-mono tabular-nums ${classItem.percent === 100 ? 'text-[#059669] dark:text-[#10B981]' : classItem.percent > 0 ? 'text-[#B47A20] dark:text-[#D69B42]' : 'text-[#64748B] dark:text-[#8493A8]'}`}>{classItem.percent}%</span>
-                            <span className="text-[#64748B] dark:text-[#A8B5C7]">اكتمال الرصد</span>
-                          </div>
-                          <div className="h-2 overflow-hidden rounded-full bg-[#DCE3ED] dark:bg-[#111C2A]">
-                            <div className={`h-full rounded-full transition-all ${classItem.percent === 100 ? 'bg-[#10B981]' : classItem.percent > 0 ? 'bg-[#D69B42]' : 'bg-[#8493A8]'}`} style={{ width: `${classItem.percent}%` }} />
-                          </div>
+
+                      <div className="w-full">
+                        <div className="mb-1 flex items-center justify-between text-[10px]">
+                          <span className={`font-black font-mono tabular-nums ${classItem.percent === 100 ? 'text-[#059669] dark:text-[#10B981]' : classItem.percent > 0 ? 'text-[#B47A20] dark:text-[#D69B42]' : 'text-[#64748B] dark:text-[#8493A8]'}`}>{classItem.percent}%</span>
+                          <span className="text-[#64748B] dark:text-[#A8B5C7]">اكتمال الرصد</span>
                         </div>
-                        <span className={`hidden rounded-lg px-2.5 py-1 text-[9px] font-bold sm:inline-flex ${statusTone}`}>{classItem.status}</span>
-                        {isExpanded ? <ChevronUp className="h-4 w-4 shrink-0 text-[#3156C9] dark:text-[#60A5FA]" /> : <ChevronDown className="h-4 w-4 shrink-0 text-[#64748B] dark:text-[#8493A8]" />}
+                        <div className="h-2 overflow-hidden rounded-full bg-[#DCE3ED] dark:bg-[#111C2A]">
+                          <div className={`h-full rounded-full transition-all ${classItem.percent === 100 ? 'bg-[#10B981]' : classItem.percent > 0 ? 'bg-[#D69B42]' : 'bg-[#8493A8]'}`} style={{ width: `${classItem.percent}%` }} />
+                        </div>
                       </div>
                     </button>
 
