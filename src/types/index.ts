@@ -104,6 +104,7 @@ export interface GradeRecord {
 
 export interface AcademicYearDecisionSettings {
   academicYearId: string;
+  tieBreakPreference?: 'higherYearly' | 'lowerYearly' | 'manual'; // المفاضلة عند تساوي الدرجة النهائية
   maxFailedSubjectsAllowed: number;              // عدد دروس الرسوب المسموح بها (الافتراضي: 4 مواد)
   primaryAssistanceMarks: number;                // درجات المساعدة الوزارية الرئيسية (الافتراضي: 10 درجات)
   secondRoundAdditionalAssistanceMarks: number;  // درجات المساعدة الوزارية الإضافية بعد الدور الثاني (الافتراضي: 0 درجات)
