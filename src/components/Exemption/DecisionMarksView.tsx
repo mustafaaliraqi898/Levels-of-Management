@@ -107,6 +107,14 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
 
   // Action feedback message
   const [feedbackMessage, setFeedbackMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [studentDisplayFilter, setStudentDisplayFilter] = useState<'eligible' | 'all'>('eligible');
+  const [autoGrantPreview, setAutoGrantPreview] = useState<{
+    student: Student;
+    items: Array<{ subject: Subject; originalScore: number; neededMarks: number; yearlyScore: number | null }>;
+    manualTieSubjects: Subject[];
+    balanceBefore: number;
+    balanceAfter: number;
+  } | null>(null);
 
   // Decision settings for this academic year
   const decisionSettings = useMemo(() => {
@@ -225,27 +233,104 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
         }
       });
 
-      // Include student if they have at least one eligible failing subject OR already have granted decisions in this round
-      const existingGrantsForRound = db.getStudentDecisionGrants(student.id, selectedYearId, selectedRound);
-      if (eligibleSubjects.length > 0 || existingGrantsForRound.length > 0) {
-        if (searchQuery.trim()) {
-          const q = searchQuery.trim().toLowerCase();
-          if (!student.name.toLowerCase().includes(q)) {
-            return;
-          }
-        }
-
-        resultList.push({
-          student,
-          evaluation,
-          eligibleSubjects,
-          balance,
-        });
+      if (searchQuery.trim()) {
+        const q = searchQuery.trim().toLowerCase();
+        if (!student.name.toLowerCase().includes(q)) return;
       }
+
+      resultList.push({
+        student,
+        evaluation,
+        eligibleSubjects,
+        balance,
+      });
     });
 
     return resultList;
   }, [targetStudents, classSubjects, selectedYearId, selectedClassId, selectedRound, decisionSettings, settings.roundingRule, decisionGrants, searchQuery]);
+
+  const qualifiedStudentsList = eligibleStudentsList.filter((item) =>
+    item.eligibleSubjects.length > 0 || db.getStudentDecisionGrants(item.student.id, selectedYearId, selectedRound).length > 0
+  );
+  const displayedStudentsList = studentDisplayFilter === 'all' ? eligibleStudentsList : qualifiedStudentsList;
+
+  // Build a safe automatic distribution preview without granting anything yet.
+  const handleBuildAutoGrantPreview = (student: Student, eligibleSubjects: typeof eligibleStudentsList[number]['eligibleSubjects'], balanceRemaining: number) => {
+    const candidates = eligibleSubjects.filter((item) => !item.isGranted);
+    if (candidates.length === 0) {
+      setFeedbackMessage({ type: 'error', text: 'لا توجد مواد جديدة قابلة لمنح القرار لهذا الطالب.' });
+      return;
+    }
+
+    const ordered = [...candidates].sort((a, b) => {
+      if (a.neededMarks !== b.neededMarks) return a.neededMarks - b.neededMarks;
+      if (a.originalScore !== b.originalScore) return b.originalScore - a.originalScore;
+      const yearlyA = eligibleStudentsList.find((x) => x.student.id === student.id)?.evaluation.subjects[a.subject.id]?.termYearlyScore ?? null;
+      const yearlyB = eligibleStudentsList.find((x) => x.student.id === student.id)?.evaluation.subjects[b.subject.id]?.termYearlyScore ?? null;
+      if (yearlyA === null || yearlyB === null || yearlyA === yearlyB) return 0;
+      if ((decisionSettings?.tieBreakPreference || 'higherYearly') === 'higherYearly') return yearlyB - yearlyA;
+      if (decisionSettings?.tieBreakPreference === 'lowerYearly') return yearlyA - yearlyB;
+      return 0;
+    });
+
+    let remaining = balanceRemaining;
+    const items: Array<{ subject: Subject; originalScore: number; neededMarks: number; yearlyScore: number | null }> = [];
+    let manualTieSubjects: Subject[] = [];
+
+    for (let index = 0; index < ordered.length;) {
+      const current = ordered[index];
+      const tieGroup = ordered.filter((item) => item.originalScore === current.originalScore && item.neededMarks === current.neededMarks);
+      if (tieGroup.length > 1) {
+        const yearlyValues = tieGroup.map((item) => eligibleStudentsList.find((x) => x.student.id === student.id)?.evaluation.subjects[item.subject.id]?.termYearlyScore ?? null);
+        const yearlyStillTied = yearlyValues.some((value) => value === null) || new Set(yearlyValues).size === 1;
+        if ((decisionSettings?.tieBreakPreference || 'higherYearly') === 'manual' || yearlyStillTied) {
+          manualTieSubjects = tieGroup.map((item) => item.subject);
+          break;
+        }
+      }
+
+      if (current.neededMarks > remaining) break;
+      const yearlyScore = eligibleStudentsList.find((x) => x.student.id === student.id)?.evaluation.subjects[current.subject.id]?.termYearlyScore ?? null;
+      items.push({ subject: current.subject, originalScore: current.originalScore, neededMarks: current.neededMarks, yearlyScore });
+      remaining -= current.neededMarks;
+      index += 1;
+      if (remaining <= 0) break;
+    }
+
+    if (items.length === 0 && manualTieSubjects.length === 0) {
+      setFeedbackMessage({ type: 'error', text: 'الرصيد المتبقي لا يكفي لمنح القرار لأي مادة مستحقة.' });
+      return;
+    }
+
+    setAutoGrantPreview({ student, items, manualTieSubjects, balanceBefore: balanceRemaining, balanceAfter: remaining });
+  };
+
+  const handleConfirmAutoGrant = () => {
+    if (!autoGrantPreview) return;
+    let grantedCount = 0;
+    const failed: string[] = [];
+    autoGrantPreview.items.forEach((item) => {
+      const result = db.grantDecision({
+        academicYearId: selectedYearId,
+        classId: selectedClassId,
+        sectionId: autoGrantPreview.student.sectionId,
+        studentId: autoGrantPreview.student.id,
+        subjectId: item.subject.id,
+        round: selectedRound,
+        grantedBy: 'مدير المدرسة',
+        notes: 'توزيع تلقائي بعد معاينة المدير',
+      });
+      if (result.success) grantedCount += 1;
+      else failed.push(item.subject.name);
+    });
+    setFeedbackMessage({
+      type: failed.length === 0 ? 'success' : 'error',
+      text: failed.length === 0
+        ? `تم توزيع القرار على ${grantedCount} مادة للطالب «${autoGrantPreview.student.name}».`
+        : `تم منح القرار في ${grantedCount} مادة، وتعذر منح القرار في: ${failed.join('، ')}.`,
+    });
+    setAutoGrantPreview(null);
+  };
 
   // Handle opening grant confirmation modal
   const handleOpenGrantModal = (
@@ -337,12 +422,12 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
     }
   };
 
-  const eligibleSubjectCount = eligibleStudentsList.reduce((total, item) => total + item.eligibleSubjects.length, 0);
-  const grantedDecisionCount = eligibleStudentsList.reduce(
+  const eligibleSubjectCount = qualifiedStudentsList.reduce((total, item) => total + item.eligibleSubjects.length, 0);
+  const grantedDecisionCount = qualifiedStudentsList.reduce(
     (total, item) => total + item.eligibleSubjects.filter((subject) => subject.isGranted).length,
     0
   );
-  const totalRemainingMarks = eligibleStudentsList.reduce((total, item) => total + item.balance.remainingMarks, 0);
+  const totalRemainingMarks = qualifiedStudentsList.reduce((total, item) => total + item.balance.remainingMarks, 0);
 
   return (
     <div className="w-full flex flex-col gap-6 pb-12">
@@ -514,26 +599,30 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
 
       {/* Main Students List */}
       <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between px-1">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1">
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={() => setStudentDisplayFilter('eligible')} className={`rounded-xl px-3 py-2 text-xs font-bold border transition-colors ${studentDisplayFilter === 'eligible' ? 'bg-[#3156C9] text-white border-[#3156C9]' : 'bg-white dark:bg-[#202E40] text-[#475569] dark:text-[#A8B5C7] border-[#DCE3ED] dark:border-[#2D3B4D]'}`}>المستحقون فقط ({qualifiedStudentsList.length})</button>
+            <button type="button" onClick={() => setStudentDisplayFilter('all')} className={`rounded-xl px-3 py-2 text-xs font-bold border transition-colors ${studentDisplayFilter === 'all' ? 'bg-[#3156C9] text-white border-[#3156C9]' : 'bg-white dark:bg-[#202E40] text-[#475569] dark:text-[#A8B5C7] border-[#DCE3ED] dark:border-[#2D3B4D]'}`}>جميع الطلبة ({eligibleStudentsList.length})</button>
+          </div>
           <h2 className="text-base font-bold text-[#1E293B] dark:text-[#E2E8F0] flex items-center gap-2">
             <span>الطلبة المستحقون والمشمولون بالقرار</span>
             <span className="px-2.5 py-0.5 rounded-full bg-[#3156C9]/10 dark:bg-[#2785F5]/15 text-[#3156C9] dark:text-[#60A5FA] border border-[#3156C9]/25 dark:border-[#2785F5]/30 font-mono tabular-nums text-xs">
-              {eligibleStudentsList.length} طالب
+              {displayedStudentsList.length} طالب
             </span>
           </h2>
         </div>
 
-        {eligibleStudentsList.length === 0 ? (
+        {displayedStudentsList.length === 0 ? (
           <div className="bg-white dark:bg-[#1C2939] border border-[#DCE3ED] dark:border-[#2D3B4D] rounded-2xl p-12 text-center flex flex-col items-center justify-center gap-3 shadow-sm">
             <div className="w-16 h-16 rounded-2xl bg-[#EDF1F7] dark:bg-[#26364B] border border-[#DCE3ED] dark:border-[#2D3B4D] flex items-center justify-center text-[#64748B] dark:text-[#8493A8]">
               <ShieldCheck className="w-8 h-8" />
             </div>
-            <p className="text-[#1E293B] dark:text-[#E2E8F0] font-bold text-base">لا يوجد طلبة مستحقون للقرار وفق الفلاتر المحددة.</p>
-            <p className="text-xs text-[#64748B] dark:text-[#8493A8] max-w-md">لا توجد حالات مستحقة وفق خيارات التصفية الحالية.</p>
+            <p className="text-[#1E293B] dark:text-[#E2E8F0] font-bold text-base">{studentDisplayFilter === 'eligible' ? 'لا يوجد طلبة مستحقون للقرار وفق الفلاتر المحددة.' : 'لا يوجد طلبة ضمن الصف والشعبة المحددين.'}</p>
+            <p className="text-xs text-[#64748B] dark:text-[#8493A8] max-w-md">يمكنك تغيير العام أو الصف أو الشعبة أو الدور لمراجعة نتائج أخرى.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">
-            {eligibleStudentsList.map(({ student, evaluation, eligibleSubjects, balance }) => {
+            {displayedStudentsList.map(({ student, evaluation, eligibleSubjects, balance }) => {
               const sectionObj = sections.find((s) => s.id === student.sectionId);
               const classObj = classes.find((c) => c.id === student.classId);
 
@@ -559,8 +648,18 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
                       </div>
                     </div>
 
-                    {/* Balance Info */}
+                    {/* Balance Info and automatic distribution */}
                     <div className="flex flex-wrap items-center gap-2">
+                      {eligibleSubjects.some((item) => !item.isGranted) && (
+                        <button
+                          type="button"
+                          onClick={() => handleBuildAutoGrantPreview(student, eligibleSubjects, balance.remainingMarks)}
+                          className="inline-flex items-center gap-2 rounded-xl bg-[#3156C9] px-3 py-2 text-xs font-bold text-white shadow-sm transition-colors hover:bg-[#2749B0]"
+                        >
+                          <Sparkles className="h-4 w-4" />
+                          توزيع القرار تلقائياً
+                        </button>
+                      )}
                       <div className="px-3 py-1.5 rounded-xl bg-[#F8FAFC] dark:bg-[#202E40] border border-[#DCE3ED] dark:border-[#2D3B4D] text-xs font-mono tabular-nums text-[#475569] dark:text-[#A8B5C7] flex items-center gap-2">
                         <span className="text-[#64748B] dark:text-[#8493A8]">رصيد المساعدة المستهلك:</span>
                         <span className="font-bold text-[#B45309] dark:text-[#D69B42]">{balance.usedMarks} / {balance.totalPool}</span>
@@ -573,7 +672,7 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
                   </div>
 
                   {/* Eligible Subjects Table */}
-                  <div className="overflow-x-auto">
+                  {eligibleSubjects.length > 0 ? <div className="overflow-x-auto">
                     <table className="w-full text-right border-collapse">
                       <thead>
                         <tr className="border-b border-[#DCE3ED] dark:border-[#2D3B4D] text-xs text-[#475569] dark:text-[#A8B5C7] bg-[#EDF1F7] dark:bg-[#26364B]">
@@ -671,13 +770,67 @@ export const DecisionMarksView: React.FC<DecisionMarksViewProps> = ({
                         })}
                       </tbody>
                     </table>
-                  </div>
+                  </div> : (
+                    <div className="rounded-xl border border-dashed border-[#DCE3ED] dark:border-[#2D3B4D] bg-[#F8FAFC] dark:bg-[#202E40] p-5 text-center text-xs font-semibold text-[#64748B] dark:text-[#A8B5C7]">
+                      لا توجد مواد مستحقة للقرار لهذا الطالب في الدور المحدد.
+                    </div>
+                  )}
                 </div>
               );
             })}
           </div>
         )}
       </div>
+
+      {/* Automatic distribution preview */}
+      {autoGrantPreview && (
+        <div className="no-print fixed inset-0 z-50 flex items-center justify-center bg-[#111C2A]/75 p-4 backdrop-blur-xs">
+          <div className="flex max-h-[90vh] w-full max-w-2xl flex-col gap-4 overflow-y-auto rounded-2xl border border-[#DCE3ED] bg-white p-5 shadow-2xl dark:border-[#2D3B4D] dark:bg-[#1C2939]">
+            <div className="flex items-center justify-between border-b border-[#DCE3ED] pb-3 dark:border-[#2D3B4D]">
+              <div>
+                <h3 className="font-black text-[#1E293B] dark:text-[#E2E8F0]">معاينة توزيع القرار تلقائياً</h3>
+                <p className="mt-1 text-xs text-[#64748B] dark:text-[#A8B5C7]">{autoGrantPreview.student.name}</p>
+              </div>
+              <button type="button" onClick={() => setAutoGrantPreview(null)} className="rounded-lg p-2 text-[#64748B] hover:bg-[#EDF1F7] dark:text-[#A8B5C7] dark:hover:bg-[#26364B]"><X className="h-5 w-5"/></button>
+            </div>
+            {autoGrantPreview.items.length > 0 ? (
+              <div className="overflow-x-auto rounded-xl border border-[#DCE3ED] dark:border-[#2D3B4D]">
+                <table className="w-full text-right text-sm">
+                  <thead className="bg-[#EDF1F7] text-xs text-[#475569] dark:bg-[#26364B] dark:text-[#A8B5C7]">
+                    <tr><th className="p-3">المادة</th><th className="p-3 text-center">الدرجة الحالية</th><th className="p-3 text-center">السعي السنوي</th><th className="p-3 text-center">الدرجات الممنوحة</th><th className="p-3 text-center">بعد القرار</th></tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#DCE3ED] dark:divide-[#2D3B4D]">
+                    {autoGrantPreview.items.map((item) => (
+                      <tr key={item.subject.id}>
+                        <td className="p-3 font-bold text-[#1E293B] dark:text-[#E2E8F0]">{item.subject.name}</td>
+                        <td className="p-3 text-center">{item.originalScore}</td>
+                        <td className="p-3 text-center">{item.yearlyScore ?? '—'}</td>
+                        <td className="p-3 text-center font-bold text-[#059669]">+{item.neededMarks}</td>
+                        <td className="p-3 text-center font-black text-[#059669]">{item.subject.passScore || 50}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : null}
+            {autoGrantPreview.manualTieSubjects.length > 0 && (
+              <div className="rounded-xl border border-[#D69B42]/40 bg-[#D69B42]/10 p-3 text-xs text-[#9A6418] dark:text-[#E8B75D]">
+                <p className="font-black">توجد مواد متساوية تحتاج إلى مفاضلة يدوية:</p>
+                <p className="mt-1">{autoGrantPreview.manualTieSubjects.map((subject) => subject.name).join('، ')}</p>
+                <p className="mt-1">لم يتجاوز التوزيع هذه الحالة تلقائياً حفاظاً على اختيار المدير.</p>
+              </div>
+            )}
+            <div className="grid grid-cols-2 gap-2 rounded-xl bg-[#F8FAFC] p-3 text-xs dark:bg-[#202E40]">
+              <div><span className="text-[#64748B] dark:text-[#A8B5C7]">الرصيد قبل التوزيع</span><p className="mt-1 font-black">{autoGrantPreview.balanceBefore} درجة</p></div>
+              <div><span className="text-[#64748B] dark:text-[#A8B5C7]">الرصيد بعد التوزيع</span><p className="mt-1 font-black text-[#059669]">{autoGrantPreview.balanceAfter} درجة</p></div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <button type="button" onClick={() => setAutoGrantPreview(null)} className="rounded-xl border border-[#DCE3ED] px-4 py-2 text-xs font-bold text-[#475569] dark:border-[#2D3B4D] dark:text-[#A8B5C7]">رجوع</button>
+              <button type="button" onClick={handleConfirmAutoGrant} disabled={autoGrantPreview.items.length === 0} className="rounded-xl bg-[#3156C9] px-5 py-2 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">اعتماد التوزيع</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Confirmation Modal */}
       {grantModalData && (
