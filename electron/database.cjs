@@ -314,6 +314,7 @@ async function initDb() {
     maxFailedSubjectsAllowed INTEGER,
     primaryAssistanceMarks INTEGER,
     secondRoundAdditionalAssistanceMarks INTEGER,
+    tieBreakPreference TEXT DEFAULT 'higherYearly',
     notes TEXT,
     updatedAt TEXT,
     FOREIGN KEY(academicYearId) REFERENCES academic_years(id)
@@ -381,6 +382,11 @@ async function initDb() {
     if (!classCols.some(r => r.name === 'isArchived')) {
       await run("ALTER TABLE classes ADD COLUMN isArchived INTEGER DEFAULT 0;");
     }
+  }
+
+  const decisionSettingCols = await query("PRAGMA table_info(decision_settings)");
+  if (decisionSettingCols && decisionSettingCols.length > 0 && !decisionSettingCols.some(r => r.name === 'tieBreakPreference')) {
+    await run("ALTER TABLE decision_settings ADD COLUMN tieBreakPreference TEXT DEFAULT 'higherYearly';");
   }
 
   const exemptionCols = await query("PRAGMA table_info(exemption_settings)");
@@ -948,9 +954,9 @@ const dbActions = {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
     [s.academicYearId, s.generalMinAverage, s.generalMinSubjectScore, s.enableGeneralJabr ? 1 : 0, s.isGeneralExemptionEnabled !== false ? 1 : 0, s.individualMinScore, s.isIndividualExemptionEnabled !== false ? 1 : 0, s.isConfigured ? 1 : 0, s.updatedAt]),
 
-  saveDecisionSettings: (s) => run(`INSERT OR REPLACE INTO decision_settings (academicYearId, maxFailedSubjectsAllowed, primaryAssistanceMarks, secondRoundAdditionalAssistanceMarks, notes, updatedAt) 
-    VALUES (?, ?, ?, ?, ?, ?)`, 
-    [s.academicYearId, s.maxFailedSubjectsAllowed, s.primaryAssistanceMarks, s.secondRoundAdditionalAssistanceMarks, s.notes, s.updatedAt]),
+  saveDecisionSettings: (s) => run(`INSERT OR REPLACE INTO decision_settings (academicYearId, maxFailedSubjectsAllowed, primaryAssistanceMarks, secondRoundAdditionalAssistanceMarks, tieBreakPreference, notes, updatedAt) 
+    VALUES (?, ?, ?, ?, ?, ?, ?)`, 
+    [s.academicYearId, s.maxFailedSubjectsAllowed, s.primaryAssistanceMarks, s.secondRoundAdditionalAssistanceMarks, s.tieBreakPreference || 'higherYearly', s.notes, s.updatedAt]),
 
   upsertDecisionGrant: (g) => run(`INSERT OR REPLACE INTO decision_grants (id, academicYearId, classId, sectionId, studentId, subjectId, round, originalScore, appliedMarks, finalScoreAfterDecision, requiredPassScore, grantedAt, grantedBy, notes) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
