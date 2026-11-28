@@ -688,7 +688,7 @@ export class LocalStorageEngine {
       isConfigured: false,
     };
   }
-  public getDecisionSettings(ay: string) { return this.state.decisionSettings?.[ay] || { academicYearId: ay, maxFailedSubjectsAllowed: 4, primaryAssistanceMarks: 10, secondRoundAdditionalAssistanceMarks: 0, notes: 'إعدادات القرار الوزاري', updatedAt: new Date().toISOString() }; }
+  public getDecisionSettings(ay: string) { return this.state.decisionSettings?.[ay] || { academicYearId: ay, maxFailedSubjectsAllowed: 4, primaryAssistanceMarks: 10, secondRoundAdditionalAssistanceMarks: 0, tieBreakPreference: 'higherYearly', notes: 'إعدادات القرار الوزاري', updatedAt: new Date().toISOString() }; }
   public saveDecisionSettings(s: AcademicYearDecisionSettings) { if (!this.state.decisionSettings) this.state.decisionSettings = {}; this.state.decisionSettings[s.academicYearId] = { ...s, updatedAt: new Date().toISOString() }; this.notify(); }
   
   public getDecisionGrants(): Record<string, DecisionGrantRecord> { return this.state.decisionGrants || {}; }
